@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+BAG_ROOT="${HAMR_BAG_ROOT:-/home/hamr/hamr_ws/src/hamr_holonomic_robot/rosbags}"
+RUN_NAME="${HAMR_BAG_NAME:-hamr_hw_$(date +%Y%m%d_%H%M%S)}"
+STORAGE_ID="${HAMR_BAG_STORAGE_ID:-mcap}"
+BAG_DIR="${BAG_ROOT}/${RUN_NAME}"
+
+TOPIC_REGEX='^/(HAMR_base|HAMR_turret)/(odom|pose|individual_marker_array)$|^/(reference_trajectory|waypoints_path|state_error|live_gains)$|^/(left_wheel|right_wheel|turret)/cmd_vel$'
+
+mkdir -p "${BAG_ROOT}"
+
+echo "Recording HAMR Vicon bag:"
+echo "  output:  ${BAG_DIR}"
+echo "  storage: ${STORAGE_ID}"
+echo "  regex:   ${TOPIC_REGEX}"
+
+exec ros2 bag record \
+  --storage "${STORAGE_ID}" \
+  --output "${BAG_DIR}" \
+  --regex "${TOPIC_REGEX}"

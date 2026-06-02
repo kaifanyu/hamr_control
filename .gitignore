@@ -1,0 +1,6 @@
+/.vscode/
+.vscode/
+/log/
+__pycache__/
+*.bag/
+/rosbags/

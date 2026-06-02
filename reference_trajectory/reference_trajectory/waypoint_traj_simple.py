@@ -1,0 +1,337 @@
+#!/usr/bin/env python3
+import rclpy
+from rclpy.node import Node
+from rclpy.parameter import Parameter
+from hamr_interfaces.msg import StateError
+from hamr_interfaces.msg import ReferenceTraj
+from nav_msgs.msg import Odometry
+from nav_msgs.msg import Path
+from geometry_msgs.msg import PoseStamped
+from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy
+
+import math
+import numpy as np
+
+### PROBLEM:
+## This current configuration does not work well most-probably bc the points are way too close
+    # to the robot. the robot had way better control when the points were a meter or 2 away.
+## TODO:
+    # Implement server call when new waypoint -> reset I terms
+    # SPLINES or more sophisticated trajectory generation
+    # More spread out waypoints in turns (based on curvature) > Display waypoints and traj on rviz using marker or smth
+
+def wrap_angle(a):
+    return math.atan2(math.sin(a), math.cos(a))
+
+def yaw_from_quaternion(q):
+    return math.atan2(
+        2.0 * (q.w * q.z + q.x * q.y),
+        1.0 - 2.0 * (q.y * q.y + q.z * q.z),
+    )
+
+class TrajectoryNode(Node):
+    def __init__(self):
+        super().__init__("waypoint_traj_simple_node")
+        self.v_lin = self.declare_parameter("v_lin", 0.05).value
+        self.w_yaw = self.declare_parameter("w_yaw", 0.5).value
+        self.odom_topic = self.declare_parameter("odom_topic", "/HAMR_base/odom").value
+        self.rotate_waypoints_with_initial_yaw = self.declare_parameter(
+            "rotate_waypoints_with_initial_yaw", False
+        ).value
+
+        self.reference_timer_hz = self.declare_parameter("reference_timer_hz", 100).value
+
+        self.state_error_sub_ = self.create_subscription(
+            StateError, "/state_error", self.callback_state_error, 1)
+        self.odom_sub_ = self.create_subscription(
+            Odometry, self.odom_topic, self.callback_odom, 1)
+        self.reference_trajectory_pub_ = self.create_publisher(
+            ReferenceTraj, "/reference_trajectory", 1
+        )
+
+        qos_waypoints = QoSProfile(
+            depth=1,
+            durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+            reliability=QoSReliabilityPolicy.RELIABLE
+        )
+        self.waypoints_path_pub_ = self.create_publisher(
+            Path, "/waypoints_path", qos_profile=qos_waypoints
+        )
+
+        self.begun = False
+        self.last_reference_time = None
+        self.current_odom = None
+        self.trajectory = None
+        self.waiting_for_odom_logged = False
+        
+        self.reference_timer_ = self.create_timer(
+            1 / self.reference_timer_hz, self.reference_update)
+        
+        self.err_xy = math.inf
+        self.err_yaw = math.inf
+
+        max_point = 5.0
+        origin = 0.0
+
+        # def generate_ccw_circle_points(radius=5.0, steps_between=10):
+        #     cx = 0.0
+        #     cy = 0.0 + radius
+
+        #     # Angles for waypoints (rad)
+        #     # waypoints = [-np.pi/2, -np.pi, -3*np.pi/2, -2*np.pi, -5*np.pi/2] # CW
+        #     waypoints = [-5*np.pi/2, -2*np.pi, -3*np.pi/2, -np.pi, -np.pi/2] # CCW
+        #     pts = []
+
+        #     # First point explicitly at (0,0,0)
+        #     pts.append([cx, cy - radius, 0.0])
+
+        #     # Generate ccw points
+        #     for i in range(len(waypoints) - 1):
+        #         th_start = waypoints[i]
+        #         th_end   = waypoints[i + 1]
+
+        #         # steps_between points between waypoints
+        #         thetas = np.linspace(th_start, th_end, steps_between + 1, endpoint=False)[1:] if i == 0 else \
+        #                 np.linspace(th_start, th_end, steps_between + 1, endpoint=False)
+
+        #         for th in thetas:
+        #             x = cx + radius * np.cos(th)
+        #             y = cy + radius * np.sin(th)
+        #             pts.append([float(x), float(y), 0.0])
+
+        #     # Close the loop back to start
+        #     pts.append([0.0, 0.0, 0.0])
+
+        #     return np.array(pts)
+
+        # waypoints = generate_ccw_circle_points()
+
+        self.local_waypoints = np.array([ # x offset, y offset, yaw offset
+
+            [0.0, 0.0, 0.0],   # Start at current /HAMR_base/odom pose
+            [0.0, 3.0, 0.0],   # 3m in +odom-y from the start pose
+            [1.5, 3.0, 0.0],
+            [1.5, 5.0, 0.0],
+            [-1.5, 5.0, 0.0],
+            [-1.5, 3.0, 0.0],
+            [0.0, 3.0, 0.0],
+            [0.0, 0.0, 0.0],
+
+        ])
+        self.add_post_set_parameters_callback(self.parameters_callback)
+    
+    def callback_odom(self, msg: Odometry):
+        self.current_odom = msg
+
+    def callback_state_error(self, msg: StateError):
+        self.err_xy = math.hypot(msg.err_x, msg.err_y)
+        self.err_yaw = msg.err_yaw
+    
+    def build_waypoints_from_current_odom(self):
+        pose = self.current_odom.pose.pose
+        x0 = float(pose.position.x)
+        y0 = float(pose.position.y)
+        yaw0 = float(yaw_from_quaternion(pose.orientation))
+
+        c = math.cos(yaw0)
+        s = math.sin(yaw0)
+        waypoints = []
+        for dx, dy, dyaw in self.local_waypoints:
+            if self.rotate_waypoints_with_initial_yaw:
+                x = x0 + c * dx - s * dy
+                y = y0 + s * dx + c * dy
+            else:
+                x = x0 + dx
+                y = y0 + dy
+            waypoints.append([x, y, wrap_angle(yaw0 + dyaw)])
+
+        return np.array(waypoints)
+
+    def initialize_trajectory(self):
+        waypoints = self.build_waypoints_from_current_odom()
+        self.trajectory = WaypointTraj(waypoints, v_lin=self.v_lin, w_yaw=self.w_yaw)
+        self.last_reference_time = self.get_clock().now()
+        self.begun = True
+
+        start = waypoints[0]
+        end = waypoints[-1]
+        self.get_logger().info(
+            "Beginning trajectory from current %s pose: "
+            "start=(%.3f, %.3f, %.3f), end=(%.3f, %.3f, %.3f)"
+            % (
+                self.odom_topic,
+                start[0], start[1], start[2],
+                end[0], end[1], end[2],
+            )
+        )
+
+        self.publish_waypoints_path()
+
+    def publish_waypoints_path(self):
+        path_msg = Path()
+        path_msg.header.frame_id = "odom"
+        path_msg.header.stamp = self.get_clock().now().to_msg()
+
+        for pt in self.trajectory.points:
+            x, y, yaw = float(pt[0]), float(pt[1]), float(pt[2])
+
+            ps = PoseStamped()
+            ps.header.frame_id = "odom"
+            ps.header.stamp = path_msg.header.stamp
+            ps.pose.position.x = x
+            ps.pose.position.y = y
+            ps.pose.position.z = 0.0
+
+            ps.pose.orientation.x = 0.0
+            ps.pose.orientation.y = 0.0
+            ps.pose.orientation.z = math.sin(yaw * 0.5)
+            ps.pose.orientation.w = math.cos(yaw * 0.5)
+
+            path_msg.poses.append(ps)
+
+        self.waypoints_path_pub_.publish(path_msg)
+
+    def reference_update(self):
+        if not self.begun:
+            if self.current_odom is None:
+                if not self.waiting_for_odom_logged:
+                    self.get_logger().info(
+                        "Waiting for %s before publishing reference trajectory."
+                        % self.odom_topic
+                    )
+                    self.waiting_for_odom_logged = True
+                return
+            self.initialize_trajectory()
+
+        now = self.get_clock().now()
+        t = (now - self.last_reference_time).nanoseconds * 1e-9
+        x, y, yaw, x_dot, y_dot, yaw_dot = self.trajectory.update(t)
+
+        pose = ReferenceTraj()
+        pose.x, pose.y, pose.yaw, pose.x_dot, pose.y_dot, pose.yaw_dot = float(x), float(y), float(yaw), float(x_dot), float(y_dot), float(yaw_dot)
+        self.reference_trajectory_pub_.publish(pose)
+        self.get_logger().info("pose: x=%.2f, y=%.2f, yaw=%.2f" % (x, y, yaw))
+        if t >= self.trajectory.total_time:
+            self.get_logger().info("Resetting traj")
+            self.begun = False
+            self.trajectory = None
+
+    # Used if we want to change parameter during runtime
+    def parameters_callback(self, params: list[Parameter]): 
+        for p in params:
+            if p.name == "v_lin":
+                self.v_lin = p.value
+                if self.trajectory is not None:
+                    self.trajectory.v_lin = p.value
+                self.get_logger().info(f"{p.name} changed to {p.value}")
+            elif p.name == "w_yaw":
+                self.w_yaw = p.value
+                if self.trajectory is not None:
+                    self.trajectory.w_yaw = p.value
+                self.get_logger().info(f"{p.name} changed to {p.value}")
+            elif p.name == "rotate_waypoints_with_initial_yaw":
+                self.rotate_waypoints_with_initial_yaw = p.value
+                self.get_logger().info(f"{p.name} changed to {p.value}")
+            elif p.name == "reference_timer_hz":
+                self.reference_timer_hz = p.value
+                self.reference_timer_.cancel()
+                self.reference_timer_ = self.create_timer(
+                    1 / self.reference_timer_hz, self.reference_update)
+                self.get_logger().info(f"{p.name} changed to {p.value}")
+            
+class WaypointTraj(object):
+    def __init__(self, points, v_lin=0.6, w_yaw=0.3):
+        """
+        Inputs: points, (N, 3) array of N waypoint coordinates in 2D with yaw
+        """
+        points = np.array(points, dtype=float)
+
+        # Keep points properly shaped
+        if points.ndim == 1:
+            if points.size % 3 != 0:
+                raise ValueError("points.size % 3 != 0")
+            points = points.reshape(-1, 3)
+        elif points.ndim == 3 and points.shape[1] != 3:
+            if points.shape[0] == 3:
+                points = points.T
+            else:
+                raise ValueError("points must be (N, 3) or (3, N)")
+
+        self.points = points
+        self.v_lin = float(v_lin)
+        self.w_yaw = float(w_yaw)
+        self.N = len(points)
+
+        def wrap_angle(a):
+            return np.arctan2(np.sin(a), np.cos(a))
+
+        d = np.diff(self.points, axis=0) # (N-1, 3)
+        d_xy = d[:, :2] # (N-1,2)
+        d_yaw = wrap_angle(d[:, 2]) # (N-1,)
+
+        # Durations with separate linear/yaw limits
+        eps = 1e-9
+        d_xy_norm = np.linalg.norm(d_xy, axis=1) # (N-1,)
+        T_lin = d_xy_norm / max(self.v_lin, eps)
+        T_yaw = np.abs(d_yaw) / max(self.w_yaw, eps)
+        T = np.maximum(T_lin, T_yaw)
+        T[T < eps] = eps # avoid zero-length segments
+
+        # Precompute per-segment constant velocities
+        self.v_xy = (d_xy / T[:, None]) # (N-1, 2)
+        self.w = (d_yaw / T) # (N-1,)
+
+        # Timing
+        self.t_start = np.hstack(([0.0], np.cumsum(T))) # (N,)
+        self.total_time = float(self.t_start[-1])
+
+        self.last_seg = 0
+        
+
+    def update(self, t: float):
+        """
+        Given the present time, return the desired flat output
+        Inputs
+            t, time, s
+        Outputs
+            q, position
+            yaw, turret
+        """
+        def wrap_angle(a):
+            return np.arctan2(np.sin(a), np.cos(a))
+    
+        if t >= self.total_time:
+            x_last, y_last, yaw_last = self.points[-1]
+            return float(x_last), float(y_last), float(yaw_last), 0.0, 0.0, 0.0
+
+        seg = int(np.searchsorted(self.t_start, t, side='right') - 1)
+        if seg > self.last_seg:
+            self.last_seg = seg
+        dt = t - self.t_start[seg]
+
+        # Clamp dt inside segment just in case of numerical edge
+        seg_end = self.t_start[seg + 1]
+        if dt < 0.0: dt = 0.0
+        if dt > (seg_end - self.t_start[seg]): dt = seg_end - self.t_start[seg]
+
+        # Integrate with constant per-segment velocities
+        x0, y0, yaw0 = self.points[seg]
+        vx, vy = self.v_xy[seg]
+        wyaw = self.w[seg]
+
+        x = x0 + vx * dt
+        y = y0 + vy * dt
+        yaw = wrap_angle(yaw0 + wyaw * dt)
+
+        #      x         y         yaw         x_dot      y_dot      yaw_dot
+        return float(x), float(y), float(yaw), float(vx), float(vy), float(wyaw)
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = TrajectoryNode()
+    rclpy.spin(node)
+    rclpy.shutdown()
+    
+    
+if __name__ == "__main__":
+    main()

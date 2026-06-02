@@ -1,0 +1,413 @@
+import math
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from rclpy.parameter import Parameter
+from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy, QoSHistoryPolicy # not used yet
+
+from std_msgs.msg import Float64 # to send velocity commands
+from nav_msgs.msg import Odometry # used to get the base current state (position in xyz)
+from geometry_msgs.msg import PoseWithCovariance # used for reference and current pose - not using covariance rn
+from geometry_msgs.msg import Quaternion # for the turret relative 
+from geometry_msgs.msg import Twist # for manual mode
+from tf2_msgs.msg import TFMessage # to access TFs (for turret relative angle) - could also be used for position esimation with "encoders"
+
+from hamr_interfaces.msg import LiveGains, ReferenceTraj
+
+
+### - - UTILITIES - - ###
+def wrap_angle(a):
+    return (a + math.pi) % (2.0 * math.pi) - math.pi
+
+def quat_to_yaw(q):
+    return math.atan2(
+            2.0 * (q.w * q.z + q.x * q.y),
+            1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+        )
+
+class PIAccumulator:
+    def __init__(self, limit: float):
+        self.sum = 0.0
+        self.limit = abs(limit)
+
+    def update(self, error: float, dt: float) -> float:
+        self.sum += error * dt
+        self.sum = max(-self.limit, min(self.sum, self.limit))
+        return self.sum
+
+    def reset(self):
+        self.sum = 0.0        
+
+class HamrControlNode(Node):
+    def __init__(self):
+        super().__init__("hamr_controller_node")
+
+        ### - - HAMR Config params (m) - - ###
+        default_hamr_config = {"r_wheel": 0.0762,
+                               "a_wheel": 0.149556,
+                               "b_wheel": -0.19682,
+                               "simulating": True,
+                               "mode": "auto"} # "auto" or "manual"
+        for a, b in default_hamr_config.items():
+            self.declare_parameter(a, b)
+        self.hamr_config = {
+            "r_wheel": self.get_parameter("r_wheel").value,
+            "a_wheel": self.get_parameter("a_wheel").value,
+            "b_wheel": self.get_parameter("b_wheel").value,
+            "simulating": self.get_parameter("simulating").value,
+            "mode": self.get_parameter("mode").value,
+        }
+        
+        ### - - PID Parameters for x, y and yaw - - ###
+        PID_default_gains = {
+            "P_x": 0.1, "I_x": 0.005, "D_x": 0.001,
+            "P_y": 0.1, "I_y": 0.005, "D_y": 0.001,
+            "P_yaw": 0.5, "I_yaw": 0.001, "D_yaw": 0.001,
+        }
+        for a, b in PID_default_gains.items():
+            self.declare_parameter(a, b)
+        self.gains = {
+            "x": {
+                "P" : self.get_parameter("P_x").value,
+                "I" : self.get_parameter("I_x").value,
+                "D" : self.get_parameter("D_x").value,
+            },
+            "y": {
+                "P" : self.get_parameter("P_y").value,
+                "I" : self.get_parameter("I_y").value,
+                "D" : self.get_parameter("D_y").value,
+            },
+            "yaw": {
+                "P" : self.get_parameter("P_yaw").value,
+                "I" : self.get_parameter("I_yaw").value,
+                "D" : self.get_parameter("D_yaw").value,
+            }
+        }
+
+        self.declare_parameter("control_rate_hz", 100.0)
+        self.declare_parameter("d_alpha", 0.4)
+
+        self.add_post_set_parameters_callback(self.parameters_callback)
+
+        ### - - Set Publishers and Subscribers - - ##
+        self.left_wheel_vel_ = self.create_publisher(Float64, "/left_wheel/cmd_vel", 1)
+        self.right_wheel_vel_ = self.create_publisher(Float64, "/right_wheel/cmd_vel", 1)
+        self.turret_vel_ = self.create_publisher(Float64, "/turret/cmd_vel", 1)
+        
+        if self.hamr_config["simulating"]:
+            self.get_logger().info("WORKING IN SIMULATION MODE")
+            self.odom_sub_ = self.create_subscription(Odometry, "/hamr/odom", self.callback_odom, 1)
+            self.tf_sub_ = self.create_subscription(TFMessage, "/tf", self.callback_tf, 1)
+        else:
+            self.get_logger().info("WORKING IN HARDWARE MODE")
+            self.odom_sub_ = self.create_subscription(Odometry, "HAMR_base/odom", self.callback_odom, 1)
+            self.turret_sub_ = self.create_subscription(Odometry, "HAMR_turret/odom", self.callback_turret_odom, 1)
+
+        self.reference_sub_ = self.create_subscription(ReferenceTraj, "/reference_trajectory", 
+                                    self.callback_reference, 1)
+        
+        # For debugging
+        self.gains_pub_ = self.create_publisher(LiveGains, "/live_gains", 10)
+        
+        # Control Rate
+        self.control_rate_hz = self.get_parameter("control_rate_hz").value
+        self.last_control_time = self.get_clock().now()
+        
+        if self.hamr_config["mode"] == "auto":
+            self.control_timer_ = self.create_timer(1.0 / self.control_rate_hz, self.control_tick)
+            self.get_logger().info("Auto mode: controlling at " + str(self.control_rate_hz) + " Hz")
+        elif self.hamr_config["mode"] == "manual":
+            self.manual_sub_ = self.create_subscription(Twist, "/cmd_vel", 
+                                        self.manual_mode_callback, 1)
+            self.get_logger().info("Manual mode: listening to /cmd_vel")
+            
+        self.dt = 0.0
+
+        ### - - Variables - - ###
+
+        ## - - State Variables - - ##        
+        self.pose_base_: PoseWithCovariance = None # interested in x, y, yaw
+        self.reference_: ReferenceTraj = None # interested in x, y, yaw
+        self.turret_to_base_orientation_: Quaternion = None  # SIMULATION: interested in yaw of turret relative to base
+        self.turret_to_world_orientation_: Quaternion = None # HARDWARE: interested in yaw of turret
+
+        self.err_x_prev = 0.0
+        self.err_y_prev = 0.0
+        self.err_yaw_prev = 0.0
+
+        ## - - Filtered derivatives - - ##
+        self.d_err_x_filt = 0.0
+        self.d_err_y_filt = 0.0
+        self.d_err_yaw_filt = 0.0
+        self.d_alpha = self.get_parameter("d_alpha").value # 0 < alpha < 1 (lower stronger smoothing)
+
+        ## - - Integral Accumulators - - ##
+        self.I_x = PIAccumulator(limit=.5)
+        self.I_y = PIAccumulator(limit=.5)
+        self.I_yaw = PIAccumulator(limit=1.0)
+
+        ## - - Thresholds - - ##
+        self.threshold_x_y = 0.03 # 2cm
+        self.threshold_yaw = 0.1 # 5.7 deg
+
+        ## - - Velocity Limits (Magnitude) - - ##
+        self.xy_dot_limit = 0.41
+        self.yaw_dot_limit = 2.0
+
+        self.use_diff_drive = False  # True: ignore turret & holonomic offset
+
+        self.get_logger().info("HAMR Controller has been started with P_x: " + str(self.gains["x"]["P"]) + 
+                               ", I_x: " + str(self.gains["x"]["I"]) + ", D_x: " + str(self.gains["x"]["D"])
+                                + "; P_y: " + str(self.gains["y"]["P"]) + 
+                               ", I_y: " + str(self.gains["y"]["I"]) + ", D_y: " + str(self.gains["y"]["D"])
+                                + "; P_yaw: " + str(self.gains["yaw"]["P"]) + ", I_yaw: " + 
+                                str(self.gains["yaw"]["I"]) + ", D_yaw: " + str(self.gains["yaw"]["D"]))
+
+    def pid_step(self):
+        ''' Autonomous Mode - compute velocities based on PID Controller Logic:
+            - Compute errors based on pose
+            - Compute desired velocities based on (a) feed-forward (b) PID corrections from pose errors
+            - Feed desired velocities to jacobian (to get joint commands)
+        '''
+        def compute_errors():
+            ''' Find the distance error to target '''
+            err_x = self.reference_.x - self.pose_base_.pose.position.x
+            err_y = self.reference_.y - self.pose_base_.pose.position.y
+
+            yaw_des = self.reference_.yaw # desired yaw for the turret wrt to world frame (used for error)
+            yaw_base_w = quat_to_yaw(self.pose_base_.pose.orientation) # base orientation wrt to world frame (used for error)
+            
+            if self.hamr_config["simulating"]:
+                yaw_turret_b = quat_to_yaw(self.turret_to_base_orientation_) # turret orientation wrt to base (used for error AND used in Jac)
+                yaw_turret_w = wrap_angle(yaw_base_w + yaw_turret_b) # turret orientation wrt to world frame (used for error)
+            else:
+                yaw_turret_w = wrap_angle(quat_to_yaw(self.turret_to_world_orientation_))
+            err_yaw = wrap_angle(yaw_des - yaw_turret_w)
+
+            return err_x, err_y, err_yaw, yaw_base_w # yaw_base_w passed to jacobian later
+        
+        err_x, err_y, err_yaw, yaw_base_w = compute_errors()
+        
+        # For debugging and publishing gains
+        P_x = D_x = I_x_term = 0.0
+        P_y = D_y = I_y_term = 0.0
+        P_yaw = D_yaw = I_yaw_term = 0.0
+
+        ## X loop
+        if abs(err_x) < self.threshold_x_y:
+            ## Check if at target
+            desired_x_dot = self.reference_.x_dot
+            self.err_x_prev = 0
+            self.I_x.reset()
+            # self.get_logger().warn("RESET I_x At target: " + str(self.reference_.x))
+        else:
+            # self.get_logger().warn("X not at target: " + str(err_x))
+            P_x = self.gains["x"]["P"] * err_x
+            I_x_term = self.gains["x"]["I"] * self.I_x.update(err_x, self.dt)
+
+            d_raw_x = (err_x - self.err_x_prev) / self.dt
+            self.d_err_x_filt = (self.d_alpha * d_raw_x +
+                                (1.0 - self.d_alpha) * self.d_err_x_filt)
+            D_x = self.gains["x"]["D"] * self.d_err_x_filt
+
+            # Cap desired velocity
+            desired_x_dot = self.reference_.x_dot + P_x + I_x_term + D_x
+            self.err_x_prev = err_x
+        
+        ## Y loop
+        if abs(err_y) < self.threshold_x_y:
+            ## Check if at target
+            desired_y_dot = self.reference_.y_dot
+            self.err_y_prev = 0
+            self.I_y.reset()
+            # self.get_logger().warn("RESET I_y At target: " + str(self.reference_.y))
+        else:
+            # self.get_logger().warn("Y not at target: " + str(err_y))
+            P_y = self.gains["y"]["P"] * err_y
+            I_y_term = self.gains["y"]["I"] * self.I_y.update(err_y, self.dt)
+
+            d_raw_y = (err_y - self.err_y_prev) / self.dt
+            self.d_err_y_filt = (self.d_alpha * d_raw_y +
+                                (1.0 - self.d_alpha) * self.d_err_y_filt)
+            D_y = self.gains["y"]["D"] * self.d_err_y_filt
+
+            desired_y_dot = self.reference_.y_dot + P_y + I_y_term + D_y
+            self.err_y_prev = err_y
+
+        ## Control the XY dot NORM
+        desired_xy_dot_norm = math.hypot(desired_x_dot, desired_y_dot)
+        if desired_xy_dot_norm > self.xy_dot_limit:
+            self.get_logger().warn("CAPPING x,y velocity from " + str(desired_xy_dot_norm) + " to " + str(self.xy_dot_limit))
+            desired_x_dot = (desired_x_dot / desired_xy_dot_norm) * self.xy_dot_limit
+            desired_y_dot = (desired_y_dot / desired_xy_dot_norm) * self.xy_dot_limit
+        
+        ## Yaw loop
+        if abs(err_yaw) < self.threshold_yaw:
+            ## Check if at target
+            desired_yaw_dot = self.reference_.yaw_dot
+            self.err_yaw_prev = 0
+            self.I_yaw.reset()
+            # self.get_logger().warn("RESET I_yaw At target: " + str(self.reference_.yaw))
+        else:
+            P_yaw = self.gains["yaw"]["P"] * err_yaw
+            I_yaw_term = self.gains["yaw"]["I"] * self.I_yaw.update(err_yaw, self.dt)
+
+            d_raw_yaw = (err_yaw - self.err_yaw_prev) / self.dt
+            self.d_err_yaw_filt = (self.d_alpha * d_raw_yaw +
+                                (1.0 - self.d_alpha) * self.d_err_yaw_filt)
+            D_yaw = self.gains["yaw"]["D"] * self.d_err_yaw_filt
+
+            desired_yaw_dot = max(-self.yaw_dot_limit, min(self.reference_.yaw_dot + P_yaw + I_yaw_term + D_yaw, self.yaw_dot_limit))
+
+            self.err_yaw_prev = err_yaw
+        
+        self.publish_live_gains(P_x, D_x, I_x_term, P_y, D_y, I_y_term, P_yaw, D_yaw, I_yaw_term)
+        self.publish_joint_cmd(np.array([desired_x_dot, desired_y_dot, 
+                                        desired_yaw_dot]), yaw_base_w) # desired vel
+
+    def manual_mode_callback(self, msg: Twist):
+        ''' Manual Mode - directly compute joint commands from terminal inputs '''
+        yaw_base_w = quat_to_yaw(self.pose_base_.pose.orientation)
+        self.publish_joint_cmd(np.array([msg.linear.x, msg.linear.y, msg.angular.z]), yaw_base_w)
+
+    def publish_live_gains(self, P_x, D_x, I_x, 
+                           P_y, D_y, I_y, 
+                           P_yaw, D_yaw, I_yaw):
+        gains = LiveGains()
+        gains.p_x, gains.d_x, gains.i_x = P_x, D_x, I_x
+        gains.p_y, gains.d_y, gains.i_y = P_y, D_y, I_y
+        gains.p_yaw, gains.d_yaw, gains.i_yaw = P_yaw, D_yaw, I_yaw
+        self.gains_pub_.publish(gains)
+
+    def callback_odom(self, msg: Odometry):
+        ''' Subscription callback to the pose of hamr '''
+        self.pose_base_ = msg.pose
+
+    def callback_turret_odom(self, msg: Odometry):
+        ''' HARDWARE ONLY: Subscription callback to the turret of hamr '''
+        self.turret_to_world_orientation_ = msg.pose.pose.orientation
+
+    def callback_tf(self, msg: TFMessage):
+        ''' SIMULATION ONLY: Look through all TFs and find turret_link to get it's Quaternion '''
+        for t in msg.transforms:
+            if t.child_frame_id == "turret_link" and t.header.frame_id  == "base_link":
+                self.turret_to_base_orientation_ = t.transform.rotation # Quaternion
+                break
+
+    def control_tick(self):
+        ''' Send command every (1 / control_rate_hz)[s] '''
+        now = self.get_clock().now()
+        dur = (now - self.last_control_time) # rclpy.duration.Duration
+        self.last_control_time = now
+
+        dt = dur.nanoseconds * 1e-9
+        if not math.isfinite(dt) or dt <= 0.0:
+            return
+        
+        self.dt = max(1e-4, min(dt, 0.1))
+        turret_check = self.turret_to_base_orientation_ or self.turret_to_world_orientation_
+        if (self.pose_base_ is not None and self.reference_ is not None 
+                and turret_check is not None):
+            self.pid_step()
+        # else:
+        #     self.get_logger().warn("Either:  pose %d, reference %d, turret_to_base %d" % (
+        #         self.pose_base_ is not None,
+        #         self.reference_ is not None,
+        #         turret_check is not None
+        #     ))
+
+    def callback_reference(self, msg: ReferenceTraj):
+        self.reference_ = msg
+        # self.I_x.reset()
+        # self.I_y.reset()
+        # self.I_yaw.reset()
+        # self.get_logger().info("Going to target: " + str((msg.x, msg.y, msg.yaw)))
+
+    def compute_velocities(self, desired_velocity, yaw):
+        ''' Derived Jacobian based on dynamics - returns angular velocities for:
+                1. right_wheel
+                2. left_wheel
+                3. turret 
+        '''
+        r_w, b, a = self.hamr_config["r_wheel"], \
+            self.hamr_config["b_wheel"], self.hamr_config["a_wheel"]
+        c, s = np.cos(yaw), np.sin(yaw)
+        if self.use_diff_drive:
+            xdot, ydot, yawdot = desired_velocity
+            v_fwd = c * xdot + s * ydot # body-frame forward speed
+            
+            # standard diff-drive
+            omega_r = (v_fwd + a * yawdot) / r_w
+            omega_l = (v_fwd - a * yawdot) / r_w
+            omega_t = 0.0
+
+            self.get_logger().info("Omega_r: ", omega_r, " Omega_l: ", omega_l, " Omega_t: ", omega_t)
+            self.get_logger().info("Otherwise: ")
+
+            J = np.array([
+                [r_w/2 * (c - s*b/a), r_w/2 * (c + s*b/a), 0],
+                [r_w/2 * (s + c*b/a), r_w/2 * (s - c*b/a), 0],
+                [r_w/(2*a), -r_w/(2*a), 1]
+            ])
+            
+            self.get_logger().info("omega array: ", np.linalg.solve(J, desired_velocity))  
+            return np.array([omega_r, omega_l, omega_t])
+
+        J = np.array([
+            [r_w/2 * (c - s*b/a), r_w/2 * (c + s*b/a), 0],
+            [r_w/2 * (s + c*b/a), r_w/2 * (s - c*b/a), 0],
+            [r_w/(2*a), -r_w/(2*a), 1]
+        ])
+
+
+        return np.linalg.solve(J, desired_velocity) # will return angular vels for joints
+
+    def publish_joint_cmd(self, desired_velocity, yaw):
+        right_wheel_omega, left_wheel_omega, turret_omega = Float64(), Float64(), Float64()
+        omegas = self.compute_velocities(desired_velocity, yaw)
+        # self.get_logger().info(f"Computed omegas: {omegas}")
+        right_cmd, left_cmd, turret_cmd = omegas
+        if not self.hamr_config["simulating"]:
+            # Hardware turret positive command is opposite Vicon yaw-positive.
+            turret_cmd = -turret_cmd
+
+        right_wheel_omega.data = float(right_cmd)
+        left_wheel_omega.data = float(left_cmd)
+        turret_omega.data = float(turret_cmd)
+        
+        self.right_wheel_vel_.publish(right_wheel_omega)
+        self.left_wheel_vel_.publish(left_wheel_omega)
+        self.turret_vel_.publish(turret_omega)
+
+    # Used if we want to change parameter during runtime
+    def parameters_callback(self, params: list[Parameter]): 
+        pid_name_map = {
+            "P_x": ("x", "P"),
+            "I_x": ("x", "I"),
+            "D_x": ("x", "D"),
+            "P_y": ("y", "P"),
+            "I_y": ("y", "I"),
+            "D_y": ("y", "D"),
+            "P_yaw":("yaw", "P"),
+            "I_yaw":("yaw", "I"),
+            "D_yaw":("yaw", "D"),
+        }
+        config_name_map = ("r_wheel", "a_wheel", "b_wheel", "control_rate_hz", "d_alpha")
+        for p in params:
+            if p.name in pid_name_map:
+                group, term = pid_name_map[p.name]
+                self.gains[group][term] = p.value
+                self.get_logger().info(f"{p.name} changed to {p.value}")
+            elif p.name in config_name_map:
+                self.hamr_config[p.name] = p.value
+                self.get_logger().info(f"{p.name} changed to {p.value}")
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = HamrControlNode()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+    
+if __name__ == "__main__":
+    main()
