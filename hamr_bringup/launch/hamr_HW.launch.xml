@@ -35,4 +35,11 @@
 
     <node pkg="hamr_uros_bridge" exec="relay_node" />
 
+    <!-- Foxglove bridge — connect Studio to ws://PI_IP:8765 -->
+    <node pkg="foxglove_bridge" exec="foxglove_bridge" output="screen">
+        <param name="port" value="8765" />
+        <param name="address" value="0.0.0.0" />
+        <param name="send_buffer_limit" value="10000000" />
+    </node>
+
 </launch>

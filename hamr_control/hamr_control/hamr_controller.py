@@ -12,7 +12,7 @@ from geometry_msgs.msg import Quaternion # for the turret relative
 from geometry_msgs.msg import Twist # for manual mode
 from tf2_msgs.msg import TFMessage # to access TFs (for turret relative angle) - could also be used for position esimation with "encoders"
 
-from hamr_interfaces.msg import LiveGains, ReferenceTraj
+from hamr_interfaces.msg import LiveGains, ReferenceTraj, StateError
 
 
 ### - - UTILITIES - - ###
@@ -108,6 +108,7 @@ class HamrControlNode(Node):
         
         # For debugging
         self.gains_pub_ = self.create_publisher(LiveGains, "/live_gains", 10)
+        self.state_error_pub_ = self.create_publisher(StateError, "/state_error", 10)
         
         # Control Rate
         self.control_rate_hz = self.get_parameter("control_rate_hz").value
@@ -197,7 +198,8 @@ class HamrControlNode(Node):
         if abs(err_x) < self.threshold_x_y:
             ## Check if at target
             desired_x_dot = self.reference_.x_dot
-            self.err_x_prev = 0
+            self.err_x_prev = err_x
+            self.d_err_x_filt = 0.0
             self.I_x.reset()
             # self.get_logger().warn("RESET I_x At target: " + str(self.reference_.x))
         else:
@@ -218,7 +220,8 @@ class HamrControlNode(Node):
         if abs(err_y) < self.threshold_x_y:
             ## Check if at target
             desired_y_dot = self.reference_.y_dot
-            self.err_y_prev = 0
+            self.err_y_prev = err_y
+            self.d_err_y_filt = 0.0
             self.I_y.reset()
             # self.get_logger().warn("RESET I_y At target: " + str(self.reference_.y))
         else:
@@ -245,7 +248,8 @@ class HamrControlNode(Node):
         if abs(err_yaw) < self.threshold_yaw:
             ## Check if at target
             desired_yaw_dot = self.reference_.yaw_dot
-            self.err_yaw_prev = 0
+            self.err_yaw_prev = err_yaw
+            self.d_err_yaw_filt = 0.0
             self.I_yaw.reset()
             # self.get_logger().warn("RESET I_yaw At target: " + str(self.reference_.yaw))
         else:
@@ -262,6 +266,9 @@ class HamrControlNode(Node):
             self.err_yaw_prev = err_yaw
         
         self.publish_live_gains(P_x, D_x, I_x_term, P_y, D_y, I_y_term, P_yaw, D_yaw, I_yaw_term)
+        se = StateError()
+        se.err_x, se.err_y, se.err_yaw = err_x, err_y, err_yaw
+        self.state_error_pub_.publish(se)
         self.publish_joint_cmd(np.array([desired_x_dot, desired_y_dot, 
                                         desired_yaw_dot]), yaw_base_w) # desired vel
 
