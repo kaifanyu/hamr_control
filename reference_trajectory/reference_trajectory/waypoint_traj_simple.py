@@ -35,9 +35,14 @@ class TrajectoryNode(Node):
         self.v_lin = self.declare_parameter("v_lin", 0.05).value
         self.w_yaw = self.declare_parameter("w_yaw", 0.5).value
         self.odom_topic = self.declare_parameter("odom_topic", "/HAMR_base/odom").value
+        self.turret_odom_topic = self.declare_parameter("turret_odom_topic", "HAMR_turret/odom").value
+        self.world_frame = self.declare_parameter("world_frame", "odom").value
         self.rotate_waypoints_with_initial_yaw = self.declare_parameter(
-            "rotate_waypoints_with_initial_yaw", False
+            "rotate_waypoints_with_initial_yaw", True
         ).value
+        # Use turret's actual initial world-frame heading as the desired turret yaw
+        # for all waypoints. When False falls back to base initial yaw (old behaviour).
+        self.use_turret_initial_yaw = self.declare_parameter("use_turret_initial_yaw", True).value
 
         self.reference_timer_hz = self.declare_parameter("reference_timer_hz", 100).value
 
@@ -45,6 +50,8 @@ class TrajectoryNode(Node):
             StateError, "/state_error", self.callback_state_error, 1)
         self.odom_sub_ = self.create_subscription(
             Odometry, self.odom_topic, self.callback_odom, 1)
+        self.turret_odom_sub_ = self.create_subscription(
+            Odometry, self.turret_odom_topic, self.callback_turret_odom, 1)
         self.reference_trajectory_pub_ = self.create_publisher(
             ReferenceTraj, "/reference_trajectory", 1
         )
@@ -58,70 +65,53 @@ class TrajectoryNode(Node):
             Path, "/waypoints_path", qos_profile=qos_waypoints
         )
 
+        self.paused = self.declare_parameter("paused", True).value
+
         self.begun = False
         self.last_reference_time = None
         self.current_odom = None
+        self.current_turret_odom = None
         self.trajectory = None
         self.waiting_for_odom_logged = False
-        
+        self.waiting_for_turret_logged = False
+        self.turret_wait_deadline = None  # set when base odom arrives, give turret 3s
+
         self.reference_timer_ = self.create_timer(
             1 / self.reference_timer_hz, self.reference_update)
         
         self.err_xy = math.inf
         self.err_yaw = math.inf
 
-        max_point = 5.0
-        origin = 0.0
-
-        # def generate_ccw_circle_points(radius=5.0, steps_between=10):
-        #     cx = 0.0
-        #     cy = 0.0 + radius
-
-        #     # Angles for waypoints (rad)
-        #     # waypoints = [-np.pi/2, -np.pi, -3*np.pi/2, -2*np.pi, -5*np.pi/2] # CW
-        #     waypoints = [-5*np.pi/2, -2*np.pi, -3*np.pi/2, -np.pi, -np.pi/2] # CCW
-        #     pts = []
-
-        #     # First point explicitly at (0,0,0)
-        #     pts.append([cx, cy - radius, 0.0])
-
-        #     # Generate ccw points
-        #     for i in range(len(waypoints) - 1):
-        #         th_start = waypoints[i]
-        #         th_end   = waypoints[i + 1]
-
-        #         # steps_between points between waypoints
-        #         thetas = np.linspace(th_start, th_end, steps_between + 1, endpoint=False)[1:] if i == 0 else \
-        #                 np.linspace(th_start, th_end, steps_between + 1, endpoint=False)
-
-        #         for th in thetas:
-        #             x = cx + radius * np.cos(th)
-        #             y = cy + radius * np.sin(th)
-        #             pts.append([float(x), float(y), 0.0])
-
-        #     # Close the loop back to start
-        #     pts.append([0.0, 0.0, 0.0])
-
-        #     return np.array(pts)
-
-        # waypoints = generate_ccw_circle_points()
-
-        self.local_waypoints = np.array([ # x offset, y offset, yaw offset
-
-            [0.0, 0.0, 0.0],   # Start at current /HAMR_base/odom pose
-            [0.0, 3.0, 0.0],   # 3m in +odom-y from the start pose
-            [1.5, 3.0, 0.0],
-            [1.5, 5.0, 0.0],
-            [-1.5, 5.0, 0.0],
-            [-1.5, 3.0, 0.0],
-            [0.0, 3.0, 0.0],
-            [0.0, 0.0, 0.0],
-
+        # --- STRAIGHT-LINE TEST (active) ---
+        # [dx, dy, d_yaw] offsets from initial pose in world frame
+        # (rotated to initial heading when rotate_waypoints_with_initial_yaw=True).
+        # d_yaw=0 means "hold turret at initial heading" throughout.
+        # Desired heading is taken from the turret's actual initial world-frame yaw
+        # (see build_waypoints_from_current_odom) so the turret never needs to
+        # correct from startup — only maintain its orientation via the Jacobian.
+        self.local_waypoints = np.array([
+            [0.0, 0.0, 0.0],   # Start at current pose
+            [0.0, 2.0, 0.0],   # 2 m straight in local +y — straight-line debug
         ])
+
+        # --- MAZE / FULL TRAJECTORY (uncomment to restore) ---
+        # self.local_waypoints = np.array([
+        #     [0.0, 0.0, 0.0],
+        #     [0.0, 3.0, 0.0],
+        #     [1.5, 3.0, 0.0],
+        #     [1.5, 5.0, 0.0],
+        #     [-1.5, 5.0, 0.0],
+        #     [-1.5, 3.0, 0.0],
+        #     [0.0, 3.0, 0.0],
+        #     [0.0, 0.0, 0.0],
+        # ])
         self.add_post_set_parameters_callback(self.parameters_callback)
     
     def callback_odom(self, msg: Odometry):
         self.current_odom = msg
+
+    def callback_turret_odom(self, msg: Odometry):
+        self.current_turret_odom = msg
 
     def callback_state_error(self, msg: StateError):
         self.err_xy = math.hypot(msg.err_x, msg.err_y)
@@ -131,10 +121,27 @@ class TrajectoryNode(Node):
         pose = self.current_odom.pose.pose
         x0 = float(pose.position.x)
         y0 = float(pose.position.y)
-        yaw0 = float(yaw_from_quaternion(pose.orientation))
+        yaw_base0 = float(yaw_from_quaternion(pose.orientation))
 
-        c = math.cos(yaw0)
-        s = math.sin(yaw0)
+        # Use the turret's actual world-frame heading as desired yaw so that
+        # err_yaw=0 at startup and the turret never needs to actively rotate —
+        # it only counter-rotates through the Jacobian to hold its heading.
+        # Fall back to base yaw if turret odom hasn't arrived yet.
+        if self.use_turret_initial_yaw and self.current_turret_odom is not None:
+            yaw_heading0 = float(yaw_from_quaternion(
+                self.current_turret_odom.pose.pose.orientation))
+            self.get_logger().info(
+                "Using turret initial yaw=%.3f rad (base yaw=%.3f rad)" %
+                (yaw_heading0, yaw_base0))
+        else:
+            yaw_heading0 = yaw_base0
+            if self.use_turret_initial_yaw:
+                self.get_logger().warn(
+                    "Turret odom not yet received; falling back to base yaw=%.3f rad" %
+                    yaw_base0)
+
+        c = math.cos(yaw_base0)
+        s = math.sin(yaw_base0)
         waypoints = []
         for dx, dy, dyaw in self.local_waypoints:
             if self.rotate_waypoints_with_initial_yaw:
@@ -143,7 +150,8 @@ class TrajectoryNode(Node):
             else:
                 x = x0 + dx
                 y = y0 + dy
-            waypoints.append([x, y, wrap_angle(yaw0 + dyaw)])
+            # dyaw is applied as an offset from the turret's initial heading
+            waypoints.append([x, y, wrap_angle(yaw_heading0 + dyaw)])
 
         return np.array(waypoints)
 
@@ -169,14 +177,14 @@ class TrajectoryNode(Node):
 
     def publish_waypoints_path(self):
         path_msg = Path()
-        path_msg.header.frame_id = "odom"
+        path_msg.header.frame_id = self.world_frame
         path_msg.header.stamp = self.get_clock().now().to_msg()
 
         for pt in self.trajectory.points:
             x, y, yaw = float(pt[0]), float(pt[1]), float(pt[2])
 
             ps = PoseStamped()
-            ps.header.frame_id = "odom"
+            ps.header.frame_id = self.world_frame
             ps.header.stamp = path_msg.header.stamp
             ps.pose.position.x = x
             ps.pose.position.y = y
@@ -192,16 +200,31 @@ class TrajectoryNode(Node):
         self.waypoints_path_pub_.publish(path_msg)
 
     def reference_update(self):
+        # Build trajectory as soon as odom (and optionally turret odom) arrives
         if not self.begun:
             if self.current_odom is None:
                 if not self.waiting_for_odom_logged:
-                    self.get_logger().info(
-                        "Waiting for %s before publishing reference trajectory."
-                        % self.odom_topic
-                    )
+                    self.get_logger().info("Waiting for %s ..." % self.odom_topic)
                     self.waiting_for_odom_logged = True
                 return
+            if self.use_turret_initial_yaw and self.current_turret_odom is None:
+                # Start a 3-second deadline the first time base odom is seen
+                if self.turret_wait_deadline is None:
+                    self.turret_wait_deadline = self.get_clock().now()
+                elapsed = (self.get_clock().now() - self.turret_wait_deadline).nanoseconds * 1e-9
+                if elapsed < 3.0:
+                    if not self.waiting_for_turret_logged:
+                        self.get_logger().info(
+                            "Waiting up to 3s for %s ..." % self.turret_odom_topic)
+                        self.waiting_for_turret_logged = True
+                    return
+                self.get_logger().warn(
+                    "Turret odom never arrived — falling back to base yaw for heading.")
+                self.use_turret_initial_yaw = False  # fall through to base-yaw init
             self.initialize_trajectory()
+
+        if self.paused:
+            return
 
         now = self.get_clock().now()
         t = (now - self.last_reference_time).nanoseconds * 1e-9
@@ -212,14 +235,23 @@ class TrajectoryNode(Node):
         self.reference_trajectory_pub_.publish(pose)
         self.get_logger().info("pose: x=%.2f, y=%.2f, yaw=%.2f" % (x, y, yaw))
         if t >= self.trajectory.total_time:
-            self.get_logger().info("Resetting traj")
+            self.get_logger().info("Trajectory complete — pausing.")
+            self.paused = True
             self.begun = False
             self.trajectory = None
 
     # Used if we want to change parameter during runtime
-    def parameters_callback(self, params: list[Parameter]): 
+    def parameters_callback(self, params: list[Parameter]):
         for p in params:
-            if p.name == "v_lin":
+            if p.name == "paused":
+                was_paused = self.paused
+                self.paused = p.value
+                if was_paused and not self.paused:
+                    # Re-snapshot current position so trajectory starts from here, not launch-time position
+                    self.begun = False
+                    self.trajectory = None
+                    self.get_logger().info("Unpaused — re-initializing trajectory from current pose.")
+            elif p.name == "v_lin":
                 self.v_lin = p.value
                 if self.trajectory is not None:
                     self.trajectory.v_lin = p.value
@@ -231,6 +263,9 @@ class TrajectoryNode(Node):
                 self.get_logger().info(f"{p.name} changed to {p.value}")
             elif p.name == "rotate_waypoints_with_initial_yaw":
                 self.rotate_waypoints_with_initial_yaw = p.value
+                self.get_logger().info(f"{p.name} changed to {p.value}")
+            elif p.name == "use_turret_initial_yaw":
+                self.use_turret_initial_yaw = p.value
                 self.get_logger().info(f"{p.name} changed to {p.value}")
             elif p.name == "reference_timer_hz":
                 self.reference_timer_hz = p.value

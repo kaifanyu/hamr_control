@@ -28,7 +28,6 @@ find_package(grid_map_msgs REQUIRED)
 # Controller
 add_executable(hamr_controller
   src/hamr_controller.cpp
-  src/hamr_control_node.cpp
 )
 ament_target_dependencies(hamr_controller
   rclcpp 
