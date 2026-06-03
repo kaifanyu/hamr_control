@@ -13,6 +13,8 @@
     b_wheel: 0.301
     control_rate_hz: 100.0
     d_alpha: 0.4
+    threshold_yaw: 0.05
+    turret_command_sign: 1.0
     mode: auto
     r_wheel: 0.1250
     simulating: false

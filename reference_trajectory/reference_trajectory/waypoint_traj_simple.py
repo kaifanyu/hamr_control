@@ -12,6 +12,8 @@ from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy
 import math
 import numpy as np
 
+ALIGN_BASE_REFERENCE_ROLL = 1.0
+
 ### PROBLEM:
 ## This current configuration does not work well most-probably bc the points are way too close
     # to the robot. the robot had way better control when the points were a meter or 2 away.
@@ -43,6 +45,17 @@ class TrajectoryNode(Node):
         # Use turret's actual initial world-frame heading as the desired turret yaw
         # for all waypoints. When False falls back to base initial yaw (old behaviour).
         self.use_turret_initial_yaw = self.declare_parameter("use_turret_initial_yaw", True).value
+        self.align_before_path = self.declare_parameter("align_before_path", False).value
+        self.alignment_target_yaw_source = self.declare_parameter(
+            "alignment_target_yaw_source", "turret"
+        ).value
+        self.alignment_target_yaw = self.declare_parameter("alignment_target_yaw", 0.0).value
+        self.alignment_yaw_tolerance = self.declare_parameter(
+            "alignment_yaw_tolerance", 0.08
+        ).value
+        self.alignment_settle_time = self.declare_parameter(
+            "alignment_settle_time", 0.5
+        ).value
 
         self.reference_timer_hz = self.declare_parameter("reference_timer_hz", 100).value
 
@@ -81,6 +94,11 @@ class TrajectoryNode(Node):
         
         self.err_xy = math.inf
         self.err_yaw = math.inf
+        self.alignment_complete = not self.align_before_path
+        self.alignment_target_yaw_snapshot = None
+        self.alignment_settled_since = None
+        self.alignment_waiting_logged = False
+        self.waiting_for_unpause_logged = False
 
         # --- STRAIGHT-LINE TEST (active) ---
         # [dx, dy, d_yaw] offsets from initial pose in world frame
@@ -91,7 +109,7 @@ class TrajectoryNode(Node):
         # correct from startup — only maintain its orientation via the Jacobian.
         self.local_waypoints = np.array([
             [0.0, 0.0, 0.0],   # Start at current pose
-            [0.0, 2.0, 0.0],   # 2 m straight in local +y — straight-line debug
+            [2.0, 0.0, 0.0],   # 2 m straight in local +x — forward-drive debug
         ])
 
         # --- MAZE / FULL TRAJECTORY (uncomment to restore) ---
@@ -116,6 +134,92 @@ class TrajectoryNode(Node):
     def callback_state_error(self, msg: StateError):
         self.err_xy = math.hypot(msg.err_x, msg.err_y)
         self.err_yaw = msg.err_yaw
+
+    def current_base_yaw(self):
+        return float(yaw_from_quaternion(self.current_odom.pose.pose.orientation))
+
+    def current_turret_yaw(self):
+        return float(yaw_from_quaternion(self.current_turret_odom.pose.pose.orientation))
+
+    def snapshot_alignment_target_yaw(self):
+        source = str(self.alignment_target_yaw_source).lower()
+        if source == "base":
+            yaw = self.current_base_yaw()
+        elif source == "turret":
+            yaw = self.current_turret_yaw()
+        elif source == "param":
+            yaw = float(self.alignment_target_yaw)
+        else:
+            self.get_logger().warn(
+                "Unknown alignment_target_yaw_source='%s'; using turret yaw." %
+                self.alignment_target_yaw_source)
+            yaw = self.current_turret_yaw()
+
+        yaw = wrap_angle(yaw)
+        self.get_logger().info(
+            "Alignment target yaw from %s: %.3f rad" %
+            (source, yaw))
+        return yaw
+
+    def publish_alignment_reference(self):
+        if self.alignment_target_yaw_snapshot is None:
+            self.alignment_target_yaw_snapshot = self.snapshot_alignment_target_yaw()
+
+        pose = self.current_odom.pose.pose
+        ref = ReferenceTraj()
+        ref.x = float(pose.position.x)
+        ref.y = float(pose.position.y)
+        ref.roll = ALIGN_BASE_REFERENCE_ROLL
+        ref.pitch = 0.0
+        ref.yaw = float(self.alignment_target_yaw_snapshot)
+        ref.x_dot = 0.0
+        ref.y_dot = 0.0
+        ref.roll_dot = 0.0
+        ref.pitch_dot = 0.0
+        ref.yaw_dot = 0.0
+        self.reference_trajectory_pub_.publish(ref)
+
+    def update_alignment(self):
+        if self.current_odom is None or self.current_turret_odom is None:
+            if not self.alignment_waiting_logged:
+                self.get_logger().info(
+                    "Waiting for %s and %s before yaw alignment ..." %
+                    (self.odom_topic, self.turret_odom_topic))
+                self.alignment_waiting_logged = True
+            return
+
+        self.publish_alignment_reference()
+
+        target = self.alignment_target_yaw_snapshot
+        base_err = wrap_angle(target - self.current_base_yaw())
+        turret_err = wrap_angle(target - self.current_turret_yaw())
+        aligned = (
+            abs(base_err) <= self.alignment_yaw_tolerance and
+            abs(turret_err) <= self.alignment_yaw_tolerance
+        )
+
+        now = self.get_clock().now()
+        if aligned:
+            if self.alignment_settled_since is None:
+                self.alignment_settled_since = now
+                return
+            settled_for = (now - self.alignment_settled_since).nanoseconds * 1e-9
+            if settled_for >= self.alignment_settle_time:
+                self.alignment_complete = True
+                self.paused = True
+                self.begun = False
+                self.trajectory = None
+                self.get_logger().info(
+                    "Yaw alignment complete; paused before path. "
+                    "Set paused:=false to snapshot the aligned pose and start the path.")
+                return
+        else:
+            self.alignment_settled_since = None
+
+        self.get_logger().info(
+            "Aligning yaws: base_err=%.3f rad, turret_err=%.3f rad" %
+            (base_err, turret_err),
+            throttle_duration_sec=1.0)
     
     def build_waypoints_from_current_odom(self):
         pose = self.current_odom.pose.pose
@@ -200,6 +304,17 @@ class TrajectoryNode(Node):
         self.waypoints_path_pub_.publish(path_msg)
 
     def reference_update(self):
+        if not self.alignment_complete:
+            self.update_alignment()
+            return
+
+        if self.align_before_path and self.paused and not self.begun:
+            if not self.waiting_for_unpause_logged:
+                self.get_logger().info(
+                    "Yaw alignment is done; waiting for paused:=false before building the path.")
+                self.waiting_for_unpause_logged = True
+            return
+
         # Build trajectory as soon as odom (and optionally turret odom) arrives
         if not self.begun:
             if self.current_odom is None:
@@ -250,6 +365,7 @@ class TrajectoryNode(Node):
                     # Re-snapshot current position so trajectory starts from here, not launch-time position
                     self.begun = False
                     self.trajectory = None
+                    self.waiting_for_unpause_logged = False
                     self.get_logger().info("Unpaused — re-initializing trajectory from current pose.")
             elif p.name == "v_lin":
                 self.v_lin = p.value
@@ -266,6 +382,29 @@ class TrajectoryNode(Node):
                 self.get_logger().info(f"{p.name} changed to {p.value}")
             elif p.name == "use_turret_initial_yaw":
                 self.use_turret_initial_yaw = p.value
+                self.get_logger().info(f"{p.name} changed to {p.value}")
+            elif p.name == "align_before_path":
+                self.align_before_path = p.value
+                self.alignment_complete = not self.align_before_path
+                self.alignment_target_yaw_snapshot = None
+                self.alignment_settled_since = None
+                self.get_logger().info(f"{p.name} changed to {p.value}")
+            elif p.name == "alignment_target_yaw_source":
+                self.alignment_target_yaw_source = p.value
+                self.alignment_target_yaw_snapshot = None
+                self.alignment_settled_since = None
+                self.get_logger().info(f"{p.name} changed to {p.value}")
+            elif p.name == "alignment_target_yaw":
+                self.alignment_target_yaw = p.value
+                if str(self.alignment_target_yaw_source).lower() == "param":
+                    self.alignment_target_yaw_snapshot = None
+                    self.alignment_settled_since = None
+                self.get_logger().info(f"{p.name} changed to {p.value}")
+            elif p.name == "alignment_yaw_tolerance":
+                self.alignment_yaw_tolerance = p.value
+                self.get_logger().info(f"{p.name} changed to {p.value}")
+            elif p.name == "alignment_settle_time":
+                self.alignment_settle_time = p.value
                 self.get_logger().info(f"{p.name} changed to {p.value}")
             elif p.name == "reference_timer_hz":
                 self.reference_timer_hz = p.value
