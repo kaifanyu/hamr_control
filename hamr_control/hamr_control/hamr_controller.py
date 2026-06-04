@@ -382,7 +382,7 @@ class HamrControlNode(Node):
         left_wheel_omega.data = float(left_cmd)
         turret_omega.data = float(turret_cmd)
         
-        self.right_wheel_vel_.publish(right_wheel_omega)
+        self.right_wheel_vel_.publish(-right_wheel_omega)
         self.left_wheel_vel_.publish(left_wheel_omega)
         self.turret_vel_.publish(turret_omega)
 
