@@ -1,0 +1,41 @@
+# RTAB-Map parameters shared by rgbd_odometry, rtabmap, and rtabmap_viz (COMPA).
+#
+# Applied via the /** wildcard, so all three nodes get the same base config; each
+# node ignores params it doesn't use (harmless "parameter not used" warnings).
+#
+# Reused VERBATIM on the real D455 — only `use_sim_time` flips to false there.
+/**:
+  ros__parameters:
+    use_sim_time: true
+
+    # --- Frames (must match the URDF TF tree) ---
+    frame_id: "base_link"       # robot base; RTAB-Map needs TF base_link -> camera optical
+    odom_frame_id: "odom"       # published by rgbd_odometry
+    map_frame_id: "map"         # published by rtabmap
+    publish_tf: true
+
+    # --- Inputs: RGB + separate (registered) depth + camera_info ---
+    subscribe_depth: true
+    subscribe_rgbd: false
+    subscribe_scan: false
+
+    # gz (and RealSense) timestamps aren't perfectly aligned -> approximate sync.
+    approx_sync: true
+    approx_sync_max_interval: 0.02
+    queue_size: 30
+    qos: 1                      # 1 = reliable (matches ros_gz_bridge). If RGB/depth
+                                # never sync, try qos: 2 (best-effort).
+
+    # --- D455 IMU: gravity alignment + odometry init ---
+    # If odometry never starts ("waiting for IMU"), set this false; the IMU is still
+    # used for gravity via Optimizer/GravitySigma below.
+    wait_imu_to_init: true
+
+    # --- RTAB-Map core tuning (string-valued "Group/Param" parameters) ---
+    Reg/Force3DoF: "true"           # ground robot -> constrain map to the plane
+    Optimizer/GravitySigma: "0.3"   # fuse IMU gravity into graph optimization
+    RGBD/ProximityBySpace: "true"   # detect local loop closures by proximity
+    RGBD/AngularUpdate: "0.05"      # add a map node every ~0.05 rad of rotation
+    RGBD/LinearUpdate: "0.05"       # add a map node every ~0.05 m of motion
+    Rtabmap/DetectionRate: "2.0"    # loop-closure detection rate (Hz)
+    Vis/MinInliers: "15"            # min feature inliers to accept a transform

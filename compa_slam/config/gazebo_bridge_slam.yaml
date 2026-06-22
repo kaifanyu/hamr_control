@@ -1,0 +1,102 @@
+# ros_gz parameter bridge for the COMPA SLAM sim.
+#
+# Self-contained: includes the robot control/state bridges (so the robot can be
+# driven and TF/odom work) PLUS the D455 RGBD+IMU camera bridges. It mirrors the
+# robot entries from hamr_bringup/config/gazebo_bridge_compa.yaml and adds the camera.
+#
+# The gz camera topics are RENAMED to a RealSense-style /d455/... namespace so the
+# SAME RTAB-Map topic config works in sim and on the real D455. World name is 'empty'
+# (matches feature_world.sdf and the gz topic paths). The stock RGB camera
+# (/camera/image_raw) is intentionally NOT bridged here — we use the D455.
+
+# ---------------- Sim clock ----------------
+- ros_topic_name: "/clock"
+  gz_topic_name: "/clock"
+  ros_type_name: "rosgraph_msgs/msg/Clock"
+  gz_type_name: "gz.msgs.Clock"
+  direction: GZ_TO_ROS
+
+# ---------------- Robot state ----------------
+- ros_topic_name: "/joint_states"
+  gz_topic_name: "/world/empty/model/compa/joint_state"
+  ros_type_name: "sensor_msgs/msg/JointState"
+  gz_type_name: "gz.msgs.Model"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/tf"
+  gz_topic_name: "/model/compa/tf"
+  ros_type_name: "tf2_msgs/msg/TFMessage"
+  gz_type_name: "gz.msgs.Pose_V"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/compa/odom"
+  gz_topic_name: "/model/compa/odometry"
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "gz.msgs.Odometry"
+  direction: GZ_TO_ROS
+
+# ---------------- Drive + gimbal commands ----------------
+- ros_topic_name: "/left_wheel/cmd_vel"
+  gz_topic_name: "/model/compa/joint/left_rocker_left_wheel_joint/cmd_vel"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/right_wheel/cmd_vel"
+  gz_topic_name: "/model/compa/joint/right_rocker_right_wheel_joint/cmd_vel"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/roll/cmd_vel"
+  gz_topic_name: "/model/compa/joint/base_roll_joint/cmd_vel"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/pitch/cmd_vel"
+  gz_topic_name: "/model/compa/joint/roll_pitch_joint/cmd_vel"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/yaw/cmd_vel"
+  gz_topic_name: "/model/compa/joint/pitch_yaw_plate_joint/cmd_vel"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+# ---------------- D455 RGBD camera (gz -> RealSense-style ROS names) ----------------
+# gz rgbd_camera with <topic>d455</topic> publishes:
+#   /d455/image  /d455/depth_image  /d455/points  /d455/camera_info
+- ros_topic_name: "/d455/color/image_raw"
+  gz_topic_name: "/d455/image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+# Depth is already registered to the color frame in gz -> this is the "aligned depth".
+- ros_topic_name: "/d455/depth/image_rect_raw"
+  gz_topic_name: "/d455/depth_image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/d455/color/camera_info"
+  gz_topic_name: "/d455/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/d455/depth/color/points"
+  gz_topic_name: "/d455/points"
+  ros_type_name: "sensor_msgs/msg/PointCloud2"
+  gz_type_name: "gz.msgs.PointCloudPacked"
+  direction: GZ_TO_ROS
+
+# ---------------- D455 IMU ----------------
+- ros_topic_name: "/d455/imu"
+  gz_topic_name: "/d455/imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "gz.msgs.IMU"
+  direction: GZ_TO_ROS
