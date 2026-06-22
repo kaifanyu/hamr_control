@@ -14,7 +14,9 @@ install(
 )
 
 install(
-  PROGRAMS scripts/record_hamr_vicon_bag
+  PROGRAMS
+    scripts/record_hamr_vicon_bag
+    scripts/record_hamr_test_bag
   DESTINATION lib/${PROJECT_NAME}
 )
 

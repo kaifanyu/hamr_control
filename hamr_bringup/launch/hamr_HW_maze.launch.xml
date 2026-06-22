@@ -1,0 +1,36 @@
+<launch>
+    <let name="pid_config_path"
+        value="$(find-pkg-share hamr_bringup)/config/hamr_hw_control_params.yaml" />
+    <arg name="record_bag" default="true" />
+
+    <!-- Tie mocap and odom frames together (same physical origin) -->
+    <node pkg="tf2_ros" exec="static_transform_publisher"
+          name="static_mocap_to_odom"
+          args="0 0 0 0 0 0 mocap odom" />
+
+    <!-- Controller -->
+    <node pkg="hamr_control" exec="hamr_controller">
+        <param from="$(var pid_config_path)" />
+    </node>
+
+    <!-- uROS bridge (hardware comms) -->
+    <node pkg="hamr_uros_bridge" exec="relay_node" />
+
+    <!-- Waypoint trajectory (hardcoded waypoints relative to starting pose) -->
+    <node pkg="reference_trajectory" exec="waypoint_traj_simple">
+        <param name="odom_topic" value="/HAMR_base/odom" />
+        <param name="world_frame" value="mocap" />
+    </node>
+
+    <!-- Bag recording -->
+    <node pkg="hamr_bringup" exec="record_hamr_vicon_bag"
+          output="screen" if="$(var record_bag)" />
+
+    <!-- Foxglove — connect Studio to ws://ROBOT_IP:8765 -->
+    <node pkg="foxglove_bridge" exec="foxglove_bridge" output="screen">
+        <param name="port" value="8765" />
+        <param name="address" value="0.0.0.0" />
+        <param name="send_buffer_limit" value="10000000" />
+    </node>
+
+</launch>

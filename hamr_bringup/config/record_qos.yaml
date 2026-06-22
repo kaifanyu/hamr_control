@@ -1,0 +1,15 @@
+/left_wheel/cmd_vel:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 10
+/right_wheel/cmd_vel:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 10
+/turret/cmd_vel:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 10

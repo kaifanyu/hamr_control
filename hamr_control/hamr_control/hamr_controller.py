@@ -12,7 +12,7 @@ from geometry_msgs.msg import Quaternion # for the turret relative
 from geometry_msgs.msg import Twist # for manual mode
 from tf2_msgs.msg import TFMessage # to access TFs (for turret relative angle) - could also be used for position esimation with "encoders"
 
-from hamr_interfaces.msg import LiveGains, ReferenceTraj, StateError
+from hamr_interfaces.msg import LiveGains, ReferenceTraj
 
 
 ### - - UTILITIES - - ###
@@ -45,7 +45,8 @@ class HamrControlNode(Node):
         ### - - HAMR Config params (m) - - ###
         default_hamr_config = {"r_wheel": 0.0762,
                                "a_wheel": 0.149556,
-                               "b_wheel": -0.19682,
+                               "b_wheel": 0.19682,
+                               "base_yaw_offset": 0.0,
                                "simulating": True,
                                "mode": "auto"} # "auto" or "manual"
         for a, b in default_hamr_config.items():
@@ -54,6 +55,7 @@ class HamrControlNode(Node):
             "r_wheel": self.get_parameter("r_wheel").value,
             "a_wheel": self.get_parameter("a_wheel").value,
             "b_wheel": self.get_parameter("b_wheel").value,
+            "base_yaw_offset": self.get_parameter("base_yaw_offset").value,
             "simulating": self.get_parameter("simulating").value,
             "mode": self.get_parameter("mode").value,
         }
@@ -108,7 +110,6 @@ class HamrControlNode(Node):
         
         # For debugging
         self.gains_pub_ = self.create_publisher(LiveGains, "/live_gains", 10)
-        self.state_error_pub_ = self.create_publisher(StateError, "/state_error", 10)
         
         # Control Rate
         self.control_rate_hz = self.get_parameter("control_rate_hz").value
@@ -152,7 +153,7 @@ class HamrControlNode(Node):
         self.threshold_yaw = 0.1 # 5.7 deg
 
         ## - - Velocity Limits (Magnitude) - - ##
-        self.xy_dot_limit = 0.41
+        self.xy_dot_limit = 0.8
         self.yaw_dot_limit = 2.0
 
         self.use_diff_drive = False  # True: ignore turret & holonomic offset
@@ -176,7 +177,9 @@ class HamrControlNode(Node):
             err_y = self.reference_.y - self.pose_base_.pose.position.y
 
             yaw_des = self.reference_.yaw # desired yaw for the turret wrt to world frame (used for error)
-            yaw_base_w = quat_to_yaw(self.pose_base_.pose.orientation) # base orientation wrt to world frame (used for error)
+            yaw_base_w = quat_to_yaw(self.pose_base_.pose.orientation) # raw Vicon base orientation wrt to world frame
+            yaw_base_kinematic_w = wrap_angle(
+                yaw_base_w + self.hamr_config["base_yaw_offset"])
             
             if self.hamr_config["simulating"]:
                 yaw_turret_b = quat_to_yaw(self.turret_to_base_orientation_) # turret orientation wrt to base (used for error AND used in Jac)
@@ -185,7 +188,7 @@ class HamrControlNode(Node):
                 yaw_turret_w = wrap_angle(quat_to_yaw(self.turret_to_world_orientation_))
             err_yaw = wrap_angle(yaw_des - yaw_turret_w)
 
-            return err_x, err_y, err_yaw, yaw_base_w # yaw_base_w passed to jacobian later
+            return err_x, err_y, err_yaw, yaw_base_kinematic_w # yaw passed to jacobian later
         
         err_x, err_y, err_yaw, yaw_base_w = compute_errors()
         
@@ -198,8 +201,7 @@ class HamrControlNode(Node):
         if abs(err_x) < self.threshold_x_y:
             ## Check if at target
             desired_x_dot = self.reference_.x_dot
-            self.err_x_prev = err_x
-            self.d_err_x_filt = 0.0
+            self.err_x_prev = 0
             self.I_x.reset()
             # self.get_logger().warn("RESET I_x At target: " + str(self.reference_.x))
         else:
@@ -220,8 +222,7 @@ class HamrControlNode(Node):
         if abs(err_y) < self.threshold_x_y:
             ## Check if at target
             desired_y_dot = self.reference_.y_dot
-            self.err_y_prev = err_y
-            self.d_err_y_filt = 0.0
+            self.err_y_prev = 0
             self.I_y.reset()
             # self.get_logger().warn("RESET I_y At target: " + str(self.reference_.y))
         else:
@@ -248,8 +249,7 @@ class HamrControlNode(Node):
         if abs(err_yaw) < self.threshold_yaw:
             ## Check if at target
             desired_yaw_dot = self.reference_.yaw_dot
-            self.err_yaw_prev = err_yaw
-            self.d_err_yaw_filt = 0.0
+            self.err_yaw_prev = 0
             self.I_yaw.reset()
             # self.get_logger().warn("RESET I_yaw At target: " + str(self.reference_.yaw))
         else:
@@ -266,15 +266,14 @@ class HamrControlNode(Node):
             self.err_yaw_prev = err_yaw
         
         self.publish_live_gains(P_x, D_x, I_x_term, P_y, D_y, I_y_term, P_yaw, D_yaw, I_yaw_term)
-        se = StateError()
-        se.err_x, se.err_y, se.err_yaw = err_x, err_y, err_yaw
-        self.state_error_pub_.publish(se)
         self.publish_joint_cmd(np.array([desired_x_dot, desired_y_dot, 
                                         desired_yaw_dot]), yaw_base_w) # desired vel
 
     def manual_mode_callback(self, msg: Twist):
         ''' Manual Mode - directly compute joint commands from terminal inputs '''
-        yaw_base_w = quat_to_yaw(self.pose_base_.pose.orientation)
+        yaw_base_w = wrap_angle(
+            quat_to_yaw(self.pose_base_.pose.orientation) +
+            self.hamr_config["base_yaw_offset"])
         self.publish_joint_cmd(np.array([msg.linear.x, msg.linear.y, msg.angular.z]), yaw_base_w)
 
     def publish_live_gains(self, P_x, D_x, I_x, 
@@ -339,6 +338,7 @@ class HamrControlNode(Node):
         r_w, b, a = self.hamr_config["r_wheel"], \
             self.hamr_config["b_wheel"], self.hamr_config["a_wheel"]
         c, s = np.cos(yaw), np.sin(yaw)
+
         if self.use_diff_drive:
             xdot, ydot, yawdot = desired_velocity
             v_fwd = c * xdot + s * ydot # body-frame forward speed
@@ -347,17 +347,6 @@ class HamrControlNode(Node):
             omega_r = (v_fwd + a * yawdot) / r_w
             omega_l = (v_fwd - a * yawdot) / r_w
             omega_t = 0.0
-
-            self.get_logger().info("Omega_r: ", omega_r, " Omega_l: ", omega_l, " Omega_t: ", omega_t)
-            self.get_logger().info("Otherwise: ")
-
-            J = np.array([
-                [r_w/2 * (c - s*b/a), r_w/2 * (c + s*b/a), 0],
-                [r_w/2 * (s + c*b/a), r_w/2 * (s - c*b/a), 0],
-                [r_w/(2*a), -r_w/(2*a), 1]
-            ])
-            
-            self.get_logger().info("omega array: ", np.linalg.solve(J, desired_velocity))  
             return np.array([omega_r, omega_l, omega_t])
 
         J = np.array([
@@ -366,21 +355,13 @@ class HamrControlNode(Node):
             [r_w/(2*a), -r_w/(2*a), 1]
         ])
 
-
         return np.linalg.solve(J, desired_velocity) # will return angular vels for joints
 
     def publish_joint_cmd(self, desired_velocity, yaw):
         right_wheel_omega, left_wheel_omega, turret_omega = Float64(), Float64(), Float64()
         omegas = self.compute_velocities(desired_velocity, yaw)
         # self.get_logger().info(f"Computed omegas: {omegas}")
-        right_cmd, left_cmd, turret_cmd = omegas
-        if not self.hamr_config["simulating"]:
-            # Hardware turret positive command is opposite Vicon yaw-positive.
-            turret_cmd = -turret_cmd
-
-        right_wheel_omega.data = float(right_cmd)
-        left_wheel_omega.data = float(left_cmd)
-        turret_omega.data = float(turret_cmd)
+        right_wheel_omega.data, left_wheel_omega.data, turret_omega.data = omegas
         
         self.right_wheel_vel_.publish(right_wheel_omega)
         self.left_wheel_vel_.publish(left_wheel_omega)
@@ -399,7 +380,7 @@ class HamrControlNode(Node):
             "I_yaw":("yaw", "I"),
             "D_yaw":("yaw", "D"),
         }
-        config_name_map = ("r_wheel", "a_wheel", "b_wheel", "control_rate_hz", "d_alpha")
+        config_name_map = ("r_wheel", "a_wheel", "b_wheel", "base_yaw_offset", "control_rate_hz", "d_alpha")
         for p in params:
             if p.name in pid_name_map:
                 group, term = pid_name_map[p.name]

@@ -1,0 +1,62 @@
+exp_traj_gen:
+  ros__parameters:
+    v_max: 0.3              # m/s along the path
+    a_max: 0.15             # m/s^2 tangential accel/braking
+    a_lat_max: 0.1          # m/s^2 lateral accel -> curvature slowdown
+    los_inflation_m: 0.20   # obstacle inflation for line-of-sight shortcuts
+    min_waypoint_spacing_m: 0.10
+    yaw_mode: hold_goal     # hold_goal | fixed (uses yaw_fixed)
+    yaw_fixed: 0.0
+    sample_dt: 0.02         # /planned_trajectory sample spacing
+    loop: false             # replay the trajectory forever (bench tests)
+    publish_rate_hz: 100.0
+    trajectory_name: ""
+    # Bench-test waypoints, flat [x1,y1,yaw1, x2,y2,yaw2, ...].
+    # When 2+ triplets are given, /astar/path is ignored.
+    # waypoints: [0.0, 0.0, 0.0,   0.0, 3.0, 0.0]
+
+exp_lqr_controller:
+  ros__parameters:
+    # Geometry mirrors hamr_bringup/config/hamr_hw_control_params.yaml
+    r_wheel: 0.1250
+    a_wheel: 0.345
+    b_wheel: 0.301
+    base_yaw_offset: 1.57079632679
+    control_rate_hz: 100.0
+    xy_dot_limit: 0.41
+    yaw_dot_limit: 2.0
+    watchdog_timeout_s: 0.5
+    # LQI weights: position/yaw error vs control effort
+    q_pos: 4.0
+    q_yaw: 6.0
+    q_int_pos: 0.05
+    q_int_yaw: 0.05
+    r_u_xy: 1.0
+    r_u_yaw: 1.0
+    int_limit_xy: 0.5
+    int_limit_yaw: 1.0
+
+exp_mpc_controller:
+  ros__parameters:
+    r_wheel: 0.1250
+    a_wheel: 0.345
+    b_wheel: 0.301
+    base_yaw_offset: 1.57079632679
+    control_rate_hz: 100.0
+    xy_dot_limit: 0.41
+    yaw_dot_limit: 2.0
+    watchdog_timeout_s: 0.5
+    horizon_steps: 25       # x horizon_dt = 2.0 s preview
+    horizon_dt: 0.08
+    solve_rate_hz: 25.0
+    q_pos: 10.0             # position tracking weight
+    q_yaw: 10.0             # turret yaw tracking weight
+    r_v: 0.5                # velocity-reference deviation weight
+    s_dv: 2.0               # input smoothness weight
+    omega_wheel_max: 0.0    # 0 -> derived as xy_dot_limit / r_wheel
+    omega_turret_max: 2.0
+    stale_solution_timeout_s: 0.2
+
+exp_metrics:
+  ros__parameters:
+    rate_hz: 50.0

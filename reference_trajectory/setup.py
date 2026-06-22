@@ -20,8 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "waypoint_traj = reference_trajectory.waypoint_traj:main",
-            "waypoint_traj_simple = reference_trajectory.waypoint_traj_simple:main"
+                    "waypoint_traj_sequence = reference_trajectory.waypoint_traj_sequence:main",
+                    "waypoint_traj_simple = reference_trajectory.waypoint_traj_simple:main",
         ],
     },
 )
