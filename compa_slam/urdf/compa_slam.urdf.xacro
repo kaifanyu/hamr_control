@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!--
+  compa_slam.urdf.xacro
+  =====================
+  Spawnable robot for the SLAM sim: the EXISTING COMPA body + the new D455 sensor.
+
+  This reuses compa_description/urdf/compa_back.urdf.xacro verbatim (base, rockers,
+  wheels, gimbal, the gz joint/odometry plugins, AND the stock RGB camera) and simply
+  adds the D455 RGBD+IMU on top. Nothing in compa_description is modified.
+
+  Note: the body include also pulls in the original RGB `camera_link` (publishes
+  /camera/image_raw). That is harmless here — we just don't bridge it. The D455 is
+  mounted forward of it (see compa_d455.urdf.xacro) so they don't overlap.
+
+  Model name stays "compa" so the existing gz topic names (/model/compa/...) and the
+  gazebo_bridge_compa.yaml mappings keep working.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="compa">
+
+  <!-- Full existing COMPA robot (cross-package include via ament share dir) -->
+  <xacro:include filename="$(find compa_description)/urdf/compa_back.urdf.xacro" />
+
+  <!-- Add the simulated RealSense D455 (sibling file, relative include).
+       Must come AFTER the body: it references yaw_plate_link and the box_inertia
+       macro, both defined by the include above. -->
+  <xacro:include filename="compa_d455.urdf.xacro" />
+
+</robot>

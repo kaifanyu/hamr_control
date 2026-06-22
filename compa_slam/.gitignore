@@ -1,0 +1,10 @@
+# Saved RTAB-Map databases — large and tied to one physical space, do not commit.
+maps/*.db
+maps/*.db-journal
+
+# Raw sensor recordings (RealSense bags) — large, keep out of git.
+bags/
+
+# Python / build noise
+**/__pycache__/
+*.pyc

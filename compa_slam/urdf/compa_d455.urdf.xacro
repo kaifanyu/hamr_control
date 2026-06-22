@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<!--
+  compa_d455.urdf.xacro
+  =====================
+  A simulated Intel RealSense D455 (RGBD + IMU) for Gazebo (gz sim), used as the
+  SLAM camera in the sim track of the compa_slam pipeline.
+
+  Why this exists: the stock COMPA camera (compa_description/urdf/camera.urdf.xacro)
+  is a PLAIN RGB camera (sensor type "camera") — it has no depth and no point cloud,
+  so RTAB-Map cannot run against it. This file adds an "rgbd_camera" sensor that
+  publishes RGB + registered depth + camera_info + a point cloud, plus an IMU
+  (the real D455 has one) for visual-inertial odometry.
+
+  Link names are prefixed `d455_` so this can be included ALONGSIDE the existing
+  `camera_link` without duplicate-link errors. Mounted on `yaw_plate_link` (top of
+  the stabilized gimbal) — keeping the camera level helps visual odometry.
+
+  Gazebo topics produced (base <topic> = "d455"):
+    /d455/image          sensor_msgs/Image   (RGB)
+    /d455/depth_image    sensor_msgs/Image   (depth, already registered to RGB)
+    /d455/points         sensor_msgs/PointCloud2
+    /d455/camera_info    sensor_msgs/CameraInfo
+    /d455/imu            sensor_msgs/Imu
+  These get bridged to RealSense-style ROS names in the next step (ros_gz_bridge).
+
+  WORLD REQUIREMENTS (gz sim system plugins must be present in the .sdf world):
+    - gz::sim::systems::Sensors   -> renders the camera/depth (needed for any camera)
+    - gz::sim::systems::Imu       -> drives the <sensor type="imu">
+  The textured world we add next will include both.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- D455 body dimensions (m): 124 mm wide (y) x 26 mm deep (x) x 29 mm tall (z).
+       x is the optical axis (forward). -->
+  <xacro:property name="d455_depth"  value="0.026" />
+  <xacro:property name="d455_width"  value="0.124" />
+  <xacro:property name="d455_height" value="0.029" />
+
+  <!-- Where the camera sits on the yaw plate. Offset forward (so it does NOT overlap
+       the stock RGB camera_link, which is also at 0 0 0.25) and pitched ~20 deg down,
+       so it sees both standing features (walls/objects) and the terrain ahead — the
+       latter matters for Phase 2 elevation mapping. -->
+  <xacro:property name="d455_mount_xyz" value="0.2 0.0 0.2" />
+  <xacro:property name="d455_mount_rpy" value="0.0 0.35 0.0" />
+
+  <!-- Sim image stream. D455 supports up to 1280x720; 640x480 keeps sim light. -->
+  <xacro:property name="d455_img_w"   value="640" />
+  <xacro:property name="d455_img_h"   value="480" />
+  <!-- 87 deg HFOV (D455 depth FOV) in radians. -->
+  <xacro:property name="d455_hfov"    value="1.5184" />
+  <xacro:property name="d455_rate_hz" value="30" />
+  <!-- Depth clip (m). Near is intentionally a bit larger than RGB; real D455
+       min range is ~0.4-0.6 m. -->
+  <xacro:property name="d455_near"    value="0.2" />
+  <xacro:property name="d455_far"     value="20.0" />
+
+  <!-- ===================== Links & frames ===================== -->
+
+  <!-- Physical camera body link -->
+  <link name="d455_link">
+    <visual>
+      <geometry>
+        <box size="${d455_depth} ${d455_width} ${d455_height}" />
+      </geometry>
+      <origin xyz="${d455_depth / 2.0} 0 0" rpy="0 0 0" />
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${d455_depth} ${d455_width} ${d455_height}" />
+      </geometry>
+      <origin xyz="${d455_depth / 2.0} 0 0" rpy="0 0 0" />
+    </collision>
+    <xacro:box_inertia m="0.072"
+                       x="${d455_depth}" y="${d455_width}" z="${d455_height}"
+                       o_xyz="${d455_depth / 2.0} 0 0" o_rpy="0 0 0" />
+  </link>
+
+  <!-- Optical frame: REP-103 convention (z forward, x right, y down) so ROS/OpenCV
+       and the gz camera agree on image orientation. -->
+  <link name="d455_optical_link" />
+
+  <!-- Mount the camera body on the stabilized yaw plate -->
+  <joint name="yaw_plate_d455_joint" type="fixed">
+    <parent link="yaw_plate_link" />
+    <child link="d455_link" />
+    <origin xyz="${d455_mount_xyz}" rpy="${d455_mount_rpy}" />
+  </joint>
+
+  <!-- Rotate body frame -> optical frame -->
+  <joint name="d455_optical_joint" type="fixed">
+    <parent link="d455_link" />
+    <child link="d455_optical_link" />
+    <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
+  </joint>
+
+  <!-- ===================== Gazebo sensors ===================== -->
+
+  <!-- RGBD camera: one sensor that emits RGB + depth + points + camera_info -->
+  <gazebo reference="d455_link">
+    <sensor name="d455" type="rgbd_camera">
+      <camera>
+        <horizontal_fov>${d455_hfov}</horizontal_fov>
+        <image>
+          <width>${d455_img_w}</width>
+          <height>${d455_img_h}</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>${d455_near}</near>
+          <far>${d455_far}</far>
+        </clip>
+        <depth_camera>
+          <clip>
+            <near>${d455_near}</near>
+            <far>${d455_far}</far>
+          </clip>
+        </depth_camera>
+        <!-- Frame stamped on image/depth/points/camera_info headers -->
+        <optical_frame_id>d455_optical_link</optical_frame_id>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <always_on>1</always_on>
+      <update_rate>${d455_rate_hz}</update_rate>
+      <visualize>true</visualize>
+      <!-- Base topic; gz appends /image, /depth_image, /points, /camera_info -->
+      <topic>d455</topic>
+    </sensor>
+  </gazebo>
+
+  <!-- IMU (D455 has one). Requires the Imu system plugin in the world .sdf.
+       Used for IMU-fused / gravity-aligned odometry in RTAB-Map. -->
+  <gazebo reference="d455_link">
+    <sensor name="d455_imu" type="imu">
+      <always_on>1</always_on>
+      <update_rate>200</update_rate>
+      <topic>d455/imu</topic>
+      <gz_frame_id>d455_link</gz_frame_id>
+      <enable_metrics>false</enable_metrics>
+    </sensor>
+  </gazebo>
+
+</robot>

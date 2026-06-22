@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>compa_slam</name>
+  <version>0.0.0</version>
+  <description>
+    Visual SLAM + off-road perception pipeline for COMPA: RealSense D455 RGBD ->
+    RTAB-Map (mapping/localization) -> elevation map -> existing off-road planners.
+    Self-contained: adds only new files, leaves the rest of the workspace untouched.
+  </description>
+  <maintainer email="thekaiyu@gmail.com">kai</maintainer>
+  <license>TODO: License declaration</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- Simulation + robot bring-up (Phase 0) -->
+  <depend>robot_state_publisher</depend>
+  <depend>ros_gz_sim</depend>
+  <depend>ros_gz_bridge</depend>
+  <depend>xacro</depend>
+  <depend>rviz2</depend>
+  <depend>tf2_ros</depend>
+
+  <!-- Reuse the existing COMPA robot description (meshes/links) -->
+  <exec_depend>compa_description</exec_depend>
+
+  <!-- Visual SLAM stack (Phase 0/1) -->
+  <exec_depend>rtabmap_slam</exec_depend>
+  <exec_depend>rtabmap_odom</exec_depend>
+  <exec_depend>rtabmap_sync</exec_depend>
+  <exec_depend>rtabmap_viz</exec_depend>
+  <exec_depend>rtabmap_launch</exec_depend>
+
+  <!-- Real RealSense D455 + IMU fusion (Phase 1, hardware only) -->
+  <exec_depend>realsense2_camera</exec_depend>
+  <exec_depend>imu_filter_madgwick</exec_depend>
+
+  <!-- Recording / replay -->
+  <exec_depend>ros2bag</exec_depend>
+  <exec_depend>rosbag2_storage_mcap</exec_depend>
+
+  <!--
+    NOTE: elevation mapping is added in Phase 2. Robot is CPU-only, so we use the
+    C++ `elevation_mapping` package (NOT elevation_mapping_cupy, which requires an
+    NVIDIA GPU). Install it separately when we reach that phase.
+  -->
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
