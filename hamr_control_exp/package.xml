@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>hamr_control_exp</name>
+  <version>0.1.0</version>
+  <description>
+    Experimental motion control stack for HAMR: smooth trajectory generation,
+    LQR and MPC tracking controllers, and tracking-metrics tooling.
+    Fully additive to the existing PID stack — delete this package (and the
+    PlannedTrajectory message in hamr_interfaces) to remove.
+  </description>
+  <maintainer email="ranaudo@seas.upenn.edu">hamr</maintainer>
+  <license>MIT</license>
+
+  <depend>rclpy</depend>
+  <depend>hamr_interfaces</depend>
+  <depend>std_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>tf2_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-scipy</exec_depend>
+
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -1,8 +1,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/float64.hpp>
 #include <std_msgs/msg/int32.hpp>
-#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
-#include <nav_msgs/msg/odometry.hpp>
+#include <sensor_msgs/msg/imu.hpp>
 
 #include <array>
 #include <atomic>
@@ -26,8 +25,17 @@ namespace {
 constexpr uint16_t MAGIC = 0xCAFE;
 constexpr uint16_t VER   = 1;
 constexpr uint16_t TYPE_CMD3 = 0x0011;
-constexpr uint16_t TYPE_ENC = 0x0003; // ESP->PC: encoder ticks (L,R,T)
-constexpr uint16_t TYPE_POSE = 0x0004; // ESP->PC: pose (x,y,theta) + covariance
+constexpr uint16_t TYPE_ENC  = 0x0003; // ESP->PC: encoder ticks (L,R,T)
+constexpr uint16_t TYPE_IMU  = 0x0004; // ESP->PC: IMU data (roll/pitch/yaw, accel, gyro)
+
+// Sign corrections applied once at unpack time in rx_loop().
+// TICK_SIGN: ESP firmware negates wheel commands internally and its encoder
+// ISRs match that convention, so raw ticks arrive negated relative to robot
+// motion. The 2026-06-11 Vicon comparison showed the relay-published IMU yaw
+// rate was already inverted relative to REP-103, so leave IMU yaw/gz unchanged
+// here and handle wheel-odom yaw convention in holonomic_odom_node.
+constexpr int32_t TICK_SIGN = -1;
+constexpr float   YAW_SIGN  = 1.0f;
 
 // Wire packet (packed)
 #pragma pack(push,1)
@@ -62,24 +70,24 @@ struct PacketEnc {
 
 static_assert(sizeof(PacketEnc) == 32, "PacketEnc size mismatch");
 
-// Pose Packet
+// IMU Packet — must match IMUPacket in ESP main.cpp exactly (56 bytes)
 #pragma pack(push,1)
-struct PacketPose {
-  uint16_t magic;     // 0xCAFE
-  uint16_t ver;       // 1
-  uint16_t type;      // 0x0004
+struct PacketIMU {
+  uint16_t magic;    // 0xCAFE
+  uint16_t ver;      // 1
+  uint16_t type;     // 0x0004
   uint32_t seq;
-  uint64_t t_tx_ns;   // device side send timestamp (ns)
-  float x;            // meters
-  float y;            // meters
-  float theta;        // radians
-  float sigma_x, sigma_y, sigma_theta; // Uncertainties (standard deviations)
-  uint8_t ekf_status; // 0=odometry_only, 1=ekf_fused, 2=imu_invalid
+  uint64_t t_tx_ns;  // device side send timestamp (ns)
+  float roll;        // rad, BNO055 Euler Y, wrapped to ±π
+  float pitch;       // rad, BNO055 Euler Z, wrapped to ±π
+  float yaw;         // rad, BNO055 Euler X (heading), wrapped to ±π
+  float ax, ay, az;  // m/s², linear accel (gravity already removed by BNO055)
+  float gx, gy, gz;  // rad/s, angular velocity
   uint16_t crc16;    // CRC32 folded to 16 bits
 };
 #pragma pack(pop)
 
-static_assert(sizeof(PacketPose) == 2+2+2+4+8+4+4+4+4+4+4+1+2, "PacketPose size mismatch");
+static_assert(sizeof(PacketIMU) == 2+2+2+4+8+4+4+4+4+4+4+4+4+4+2, "PacketIMU size mismatch");
 
 // Simple CRC32 -> fold to 16 bits 
 uint16_t crc16_fold(const uint8_t* data, size_t n) {
@@ -196,18 +204,20 @@ class RelayNode : public rclcpp::Node {
 public:
   RelayNode() : Node("hamr_uros_bridge") {
     // Parameters
-    serial_port_ = this->declare_parameter<std::string>("serial_port", "/dev/ttyUSB0");
-    baud_        = this->declare_parameter<int>("baud", 460800);
-    tx_rate_hz_  = this->declare_parameter<double>("tx_rate_hz", 100.0);
-    frame_id_    = this->declare_parameter<std::string>("frame_id", "base_link");
-    odom_frame_id_ = this->declare_parameter<std::string>("odom_frame_id", "odom");
+    serial_port_  = this->declare_parameter<std::string>("serial_port", "/dev/ttyUSB0");
+    baud_         = this->declare_parameter<int>("baud", 460800);
+    tx_rate_hz_   = this->declare_parameter<double>("tx_rate_hz", 100.0);
+    imu_frame_id_ = this->declare_parameter<std::string>("imu_frame_id", "imu_link");
+    turret_command_sign_ = this->declare_parameter<double>("turret_command_sign", -1.0);
 
     // Open serial
     if (!serial_.open(serial_port_, baud_)) {
       RCLCPP_FATAL(get_logger(), "Failed to open serial %s @ %d", serial_port_.c_str(), baud_);
       throw std::runtime_error("serial open failed");
     }
-    RCLCPP_INFO(get_logger(), "Serial open: %s @ %d", serial_port_.c_str(), baud_);
+    RCLCPP_INFO(
+      get_logger(), "Serial open: %s @ %d; turret command sign: %.1f",
+      serial_port_.c_str(), baud_, turret_command_sign_);
 
     // Subscriptions
     using std::placeholders::_1;
@@ -226,9 +236,8 @@ public:
     pub_ticks_r_ = create_publisher<std_msgs::msg::Int32>("/right_wheel/encoder_ticks", 10);
     pub_ticks_t_ = create_publisher<std_msgs::msg::Int32>("/turret/encoder_ticks", 10);
 
-    // Publishers for pose data
-    pub_pose_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("/robot_pose", 10);
-    pub_odom_ = create_publisher<nav_msgs::msg::Odometry>("/odom", 10);
+    // IMU publisher
+    pub_imu_ = create_publisher<sensor_msgs::msg::Imu>("/imu/data", 10);
 
     // Timer for TX
     const auto period = std::chrono::duration<double>(1.0 / std::max(1.0, tx_rate_hz_));
@@ -249,7 +258,10 @@ public:
 private:
   void left_cb(const std_msgs::msg::Float64 & msg)  { left_ = static_cast<float>(msg.data); }
   void right_cb(const std_msgs::msg::Float64 & msg) { right_ = static_cast<float>(msg.data); }
-  void turret_cb(const std_msgs::msg::Float64 & msg){ turret_ = static_cast<float>(msg.data); }
+  void turret_cb(const std_msgs::msg::Float64 & msg)
+  {
+    turret_ = static_cast<float>(turret_command_sign_ * msg.data);
+  }
 
   void tx_tick() {
     PacketCmd3 pkt{};
@@ -270,69 +282,62 @@ private:
     }
   }
 
-  // Helper to convert quaternion from yaw
-  void yaw_to_quaternion(float yaw, float& qx, float& qy, float& qz, float& qw) {
-    float half_yaw = yaw * 0.5f;
-    qx = 0.0f;
-    qy = 0.0f;
-    qz = std::sin(half_yaw);
-    qw = std::cos(half_yaw);
+  // Convert BNO055 Euler (roll, pitch, yaw) to quaternion using ZYX convention.
+  // BNO055 NDOF gives absolute orientation; yaw is magnetic heading.
+  void euler_to_quat(float roll, float pitch, float yaw,
+                     double& qx, double& qy, double& qz, double& qw) {
+    double cr = std::cos(roll  * 0.5);
+    double sr = std::sin(roll  * 0.5);
+    double cp = std::cos(pitch * 0.5);
+    double sp = std::sin(pitch * 0.5);
+    double cy = std::cos(yaw   * 0.5);
+    double sy = std::sin(yaw   * 0.5);
+    qw = cr * cp * cy + sr * sp * sy;
+    qx = sr * cp * cy - cr * sp * sy;
+    qy = cr * sp * cy + sr * cp * sy;
+    qz = cr * cp * sy - sr * sp * cy;
   }
-  
-  // Publish pose data as ROS message
-  void publish_pose_data(const PacketPose& p) {
-    auto stamp = rclcpp::Clock(RCL_ROS_TIME).now();
-    // PoseWithCovarianceStamped
-    auto pose_msg = geometry_msgs::msg::PoseWithCovarianceStamped();
-    pose_msg.header.stamp = stamp;
-    pose_msg.header.frame_id = odom_frame_id_;
 
-    pose_msg.pose.pose.position.x = p.x;
-    pose_msg.pose.pose.position.y = p.y;
-    pose_msg.pose.pose.position.z = 0.0f;
+  void publish_imu_data(const PacketIMU& p) {
+    auto msg = sensor_msgs::msg::Imu();
+    msg.header.stamp    = rclcpp::Clock(RCL_ROS_TIME).now();
+    msg.header.frame_id = imu_frame_id_;
 
-    float qx, qy, qz, qw;
-    yaw_to_quaternion(p.theta, qx, qy, qz, qw);
-    pose_msg.pose.pose.orientation.x = qx;
-    pose_msg.pose.pose.orientation.y = qy;
-    pose_msg.pose.pose.orientation.z = qz;
-    pose_msg.pose.pose.orientation.w = qw;
+    // Orientation from BNO055 fusion (absolute, magnetometer-referenced)
+    double qx, qy, qz, qw;
+    euler_to_quat(p.roll, p.pitch, p.yaw, qx, qy, qz, qw);
+    msg.orientation.x = qx;
+    msg.orientation.y = qy;
+    msg.orientation.z = qz;
+    msg.orientation.w = qw;
+    // BNO055 NDOF heading accuracy ~2°, roll/pitch ~1°
+    msg.orientation_covariance = {
+      0.0003, 0,      0,
+      0,      0.0003, 0,
+      0,      0,      0.0009
+    };
 
-    // Set 6X6 covariance matrix
-    std::fill(pose_msg.pose.covariance.begin(), pose_msg.pose.covariance.end(), 0.0);
-    pose_msg.pose.covariance[0] = p.sigma_x * p.sigma_x; // x variance
-    pose_msg.pose.covariance[7] = p.sigma_y * p.sigma_y; // y variance
-    pose_msg.pose.covariance[35] = p.sigma_theta * p.sigma_theta; // yaw variance
+    // Angular velocity from BNO055 gyroscope (rad/s)
+    msg.angular_velocity.x = static_cast<double>(p.gx);
+    msg.angular_velocity.y = static_cast<double>(p.gy);
+    msg.angular_velocity.z = static_cast<double>(p.gz);
+    msg.angular_velocity_covariance = {
+      0.0002, 0,      0,
+      0,      0.0002, 0,
+      0,      0,      0.0002
+    };
 
-    pub_pose_->publish(pose_msg);
-    
-    //Publish Odometry
-    auto odom_msg = nav_msgs::msg::Odometry();
-    odom_msg.header.stamp = stamp;
-    odom_msg.header.frame_id = odom_frame_id_;
-    odom_msg.child_frame_id = frame_id_;
+    // Linear acceleration from BNO055 VECTOR_LINEARACCEL (gravity already removed)
+    msg.linear_acceleration.x = static_cast<double>(p.ax);
+    msg.linear_acceleration.y = static_cast<double>(p.ay);
+    msg.linear_acceleration.z = static_cast<double>(p.az);
+    msg.linear_acceleration_covariance = {
+      0.01, 0,    0,
+      0,    0.01, 0,
+      0,    0,    0.01
+    };
 
-    odom_msg.pose = pose_msg.pose;
-
-    // Twist covariance
-    std::fill(odom_msg.twist.covariance.begin(), odom_msg.twist.covariance.end(), 0.0);
-    odom_msg.twist.covariance[0] = 1000.0; // high uncertainty in vx
-    odom_msg.twist.covariance[7] = 1000.0; // high uncertainty in vy
-    odom_msg.twist.covariance[35] = 1000.0; // high uncertainty in vtheta
-
-    pub_odom_->publish(odom_msg);
-
-    // Log EKF status occasionally
-    static auto last_log = this->now();
-    if ((stamp - last_log).seconds() > 2.0) {
-      const char* status_str = (p.ekf_status == 1) ? "EKF_FUSED" : 
-                              (p.ekf_status == 2) ? "IMU_INVALID" : "ODOMETRY_ONLY";
-      RCLCPP_INFO(get_logger(), "Pose: (%.3f±%.3f, %.3f±%.3f, %.1f±%.1f°) Status: %s",
-                  p.x, p.sigma_x, p.y, p.sigma_y, 
-                  p.theta * 180.0f / M_PI, p.sigma_theta * 180.0f / M_PI,
-                  status_str);
-      last_log = stamp;
-    }
+    pub_imu_->publish(msg);
   }
   // --- RX loop: parse encoder packets from ESP and publish ---
   void rx_loop() {
@@ -368,44 +373,42 @@ private:
         size_t need = 0;
         if (type == TYPE_ENC) {
           need = sizeof(PacketEnc);
-        } else if (type == TYPE_POSE) {
-          need = sizeof(PacketPose);
+        } else if (type == TYPE_IMU) {
+          need = sizeof(PacketIMU);
         } else {
-          // Unknown type (could add other decoders later) → drop 1 byte
+          // Unknown type → drop 1 byte and resync
           buf.erase(buf.begin());
           continue;
         }
 
         if (buf.size() < need) break;
 
-        if (type == TYPE_ENC){
+        if (type == TYPE_ENC) {
           PacketEnc p{};
           std::memcpy(&p, buf.data(), need);
 
           uint16_t calc = crc16_fold(reinterpret_cast<const uint8_t*>(&p), need - 2);
           if (calc != p.crc16) {
-            // bad frame—drop 1 byte and resync
             buf.erase(buf.begin());
             continue;
           }
 
-        // Good frame: publish ticks
-        std_msgs::msg::Int32 mL; mL.data = p.ticksL; pub_ticks_l_->publish(mL);
-        std_msgs::msg::Int32 mR; mR.data = p.ticksR; pub_ticks_r_->publish(mR);
-        std_msgs::msg::Int32 mT; mT.data = p.ticksT; pub_ticks_t_->publish(mT);
-        } else if (type == TYPE_POSE) {
-          PacketPose p{};
+          std_msgs::msg::Int32 mL; mL.data = TICK_SIGN * p.ticksL; pub_ticks_l_->publish(mL);
+          std_msgs::msg::Int32 mR; mR.data = TICK_SIGN * p.ticksR; pub_ticks_r_->publish(mR);
+          std_msgs::msg::Int32 mT; mT.data = p.ticksT; pub_ticks_t_->publish(mT);
+        } else if (type == TYPE_IMU) {
+          PacketIMU p{};
           std::memcpy(&p, buf.data(), need);
 
           uint16_t calc = crc16_fold(reinterpret_cast<const uint8_t*>(&p), need - 2);
           if (calc != p.crc16) {
-            // bad frame—drop 1 byte and resync
             buf.erase(buf.begin());
             continue;
           }
 
-          // Good pose frame: publish
-          publish_pose_data(p);
+          p.yaw *= YAW_SIGN;
+          p.gz  *= YAW_SIGN;
+          publish_imu_data(p);
         }
 
         // consume this frame
@@ -418,8 +421,8 @@ private:
   std::string serial_port_;
   int baud_;
   double tx_rate_hz_;
-  std::string frame_id_;
-  std::string odom_frame_id_;
+  double turret_command_sign_;
+  std::string imu_frame_id_;
 
   // Serial
   SerialPort serial_;
@@ -431,8 +434,7 @@ private:
   // ROS
   rclcpp::Subscription<std_msgs::msg::Float64>::SharedPtr sub_left_, sub_right_, sub_turret_;
   rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr pub_ticks_l_, pub_ticks_r_, pub_ticks_t_;
-  rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pub_pose_;
-  rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr pub_odom_;
+  rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr pub_imu_;
   rclcpp::TimerBase::SharedPtr timer_;
 
   // Reader thread

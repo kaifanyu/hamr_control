@@ -1,0 +1,52 @@
+<launch>
+    <!-- Experimental-stack hardware bringup. Infra nodes mirror
+         hamr_bringup/launch/hamr_HW.launch.xml (which stays untouched as the
+         fallback); the controller/trajectory come from exp_stack. -->
+    <arg name="controller" default="pid" />
+    <arg name="traj" default="smooth" />
+    <arg name="metrics" default="true" />
+    <arg name="record_bag" default="true" />
+
+    <let name="ekf_config_path"
+        value="$(find-pkg-share hamr_bringup)/config/ekf.yaml" />
+
+    <!-- Wheel odometry: integrates encoder ticks -> /wheel_odom
+         publish_tf is false because the EKF below owns the odom->base_link TF -->
+    <node pkg="hamr_odometry" exec="holonomic_odom_node" output="screen">
+        <param name="publish_tf" value="false"/>
+        <param name="r_wheel" value="0.1250"/>
+        <param name="a_wheel" value="0.345"/>
+        <param name="b_wheel" value="0.301"/>
+        <param name="base_yaw_offset" value="1.57079632679"/>
+        <param name="yaw_sign" value="-1.0"/>
+        <param name="left_tick_scale" value="0.899"/>
+        <param name="right_tick_scale" value="1.0"/>
+    </node>
+
+    <!-- EKF: fuses /wheel_odom + /imu/data into /local_HAMR/odom -->
+    <node pkg="robot_localization" exec="ekf_node" name="ekf_filter_node" output="screen">
+        <param from="$(var ekf_config_path)"/>
+        <remap from="odometry/filtered" to="local_HAMR/odom"/>
+    </node>
+
+    <!-- uROS bridge (hardware comms) -->
+    <node pkg="hamr_uros_bridge" exec="relay_node" />
+
+    <!-- Bag recording -->
+    <node pkg="hamr_bringup" exec="record_hamr_test_bag"
+          output="screen" if="$(var record_bag)" />
+
+    <!-- Foxglove — connect Studio to ws://ROBOT_IP:8765 -->
+    <node pkg="foxglove_bridge" exec="foxglove_bridge" name="foxglove_bridge">
+        <param name="port" value="8765" />
+    </node>
+
+    <!-- Trajectory + controller + metrics selection -->
+    <include file="$(find-pkg-share hamr_control_exp)/launch/exp_stack.launch.py">
+        <arg name="controller" value="$(var controller)" />
+        <arg name="traj" value="$(var traj)" />
+        <arg name="metrics" value="$(var metrics)" />
+        <arg name="simulating" value="false" />
+        <arg name="world_frame" value="odom" />
+    </include>
+</launch>

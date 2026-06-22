@@ -1,0 +1,982 @@
+#!/usr/bin/env python3
+"""Analyze a HAMR localization-test rosbag.
+
+The hardware tests record Vicon ground truth plus onboard odometry. This script
+keeps the straight-line Vicon summary, and also time-aligns onboard odometry to
+Vicon so localization drift can be plotted and measured for teleop or autonomy.
+"""
+
+import argparse
+import bisect
+import csv
+import json
+import math
+from pathlib import Path
+
+import numpy as np
+from rclpy.serialization import deserialize_message
+from rosbag2_py import ConverterOptions, SequentialReader, StorageOptions
+from rosidl_runtime_py.utilities import get_message
+
+
+DEFAULT_BASE_TOPIC = "/HAMR_base/odom"
+DEFAULT_ONBOARD_TOPIC = "/local_HAMR/odom"
+DEFAULT_WHEEL_ODOM_TOPIC = "/wheel_odom"
+DEFAULT_TURRET_TOPIC = "/HAMR_turret/odom"
+DEFAULT_REFERENCE_TOPIC = "/reference_trajectory"
+DEFAULT_LEFT_WHEEL_TOPIC = "/left_wheel/cmd_vel"
+DEFAULT_RIGHT_WHEEL_TOPIC = "/right_wheel/cmd_vel"
+
+
+def yaw_from_quaternion(q):
+    return math.atan2(
+        2.0 * (q.w * q.z + q.x * q.y),
+        1.0 - 2.0 * (q.y * q.y + q.z * q.z),
+    )
+
+
+def wrap_angle(angle):
+    return (angle + math.pi) % (2.0 * math.pi) - math.pi
+
+
+def detect_storage_id(bag_dir):
+    metadata = bag_dir / "metadata.yaml"
+    if metadata.exists():
+        for line in metadata.read_text(encoding="utf-8").splitlines():
+            stripped = line.strip()
+            if stripped.startswith("storage_identifier:"):
+                return stripped.split(":", 1)[1].strip()
+            if stripped.startswith("storage_id:"):
+                return stripped.split(":", 1)[1].strip()
+
+    if any(bag_dir.glob("*.mcap")):
+        return "mcap"
+    if any(bag_dir.glob("*.db3")):
+        return "sqlite3"
+    return "mcap"
+
+
+def open_reader(bag_dir, storage_id):
+    reader = SequentialReader()
+    reader.open(
+        StorageOptions(uri=str(bag_dir), storage_id=storage_id),
+        ConverterOptions("", ""),
+    )
+    return reader
+
+
+def pose_from_message(msg):
+    if hasattr(msg, "pose") and hasattr(msg.pose, "pose"):
+        return msg.pose.pose
+    if hasattr(msg, "pose"):
+        return msg.pose
+    raise TypeError(f"Unsupported pose message: {type(msg).__name__}")
+
+
+def read_bag(
+    bag_dir,
+    storage_id,
+    base_topic,
+    onboard_topic,
+    wheel_odom_topic,
+    turret_topic,
+    reference_topic,
+    left_wheel_topic,
+    right_wheel_topic,
+):
+    reader = open_reader(bag_dir, storage_id)
+    topic_types = {topic.name: topic.type for topic in reader.get_all_topics_and_types()}
+
+    base_samples = []
+    onboard_samples = []
+    wheel_odom_samples = []
+    turret_samples = []
+    reference_samples = []
+    left_wheel_samples = []
+    right_wheel_samples = []
+
+    wanted = {
+        base_topic,
+        onboard_topic,
+        wheel_odom_topic,
+        turret_topic,
+        reference_topic,
+        left_wheel_topic,
+        right_wheel_topic,
+    }
+    while reader.has_next():
+        topic, data, bag_time_ns = reader.read_next()
+        if topic not in wanted:
+            continue
+
+        msg_class = get_message(topic_types[topic])
+        msg = deserialize_message(data, msg_class)
+        t = bag_time_ns * 1e-9
+
+        if topic in (base_topic, onboard_topic, wheel_odom_topic, turret_topic):
+            pose = pose_from_message(msg)
+            sample = {
+                "t": t,
+                "x": float(pose.position.x),
+                "y": float(pose.position.y),
+                "z": float(pose.position.z),
+                "yaw": float(yaw_from_quaternion(pose.orientation)),
+            }
+            if topic == base_topic:
+                base_samples.append(sample)
+            elif topic == onboard_topic:
+                onboard_samples.append(sample)
+            elif topic == wheel_odom_topic:
+                wheel_odom_samples.append(sample)
+            else:
+                turret_samples.append(sample)
+        elif topic == reference_topic:
+            reference_samples.append(
+                {
+                    "t": t,
+                    "x": float(msg.x),
+                    "y": float(msg.y),
+                    "yaw": float(msg.yaw),
+                    "x_dot": float(msg.x_dot),
+                    "y_dot": float(msg.y_dot),
+                    "yaw_dot": float(msg.yaw_dot),
+                }
+            )
+        elif topic == left_wheel_topic:
+            left_wheel_samples.append({"t": t, "value": float(msg.data)})
+        elif topic == right_wheel_topic:
+            right_wheel_samples.append({"t": t, "value": float(msg.data)})
+
+    return (
+        topic_types,
+        base_samples,
+        onboard_samples,
+        wheel_odom_samples,
+        turret_samples,
+        reference_samples,
+        left_wheel_samples,
+        right_wheel_samples,
+    )
+
+def as_arrays(samples):
+    return {
+        "t": np.asarray([s["t"] for s in samples], dtype=float),
+        "x": np.asarray([s["x"] for s in samples], dtype=float),
+        "y": np.asarray([s["y"] for s in samples], dtype=float),
+        "z": np.asarray([s["z"] for s in samples], dtype=float),
+        "yaw": np.asarray([s["yaw"] for s in samples], dtype=float),
+    }
+
+
+def start_relative_path(samples, align_yaw=True):
+    arr = as_arrays(samples)
+    x0 = arr["x"][0]
+    y0 = arr["y"][0]
+    yaw0 = arr["yaw"][0] if align_yaw else 0.0
+
+    dx = arr["x"] - x0
+    dy = arr["y"] - y0
+    c = math.cos(-yaw0)
+    s = math.sin(-yaw0)
+
+    rel_x = c * dx - s * dy
+    rel_y = s * dx + c * dy
+    rel_yaw = np.unwrap(arr["yaw"]) - arr["yaw"][0]
+    rel_yaw = np.asarray([wrap_angle(v) for v in rel_yaw], dtype=float)
+
+    return arr, rel_x, rel_y, rel_yaw
+
+
+def path_length(x_vals, y_vals):
+    if len(x_vals) < 2:
+        return 0.0
+    dx = np.diff(x_vals)
+    dy = np.diff(y_vals)
+    return float(np.sum(np.hypot(dx, dy)))
+
+
+def summarize_base(samples, target_distance, align_yaw):
+    arr, rel_x, rel_y, rel_yaw = start_relative_path(samples, align_yaw=align_yaw)
+
+    duration = float(arr["t"][-1] - arr["t"][0])
+    traveled = path_length(arr["x"], arr["y"])
+    final_forward = float(rel_x[-1])
+    final_lateral = float(rel_y[-1])
+    final_distance = float(math.hypot(rel_x[-1], rel_y[-1]))
+
+    return {
+        "sample_count": int(len(samples)),
+        "duration_s": duration,
+        "start": {
+            "x_m": float(arr["x"][0]),
+            "y_m": float(arr["y"][0]),
+            "z_m": float(arr["z"][0]),
+            "yaw_rad": float(arr["yaw"][0]),
+        },
+        "end": {
+            "x_m": float(arr["x"][-1]),
+            "y_m": float(arr["y"][-1]),
+            "z_m": float(arr["z"][-1]),
+            "yaw_rad": float(arr["yaw"][-1]),
+        },
+        "target_distance_m": float(target_distance),
+        "path_length_m": traveled,
+        "mean_speed_mps": float(traveled / duration) if duration > 0.0 else 0.0,
+        "final_forward_m": final_forward,
+        "final_lateral_m": final_lateral,
+        "final_displacement_m": final_distance,
+        "forward_error_m": float(final_forward - target_distance),
+        "distance_error_m": float(final_distance - target_distance),
+        "lateral_rmse_m": float(np.sqrt(np.mean(rel_y**2))),
+        "lateral_abs_max_m": float(np.max(np.abs(rel_y))),
+        "yaw_drift_final_rad": float(rel_yaw[-1]),
+        "yaw_drift_rmse_rad": float(np.sqrt(np.mean(rel_yaw**2))),
+        "yaw_drift_abs_max_rad": float(np.max(np.abs(rel_yaw))),
+    }
+
+
+def nearest_reference_errors(base_samples, reference_samples, max_dt):
+    if not reference_samples:
+        return None
+
+    ref_t = [s["t"] for s in reference_samples]
+    matched = []
+
+    for base in base_samples:
+        idx = bisect.bisect_left(ref_t, base["t"])
+        candidates = []
+        if idx < len(reference_samples):
+            candidates.append(reference_samples[idx])
+        if idx > 0:
+            candidates.append(reference_samples[idx - 1])
+        if not candidates:
+            continue
+
+        ref = min(candidates, key=lambda s: abs(s["t"] - base["t"]))
+        dt = abs(ref["t"] - base["t"])
+        if dt > max_dt:
+            continue
+
+        matched.append(
+            {
+                "dt": dt,
+                "err_x": ref["x"] - base["x"],
+                "err_y": ref["y"] - base["y"],
+                "err_yaw": wrap_angle(ref["yaw"] - base["yaw"]),
+            }
+        )
+
+    if not matched:
+        return None
+
+    err_x = np.asarray([m["err_x"] for m in matched], dtype=float)
+    err_y = np.asarray([m["err_y"] for m in matched], dtype=float)
+    err_yaw = np.asarray([m["err_yaw"] for m in matched], dtype=float)
+    err_xy = np.hypot(err_x, err_y)
+
+    return {
+        "matched_sample_count": int(len(matched)),
+        "max_match_dt_s": float(max(m["dt"] for m in matched)),
+        "xy_rmse_m": float(np.sqrt(np.mean(err_xy**2))),
+        "x_rmse_m": float(np.sqrt(np.mean(err_x**2))),
+        "y_rmse_m": float(np.sqrt(np.mean(err_y**2))),
+        "yaw_rmse_rad": float(np.sqrt(np.mean(err_yaw**2))),
+        "final_err_x_m": float(err_x[-1]),
+        "final_err_y_m": float(err_y[-1]),
+        "final_err_xy_m": float(err_xy[-1]),
+        "final_err_yaw_rad": float(err_yaw[-1]),
+    }
+
+
+
+def add_relative_fields(samples, align_yaw=True):
+    if not samples:
+        return []
+
+    _, rel_x, rel_y, rel_yaw = start_relative_path(samples, align_yaw=align_yaw)
+    relative = []
+    for sample, x_rel, y_rel, yaw_rel in zip(samples, rel_x, rel_y, rel_yaw):
+        item = dict(sample)
+        item["rel_x"] = float(x_rel)
+        item["rel_y"] = float(y_rel)
+        item["rel_yaw"] = float(yaw_rel)
+        relative.append(item)
+    return relative
+
+
+def matched_relative_samples(reference_samples, estimate_samples, max_dt, align_yaw=True):
+    if not reference_samples or not estimate_samples:
+        return []
+
+    reference_rel = add_relative_fields(reference_samples, align_yaw=align_yaw)
+    estimate_rel = add_relative_fields(estimate_samples, align_yaw=align_yaw)
+    estimate_t = [s["t"] for s in estimate_rel]
+    matched = []
+
+    for ref in reference_rel:
+        idx = bisect.bisect_left(estimate_t, ref["t"])
+        candidates = []
+        if idx < len(estimate_rel):
+            candidates.append(estimate_rel[idx])
+        if idx > 0:
+            candidates.append(estimate_rel[idx - 1])
+        if not candidates:
+            continue
+
+        est = min(candidates, key=lambda s: abs(s["t"] - ref["t"]))
+        dt = est["t"] - ref["t"]
+        if abs(dt) > max_dt:
+            continue
+
+        err_x = est["rel_x"] - ref["rel_x"]
+        err_y = est["rel_y"] - ref["rel_y"]
+        err_yaw = wrap_angle(est["rel_yaw"] - ref["rel_yaw"])
+        matched.append(
+            {
+                "t": ref["t"],
+                "dt": dt,
+                "reference": ref,
+                "estimate": est,
+                "err_x": err_x,
+                "err_y": err_y,
+                "err_xy": math.hypot(err_x, err_y),
+                "err_yaw": err_yaw,
+            }
+        )
+
+    return matched
+
+
+def summarize_trajectory_errors(matches):
+    if not matches:
+        return None
+
+    err_x = np.asarray([m["err_x"] for m in matches], dtype=float)
+    err_y = np.asarray([m["err_y"] for m in matches], dtype=float)
+    err_xy = np.asarray([m["err_xy"] for m in matches], dtype=float)
+    err_yaw = np.asarray([m["err_yaw"] for m in matches], dtype=float)
+
+    return {
+        "matched_sample_count": int(len(matches)),
+        "duration_s": float(matches[-1]["t"] - matches[0]["t"]),
+        "max_match_dt_s": float(max(abs(m["dt"]) for m in matches)),
+        "xy_rmse_m": float(np.sqrt(np.mean(err_xy**2))),
+        "x_rmse_m": float(np.sqrt(np.mean(err_x**2))),
+        "y_rmse_m": float(np.sqrt(np.mean(err_y**2))),
+        "xy_abs_max_m": float(np.max(np.abs(err_xy))),
+        "x_abs_max_m": float(np.max(np.abs(err_x))),
+        "y_abs_max_m": float(np.max(np.abs(err_y))),
+        "yaw_rmse_rad": float(np.sqrt(np.mean(err_yaw**2))),
+        "yaw_abs_max_rad": float(np.max(np.abs(err_yaw))),
+        "final_err_x_m": float(err_x[-1]),
+        "final_err_y_m": float(err_y[-1]),
+        "final_err_xy_m": float(err_xy[-1]),
+        "final_err_yaw_rad": float(err_yaw[-1]),
+        "error_sign_convention": "estimate_minus_vicon_in_start_aligned_frame",
+    }
+
+
+def write_localization_csv(csv_path, matches):
+    if not matches:
+        raise RuntimeError("No matched onboard/Vicon samples found for localization CSV.")
+
+    with csv_path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(
+            [
+                "t_s",
+                "match_dt_s",
+                "vicon_x_m",
+                "vicon_y_m",
+                "vicon_yaw_rad",
+                "onboard_x_m",
+                "onboard_y_m",
+                "onboard_yaw_rad",
+                "err_x_m",
+                "err_y_m",
+                "err_xy_m",
+                "err_yaw_rad",
+            ]
+        )
+        for match in matches:
+            ref = match["reference"]
+            est = match["estimate"]
+            writer.writerow(
+                [
+                    match["t"],
+                    match["dt"],
+                    ref["rel_x"],
+                    ref["rel_y"],
+                    ref["rel_yaw"],
+                    est["rel_x"],
+                    est["rel_y"],
+                    est["rel_yaw"],
+                    match["err_x"],
+                    match["err_y"],
+                    match["err_xy"],
+                    match["err_yaw"],
+                ]
+            )
+
+def write_csv(csv_path, samples, rel_x, rel_y, rel_yaw):
+    with csv_path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(
+            [
+                "t_s",
+                "x_m",
+                "y_m",
+                "z_m",
+                "yaw_rad",
+                "start_frame_x_m",
+                "start_frame_y_m",
+                "start_frame_yaw_rad",
+            ]
+        )
+        for sample, x_rel, y_rel, yaw_rel in zip(samples, rel_x, rel_y, rel_yaw):
+            writer.writerow(
+                [
+                    sample["t"],
+                    sample["x"],
+                    sample["y"],
+                    sample["z"],
+                    sample["yaw"],
+                    x_rel,
+                    y_rel,
+                    yaw_rel,
+                ]
+            )
+
+
+def reference_arrays(reference_samples):
+    return {
+        "t": np.asarray([s["t"] for s in reference_samples], dtype=float),
+        "x": np.asarray([s["x"] for s in reference_samples], dtype=float),
+        "y": np.asarray([s["y"] for s in reference_samples], dtype=float),
+        "yaw": np.asarray([s["yaw"] for s in reference_samples], dtype=float),
+    }
+
+
+def scalar_arrays(samples):
+    return {
+        "t": np.asarray([s["t"] for s in samples], dtype=float),
+        "value": np.asarray([s["value"] for s in samples], dtype=float),
+    }
+
+
+def sample_indices(count, max_count):
+    if count <= 0:
+        return np.asarray([], dtype=int)
+    if count <= max_count:
+        return np.arange(count, dtype=int)
+    return np.unique(np.linspace(0, count - 1, max_count, dtype=int))
+
+
+def nearest_yaw_samples(base_samples, turret_samples, max_dt):
+    if not turret_samples:
+        return []
+
+    turret_t = [s["t"] for s in turret_samples]
+    matched = []
+    for base in base_samples:
+        idx = bisect.bisect_left(turret_t, base["t"])
+        candidates = []
+        if idx < len(turret_samples):
+            candidates.append(turret_samples[idx])
+        if idx > 0:
+            candidates.append(turret_samples[idx - 1])
+        if not candidates:
+            continue
+
+        turret = min(candidates, key=lambda s: abs(s["t"] - base["t"]))
+        if abs(turret["t"] - base["t"]) <= max_dt:
+            matched.append(
+                {
+                    "x": base["x"],
+                    "y": base["y"],
+                    "yaw": turret["yaw"],
+                }
+            )
+
+    return matched
+
+
+def write_wheel_plot(plot_path, left_samples, right_samples, left_topic, right_topic):
+    import matplotlib.pyplot as plt
+
+    if not left_samples and not right_samples:
+        raise RuntimeError("No wheel command samples found to plot.")
+
+    t0_candidates = []
+    if left_samples:
+        t0_candidates.append(left_samples[0]["t"])
+    if right_samples:
+        t0_candidates.append(right_samples[0]["t"])
+    t0 = min(t0_candidates)
+
+    plt.figure(figsize=(9, 4.8))
+    if left_samples:
+        left = scalar_arrays(left_samples)
+        plt.plot(left["t"] - t0, left["value"], label=left_topic, linewidth=1.4)
+    if right_samples:
+        right = scalar_arrays(right_samples)
+        plt.plot(right["t"] - t0, right["value"], label=right_topic, linewidth=1.4)
+
+    plt.xlabel("time (s)")
+    plt.ylabel("cmd_vel")
+    plt.title("HAMR wheel command velocities")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(plot_path, dpi=160)
+    plt.close()
+
+
+def write_turret_yaw_plot(
+    plot_path,
+    base_samples,
+    turret_samples,
+    reference_samples,
+    max_dt,
+    arrow_count,
+    arrow_length,
+):
+    import matplotlib.pyplot as plt
+
+    if not turret_samples:
+        raise RuntimeError("No turret samples found to plot yaw orientation.")
+
+    base = as_arrays(base_samples)
+    yaw_samples = nearest_yaw_samples(base_samples, turret_samples, max_dt)
+    if not yaw_samples:
+        raise RuntimeError(
+            f"No turret yaw samples matched base timestamps within {max_dt:.3f} s."
+        )
+
+    arrow_idx = sample_indices(len(yaw_samples), arrow_count)
+    arrow_x = np.asarray([yaw_samples[i]["x"] for i in arrow_idx], dtype=float)
+    arrow_y = np.asarray([yaw_samples[i]["y"] for i in arrow_idx], dtype=float)
+    arrow_yaw = np.asarray([yaw_samples[i]["yaw"] for i in arrow_idx], dtype=float)
+    arrow_u = np.cos(arrow_yaw) * arrow_length
+    arrow_v = np.sin(arrow_yaw) * arrow_length
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(base["x"], base["y"], label="Actual base trajectory", linewidth=2.0)
+    if reference_samples:
+        ref = reference_arrays(reference_samples)
+        plt.plot(ref["x"], ref["y"], "--", label="Reference trajectory", linewidth=1.5)
+    plt.quiver(
+        arrow_x,
+        arrow_y,
+        arrow_u,
+        arrow_v,
+        angles="xy",
+        scale_units="xy",
+        scale=1,
+        width=0.004,
+        color="tab:red",
+        label="Turret yaw",
+    )
+    plt.scatter(
+        [base["x"][0], base["x"][-1]],
+        [base["y"][0], base["y"][-1]],
+        c=["green", "red"],
+    )
+    plt.xlabel("x (m)")
+    plt.ylabel("y (m)")
+    plt.title("HAMR actual/reference trajectory with turret yaw")
+    plt.axis("equal")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(plot_path, dpi=160)
+    plt.close()
+
+
+def write_plot(plot_path, samples, rel_x, rel_y, target_distance, reference_samples=None):
+    import matplotlib.pyplot as plt
+
+    plt.figure(figsize=(8, 5))
+    if reference_samples:
+        base = as_arrays(samples)
+        ref = reference_arrays(reference_samples)
+        plot_x = base["x"]
+        plot_y = base["y"]
+        plt.plot(plot_x, plot_y, label="Vicon base path", linewidth=2.0)
+        plt.plot(ref["x"], ref["y"], "--", label="Reference trajectory", linewidth=1.5)
+    else:
+        plot_x = rel_x
+        plot_y = rel_y
+        plt.plot(plot_x, plot_y, label="Vicon base path", linewidth=2.0)
+        plt.plot([0.0, target_distance], [0.0, 0.0], "k--", label="2 m target")
+    plt.scatter([plot_x[0], plot_x[-1]], [plot_y[0], plot_y[-1]], c=["green", "red"])
+    plt.xlabel("x (m)")
+    plt.ylabel("y (m)")
+    plt.title("HAMR path and reference trajectory")
+    plt.axis("equal")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(plot_path, dpi=160)
+    plt.close()
+
+
+
+def write_localization_plot(
+    plot_path,
+    base_samples,
+    onboard_samples,
+    wheel_odom_samples,
+    align_yaw,
+    base_topic,
+    onboard_topic,
+    wheel_odom_topic,
+):
+    import matplotlib.pyplot as plt
+
+    if not onboard_samples:
+        raise RuntimeError(f"No onboard odometry samples found on {onboard_topic}.")
+
+    base_rel = add_relative_fields(base_samples, align_yaw=align_yaw)
+    onboard_rel = add_relative_fields(onboard_samples, align_yaw=align_yaw)
+    wheel_rel = add_relative_fields(wheel_odom_samples, align_yaw=align_yaw)
+
+    plt.figure(figsize=(8.5, 5.5))
+    plt.plot(
+        [s["rel_x"] for s in base_rel],
+        [s["rel_y"] for s in base_rel],
+        label=f"Vicon {base_topic}",
+        linewidth=2.2,
+    )
+    plt.plot(
+        [s["rel_x"] for s in onboard_rel],
+        [s["rel_y"] for s in onboard_rel],
+        label=f"Onboard {onboard_topic}",
+        linewidth=2.0,
+    )
+    if wheel_rel:
+        plt.plot(
+            [s["rel_x"] for s in wheel_rel],
+            [s["rel_y"] for s in wheel_rel],
+            label=f"Wheel {wheel_odom_topic}",
+            linewidth=1.4,
+            alpha=0.8,
+        )
+
+    plt.scatter([base_rel[0]["rel_x"]], [base_rel[0]["rel_y"]], c="green", s=36, label="start")
+    plt.scatter([base_rel[-1]["rel_x"]], [base_rel[-1]["rel_y"]], c="red", s=36, label="vicon end")
+    plt.scatter(
+        [onboard_rel[-1]["rel_x"]],
+        [onboard_rel[-1]["rel_y"]],
+        c="orange",
+        s=36,
+        label="onboard end",
+    )
+    plt.xlabel("start-aligned x (m)")
+    plt.ylabel("start-aligned y (m)")
+    plt.title("HAMR Vicon vs onboard odometry")
+    plt.axis("equal")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(plot_path, dpi=160)
+    plt.close()
+
+
+def write_localization_error_plot(plot_path, matches, estimate_label):
+    import matplotlib.pyplot as plt
+
+    if not matches:
+        raise RuntimeError("No matched onboard/Vicon samples found for error plot.")
+
+    t0 = matches[0]["t"]
+    t = np.asarray([m["t"] - t0 for m in matches], dtype=float)
+    err_x = np.asarray([m["err_x"] for m in matches], dtype=float)
+    err_y = np.asarray([m["err_y"] for m in matches], dtype=float)
+    err_xy = np.asarray([m["err_xy"] for m in matches], dtype=float)
+    err_yaw_deg = np.asarray([math.degrees(m["err_yaw"]) for m in matches], dtype=float)
+
+    fig, (ax_xy, ax_yaw) = plt.subplots(2, 1, figsize=(9, 6.2), sharex=True)
+    ax_xy.plot(t, err_x, label="x error", linewidth=1.4)
+    ax_xy.plot(t, err_y, label="y error", linewidth=1.4)
+    ax_xy.plot(t, err_xy, label="xy error", linewidth=1.8)
+    ax_xy.set_ylabel("error (m)")
+    ax_xy.set_title(f"{estimate_label} minus Vicon")
+    ax_xy.grid(True)
+    ax_xy.legend()
+
+    ax_yaw.plot(t, err_yaw_deg, label="yaw error", linewidth=1.5)
+    ax_yaw.set_xlabel("time from first match (s)")
+    ax_yaw.set_ylabel("yaw error (deg)")
+    ax_yaw.grid(True)
+    ax_yaw.legend()
+
+    fig.tight_layout()
+    fig.savefig(plot_path, dpi=160)
+    plt.close(fig)
+
+def format_rad_deg(value):
+    return f"{value:.4f} rad ({math.degrees(value):.2f} deg)"
+
+
+def print_summary(bag_dir, metrics):
+    base = metrics["base"]
+    print(f"\nHAMR Vicon straight-run summary: {bag_dir}")
+    print(f"  samples:        {base['sample_count']}")
+    print(f"  duration:       {base['duration_s']:.3f} s")
+    print(f"  path length:    {base['path_length_m']:.3f} m")
+    print(f"  final forward:  {base['final_forward_m']:.3f} m")
+    print(f"  final lateral:  {base['final_lateral_m']:.3f} m")
+    print(f"  forward error:  {base['forward_error_m']:+.3f} m vs target {base['target_distance_m']:.3f} m")
+    print(f"  lateral RMSE:   {base['lateral_rmse_m']:.3f} m")
+    print(f"  lateral max:    {base['lateral_abs_max_m']:.3f} m")
+    print(f"  yaw final drift:{format_rad_deg(base['yaw_drift_final_rad'])}")
+    print(f"  yaw RMSE drift: {format_rad_deg(base['yaw_drift_rmse_rad'])}")
+
+    onboard = metrics.get("onboard_tracking")
+    if onboard:
+        print("\nOnboard localization vs Vicon:")
+        print(f"  topic:          {metrics['onboard_topic']}")
+        print(f"  matched samples:{onboard['matched_sample_count']}")
+        print(f"  xy RMSE:        {onboard['xy_rmse_m']:.3f} m")
+        print(f"  xy max:         {onboard['xy_abs_max_m']:.3f} m")
+        print(f"  final xy error: {onboard['final_err_xy_m']:.3f} m")
+        print(f"  yaw RMSE:       {format_rad_deg(onboard['yaw_rmse_rad'])}")
+        print(f"  final yaw error:{format_rad_deg(onboard['final_err_yaw_rad'])}")
+    elif metrics.get("onboard_sample_count", 0) == 0:
+        print(f"\nOnboard localization vs Vicon: no samples on {metrics['onboard_topic']}")
+
+    wheel = metrics.get("wheel_odom_tracking")
+    if wheel:
+        print("\nRaw wheel odometry vs Vicon:")
+        print(f"  topic:          {metrics['wheel_odom_topic']}")
+        print(f"  matched samples:{wheel['matched_sample_count']}")
+        print(f"  xy RMSE:        {wheel['xy_rmse_m']:.3f} m")
+        print(f"  final xy error: {wheel['final_err_xy_m']:.3f} m")
+        print(f"  yaw RMSE:       {format_rad_deg(wheel['yaw_rmse_rad'])}")
+
+    ref = metrics.get("reference_tracking")
+    if ref:
+        print("\nReference tracking from bag timestamps:")
+        print(f"  matched samples:{ref['matched_sample_count']}")
+        print(f"  xy RMSE:        {ref['xy_rmse_m']:.3f} m")
+        print(f"  final xy error: {ref['final_err_xy_m']:.3f} m")
+        print(f"  yaw RMSE:       {format_rad_deg(ref['yaw_rmse_rad'])}")
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Analyze HAMR Vicon and onboard localization trajectories from a rosbag."
+    )
+    parser.add_argument("bag_dir", type=Path, help="Path to rosbag directory")
+    parser.add_argument("--base-topic", default=DEFAULT_BASE_TOPIC)
+    parser.add_argument("--onboard-topic", default=DEFAULT_ONBOARD_TOPIC)
+    parser.add_argument("--wheel-odom-topic", default=DEFAULT_WHEEL_ODOM_TOPIC)
+    parser.add_argument("--turret-topic", default=DEFAULT_TURRET_TOPIC)
+    parser.add_argument("--reference-topic", default=DEFAULT_REFERENCE_TOPIC)
+    parser.add_argument("--left-wheel-topic", default=DEFAULT_LEFT_WHEEL_TOPIC)
+    parser.add_argument("--right-wheel-topic", default=DEFAULT_RIGHT_WHEEL_TOPIC)
+    parser.add_argument("--storage-id", default="auto", help="auto, mcap, or sqlite3")
+    parser.add_argument("--target-distance", type=float, default=2.0)
+    parser.add_argument(
+        "--no-align-yaw",
+        action="store_true",
+        help="Do not rotate paths into each trajectory's initial yaw frame.",
+    )
+    parser.add_argument(
+        "--reference-max-dt",
+        type=float,
+        default=0.05,
+        help="Max timestamp difference for base/reference matching.",
+    )
+    parser.add_argument(
+        "--localization-max-dt",
+        type=float,
+        default=0.05,
+        help="Max timestamp difference for Vicon/onboard matching.",
+    )
+    parser.add_argument("--json", type=Path, help="Optional metrics JSON output")
+    parser.add_argument("--csv", type=Path, help="Optional Vicon base trace CSV output")
+    parser.add_argument("--localization-csv", type=Path, help="Optional matched Vicon/onboard CSV output")
+    parser.add_argument("--plot", type=Path, help="Optional path/reference plot PNG output")
+    parser.add_argument("--localization-plot", type=Path, help="Optional Vicon/onboard path comparison PNG output")
+    parser.add_argument("--localization-error-plot", type=Path, help="Optional Vicon/onboard error plot PNG output")
+    parser.add_argument("--wheel-plot", type=Path, help="Optional wheel cmd_vel plot PNG output")
+    parser.add_argument(
+        "--turret-yaw-plot",
+        type=Path,
+        help="Optional actual/reference trajectory plot with turret yaw arrows",
+    )
+    parser.add_argument(
+        "--turret-max-dt",
+        type=float,
+        default=0.05,
+        help="Max timestamp difference for base/turret yaw matching.",
+    )
+    parser.add_argument(
+        "--orientation-arrow-count",
+        type=int,
+        default=40,
+        help="Maximum number of turret yaw arrows to draw.",
+    )
+    parser.add_argument(
+        "--orientation-arrow-length",
+        type=float,
+        default=0.18,
+        help="Turret yaw arrow length in plot units.",
+    )
+    return parser.parse_args()
+
+def main():
+    args = parse_args()
+    bag_dir = args.bag_dir.expanduser().resolve()
+    if not bag_dir.exists():
+        raise FileNotFoundError(f"Bag directory does not exist: {bag_dir}")
+
+    storage_id = detect_storage_id(bag_dir) if args.storage_id == "auto" else args.storage_id
+    (
+        topic_types,
+        base_samples,
+        onboard_samples,
+        wheel_odom_samples,
+        turret_samples,
+        reference_samples,
+        left_wheel_samples,
+        right_wheel_samples,
+    ) = read_bag(
+        bag_dir,
+        storage_id,
+        args.base_topic,
+        args.onboard_topic,
+        args.wheel_odom_topic,
+        args.turret_topic,
+        args.reference_topic,
+        args.left_wheel_topic,
+        args.right_wheel_topic,
+    )
+
+    if not base_samples:
+        available = "\n".join(f"  {name} [{type_name}]" for name, type_name in sorted(topic_types.items()))
+        raise RuntimeError(
+            f"No samples found on {args.base_topic}. Available topics:\n{available}"
+        )
+
+    compare_requested = bool(
+        args.localization_plot or args.localization_error_plot or args.localization_csv
+    )
+    if compare_requested and not onboard_samples:
+        available = "\n".join(f"  {name} [{type_name}]" for name, type_name in sorted(topic_types.items()))
+        raise RuntimeError(
+            f"No onboard odometry samples found on {args.onboard_topic}. Available topics:\n{available}"
+        )
+
+    align_yaw = not args.no_align_yaw
+    onboard_matches = matched_relative_samples(
+        base_samples,
+        onboard_samples,
+        max_dt=args.localization_max_dt,
+        align_yaw=align_yaw,
+    )
+    wheel_odom_matches = matched_relative_samples(
+        base_samples,
+        wheel_odom_samples,
+        max_dt=args.localization_max_dt,
+        align_yaw=align_yaw,
+    )
+
+    metrics = {
+        "bag_dir": str(bag_dir),
+        "storage_id": storage_id,
+        "base_topic": args.base_topic,
+        "onboard_topic": args.onboard_topic,
+        "wheel_odom_topic": args.wheel_odom_topic,
+        "turret_topic": args.turret_topic,
+        "reference_topic": args.reference_topic,
+        "left_wheel_topic": args.left_wheel_topic,
+        "right_wheel_topic": args.right_wheel_topic,
+        "base": summarize_base(base_samples, args.target_distance, align_yaw),
+        "onboard_sample_count": len(onboard_samples),
+        "wheel_odom_sample_count": len(wheel_odom_samples),
+        "turret_sample_count": len(turret_samples),
+        "reference_sample_count": len(reference_samples),
+        "left_wheel_sample_count": len(left_wheel_samples),
+        "right_wheel_sample_count": len(right_wheel_samples),
+    }
+
+    onboard_metrics = summarize_trajectory_errors(onboard_matches)
+    if onboard_metrics:
+        metrics["onboard_tracking"] = onboard_metrics
+    wheel_odom_metrics = summarize_trajectory_errors(wheel_odom_matches)
+    if wheel_odom_metrics:
+        metrics["wheel_odom_tracking"] = wheel_odom_metrics
+
+    ref_metrics = nearest_reference_errors(
+        base_samples, reference_samples, max_dt=args.reference_max_dt
+    )
+    if ref_metrics:
+        metrics["reference_tracking"] = ref_metrics
+
+    arr, rel_x, rel_y, rel_yaw = start_relative_path(base_samples, align_yaw=align_yaw)
+    del arr
+
+    if args.csv:
+        args.csv.parent.mkdir(parents=True, exist_ok=True)
+        write_csv(args.csv, base_samples, rel_x, rel_y, rel_yaw)
+    if args.localization_csv:
+        args.localization_csv.parent.mkdir(parents=True, exist_ok=True)
+        write_localization_csv(args.localization_csv, onboard_matches)
+    if args.plot:
+        args.plot.parent.mkdir(parents=True, exist_ok=True)
+        write_plot(args.plot, base_samples, rel_x, rel_y, args.target_distance, reference_samples)
+    if args.localization_plot:
+        args.localization_plot.parent.mkdir(parents=True, exist_ok=True)
+        write_localization_plot(
+            args.localization_plot,
+            base_samples,
+            onboard_samples,
+            wheel_odom_samples,
+            align_yaw,
+            args.base_topic,
+            args.onboard_topic,
+            args.wheel_odom_topic,
+        )
+    if args.localization_error_plot:
+        args.localization_error_plot.parent.mkdir(parents=True, exist_ok=True)
+        write_localization_error_plot(
+            args.localization_error_plot,
+            onboard_matches,
+            args.onboard_topic,
+        )
+    if args.wheel_plot and (left_wheel_samples or right_wheel_samples):
+        args.wheel_plot.parent.mkdir(parents=True, exist_ok=True)
+        write_wheel_plot(
+            args.wheel_plot,
+            left_wheel_samples,
+            right_wheel_samples,
+            args.left_wheel_topic,
+            args.right_wheel_topic,
+        )
+    elif args.wheel_plot:
+        print(
+            f"Skipping wheel command plot: no samples found on "
+            f"{args.left_wheel_topic} or {args.right_wheel_topic}."
+        )
+    if args.turret_yaw_plot:
+        args.turret_yaw_plot.parent.mkdir(parents=True, exist_ok=True)
+        write_turret_yaw_plot(
+            args.turret_yaw_plot,
+            base_samples,
+            turret_samples,
+            reference_samples,
+            args.turret_max_dt,
+            args.orientation_arrow_count,
+            args.orientation_arrow_length,
+        )
+    if args.json:
+        args.json.parent.mkdir(parents=True, exist_ok=True)
+        args.json.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+
+    print_summary(bag_dir, metrics)
+
+
+if __name__ == "__main__":
+    main()

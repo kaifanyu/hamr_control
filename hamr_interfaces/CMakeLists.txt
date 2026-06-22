@@ -8,12 +8,15 @@ endif()
 # Find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(std_msgs REQUIRED)
 
 # Generate message files
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/StateError.msg"
   "msg/LiveGains.msg"
   "msg/ReferenceTraj.msg"
+  "msg/PlannedTrajectory.msg"
+  DEPENDENCIES std_msgs
 )
 
 # Add any additional runtime dependencies

@@ -1,0 +1,54 @@
+<launch>
+    <!-- Experimental-stack Gazebo maze simulation. Infra mirrors
+         hamr_bringup/launch/hamr_maze.launch.xml (untouched fallback). -->
+    <arg name="controller" default="pid" />
+    <arg name="traj" default="smooth" />
+    <arg name="metrics" default="true" />
+
+    <let name="urdf_path"
+        value="$(find-pkg-share hamr_description)/urdf/hamr.urdf.xacro" />
+    <let name="gazebo_config_path"
+        value="$(find-pkg-share hamr_bringup)/config/gazebo_bridge.yaml" />
+    <let name="rviz_config_path"
+        value="$(find-pkg-share hamr_description)/rviz/config_maze.rviz" />
+    <let name="pid_sim_config_path"
+        value="$(find-pkg-share hamr_bringup)/config/hamr_pid_params.yaml" />
+
+    <!-- Gazebo -->
+    <include file="$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
+        <arg name="gz_args" value="$(find-pkg-share hamr_bringup)/worlds/emptyrr_world.sdf -r" />
+    </include>
+    <node pkg="ros_gz_sim" exec="create" args="-topic robot_description" />
+
+    <node pkg="robot_state_publisher" exec="robot_state_publisher">
+        <param name="robot_description"
+            value="$(command 'xacro $(var urdf_path)')" />
+    </node>
+
+    <node pkg="ros_gz_bridge" exec="parameter_bridge">
+        <param name="config_file" value="$(var gazebo_config_path)" />
+    </node>
+
+    <node pkg="rviz2" exec="rviz2" output="screen"
+          args="-d $(var rviz_config_path)" />
+
+    <node pkg="tf2_ros" exec="static_transform_publisher"
+        name="static_map_to_odom" output="screen"
+        args="0 0 0 0 0 0 map odom"/>
+
+    <!-- Map, PRM, A*, tracer -->
+    <node pkg="hamr_control_cpp" exec="map_publisher" />
+    <node pkg="hamr_control_cpp" exec="astar_search" />
+    <node pkg="hamr_control_cpp" exec="prm_builder" />
+    <node pkg="hamr_control_cpp" exec="hamr_path_tracer" />
+
+    <!-- Trajectory + controller + metrics selection -->
+    <include file="$(find-pkg-share hamr_control_exp)/launch/exp_stack.launch.py">
+        <arg name="controller" value="$(var controller)" />
+        <arg name="traj" value="$(var traj)" />
+        <arg name="metrics" value="$(var metrics)" />
+        <arg name="simulating" value="true" />
+        <arg name="world_frame" value="odom" />
+        <arg name="pid_params_file" value="$(var pid_sim_config_path)" />
+    </include>
+</launch>

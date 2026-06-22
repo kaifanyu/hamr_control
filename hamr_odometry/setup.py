@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'reference_trajectory'
+package_name = 'hamr_odometry'
 
 setup(
     name=package_name,
@@ -15,13 +15,12 @@ setup(
     zip_safe=True,
     maintainer='cedric',
     maintainer_email='cedrich@seas.upenn.edu',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='Holonomic wheel odometry for HAMR.',
+    license='MIT',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-                    "waypoint_traj_sequence = reference_trajectory.waypoint_traj_sequence:main",
-                    "waypoint_traj_simple = reference_trajectory.waypoint_traj_simple:main",
+            'holonomic_odom_node = hamr_odometry.holonomic_odom_node:main',
         ],
     },
 )

@@ -3,4 +3,6 @@
 /log/
 __pycache__/
 *.bag/
-/rosbags/
+/rosbags/*
+!/rosbags/analyze_hamr_vicon_straight.py
+!/rosbags/analyze_latest_hamr_bag.sh
