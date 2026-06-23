@@ -9,10 +9,27 @@ endif()
 find_package(ament_cmake REQUIRED)
 
 # Install all static assets (launch files, configs, sim sensor/world, rviz).
-# `maps/` and `bags/` are runtime working dirs (git-ignored) and are NOT installed.
 install(
   DIRECTORY launch config urdf worlds rviz
   DESTINATION share/${PROJECT_NAME}/
+)
+
+# Map-conversion / sim-setup tools, runnable via `ros2 run compa_slam map_to_sim.py`.
+install(
+  PROGRAMS scripts/map_to_sim.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# Generated sim maps (heightmap PNG + .yaml + .sdf) -- SMALL, and what
+# replay_map_sim.launch.py reads. Heavy capture artifacts (.db/.ply/.pcd) and raw
+# bags stay in maps/ + bags/ as runtime working dirs and are excluded from install.
+install(
+  DIRECTORY maps
+  DESTINATION share/${PROJECT_NAME}/
+  PATTERN "*.db" EXCLUDE
+  PATTERN "*.ply" EXCLUDE
+  PATTERN "*.pcd" EXCLUDE
+  PATTERN "bags" EXCLUDE
 )
 
 if(BUILD_TESTING)

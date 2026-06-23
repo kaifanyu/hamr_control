@@ -36,12 +36,13 @@ gz depth camera (sim)  ─┴─► RTAB-Map ──► robot pose (map→base) �
 
 | Dir | Holds | Status |
 |-----|-------|--------|
-| `launch/` | launch files | `slam_sim.launch.py`, `rtabmap_sim.launch.py` ✔ |
+| `launch/` | launch files | `slam_sim.launch.py`, `rtabmap_sim.launch.py`, `replay_map_sim.launch.py` ✔ |
 | `config/` | YAML params (bridge, rtabmap, realsense, elevation map) | `gazebo_bridge_slam.yaml`, `rtabmap.yaml` ✔ |
+| `scripts/`| sim-setup tools | `map_to_sim.py` (recorded map → Gazebo heightmap world) ✔ |
 | `urdf/`   | D455 sensor (`compa_d455.urdf.xacro`) + spawnable robot (`compa_slam.urdf.xacro`) | ✔ |
 | `worlds/` | textured Gazebo world for visual odometry (`feature_world.sdf`) | ✔ |
 | `rviz/`   | RViz configs for SLAM viz (using `rtabmap_viz` for now; custom config TBD) | — |
-| `maps/`   | saved `compa.db` databases (**git-ignored**) | working dir |
+| `maps/`   | saved `*.db` + exported clouds (git-ignored) **and** generated `*_heightmap.png`/`*.yaml`/`*.sdf` | working dir |
 | `bags/`   | raw RealSense recordings (**git-ignored**, created on first record) | working dir |
 
 ## Phased plan (status)
@@ -51,6 +52,10 @@ gz depth camera (sim)  ─┴─► RTAB-Map ──► robot pose (map→base) �
       builds, tune sync/QoS if needed, then add a localization launch.
 - [ ] **Phase 1 — Real SLAM.** Bring up the D455 + IMU madgwick filter; record a raw sensor
       bag while driving the space; build & save `maps/compa.db`; verify localization mode.
+- [x] **Phase 1.5 — Sim replay of a recorded map.** `scripts/map_to_sim.py` turns a recorded
+      RTAB-Map cloud/`.db` (or a DEM) into a Gazebo heightmap world + `/elevation_map` +
+      `/costmap`; `replay_map_sim.launch.py` drives that terrain in sim. (Code-complete,
+      untested on Linux — same status as Phase 0.) See **Sim replay** below.
 - [ ] **Phase 2 — Elevation mapping (CPU).** Feed RTAB-Map pose + point cloud into
       `elevation_mapping`; publish `grid_map` as `/elevation_map` (the topic the planner reads).
 - [ ] **Phase 3 — Planning + control.** Point `or_planner`/`astar` at the live `/elevation_map`;
@@ -94,3 +99,34 @@ ros2 topic pub /right_wheel/cmd_vel std_msgs/msg/Float64 "{data: 3.0}"
 ```
 Map saves to `maps/compa_sim.db` on shutdown. Watch `rtabmap_viz` for tracked features +
 loop closures. Next: a localization launch (run against the saved `.db`).
+
+## Sim replay (record → convert → run in sim)
+
+Turn a **recorded real-world map** into a Gazebo simulation of the same terrain. The bridge
+is a **heightmap PNG**: it drives both the Gazebo `<heightmap>` terrain *and* the planner's
+`/elevation_map` + `/costmap` (via `hamr_control_cpp/cost_map_publisher`), so physics and
+planner see identical, aligned terrain.
+
+**Which map does the sim use — RTAB-Map or the elevation/"cupy" map?** Neither is fed to
+Gazebo directly. RTAB-Map gives you localization + a dense **point cloud**; the elevation map
+is just that cloud **rasterised** into a height grid (we use the **CPU** path — `cupy` is GPU
+and unusable here). `map_to_sim.py` does that rasterisation offline, so you feed it the
+RTAB-Map cloud/`.db` (recommended) **or** an existing DEM — both become the same heightmap.
+Full reasoning: [`docs/HANDOFF.md` §10](docs/HANDOFF.md).
+
+```bash
+# from a recorded RTAB-Map database (maps/compa_real.db):
+ros2 run compa_slam map_to_sim.py --db maps/compa_real.db --name compa_real
+#   or from an exported cloud:  --cloud maps/compa_real.ply
+#   tune: --res 0.05  --zclip 1 99  --size 40  --agg max|mean  --bits 8|16
+# -> writes maps/compa_real_heightmap.png + compa_real.yaml + compa_real.sdf
+
+colcon build --packages-select compa_slam --symlink-install && source install/setup.bash
+
+ros2 launch compa_slam replay_map_sim.launch.py map:=compa_real          # drive the terrain
+ros2 launch compa_slam replay_map_sim.launch.py map:=compa_real run_planner:=true  # + or_planner
+```
+
+> Caveat: `cost_map_publisher` centres `/elevation_map` at the origin but hard-codes the
+> `/costmap` origin at (-20,-20), so for **planner** runs generate with `--size 40` until a
+> parameterised publisher replaces it. Just *driving* the terrain works at any extent.

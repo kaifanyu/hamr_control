@@ -290,3 +290,103 @@ ros2 topic pub /right_wheel/cmd_vel std_msgs/msg/Float64 "{data: 3.0}"
 ros2 topic list | grep d455
 ros2 run tf2_tools view_frames
 ```
+
+---
+
+## 10. Sim replay of a recorded map  (record → convert → run in sim)
+
+This is the "I recorded a map, now drive it in sim" pipeline. New, additive, lives in
+`compa_slam/scripts/` + `compa_slam/launch/`. Nothing in the SLAM mapping flow changes.
+
+### 10.1 The key idea: a heightmap is the shared currency
+The existing sim already proves the pattern (see `hamr_bringup/worlds/compa_OR_test_map.sdf`
++ `hamr_control_cpp/cost_map_publisher.cpp`): **one grayscale heightmap PNG drives BOTH**
+- the **Gazebo terrain** (`<heightmap>` geometry → the robot physically drives on it), and
+- the **planner inputs** (`cost_map_publisher` reads the same PNG → `/elevation_map`
+  grid_map + `/costmap`, which `or_planner` consumes).
+
+So "run a recorded map in sim" = **turn whatever SLAM produced into a heightmap PNG**
+(+ a sidecar of extent/height/resolution), then generate a world SDF and point the planner
+publisher at the same PNG. Sim physics and planner map are then identical and aligned.
+
+### 10.2 RTAB-Map vs. the elevation / "cupy" terrain map — which feeds the sim?
+Short answer: **neither is fed to Gazebo directly; both are upstream of the heightmap.**
+
+- **RTAB-Map** is the *localizer + dense 3D reconstruction*. Its useful output here is the
+  dense **point cloud** (`/rtabmap/cloud_map`, or exported from the `.db` with
+  `rtabmap-export --cloud`). RTAB-Map alone does **not** give a 2.5D terrain surface — its
+  `/rtabmap/grid_map` is a flat 2D occupancy projection (loses height = useless for off-road
+  slope/step planning).
+- **The elevation / terrain map** (CPU `elevation_mapping` or `grid_map_pcl`; **"cupy" is the
+  GPU variant we do NOT use** — robot is CPU-only) is just a **rasterisation of that same
+  cloud** into a height-per-cell grid. That grid *is* a heightmap in ROS form.
+
+Therefore:
+
+| Source | What it is | Role in the sim pipeline |
+|---|---|---|
+| RTAB-Map `.db` / cloud | pose graph + dense 3D points | **the input** you record on the real robot |
+| Elevation/terrain map (grid_map) | 2.5D height grid (rasterised cloud) | the natural heightmap; what `or_planner` eats |
+| Gazebo `<heightmap>` | terrain geometry (a DEM image) | what the simulator actually ingests |
+
+**`map_to_sim.py` does the cloud→DEM rasterisation offline**, so you don't need
+`elevation_mapping` running just to build a sim world. "Either way works" only in the sense
+that both eventually become the *same* heightmap PNG:
+- give it the **RTAB-Map cloud/`.db`** → it rasterises (recommended; this is the recorded map);
+- give it an **already-made elevation DEM** (`--dem`) → it just reformats it for Gazebo.
+
+You **cannot** hand Gazebo an RTAB-Map `.db` or a live grid_map — hence the conversion step.
+(Also: a real-world `.db` is not portable into sim; the heightmap derived from it is.)
+
+### 10.3 The new files
+| File | What it does |
+|---|---|
+| `scripts/map_to_sim.py` | recorded map → `maps/<name>_heightmap.png` + `<name>.yaml` + `<name>.sdf`. Reads `.ply/.pcd/.xyz` clouds (or runs `rtabmap-export` on a `.db`, or reuses a `--dem`). NumPy+Pillow only — no ROS/open3d. Rasterises (max-Z top surface, percentile outlier clip, hole-fill), snaps to a Gazebo-legal `(2^n)+1` square, writes a world referencing the PNG with a package-relative `file://compa_slam/maps/...` URI. |
+| `launch/replay_map_sim.launch.py` | reads `maps/<map>.yaml`, launches Gazebo on `<map>.sdf` + robot + bridge + static `map→odom` + `cost_map_publisher` (extent/height taken from the YAML so `/elevation_map` + `/costmap` match the world exactly) + optional `or_planner` + RViz. |
+
+### 10.4 Run it
+```bash
+# 1) on the real robot: build a map (Phase 1) AND record a sensor bag (M1.5).
+#    The .db ends up in maps/, e.g. maps/compa_real.db
+
+# 2) export a dense cloud from the .db (skip if map_to_sim.py runs it for you):
+rtabmap-export --cloud --output maps/compa_real maps/compa_real.db   # -> maps/compa_real.ply
+
+# 3) convert: cloud -> heightmap PNG + .yaml + .sdf
+ros2 run compa_slam map_to_sim.py --cloud maps/compa_real.ply --name compa_real
+#    (or straight from the db:)  ros2 run compa_slam map_to_sim.py --db maps/compa_real.db --name compa_real
+#    tune:  --res 0.05   --zclip 1 99   --size 40   --agg max|mean   --bits 8|16
+
+# 4) (re)build so <share>/compa_slam/maps sees the new files (instant w/ symlink-install)
+colcon build --packages-select compa_slam --symlink-install && source install/setup.bash
+
+# 5) drive the recorded terrain in sim
+ros2 launch compa_slam replay_map_sim.launch.py map:=compa_real
+ros2 topic pub /left_wheel/cmd_vel  std_msgs/msg/Float64 "{data: 3.0}"
+ros2 topic pub /right_wheel/cmd_vel std_msgs/msg/Float64 "{data: 3.0}"
+#    plan on it:  ros2 launch ... replay_map_sim.launch.py map:=compa_real run_planner:=true  (+ /goal_pose in RViz)
+```
+
+### 10.5 Watch-outs / known caveats
+1. **`cost_map_publisher` hard-codes the `/costmap` origin at (-20, -20)** while it centres
+   `/elevation_map` at (0, 0). They only align when the map extent is **40 m** square. For
+   `or_planner` (needs both layers aligned), generate with `--size 40` until a parameterised
+   publisher replaces it (Phase 3 candidate; can't edit `hamr_control_cpp` under additive-only).
+   For just *driving* the terrain (no planner), any extent is fine — Gazebo uses the centred
+   heightmap directly.
+2. **8-bit vs 16-bit PNG.** Default 8-bit matches `cost_map_publisher` (it `imread`s grayscale).
+   `--bits 16` gives Gazebo a smoother surface but the planner side still quantises to 8-bit.
+3. **Height datum offset.** Gazebo places the terrain's lowest point at world `z=z_min`
+   (true heights); `cost_map_publisher`'s `/elevation_map` starts elevation at 0. Slopes/steps
+   (what `or_planner` checks) are unaffected; absolute z differs by `z_min`.
+4. **Outliers inflate the height scale.** SLAM ceiling/flyaway points blow up `z_max`. Lower
+   `--zclip` HI (e.g. `--zclip 1 99`) if `z-scale` printed by the script looks too tall.
+5. **Cloud frame.** `map_to_sim.py` assumes the cloud's +Z is up and XY is the ground plane
+   (true for RTAB-Map with `Reg/Force3DoF` + IMU gravity, as configured in `rtabmap.yaml`).
+
+### 10.6 Where this sits in the milestones
+New **Phase 1.5 — Sim replay** between Phase 1 (real SLAM) and Phase 2 (live elevation):
+once you can build a real `.db` (M1.5), you can immediately regenerate that space in sim and
+develop/validate planning + control against ground truth — without waiting on live
+`elevation_mapping`. Phase 2 then swaps the offline heightmap for the *live* `/elevation_map`,
+and the same `or_planner` / controller wiring carries over unchanged.

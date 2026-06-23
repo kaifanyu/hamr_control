@@ -39,6 +39,14 @@
   <exec_depend>ros2bag</exec_depend>
   <exec_depend>rosbag2_storage_mcap</exec_depend>
 
+  <!-- Sim-setup pipeline: scripts/map_to_sim.py (recorded map -> Gazebo heightmap world).
+       NumPy + Pillow only, no ROS deps, so it can run wherever the cloud was captured.
+       /elevation_map + /costmap in the replay come from hamr_control_cpp's
+       cost_map_publisher, so that package is a runtime dep of replay_map_sim.launch.py. -->
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-pil</exec_depend>
+  <exec_depend>hamr_control_cpp</exec_depend>
+
   <!--
     NOTE: elevation mapping is added in Phase 2. Robot is CPU-only, so we use the
     C++ `elevation_mapping` package (NOT elevation_mapping_cupy, which requires an

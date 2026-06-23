@@ -6,3 +6,18 @@ __pycache__/
 /rosbags/*
 !/rosbags/analyze_hamr_vicon_straight.py
 !/rosbags/analyze_latest_hamr_bag.sh
+
+# Saved RTAB-Map databases — large and tied to one physical space, do not commit.
+maps/*.db
+maps/*.db-journal
+
+# Exported point clouds from rtabmap-export — large intermediates, regenerable.
+maps/*.ply
+maps/*.pcd
+maps/*_heightmap.png
+maps/*.sdf
+maps/*.yaml
+
+# Raw sensor recordings (RealSense bags) — large, keep out of git.
+bags/
+*.pyc
