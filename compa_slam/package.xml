@@ -35,6 +35,11 @@
   <exec_depend>realsense2_camera</exec_depend>
   <exec_depend>imu_filter_madgwick</exec_depend>
 
+  <!-- Hardware trajectory recording: record_trajectory.launch.py reuses the calibrated
+       onboard localization stack by including hamr_bringup/hamr_HW.launch.xml -->
+  <exec_depend>hamr_bringup</exec_depend>
+  <exec_depend>robot_localization</exec_depend>
+
   <!-- Recording / replay -->
   <exec_depend>ros2bag</exec_depend>
   <exec_depend>rosbag2_storage_mcap</exec_depend>

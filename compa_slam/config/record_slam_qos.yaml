@@ -1,0 +1,67 @@
+# QoS overrides for `ros2 bag record` on the COMPA SLAM trajectory bag.
+#
+# Two problems this fixes:
+#   1) The camera and cmd_vel topics are published BEST_EFFORT. A recorder subscribing
+#      RELIABLE (the default) is QoS-incompatible and silently records nothing. A
+#      best_effort subscription is compatible with both best_effort and reliable
+#      publishers, so we force best_effort on every sensor/command topic.
+#   2) /tf_static is published TRANSIENT_LOCAL (latched, sent once). A volatile
+#      subscriber that starts after the publisher never sees it, so the camera
+#      extrinsics would be missing from the bag. transient_local fixes that.
+#
+# Topics not listed here keep the recorder default (reliable/volatile), which matches
+# the reliable publishers: /imu/data, /wheel_odom, /local_HAMR/odom, /HAMR_*/odom,
+# encoder ticks, etc.
+
+/d455/color/image_raw:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 30
+/d455/color/camera_info:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 30
+/d455/depth/image_rect_raw:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 30
+/d455/depth/color/points:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 10
+/d455/imu:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 200
+/d455/imu_raw:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 200
+
+/left_wheel/cmd_vel:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 10
+/right_wheel/cmd_vel:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 10
+/turret/cmd_vel:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 10
+
+/tf_static:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 100

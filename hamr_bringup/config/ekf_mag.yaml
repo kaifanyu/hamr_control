@@ -40,29 +40,32 @@ ekf_filter_node:
     # ---------------------------------------------------------------
     # Input 2: IMU  (/imu/data → sensor_msgs/Imu)
     #
-    # Fuse only: angular velocity z (yaw rate). The BNO055 gyro integrated
-    # to within 1% of Vicon (842° vs 850°), so it is the heading source.
-    # Absolute orientation (mag) stays OFF — it read 745° (worse than the
-    # gyro, likely motor/metal distortion). Linear accel x,y also OFF —
-    # noisy on a small ground robot; re-enable for a slip-tolerance test.
+    # TEST CONFIG (ekf_mag.yaml): magnetometer absolute-yaw fusion ENABLED.
+    # Fuse: absolute YAW (BNO055 mag heading, index 5) + yaw RATE (gyro, index 11).
+    # The absolute yaw (differential:false) is what bounds long-term heading drift.
+    # WARNING: only trustworthy once the IMU is relocated away from the motors AND
+    # the BNO055 mag calibration reaches 3 — until then this degrades heading.
     # ---------------------------------------------------------------
     imu0: /imu/data
     imu0_config: [false, false, false,
-                  false, false, false,
+                  false, false, true,
                   false, false, false,
                   false, false, true,
                   false, false, false]
     imu0_differential: false
-    imu0_relative:     true    # incremental changes only — safe without mag calibration
+    imu0_relative:     true    # yaw referenced to start pose; absolute fusion still bounds drift
     imu0_remove_gravitational_acceleration: false  # BNO055 VECTOR_LINEARACCEL already gravity-free
     imu0_queue_size:   10
 
     # ---------------------------------------------------------------
     # Process noise covariance  (15×15, row-major, 225 values)
-    # Diagonal order: x, y, z, roll, pitch, yaw, vx, vy, vz,
-    #                 vroll, vpitch, vyaw, ax, ay, az
-    # Increase a diagonal entry to let the filter trust measurements
-    # more than its own prediction for that state component.
+    # Diagonal: x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az
+    #
+    # Q[5,5]  yaw:  0.005 — tight; reduces Kalman gain on the absolute mag-yaw
+    #                        measurement so a biased magnetometer can't yank heading.
+    # Q[11,11] vyaw: 0.01  — half of original 0.02; lets the gyro-rate estimate
+    #                        respond freely during turns while still limiting static
+    #                        bias growth between mag corrections.
     # ---------------------------------------------------------------
     process_noise_covariance: [
       0.05,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
@@ -70,13 +73,13 @@ ekf_filter_node:
       0.0,   0.0,   0.06,  0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
       0.0,   0.0,   0.0,   0.03,  0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
       0.0,   0.0,   0.0,   0.0,   0.03,  0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-      0.0,   0.0,   0.0,   0.0,   0.0,   0.06,  0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+      0.0,   0.0,   0.0,   0.0,   0.0,   0.005, 0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
       0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.025,  0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
       0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.025,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
       0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.04,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
       0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,
       0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,
-      0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.02,  0.0,   0.0,   0.0,
+      0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.01,  0.0,   0.0,   0.0,
       0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,
       0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,
       0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.015]

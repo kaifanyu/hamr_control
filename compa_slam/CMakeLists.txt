@@ -14,9 +14,12 @@ install(
   DESTINATION share/${PROJECT_NAME}/
 )
 
-# Map-conversion / sim-setup tools, runnable via `ros2 run compa_slam map_to_sim.py`.
+# Map-conversion / sim-setup and bag-recording tools.
 install(
-  PROGRAMS scripts/map_to_sim.py
+  PROGRAMS
+    scripts/map_to_sim.py
+    scripts/record_compa_slam_bag
+    scripts/analyze_rosbag.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

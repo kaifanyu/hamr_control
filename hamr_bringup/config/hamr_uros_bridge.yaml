@@ -3,4 +3,6 @@ hamr_uros_bridge:
     serial_port: /dev/ttyUSB0      # or a udev symlink like /dev/hamr_esp
     baud: 460800
     tx_rate_hz: 100.0
+    command_timeout_s: 0.25        # zero any actuator whose ROS command goes stale
+    shutdown_zero_packets: 10      # repeated stop packets before closing serial
     turret_command_sign: -1.0      # hardware motor direction is opposite ROS yaw convention

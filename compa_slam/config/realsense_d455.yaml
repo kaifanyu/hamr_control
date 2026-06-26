@@ -1,0 +1,50 @@
+# RealSense D455 driver parameters — tuned for the Raspberry Pi (Phase 1, hardware).
+#
+# These exact settings were verified on the Pi with the D455 attached:
+#   color  /d455/color/image_raw        ~30 Hz
+#   depth  /d455/depth/image_rect_raw   ~30 Hz   (aligned to color)
+#   imu    /d455/imu_raw                ~200 Hz
+#
+# Why these and not the RealSense defaults:
+#   * The DEFAULT profile (1280x720 color + depth + BOTH infrared streams) saturates
+#     the Pi's USB and the camera reports "Frames didn't arrive within 5 seconds".
+#     Dropping the IR streams and using 640x480x30 fixes it.
+#   * pointcloud is OFF here: generating it is CPU-bound on the Pi and it isn't needed
+#     for recording or for RTAB-Map (RTAB-Map rebuilds the cloud from RGB-D on replay).
+#     Turn it on for Phase 2 elevation mapping via the launch arg `pointcloud:=true`.
+#
+# Applied with the /** wildcard so it attaches to the realsense node regardless of the
+# name/namespace the launch gives it.
+/**:
+  ros__parameters:
+    # Reset the camera on start — on the Pi this clears the stuck state that otherwise
+    # causes "Frames didn't arrive" after a previous run/unclean shutdown.
+    initial_reset: true
+
+    # Drop the infrared streams — not used by RTAB-Map RGB-D and they cost USB bandwidth.
+    enable_infra1: false
+    enable_infra2: false
+
+    # Hardware-sync the depth + color frames so RGB-D pairs share a timestamp.
+    enable_sync: true
+
+    # Publish depth registered into the color frame ("aligned depth"); this is what the
+    # canonical /d455/depth/image_rect_raw carries and what RTAB-Map expects.
+    align_depth:
+      enable: true
+
+    # Pi-friendly resolutions (see header). Format is WIDTHxHEIGHTxFPS.
+    rgb_camera:
+      color_profile: "640x480x30"
+    depth_module:
+      depth_profile: "640x480x30"
+
+    # IMU: stream gyro + accel and merge them into one /imu topic.
+    # unite_imu_method: 2 = linear interpolation (smoothest combined stream).
+    enable_gyro: true
+    enable_accel: true
+    unite_imu_method: 2
+
+    # Off by default (CPU-heavy on the Pi). Overridden by the launch arg `pointcloud`.
+    pointcloud:
+      enable: false

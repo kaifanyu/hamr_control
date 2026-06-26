@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# Record a COMPA SLAM trajectory bag: D455 camera + onboard local odom + Vicon odom.
+#
+# Mirrors hamr_bringup/scripts/record_hamr_test_bag (same storage/QoS conventions) but
+# the topic set ADDS the D455 camera and keeps the localization topics, so one bag holds
+# everything needed to (a) build/replay a map and (b) compare onboard vs Vicon trajectory.
+#
+# Usage:
+#   record_compa_slam_bag [run_name] [bag_dir]
+#   run_name : output folder name (default: compa_slam_<timestamp>)
+#   bag_dir  : full output path  (default: $HAMR_BAG_ROOT/<run_name>)
+#
+# Recorded:
+#   camera     /d455/color/image_raw  /d455/color/camera_info
+#              /d455/depth/image_rect_raw  /d455/depth/color/points
+#              /d455/imu  /d455/imu_raw
+#   local odom /local_HAMR/odom (EKF)  /wheel_odom  /imu/data
+#              /{left,right,turret}/encoder_ticks
+#   vicon      /HAMR_base/odom /HAMR_base/pose  /HAMR_turret/odom /HAMR_turret/pose
+#   commands   /{left,right,turret}/cmd_vel
+#   tf         /tf  /tf_static
+set -euo pipefail
+
+USER_ARGS=()
+for arg in "$@"; do
+  if [[ "${arg}" == "--ros-args" ]]; then
+    break
+  fi
+  USER_ARGS+=("${arg}")
+done
+
+RUN_NAME="${USER_ARGS[0]:-${HAMR_BAG_NAME:-compa_slam_$(date +%Y%m%d_%H%M%S)}}"
+BAG_ROOT="${HAMR_BAG_ROOT:-${HOME}/hamster_ws/src/hamr_control/rosbags}"
+BAG_DIR="${USER_ARGS[1]:-${BAG_ROOT}/${RUN_NAME}}"
+STORAGE_ID="${STORAGE_ID:-${HAMR_BAG_STORAGE_ID:-mcap}}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+QOS_PROFILE_OVERRIDES_PATH="${HAMR_BAG_QOS_OVERRIDES:-}"
+
+# Find record_slam_qos.yaml: prefer a sibling config dir (source tree), else the
+# installed share dir.
+if [[ -z "${QOS_PROFILE_OVERRIDES_PATH}" && -f "${SCRIPT_DIR}/../config/record_slam_qos.yaml" ]]; then
+  QOS_PROFILE_OVERRIDES_PATH="${SCRIPT_DIR}/../config/record_slam_qos.yaml"
+elif [[ -z "${QOS_PROFILE_OVERRIDES_PATH}" ]] && command -v ros2 >/dev/null 2>&1; then
+  PACKAGE_PREFIX="$(ros2 pkg prefix compa_slam 2>/dev/null || true)"
+  if [[ -n "${PACKAGE_PREFIX}" && -f "${PACKAGE_PREFIX}/share/compa_slam/config/record_slam_qos.yaml" ]]; then
+    QOS_PROFILE_OVERRIDES_PATH="${PACKAGE_PREFIX}/share/compa_slam/config/record_slam_qos.yaml"
+  fi
+fi
+
+QOS_ARGS=()
+if [[ -n "${QOS_PROFILE_OVERRIDES_PATH}" ]]; then
+  QOS_ARGS=(--qos-profile-overrides-path "${QOS_PROFILE_OVERRIDES_PATH}")
+fi
+
+TOPIC_REGEX='^/d455/(color/image_raw|color/camera_info|depth/image_rect_raw|depth/color/points|imu|imu_raw)$|^/(HAMR_base|HAMR_turret)/(odom|pose|individual_marker_array)$|^/(local_HAMR/odom|wheel_odom|imu/data|imu/data_raw|tf|tf_static)$|^/(reference_trajectory|waypoints_path|state_error|live_gains)$|^/(left_wheel|right_wheel|turret)/cmd_vel$|^/(left_wheel|right_wheel|turret)/encoder_ticks$|^/(robot_pose|odom|cmd_vel)$'
+
+mkdir -p "$(dirname "${BAG_DIR}")"
+
+echo "Recording COMPA SLAM trajectory bag:"
+echo "  output:  ${BAG_DIR}"
+echo "  storage: ${STORAGE_ID}"
+echo "  regex:   ${TOPIC_REGEX}"
+if [[ -n "${QOS_PROFILE_OVERRIDES_PATH}" ]]; then
+  echo "  qos:     ${QOS_PROFILE_OVERRIDES_PATH}"
+fi
+
+exec ros2 bag record \
+  --storage "${STORAGE_ID}" \
+  --output "${BAG_DIR}" \
+  "${QOS_ARGS[@]}" \
+  --regex "${TOPIC_REGEX}"

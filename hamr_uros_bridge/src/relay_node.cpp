@@ -2,6 +2,8 @@
 #include <std_msgs/msg/float64.hpp>
 #include <std_msgs/msg/int32.hpp>
 #include <sensor_msgs/msg/imu.hpp>
+#include <sensor_msgs/msg/magnetic_field.hpp>
+#include <std_msgs/msg/u_int8_multi_array.hpp>
 
 #include <array>
 #include <atomic>
@@ -27,6 +29,7 @@ constexpr uint16_t VER   = 1;
 constexpr uint16_t TYPE_CMD3 = 0x0011;
 constexpr uint16_t TYPE_ENC  = 0x0003; // ESP->PC: encoder ticks (L,R,T)
 constexpr uint16_t TYPE_IMU  = 0x0004; // ESP->PC: IMU data (roll/pitch/yaw, accel, gyro)
+constexpr uint16_t TYPE_IMU_EXT = 0x0005; // ESP->PC: IMU + magnetometer + calibration
 
 // Sign corrections applied once at unpack time in rx_loop().
 // TICK_SIGN: ESP firmware negates wheel commands internally and its encoder
@@ -34,7 +37,7 @@ constexpr uint16_t TYPE_IMU  = 0x0004; // ESP->PC: IMU data (roll/pitch/yaw, acc
 // motion. The 2026-06-11 Vicon comparison showed the relay-published IMU yaw
 // rate was already inverted relative to REP-103, so leave IMU yaw/gz unchanged
 // here and handle wheel-odom yaw convention in holonomic_odom_node.
-constexpr int32_t TICK_SIGN = -1;
+constexpr int32_t TICK_SIGN = 1;
 constexpr float   YAW_SIGN  = 1.0f;
 
 // Wire packet (packed)
@@ -88,6 +91,25 @@ struct PacketIMU {
 #pragma pack(pop)
 
 static_assert(sizeof(PacketIMU) == 2+2+2+4+8+4+4+4+4+4+4+4+4+4+2, "PacketIMU size mismatch");
+
+// Extended IMU Packet — must match IMUPacketExt in ESP main.cpp exactly (72 bytes)
+#pragma pack(push,1)
+struct PacketIMUExt {
+  uint16_t magic;    // 0xCAFE
+  uint16_t ver;      // 1
+  uint16_t type;     // 0x0005
+  uint32_t seq;
+  uint64_t t_tx_ns;
+  float roll, pitch, yaw;  // rad
+  float ax, ay, az;        // m/s²
+  float gx, gy, gz;        // rad/s
+  float mx, my, mz;        // µT, raw magnetometer
+  uint8_t cal_sys, cal_gyro, cal_accel, cal_mag; // BNO055 calibration 0..3
+  uint16_t crc16;
+};
+#pragma pack(pop)
+
+static_assert(sizeof(PacketIMUExt) == 2+2+2+4+8+4+4+4+4+4+4+4+4+4+4+4+4+1+1+1+1+2, "PacketIMUExt size mismatch");
 
 // Simple CRC32 -> fold to 16 bits 
 uint16_t crc16_fold(const uint8_t* data, size_t n) {
@@ -207,6 +229,10 @@ public:
     serial_port_  = this->declare_parameter<std::string>("serial_port", "/dev/ttyUSB0");
     baud_         = this->declare_parameter<int>("baud", 460800);
     tx_rate_hz_   = this->declare_parameter<double>("tx_rate_hz", 100.0);
+    command_timeout_s_ = std::max(
+      0.01, this->declare_parameter<double>("command_timeout_s", 0.25));
+    shutdown_zero_packets_ = static_cast<int>(std::max<int64_t>(
+      1, this->declare_parameter<int64_t>("shutdown_zero_packets", 10)));
     imu_frame_id_ = this->declare_parameter<std::string>("imu_frame_id", "imu_link");
     turret_command_sign_ = this->declare_parameter<double>("turret_command_sign", -1.0);
 
@@ -216,8 +242,9 @@ public:
       throw std::runtime_error("serial open failed");
     }
     RCLCPP_INFO(
-      get_logger(), "Serial open: %s @ %d; turret command sign: %.1f",
-      serial_port_.c_str(), baud_, turret_command_sign_);
+      get_logger(),
+      "Serial open: %s @ %d; turret command sign: %.1f; command timeout: %.3fs",
+      serial_port_.c_str(), baud_, turret_command_sign_, command_timeout_s_);
 
     // Subscriptions
     using std::placeholders::_1;
@@ -238,6 +265,9 @@ public:
 
     // IMU publisher
     pub_imu_ = create_publisher<sensor_msgs::msg::Imu>("/imu/data", 10);
+    // Raw magnetometer (distortion analysis / offline calibration) and BNO055 calib levels
+    pub_mag_ = create_publisher<sensor_msgs::msg::MagneticField>("/imu/mag", 10);
+    pub_calib_ = create_publisher<std_msgs::msg::UInt8MultiArray>("/imu/calib_status", 10);
 
     // Timer for TX
     const auto period = std::chrono::duration<double>(1.0 / std::max(1.0, tx_rate_hz_));
@@ -251,28 +281,81 @@ public:
   }
 
   ~RelayNode() override {
+    if (timer_) timer_->cancel();
+
+    // The MCU may retain its last velocity command, so explicitly overwrite
+    // it before closing the serial port. Repetition makes a partially written
+    // final packet or a short scheduling delay harmless.
+    left_ = 0.0f;
+    right_ = 0.0f;
+    turret_ = 0.0f;
+    for (int i = 0; i < shutdown_zero_packets_; ++i) {
+      send_command(0.0f, 0.0f, 0.0f);
+      std::this_thread::sleep_for(2ms);
+    }
+
     running_ = false;
     if (reader_.joinable()) reader_.join();
   }
 
 private:
-  void left_cb(const std_msgs::msg::Float64 & msg)  { left_ = static_cast<float>(msg.data); }
-  void right_cb(const std_msgs::msg::Float64 & msg) { right_ = static_cast<float>(msg.data); }
+  static int64_t steady_now_ns() {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(
+      std::chrono::steady_clock::now().time_since_epoch()).count();
+  }
+
+  void left_cb(const std_msgs::msg::Float64 & msg) {
+    left_ = static_cast<float>(msg.data);
+    last_left_cmd_ns_ = steady_now_ns();
+  }
+
+  void right_cb(const std_msgs::msg::Float64 & msg) {
+    right_ = static_cast<float>(msg.data);
+    last_right_cmd_ns_ = steady_now_ns();
+  }
+
   void turret_cb(const std_msgs::msg::Float64 & msg)
   {
     turret_ = static_cast<float>(turret_command_sign_ * msg.data);
+    last_turret_cmd_ns_ = steady_now_ns();
   }
 
   void tx_tick() {
+    const int64_t now_ns = steady_now_ns();
+    const int64_t timeout_ns = static_cast<int64_t>(command_timeout_s_ * 1e9);
+    const auto fresh = [now_ns, timeout_ns](int64_t last_ns) {
+      return last_ns > 0 && now_ns >= last_ns && (now_ns - last_ns) <= timeout_ns;
+    };
+
+    const bool left_fresh = fresh(last_left_cmd_ns_.load(std::memory_order_relaxed));
+    const bool right_fresh = fresh(last_right_cmd_ns_.load(std::memory_order_relaxed));
+    const bool turret_fresh = fresh(last_turret_cmd_ns_.load(std::memory_order_relaxed));
+
+    const float left = left_fresh ? left_.load(std::memory_order_relaxed) : 0.0f;
+    const float right = right_fresh ? right_.load(std::memory_order_relaxed) : 0.0f;
+    const float turret = turret_fresh ? turret_.load(std::memory_order_relaxed) : 0.0f;
+
+    if ((!left_fresh && left_.load(std::memory_order_relaxed) != 0.0f) ||
+        (!right_fresh && right_.load(std::memory_order_relaxed) != 0.0f) ||
+        (!turret_fresh && turret_.load(std::memory_order_relaxed) != 0.0f)) {
+      RCLCPP_WARN_THROTTLE(
+        get_logger(), *get_clock(), 2000,
+        "Actuator command timed out; sending zero for stale channels");
+    }
+
+    send_command(left, right, turret);
+  }
+
+  bool send_command(float left, float right, float turret) {
     PacketCmd3 pkt{};
     pkt.magic   = MAGIC;
     pkt.ver     = VER;
     pkt.type    = TYPE_CMD3;
     pkt.seq     = ++seq_;
-    pkt.t_tx_ns = static_cast<uint64_t>(this->now().nanoseconds()); // ROS time; OK for bookkeeping
-    pkt.left    = left_.load(std::memory_order_relaxed);
-    pkt.right   = right_.load(std::memory_order_relaxed);
-    pkt.turret  = turret_.load(std::memory_order_relaxed);
+    pkt.t_tx_ns = static_cast<uint64_t>(steady_now_ns());
+    pkt.left    = left;
+    pkt.right   = right;
+    pkt.turret  = turret;
 
     pkt.crc16 = crc16_fold(reinterpret_cast<const uint8_t*>(&pkt), sizeof(PacketCmd3) - 2);
 
@@ -280,6 +363,7 @@ private:
     if (!ok) {
       RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000, "Serial write failed");
     }
+    return ok;
   }
 
   // Convert BNO055 Euler (roll, pitch, yaw) to quaternion using ZYX convention.
@@ -339,6 +423,25 @@ private:
 
     pub_imu_->publish(msg);
   }
+
+  // Publish raw magnetometer (µT → Tesla) for distortion analysis / offline calibration.
+  void publish_imu_mag(const PacketIMUExt& p) {
+    auto m = sensor_msgs::msg::MagneticField();
+    m.header.stamp    = rclcpp::Clock(RCL_ROS_TIME).now();
+    m.header.frame_id = imu_frame_id_;
+    m.magnetic_field.x = static_cast<double>(p.mx) * 1e-6;
+    m.magnetic_field.y = static_cast<double>(p.my) * 1e-6;
+    m.magnetic_field.z = static_cast<double>(p.mz) * 1e-6;
+    pub_mag_->publish(m);
+  }
+
+  // Publish BNO055 calibration levels [sys, gyro, accel, mag], each 0..3.
+  void publish_calib_status(const PacketIMUExt& p) {
+    auto c = std_msgs::msg::UInt8MultiArray();
+    c.data = {p.cal_sys, p.cal_gyro, p.cal_accel, p.cal_mag};
+    pub_calib_->publish(c);
+  }
+
   // --- RX loop: parse encoder packets from ESP and publish ---
   void rx_loop() {
     std::vector<uint8_t> buf;
@@ -375,6 +478,8 @@ private:
           need = sizeof(PacketEnc);
         } else if (type == TYPE_IMU) {
           need = sizeof(PacketIMU);
+        } else if (type == TYPE_IMU_EXT) {
+          need = sizeof(PacketIMUExt);
         } else {
           // Unknown type → drop 1 byte and resync
           buf.erase(buf.begin());
@@ -409,6 +514,29 @@ private:
           p.yaw *= YAW_SIGN;
           p.gz  *= YAW_SIGN;
           publish_imu_data(p);
+        } else if (type == TYPE_IMU_EXT) {
+          PacketIMUExt pe{};
+          std::memcpy(&pe, buf.data(), need);
+
+          uint16_t calc = crc16_fold(reinterpret_cast<const uint8_t*>(&pe), need - 2);
+          if (calc != pe.crc16) {
+            buf.erase(buf.begin());
+            continue;
+          }
+
+          pe.yaw *= YAW_SIGN;
+          pe.gz  *= YAW_SIGN;
+
+          // Republish the standard /imu/data from the shared orientation/accel/gyro fields...
+          PacketIMU base{};
+          base.roll = pe.roll; base.pitch = pe.pitch; base.yaw = pe.yaw;
+          base.ax = pe.ax; base.ay = pe.ay; base.az = pe.az;
+          base.gx = pe.gx; base.gy = pe.gy; base.gz = pe.gz;
+          publish_imu_data(base);
+
+          // ...plus the new raw-magnetometer and calibration-status topics.
+          publish_imu_mag(pe);
+          publish_calib_status(pe);
         }
 
         // consume this frame
@@ -421,6 +549,8 @@ private:
   std::string serial_port_;
   int baud_;
   double tx_rate_hz_;
+  double command_timeout_s_;
+  int shutdown_zero_packets_;
   double turret_command_sign_;
   std::string imu_frame_id_;
 
@@ -429,12 +559,17 @@ private:
 
   // State (atomic so callbacks + timer are safe)
   std::atomic<float> left_{0.0f}, right_{0.0f}, turret_{0.0f};
+  std::atomic<int64_t> last_left_cmd_ns_{0};
+  std::atomic<int64_t> last_right_cmd_ns_{0};
+  std::atomic<int64_t> last_turret_cmd_ns_{0};
   uint32_t seq_{0};
 
   // ROS
   rclcpp::Subscription<std_msgs::msg::Float64>::SharedPtr sub_left_, sub_right_, sub_turret_;
   rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr pub_ticks_l_, pub_ticks_r_, pub_ticks_t_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr pub_imu_;
+  rclcpp::Publisher<sensor_msgs::msg::MagneticField>::SharedPtr pub_mag_;
+  rclcpp::Publisher<std_msgs::msg::UInt8MultiArray>::SharedPtr pub_calib_;
   rclcpp::TimerBase::SharedPtr timer_;
 
   // Reader thread

@@ -22,6 +22,7 @@ from rosidl_runtime_py.utilities import get_message
 DEFAULT_BASE_TOPIC = "/HAMR_base/odom"
 DEFAULT_ONBOARD_TOPIC = "/local_HAMR/odom"
 DEFAULT_WHEEL_ODOM_TOPIC = "/wheel_odom"
+DEFAULT_IMU_TOPIC = "/imu/data"
 DEFAULT_TURRET_TOPIC = "/HAMR_turret/odom"
 DEFAULT_REFERENCE_TOPIC = "/reference_trajectory"
 DEFAULT_LEFT_WHEEL_TOPIC = "/left_wheel/cmd_vel"
@@ -79,6 +80,7 @@ def read_bag(
     base_topic,
     onboard_topic,
     wheel_odom_topic,
+    imu_topic,
     turret_topic,
     reference_topic,
     left_wheel_topic,
@@ -90,6 +92,7 @@ def read_bag(
     base_samples = []
     onboard_samples = []
     wheel_odom_samples = []
+    imu_samples = []
     turret_samples = []
     reference_samples = []
     left_wheel_samples = []
@@ -99,6 +102,7 @@ def read_bag(
         base_topic,
         onboard_topic,
         wheel_odom_topic,
+        imu_topic,
         turret_topic,
         reference_topic,
         left_wheel_topic,
@@ -130,6 +134,17 @@ def read_bag(
                 wheel_odom_samples.append(sample)
             else:
                 turret_samples.append(sample)
+        elif topic == imu_topic:
+            imu_samples.append(
+                {
+                    "t": t,
+                    "yaw": float(yaw_from_quaternion(msg.orientation)),
+                    "ax": float(msg.linear_acceleration.x),
+                    "ay": float(msg.linear_acceleration.y),
+                    "az": float(msg.linear_acceleration.z),
+                    "gz": float(msg.angular_velocity.z),
+                }
+            )
         elif topic == reference_topic:
             reference_samples.append(
                 {
@@ -152,6 +167,7 @@ def read_bag(
         base_samples,
         onboard_samples,
         wheel_odom_samples,
+        imu_samples,
         turret_samples,
         reference_samples,
         left_wheel_samples,
@@ -304,6 +320,91 @@ def add_relative_fields(samples, align_yaw=True):
     return relative
 
 
+def relative_fields_from_origin(samples, origin_sample, align_yaw=True):
+    if not samples:
+        return []
+
+    x0 = origin_sample["x"]
+    y0 = origin_sample["y"]
+    yaw0 = origin_sample["yaw"] if align_yaw else 0.0
+    c = math.cos(-yaw0)
+    s = math.sin(-yaw0)
+
+    relative = []
+    for sample in samples:
+        dx = sample["x"] - x0
+        dy = sample["y"] - y0
+        item = dict(sample)
+        item["rel_x"] = float(c * dx - s * dy)
+        item["rel_y"] = float(s * dx + c * dy)
+        item["rel_yaw"] = float(wrap_angle(sample["yaw"] - yaw0))
+        relative.append(item)
+    return relative
+
+
+def integrate_imu_odom_samples(imu_samples, bias_window_s=1.0, max_dt=0.1):
+    """Dead-reckon x/y/yaw from IMU orientation + linear acceleration only.
+
+    This intentionally does not use wheels or Vicon. It is useful for seeing
+    how quickly pure inertial position drifts relative to wheel odom and EKF.
+    """
+    if not imu_samples:
+        return []
+
+    t = np.asarray([s["t"] for s in imu_samples], dtype=float)
+    yaw = np.unwrap(np.asarray([s["yaw"] for s in imu_samples], dtype=float))
+    ax = np.asarray([s["ax"] for s in imu_samples], dtype=float)
+    ay = np.asarray([s["ay"] for s in imu_samples], dtype=float)
+
+    bias_mask = t <= (t[0] + max(0.0, bias_window_s))
+    if not np.any(bias_mask):
+        bias_mask = np.asarray([True] + [False] * (len(t) - 1))
+    ax_bias = float(np.mean(ax[bias_mask]))
+    ay_bias = float(np.mean(ay[bias_mask]))
+
+    def world_accel(index):
+        ax_body = ax[index] - ax_bias
+        ay_body = ay[index] - ay_bias
+        c = math.cos(yaw[index])
+        s = math.sin(yaw[index])
+        return (
+            c * ax_body - s * ay_body,
+            s * ax_body + c * ay_body,
+        )
+
+    samples = []
+    x = y_pos = vx = vy = 0.0
+    prev_ax_w, prev_ay_w = world_accel(0)
+    samples.append({"t": float(t[0]), "x": x, "y": y_pos, "z": 0.0, "yaw": wrap_angle(yaw[0])})
+
+    for i in range(1, len(imu_samples)):
+        dt = float(t[i] - t[i - 1])
+        if dt <= 0.0:
+            continue
+
+        curr_ax_w, curr_ay_w = world_accel(i)
+        if dt <= max_dt:
+            ax_w = 0.5 * (prev_ax_w + curr_ax_w)
+            ay_w = 0.5 * (prev_ay_w + curr_ay_w)
+            x += vx * dt + 0.5 * ax_w * dt * dt
+            y_pos += vy * dt + 0.5 * ay_w * dt * dt
+            vx += ax_w * dt
+            vy += ay_w * dt
+
+        prev_ax_w, prev_ay_w = curr_ax_w, curr_ay_w
+        samples.append(
+            {
+                "t": float(t[i]),
+                "x": float(x),
+                "y": float(y_pos),
+                "z": 0.0,
+                "yaw": float(wrap_angle(yaw[i])),
+            }
+        )
+
+    return samples
+
+
 def matched_relative_samples(reference_samples, estimate_samples, max_dt, align_yaw=True):
     if not reference_samples or not estimate_samples:
         return []
@@ -446,6 +547,13 @@ def write_csv(csv_path, samples, rel_x, rel_y, rel_yaw):
                     yaw_rel,
                 ]
             )
+
+
+def write_pose_trace_csv(csv_path, samples, align_yaw=True):
+    if not samples:
+        raise RuntimeError(f"No samples available for {csv_path}.")
+    _, rel_x, rel_y, rel_yaw = start_relative_path(samples, align_yaw=align_yaw)
+    write_csv(csv_path, samples, rel_x, rel_y, rel_yaw)
 
 
 def reference_arrays(reference_samples):
@@ -627,10 +735,13 @@ def write_localization_plot(
     base_samples,
     onboard_samples,
     wheel_odom_samples,
+    imu_odom_samples,
+    reference_samples,
     align_yaw,
     base_topic,
     onboard_topic,
     wheel_odom_topic,
+    imu_topic,
 ):
     import matplotlib.pyplot as plt
 
@@ -640,8 +751,21 @@ def write_localization_plot(
     base_rel = add_relative_fields(base_samples, align_yaw=align_yaw)
     onboard_rel = add_relative_fields(onboard_samples, align_yaw=align_yaw)
     wheel_rel = add_relative_fields(wheel_odom_samples, align_yaw=align_yaw)
+    imu_rel = None
+    reference_rel = relative_fields_from_origin(
+        reference_samples, base_samples[0], align_yaw=align_yaw
+    )
 
     plt.figure(figsize=(8.5, 5.5))
+    if reference_rel:
+        plt.plot(
+            [s["rel_x"] for s in reference_rel],
+            [s["rel_y"] for s in reference_rel],
+            "k--",
+            label="Reference",
+            linewidth=1.6,
+            alpha=0.9,
+        )
     plt.plot(
         [s["rel_x"] for s in base_rel],
         [s["rel_y"] for s in base_rel],
@@ -662,6 +786,14 @@ def write_localization_plot(
             linewidth=1.4,
             alpha=0.8,
         )
+    if imu_rel:
+        plt.plot(
+            [s["rel_x"] for s in imu_rel],
+            [s["rel_y"] for s in imu_rel],
+            label=f"IMU dead reckoning {imu_topic}",
+            linewidth=1.2,
+            alpha=0.75,
+        )
 
     plt.scatter([base_rel[0]["rel_x"]], [base_rel[0]["rel_y"]], c="green", s=36, label="start")
     plt.scatter([base_rel[-1]["rel_x"]], [base_rel[-1]["rel_y"]], c="red", s=36, label="vicon end")
@@ -672,9 +804,63 @@ def write_localization_plot(
         s=36,
         label="onboard end",
     )
+    core_paths = [base_rel, onboard_rel, wheel_rel, reference_rel]
+    core_x = [s["rel_x"] for path in core_paths for s in path]
+    core_y = [s["rel_y"] for path in core_paths for s in path]
+    if core_x and core_y:
+        x_span = max(core_x) - min(core_x)
+        y_span = max(core_y) - min(core_y)
+        pad = max(0.25, 0.08 * max(x_span, y_span, 1e-9))
+        plt.xlim(min(core_x) - pad, max(core_x) + pad)
+        plt.ylim(min(core_y) - pad, max(core_y) + pad)
+
     plt.xlabel("start-aligned x (m)")
     plt.ylabel("start-aligned y (m)")
-    plt.title("HAMR Vicon vs onboard odometry")
+    plt.title("HAMR Vicon, reference, EKF, wheel, and IMU odometry")
+    plt.gca().set_aspect("equal", adjustable="box")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(plot_path, dpi=160)
+    plt.close()
+
+
+def write_imu_odom_plot(
+    plot_path,
+    base_samples,
+    imu_odom_samples,
+    align_yaw,
+    base_topic,
+    imu_topic,
+):
+    import matplotlib.pyplot as plt
+
+    if not imu_odom_samples:
+        raise RuntimeError(f"No IMU samples found on {imu_topic}.")
+
+    base_rel = add_relative_fields(base_samples, align_yaw=align_yaw)
+    imu_rel = add_relative_fields(imu_odom_samples, align_yaw=align_yaw)
+
+    plt.figure(figsize=(8.5, 5.5))
+    plt.plot(
+        [s["rel_x"] for s in base_rel],
+        [s["rel_y"] for s in base_rel],
+        label=f"Vicon {base_topic}",
+        linewidth=2.2,
+    )
+    plt.plot(
+        [s["rel_x"] for s in imu_rel],
+        [s["rel_y"] for s in imu_rel],
+        label=f"IMU dead reckoning {imu_topic}",
+        linewidth=1.4,
+        alpha=0.8,
+    )
+    plt.scatter([base_rel[0]["rel_x"]], [base_rel[0]["rel_y"]], c="green", s=36, label="start")
+    plt.scatter([base_rel[-1]["rel_x"]], [base_rel[-1]["rel_y"]], c="red", s=36, label="vicon end")
+    plt.scatter([imu_rel[-1]["rel_x"]], [imu_rel[-1]["rel_y"]], c="purple", s=36, label="imu end")
+    plt.xlabel("start-aligned x (m)")
+    plt.ylabel("start-aligned y (m)")
+    plt.title("HAMR IMU-only dead-reckoned odometry")
     plt.axis("equal")
     plt.grid(True)
     plt.legend()
@@ -755,6 +941,17 @@ def print_summary(bag_dir, metrics):
         print(f"  final xy error: {wheel['final_err_xy_m']:.3f} m")
         print(f"  yaw RMSE:       {format_rad_deg(wheel['yaw_rmse_rad'])}")
 
+    imu_odom = metrics.get("imu_odom_tracking")
+    if imu_odom:
+        print("\nIMU-only dead reckoning vs Vicon:")
+        print(f"  topic:          {metrics['imu_topic']}")
+        print(f"  matched samples:{imu_odom['matched_sample_count']}")
+        print(f"  xy RMSE:        {imu_odom['xy_rmse_m']:.3f} m")
+        print(f"  final xy error: {imu_odom['final_err_xy_m']:.3f} m")
+        print(f"  yaw RMSE:       {format_rad_deg(imu_odom['yaw_rmse_rad'])}")
+    elif metrics.get("imu_sample_count", 0) == 0:
+        print(f"\nIMU-only dead reckoning vs Vicon: no samples on {metrics['imu_topic']}")
+
     ref = metrics.get("reference_tracking")
     if ref:
         print("\nReference tracking from bag timestamps:")
@@ -771,6 +968,7 @@ def parse_args():
     parser.add_argument("--base-topic", default=DEFAULT_BASE_TOPIC)
     parser.add_argument("--onboard-topic", default=DEFAULT_ONBOARD_TOPIC)
     parser.add_argument("--wheel-odom-topic", default=DEFAULT_WHEEL_ODOM_TOPIC)
+    parser.add_argument("--imu-topic", default=DEFAULT_IMU_TOPIC)
     parser.add_argument("--turret-topic", default=DEFAULT_TURRET_TOPIC)
     parser.add_argument("--reference-topic", default=DEFAULT_REFERENCE_TOPIC)
     parser.add_argument("--left-wheel-topic", default=DEFAULT_LEFT_WHEEL_TOPIC)
@@ -794,11 +992,25 @@ def parse_args():
         default=0.05,
         help="Max timestamp difference for Vicon/onboard matching.",
     )
+    parser.add_argument(
+        "--imu-bias-window-s",
+        type=float,
+        default=1.0,
+        help="Initial seconds used to estimate IMU x/y acceleration bias.",
+    )
+    parser.add_argument(
+        "--imu-integration-max-dt",
+        type=float,
+        default=0.1,
+        help="Skip IMU integration steps larger than this duration.",
+    )
     parser.add_argument("--json", type=Path, help="Optional metrics JSON output")
     parser.add_argument("--csv", type=Path, help="Optional Vicon base trace CSV output")
     parser.add_argument("--localization-csv", type=Path, help="Optional matched Vicon/onboard CSV output")
+    parser.add_argument("--imu-odom-csv", type=Path, help="Optional derived IMU-only odometry CSV output")
     parser.add_argument("--plot", type=Path, help="Optional path/reference plot PNG output")
     parser.add_argument("--localization-plot", type=Path, help="Optional Vicon/onboard path comparison PNG output")
+    parser.add_argument("--imu-odom-plot", type=Path, help="Optional full-scale IMU-only odometry plot PNG output")
     parser.add_argument("--localization-error-plot", type=Path, help="Optional Vicon/onboard error plot PNG output")
     parser.add_argument("--wheel-plot", type=Path, help="Optional wheel cmd_vel plot PNG output")
     parser.add_argument(
@@ -838,6 +1050,7 @@ def main():
         base_samples,
         onboard_samples,
         wheel_odom_samples,
+        imu_samples,
         turret_samples,
         reference_samples,
         left_wheel_samples,
@@ -848,6 +1061,7 @@ def main():
         args.base_topic,
         args.onboard_topic,
         args.wheel_odom_topic,
+        args.imu_topic,
         args.turret_topic,
         args.reference_topic,
         args.left_wheel_topic,
@@ -859,6 +1073,12 @@ def main():
         raise RuntimeError(
             f"No samples found on {args.base_topic}. Available topics:\n{available}"
         )
+
+    imu_odom_samples = integrate_imu_odom_samples(
+        imu_samples,
+        bias_window_s=args.imu_bias_window_s,
+        max_dt=args.imu_integration_max_dt,
+    )
 
     compare_requested = bool(
         args.localization_plot or args.localization_error_plot or args.localization_csv
@@ -882,6 +1102,12 @@ def main():
         max_dt=args.localization_max_dt,
         align_yaw=align_yaw,
     )
+    imu_odom_matches = matched_relative_samples(
+        base_samples,
+        imu_odom_samples,
+        max_dt=args.localization_max_dt,
+        align_yaw=align_yaw,
+    )
 
     metrics = {
         "bag_dir": str(bag_dir),
@@ -889,6 +1115,7 @@ def main():
         "base_topic": args.base_topic,
         "onboard_topic": args.onboard_topic,
         "wheel_odom_topic": args.wheel_odom_topic,
+        "imu_topic": args.imu_topic,
         "turret_topic": args.turret_topic,
         "reference_topic": args.reference_topic,
         "left_wheel_topic": args.left_wheel_topic,
@@ -896,6 +1123,10 @@ def main():
         "base": summarize_base(base_samples, args.target_distance, align_yaw),
         "onboard_sample_count": len(onboard_samples),
         "wheel_odom_sample_count": len(wheel_odom_samples),
+        "imu_sample_count": len(imu_samples),
+        "imu_odom_sample_count": len(imu_odom_samples),
+        "imu_bias_window_s": args.imu_bias_window_s,
+        "imu_integration_max_dt_s": args.imu_integration_max_dt,
         "turret_sample_count": len(turret_samples),
         "reference_sample_count": len(reference_samples),
         "left_wheel_sample_count": len(left_wheel_samples),
@@ -908,6 +1139,9 @@ def main():
     wheel_odom_metrics = summarize_trajectory_errors(wheel_odom_matches)
     if wheel_odom_metrics:
         metrics["wheel_odom_tracking"] = wheel_odom_metrics
+    imu_odom_metrics = summarize_trajectory_errors(imu_odom_matches)
+    if imu_odom_metrics:
+        metrics["imu_odom_tracking"] = imu_odom_metrics
 
     ref_metrics = nearest_reference_errors(
         base_samples, reference_samples, max_dt=args.reference_max_dt
@@ -924,6 +1158,11 @@ def main():
     if args.localization_csv:
         args.localization_csv.parent.mkdir(parents=True, exist_ok=True)
         write_localization_csv(args.localization_csv, onboard_matches)
+    if args.imu_odom_csv and imu_odom_samples:
+        args.imu_odom_csv.parent.mkdir(parents=True, exist_ok=True)
+        write_pose_trace_csv(args.imu_odom_csv, imu_odom_samples, align_yaw=align_yaw)
+    elif args.imu_odom_csv:
+        print(f"Skipping IMU odom CSV: no samples found on {args.imu_topic}.")
     if args.plot:
         args.plot.parent.mkdir(parents=True, exist_ok=True)
         write_plot(args.plot, base_samples, rel_x, rel_y, args.target_distance, reference_samples)
@@ -934,11 +1173,26 @@ def main():
             base_samples,
             onboard_samples,
             wheel_odom_samples,
+            imu_odom_samples,
+            reference_samples,
             align_yaw,
             args.base_topic,
             args.onboard_topic,
             args.wheel_odom_topic,
+            args.imu_topic,
         )
+    if args.imu_odom_plot and imu_odom_samples:
+        args.imu_odom_plot.parent.mkdir(parents=True, exist_ok=True)
+        write_imu_odom_plot(
+            args.imu_odom_plot,
+            base_samples,
+            imu_odom_samples,
+            align_yaw,
+            args.base_topic,
+            args.imu_topic,
+        )
+    elif args.imu_odom_plot:
+        print(f"Skipping IMU odom plot: no samples found on {args.imu_topic}.")
     if args.localization_error_plot:
         args.localization_error_plot.parent.mkdir(parents=True, exist_ok=True)
         write_localization_error_plot(

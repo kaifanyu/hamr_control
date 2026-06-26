@@ -57,14 +57,20 @@ ROS 2 Jazzy workspace `hamr_holonomic_robot`. Relevant pieces:
 | `hamr_control_cpp` | Off-road planners: `or_planner` (A* on costmap+elevation w/ traversability: `max_tilt_deg`, `max_step_m`, slope), `astar_search`, `prm_builder`, `compa_path_tracer` (odom→Path viz), and **image→map** sources `ImageToGridmap`, `map_publisher`, `cost_map_publisher`. | `or_planner` sub `/elevation_map` (grid_map_msgs/GridMap), `/costmap` (OccupancyGrid), `/goal_pose`; pub a path |
 | `compa_description` | Robot URDF. `compa_back.urdf.xacro` (body + gimbal + gz plugins) includes `camera.urdf.xacro` (**plain RGB** camera, `/camera/image_raw`). | — |
 | `hamr_bringup` | Launch + gz worlds + `gazebo_bridge_compa.yaml` (gz↔ROS) + bag recording. | — |
-| `hamr_uros_bridge` | **relay_node.cpp** — serial bridge to the MCU. Sends wheel/turret cmd_vel; receives encoder ticks + **MCU EKF pose**. | pub `/odom`, `/robot_pose`; sub `/{left,right}_wheel/cmd_vel`, `/turret/cmd_vel` |
+| `hamr_uros_bridge` | **relay_node.cpp** — serial bridge to the MCU. Sends wheel/turret cmd_vel; receives encoder ticks + BNO055 IMU. | pub `/imu/data`, `/{left,right,turret}/encoder_ticks`; sub `/{left,right}_wheel/cmd_vel`, `/turret/cmd_vel` |
+| `hamr_odometry` | **holonomic_odom_node.py** — integrates encoder ticks into wheel odometry. | pub `/wheel_odom`, `/HAMR_turret/odom` |
 | `hamr_interfaces` | msgs: `ReferenceTraj` (x,y,yaw,roll,pitch + dots), `LiveGains`, `StateError` | — |
 
 **Localization today (pre-SLAM):**
 - **Sim:** Gazebo ground-truth odometry `/compa/odom`.
-- **Hardware:** external **Vicon** mocap (`/HAMR_base/odom`) + onboard **MCU EKF** (`/odom`,
-  `/robot_pose`, encoders+IMU via relay_node). No camera-based localization. Vicon only works
-  inside the mocap arena — which is the core reason SLAM is being added.
+- **Hardware:** external **Vicon** mocap (`/HAMR_base/odom`) + onboard fused odometry. The
+  onboard chain is: `relay_node` (serial → `/imu/data` + encoder ticks) → `holonomic_odom_node`
+  (ticks → `/wheel_odom`) → **robot_localization EKF** (`/wheel_odom` + `/imu/data` →
+  **`/local_HAMR/odom`** and the `odom→base_link` TF). So the **onboard local odom topic is
+  `/local_HAMR/odom`** (`/wheel_odom` is the raw pre-EKF version). There is **no** `/odom` or
+  `/robot_pose` from relay_node — earlier drafts of this doc said so; that was wrong. No
+  camera-based localization yet. Vicon only works inside the mocap arena — the core reason
+  SLAM is being added.
 
 **Key alignment win:** `or_planner` was already written to consume a `grid_map` `/elevation_map`
 and `/costmap`. Today those come from **heightmap PNG images** (`ImageToGridmap`/`map_publisher`/
@@ -170,31 +176,65 @@ just rely on `rtabmap_viz`.
 
 ### Phase 1 — Real D455 SLAM
 
-**M1.1 — RealSense driver launch.** *(new: `launch/realsense.launch.py`, `config/realsense.yaml`)*
-- Do: `apt install ros-jazzy-realsense2-camera`. Launch D455 with `align_depth.enable:=true`,
-  `enable_sync:=true`, `enable_gyro:=true enable_accel:=true unite_imu_method:=2`,
-  `pointcloud.enable:=true`. **Remap** its outputs to the canonical `/d455/...` names so
-  `rtabmap.yaml` is reused unchanged.
-- Done-when: same `/d455/*` topics as sim are alive from real hardware.
+**M1.1 — RealSense driver launch. ✔ DONE** *(`launch/realsense.launch.py`, `config/realsense_d455.yaml`)*
+- Built + **verified on the Pi with the camera attached.** Publishes the canonical `/d455/...`
+  topics via absolute remaps from the driver's native `/d455/d455_camera/...` names, so
+  `rtabmap.yaml` is reused unchanged. Verified rates: color ~30 Hz, aligned depth ~30 Hz,
+  imu_raw ~200 Hz, valid 640×480 intrinsics.
+- **Pi-specific gotcha (important):** the RealSense *defaults* (1280×720 color + depth + both
+  infrared streams) saturate the Pi's USB → `"Frames didn't arrive within 5 seconds"` and no
+  data. Fix baked into `config/realsense_d455.yaml`: drop IR streams (`enable_infra1/2:=false`),
+  use `640x480x30` for color+depth, and `initial_reset:=true`. Point cloud is OFF by default
+  (CPU-bound on the Pi; RTAB-Map rebuilds it on replay) — enable with `pointcloud:=true` when
+  you reach Phase 2 elevation mapping.
+- TF: the driver roots its frames at `camera_link` (NOT `d455_camera_link`); the color image
+  frame is `camera_color_optical_frame`. The hardware bringup runs no robot_state_publisher,
+  so `realsense.launch.py` also publishes a static `base_link → camera_link` (mount offsets are
+  launch args — **MEASURE and set them**; defaults mirror the sim mount).
 
-**M1.2 — IMU orientation.** On the real D455 the raw IMU has no orientation. Run
-`imu_filter_madgwick` (`use_mag:=false`): subscribe the RealSense raw IMU, publish **`/d455/imu`**
-(now with orientation). (In sim gz already gives orientation, so this node is real-only.)
+**M1.2 — IMU orientation. ✔ DONE (needs the package installed)** On the real D455 the raw IMU has
+no orientation. `realsense.launch.py` runs `imu_filter_madgwick` (`use_mag:=false`, `publish_tf:=false`)
+subscribing the raw IMU `/d455/imu_raw` and publishing **`/d455/imu`** (with orientation). In sim gz
+already gives orientation, so this node is real-only. **Install:** `apt install ros-jazzy-imu-filter-madgwick`
+(not yet installed; until then launch with `use_madgwick:=false` and the bag still captures `/d455/imu_raw`).
 
 **M1.3 — D455 on the real robot's TF.** The hardware URDF must contain `base_link → d455_optical`
 (measure the physical mount). Either include a hardware variant of `compa_d455.urdf.xacro` in the
 real robot description, or publish a measured `static_transform_publisher`. Without this, RTAB-Map
 gets no camera extrinsics and fails. Calibrate the mount offset.
 
-**M1.4 — Odometry on hardware.** Recommended: feed `/odom` (MCU EKF from relay_node) to rtabmap as
-external odometry (`odom_topic:=/odom`, `visual_odometry:=false`) and let rtabmap add visual loop
-closures — more robust off-road than pure visual. Alternative / augment: fuse with
-`robot_localization`. *(new: `launch/rtabmap_real.launch.py`)*
+**M1.4 — Odometry on hardware. ✔ launch written** *(`launch/rtabmap_real.launch.py`)* Feeds
+**`/local_HAMR/odom`** (the robot_localization EKF output) to rtabmap as external odometry
+(`odom_topic:=/local_HAMR/odom`, default `visual_odometry:=false`) and lets rtabmap add visual loop
+closures — more robust off-road than pure visual, and the only clean option when replaying a bag (the
+bag already carries odom + the `odom→base_link` TF, which would collide with rgbd_odometry). NOTE:
+there is no `/odom` from relay_node; use `/local_HAMR/odom`, or `/wheel_odom` for raw pre-EKF.
 
-**M1.5 — Record + build the real map.**
-- Record a raw sensor bag while driving the space:
-  `ros2 bag record -s mcap /d455/color/image_raw /d455/depth/image_rect_raw /d455/color/camera_info /d455/depth/color/points /d455/imu /odom /tf /tf_static` (into `bags/`).
-- Build & save `maps/compa_real.db` (live, or by replaying the bag to re-tune).
+**⚠ First real map (2026-06-24, `loop_lab_01`): builds but 0 loop closures (18 rejected).** Map saved
+fine (59 MB, ~134 nodes) but every visual loop closure was rejected by `RGBD/OptimizeMaxError` ("wrong
+loop closure ... graph error ratio" / "transform too large"). Root causes, in priority order:
+  1. **The `base_link→camera_link` mount transform is still the placeholder** from `realsense.launch.py`
+     — wrong extrinsics make the camera geometry disagree with wheel/IMU odom, so loop closures look
+     wrong and get rejected. **Measure the real mount first.**
+  2. **Recorded camera frame rate was low** (color ~5.5 Hz, depth ~11.7 Hz — the Pi dropped frames
+     while recording the full stack to SD). Fewer/sparser frames = weaker feature matching. Record
+     lighter (e.g. color+depth at 15 fps, drop foxglove, or record the camera to its own bag).
+  3. Only after 1+2: if odom drift is the remaining issue, relax `RGBD/OptimizeMaxError` (3.0→~5.0).
+     Do NOT relax it first — that just accepts corrupt loop closures.
+
+**M1.5 — Record + build the real map.** *(record tooling ✔ DONE)*
+- Record a trajectory bag while driving the space — **one command brings up camera + onboard
+  odom + recorder:**
+  `ros2 launch compa_slam record_trajectory.launch.py bag_name:=loop_lab_01`
+  (or just the recorder: `ros2 run compa_slam record_compa_slam_bag <name>`). It captures camera
+  (`/d455/color/image_raw`, `/d455/depth/image_rect_raw`, `/d455/color/camera_info`, `/d455/imu`,
+  `/d455/imu_raw`, and `/d455/depth/color/points` if `pointcloud:=true`), onboard local odom
+  (`/local_HAMR/odom`, `/wheel_odom`, `/imu/data`, encoder ticks), Vicon (`/HAMR_base/odom`,
+  `/HAMR_turret/odom` + poses), commands, and `/tf`+`/tf_static`. QoS is handled by
+  `config/record_slam_qos.yaml` (camera/cmd_vel → best_effort, `/tf_static` → transient_local so
+  the latched camera extrinsics are captured). Bags land in `hamr_control/rosbags/`.
+- Build & save `maps/compa_real.db` (live, or by replaying the bag to re-tune). **Needs**
+  `apt install ros-jazzy-rtabmap-ros` (not yet installed).
 - Done-when: a globally-consistent real map with loop closures exists.
 
 **M1.6 — Real localization.** Run the localization launch against `compa_real.db`; confirm stable

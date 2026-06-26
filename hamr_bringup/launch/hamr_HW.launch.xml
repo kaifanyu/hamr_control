@@ -8,9 +8,14 @@
         value="$(find-pkg-share hamr_bringup)/config/hamr_hw_control_params.yaml" />
     <let name="ekf_config_path"
         value="$(find-pkg-share hamr_bringup)/config/ekf.yaml" />
+    <let name="ekf_mag_config_path"
+        value="$(find-pkg-share hamr_bringup)/config/ekf_mag.yaml" />
     <let name="bridge_config_path"
         value="$(find-pkg-share hamr_bringup)/config/hamr_uros_bridge.yaml" />
     <arg name="record_bag" default="true" />
+    <!-- use_mag:=true loads ekf_mag.yaml (fuses BNO055 absolute yaw) for magnetometer
+         testing; default false keeps the gyro-only known-good ekf.yaml. -->
+    <arg name="use_mag" default="false" />
 
     
     <!-- To launch the URDF Robot State Publisher -->
@@ -38,17 +43,33 @@
     <node pkg="hamr_odometry" exec="holonomic_odom_node" output="screen">
         <param name="publish_tf" value="false"/>
         <param name="r_wheel" value="0.1250"/>
-        <param name="a_wheel" value="0.345"/>
-        <param name="b_wheel" value="0.301"/>
+        <param name="a_wheel" value="0.350"/>
+        <param name="b_wheel" value="0.45"/>
         <param name="base_yaw_offset" value="1.57079632679"/>
         <param name="yaw_sign" value="-1.0"/>
-        <param name="left_tick_scale" value="0.899"/>
-        <param name="right_tick_scale" value="1.0"/>
+        <param name="left_tick_scale" value="1.02"/>
+        <param name="right_tick_scale" value="0.9"/>
+        <param name="ticks_per_rev" value="2550.0"/>
     </node>
 
-    <!-- EKF: fuses /wheel_odom + /imu/data into /local_HAMR/odom and owns odom→base_link TF -->
-    <node pkg="robot_localization" exec="ekf_node" name="ekf_filter_node" output="screen">
+    <!-- IMU mounting TF: BNO055 is mounted flat and axis-aligned with base_link
+         (X forward, Z up), so imu_link → base_link is identity. The EKF needs this
+         transform to rotate /imu/data into base_link; without it every IMU message
+         is rejected. Replace the offsets here if the IMU is ever remounted. -->
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="imu_link_static_tf"
+          args="--x 0.0 --y 0.0 --z 0.0 --roll 0.0 --pitch 0.0 --yaw 0.0 --frame-id base_link --child-frame-id imu_link" />
+
+    <!-- EKF: fuses /wheel_odom + /imu/data into /local_HAMR/odom and owns odom→base_link TF.
+         use_mag:=false (default) -> ekf.yaml      (gyro yaw-rate only, known good)
+         use_mag:=true            -> ekf_mag.yaml  (adds BNO055 absolute-yaw / magnetometer) -->
+    <node pkg="robot_localization" exec="ekf_node" name="ekf_filter_node" output="screen"
+          unless="$(var use_mag)">
         <param from="$(var ekf_config_path)"/>
+        <remap from="odometry/filtered" to="local_HAMR/odom"/>
+    </node>
+    <node pkg="robot_localization" exec="ekf_node" name="ekf_filter_node" output="screen"
+          if="$(var use_mag)">
+        <param from="$(var ekf_mag_config_path)"/>
         <remap from="odometry/filtered" to="local_HAMR/odom"/>
     </node>
 

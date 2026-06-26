@@ -25,6 +25,11 @@ def quat_to_yaw(q):
             1.0 - 2.0 * (q.y * q.y + q.z * q.z)
         )
 
+def clamp(value: float, limit: float) -> float:
+    limit = abs(limit)
+    return max(-limit, min(value, limit))
+
+
 class PIAccumulator:
     def __init__(self, limit: float):
         self.sum = 0.0
@@ -88,6 +93,9 @@ class HamrControlNode(Node):
 
         self.declare_parameter("control_rate_hz", 100.0)
         self.declare_parameter("d_alpha", 0.4)
+        self.declare_parameter("d_x_limit", 0.15)
+        self.declare_parameter("d_y_limit", 0.15)
+        self.declare_parameter("d_yaw_limit", 0.3)
 
         self.add_post_set_parameters_callback(self.parameters_callback)
 
@@ -142,6 +150,11 @@ class HamrControlNode(Node):
         self.d_err_y_filt = 0.0
         self.d_err_yaw_filt = 0.0
         self.d_alpha = self.get_parameter("d_alpha").value # 0 < alpha < 1 (lower stronger smoothing)
+        self.d_limits = {
+            "x": self.get_parameter("d_x_limit").value,
+            "y": self.get_parameter("d_y_limit").value,
+            "yaw": self.get_parameter("d_yaw_limit").value,
+        }
 
         ## - - Integral Accumulators - - ##
         self.I_x = PIAccumulator(limit=.5)
@@ -201,7 +214,8 @@ class HamrControlNode(Node):
         if abs(err_x) < self.threshold_x_y:
             ## Check if at target
             desired_x_dot = self.reference_.x_dot
-            self.err_x_prev = 0
+            self.err_x_prev = err_x
+            self.d_err_x_filt = 0.0
             self.I_x.reset()
             # self.get_logger().warn("RESET I_x At target: " + str(self.reference_.x))
         else:
@@ -213,6 +227,7 @@ class HamrControlNode(Node):
             self.d_err_x_filt = (self.d_alpha * d_raw_x +
                                 (1.0 - self.d_alpha) * self.d_err_x_filt)
             D_x = self.gains["x"]["D"] * self.d_err_x_filt
+            D_x = clamp(D_x, self.d_limits["x"])
 
             # Cap desired velocity
             desired_x_dot = self.reference_.x_dot + P_x + I_x_term + D_x
@@ -222,7 +237,8 @@ class HamrControlNode(Node):
         if abs(err_y) < self.threshold_x_y:
             ## Check if at target
             desired_y_dot = self.reference_.y_dot
-            self.err_y_prev = 0
+            self.err_y_prev = err_y
+            self.d_err_y_filt = 0.0
             self.I_y.reset()
             # self.get_logger().warn("RESET I_y At target: " + str(self.reference_.y))
         else:
@@ -234,6 +250,7 @@ class HamrControlNode(Node):
             self.d_err_y_filt = (self.d_alpha * d_raw_y +
                                 (1.0 - self.d_alpha) * self.d_err_y_filt)
             D_y = self.gains["y"]["D"] * self.d_err_y_filt
+            D_y = clamp(D_y, self.d_limits["y"])
 
             desired_y_dot = self.reference_.y_dot + P_y + I_y_term + D_y
             self.err_y_prev = err_y
@@ -249,7 +266,8 @@ class HamrControlNode(Node):
         if abs(err_yaw) < self.threshold_yaw:
             ## Check if at target
             desired_yaw_dot = self.reference_.yaw_dot
-            self.err_yaw_prev = 0
+            self.err_yaw_prev = err_yaw
+            self.d_err_yaw_filt = 0.0
             self.I_yaw.reset()
             # self.get_logger().warn("RESET I_yaw At target: " + str(self.reference_.yaw))
         else:
@@ -260,6 +278,7 @@ class HamrControlNode(Node):
             self.d_err_yaw_filt = (self.d_alpha * d_raw_yaw +
                                 (1.0 - self.d_alpha) * self.d_err_yaw_filt)
             D_yaw = self.gains["yaw"]["D"] * self.d_err_yaw_filt
+            D_yaw = clamp(D_yaw, self.d_limits["yaw"])
 
             desired_yaw_dot = max(-self.yaw_dot_limit, min(self.reference_.yaw_dot + P_yaw + I_yaw_term + D_yaw, self.yaw_dot_limit))
 
@@ -380,7 +399,12 @@ class HamrControlNode(Node):
             "I_yaw":("yaw", "I"),
             "D_yaw":("yaw", "D"),
         }
-        config_name_map = ("r_wheel", "a_wheel", "b_wheel", "base_yaw_offset", "control_rate_hz", "d_alpha")
+        config_name_map = ("r_wheel", "a_wheel", "b_wheel", "base_yaw_offset")
+        d_limit_name_map = {
+            "d_x_limit": "x",
+            "d_y_limit": "y",
+            "d_yaw_limit": "yaw",
+        }
         for p in params:
             if p.name in pid_name_map:
                 group, term = pid_name_map[p.name]
@@ -389,6 +413,13 @@ class HamrControlNode(Node):
             elif p.name in config_name_map:
                 self.hamr_config[p.name] = p.value
                 self.get_logger().info(f"{p.name} changed to {p.value}")
+            elif p.name == "d_alpha":
+                self.d_alpha = max(0.0, min(float(p.value), 1.0))
+                self.get_logger().info(f"{p.name} changed to {self.d_alpha}")
+            elif p.name in d_limit_name_map:
+                axis = d_limit_name_map[p.name]
+                self.d_limits[axis] = abs(float(p.value))
+                self.get_logger().info(f"{p.name} changed to {self.d_limits[axis]}")
 
 def main(args=None):
     rclpy.init(args=args)

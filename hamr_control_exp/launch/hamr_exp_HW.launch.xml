@@ -23,6 +23,12 @@
         <param name="right_tick_scale" value="1.0"/>
     </node>
 
+    <!-- IMU mounting TF: BNO055 is mounted flat and axis-aligned with base_link,
+         so imu_link → base_link is identity. Required for the EKF to accept
+         /imu/data; without it every IMU message is rejected. -->
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="imu_link_static_tf"
+          args="--x 0.0 --y 0.0 --z 0.0 --roll 0.0 --pitch 0.0 --yaw 0.0 --frame-id base_link --child-frame-id imu_link" />
+
     <!-- EKF: fuses /wheel_odom + /imu/data into /local_HAMR/odom -->
     <node pkg="robot_localization" exec="ekf_node" name="ekf_filter_node" output="screen">
         <param from="$(var ekf_config_path)"/>

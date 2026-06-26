@@ -50,8 +50,12 @@ gz depth camera (sim)  ─┴─► RTAB-Map ──► robot pose (map→base) �
 - [~] **Phase 0 — Sim SLAM.** Depth/RGBD camera + textured world + bridge + RTAB-Map mapping
       launch are all in place. Remaining: run on the Linux/ROS box, confirm topics + a map
       builds, tune sync/QoS if needed, then add a localization launch.
-- [ ] **Phase 1 — Real SLAM.** Bring up the D455 + IMU madgwick filter; record a raw sensor
-      bag while driving the space; build & save `maps/compa.db`; verify localization mode.
+- [~] **Phase 1 — Real SLAM.** Camera bring-up + trajectory recording are **done and verified on
+      the Pi** (`launch/realsense.launch.py`, `config/realsense_d455.yaml`,
+      `launch/record_trajectory.launch.py`, `scripts/record_compa_slam_bag`). The real bag
+      mapping launch exists (`launch/rtabmap_real.launch.py`) and builds a map, but loop closures
+      are rejected until the real `base_link -> camera_link` mount is measured and the recorded
+      camera frame rate is raised.
 - [x] **Phase 1.5 — Sim replay of a recorded map.** `scripts/map_to_sim.py` turns a recorded
       RTAB-Map cloud/`.db` (or a DEM) into a Gazebo heightmap world + `/elevation_map` +
       `/costmap`; `replay_map_sim.launch.py` drives that terrain in sim. (Code-complete,
@@ -100,7 +104,30 @@ ros2 topic pub /right_wheel/cmd_vel std_msgs/msg/Float64 "{data: 3.0}"
 Map saves to `maps/compa_sim.db` on shutdown. Watch `rtabmap_viz` for tracked features +
 loop closures. Next: a localization launch (run against the saved `.db`).
 
-## Sim replay (record → convert → run in sim)
+**C. Record a real trajectory (hardware D455)** — camera + onboard local odom + Vicon odom:
+```bash
+sudo apt install ros-jazzy-imu-filter-madgwick   # for /d455/imu with orientation
+colcon build --packages-select compa_slam --symlink-install && source install/setup.bash
+ros2 launch compa_slam record_trajectory.launch.py bag_name:=loop_lab_01
+# drive the robot (raw wheel cmds), then Ctrl-C to finalize the bag:
+ros2 topic pub /left_wheel/cmd_vel  std_msgs/msg/Float64 "{data: 3.0}"
+ros2 topic pub /right_wheel/cmd_vel std_msgs/msg/Float64 "{data: 3.0}"
+```
+Bags land in `hamr_control/rosbags/`. Already running your own robot bringup? add `robot:=false`.
+Camera only (verify topics first): `ros2 launch compa_slam realsense.launch.py use_madgwick:=false`.
+
+**D. Build a map from a recorded bag** — replay + RTAB-Map (external EKF odom + visual loop closures):
+```bash
+ros2 launch compa_slam rtabmap_real.launch.py \
+    bag:=$HOME/hamster_ws/src/hamr_control/rosbags/loop_lab_01 \
+    database_path:=$HOME/hamster_ws/src/hamr_control/compa_slam/maps/compa_real.db
+# Ctrl-C after the bag finishes -> the .db is saved.
+```
+> Tested 2026-06-24: builds (~134 nodes) but loop closures get rejected until the real
+> `base_link -> camera_link` mount is measured (set `mount_*` in `realsense.launch.py`) and the
+> recorded camera frame rate is raised. See `docs/HANDOFF.md` M1.4.
+
+## Sim replay (record -> convert -> run in sim)
 
 Turn a **recorded real-world map** into a Gazebo simulation of the same terrain. The bridge
 is a **heightmap PNG**: it drives both the Gazebo `<heightmap>` terrain *and* the planner's
