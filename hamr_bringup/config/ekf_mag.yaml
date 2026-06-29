@@ -1,6 +1,10 @@
 ekf_filter_node:
   ros__parameters:
 
+    # Set to true when replaying bags: ros2 bag play --clock <bag>
+    # Keep false for live robot runs (no /clock topic available).
+    use_sim_time: false
+
     # ---------------------------------------------------------------
     # Core settings
     # ---------------------------------------------------------------

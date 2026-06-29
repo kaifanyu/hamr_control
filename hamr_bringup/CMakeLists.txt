@@ -15,6 +15,7 @@ install(
 
 install(
   PROGRAMS
+    scripts/live_mag_plot
     scripts/record_hamr_vicon_bag
     scripts/record_hamr_test_bag
   DESTINATION lib/${PROJECT_NAME}

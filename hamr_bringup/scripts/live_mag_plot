@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+
+import argparse
+import math
+from collections import deque
+
+import matplotlib.pyplot as plt
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import MagneticField
+from std_msgs.msg import UInt8MultiArray
+
+
+class LiveMagPlot(Node):
+    def __init__(self, args):
+        super().__init__("live_mag_plot")
+        self.args = args
+        self.start_ns = None
+        self.last_calib = None
+
+        self.t = deque()
+        self.mx = deque()
+        self.my = deque()
+        self.mz = deque()
+        self.mag = deque()
+
+        self.create_subscription(MagneticField, args.topic, self.mag_cb, 20)
+        if args.calib_topic:
+            self.create_subscription(UInt8MultiArray, args.calib_topic, self.calib_cb, 20)
+
+    def mag_cb(self, msg):
+        now_ns = self.get_clock().now().nanoseconds
+        if self.start_ns is None:
+            self.start_ns = now_ns
+        t_s = (now_ns - self.start_ns) * 1e-9
+
+        # ROS MagneticField is Tesla. Convert to microtesla for human-readable plots.
+        x = msg.magnetic_field.x * 1e6
+        y = msg.magnetic_field.y * 1e6
+        z = msg.magnetic_field.z * 1e6
+        total = math.sqrt(x * x + y * y + z * z)
+
+        self.t.append(t_s)
+        self.mx.append(x)
+        self.my.append(y)
+        self.mz.append(z)
+        self.mag.append(total)
+        self.trim_old(t_s)
+
+    def calib_cb(self, msg):
+        data = list(msg.data)
+        if len(data) >= 4:
+            self.last_calib = tuple(int(v) for v in data[:4])
+
+    def trim_old(self, now_s):
+        cutoff = now_s - self.args.window
+        while self.t and self.t[0] < cutoff:
+            self.t.popleft()
+            self.mx.popleft()
+            self.my.popleft()
+            self.mz.popleft()
+            self.mag.popleft()
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Live plot /imu/mag in microtesla with a healthy magnitude band."
+    )
+    parser.add_argument("--topic", default="/imu/mag")
+    parser.add_argument("--calib-topic", default="/imu/calib_status")
+    parser.add_argument("--window", type=float, default=60.0, help="seconds of history to show")
+    parser.add_argument("--healthy-min", type=float, default=25.0, help="lower healthy magnitude, uT")
+    parser.add_argument("--healthy-max", type=float, default=65.0, help="upper healthy magnitude, uT")
+    parser.add_argument("--ideal-min", type=float, default=45.0, help="lower typical/ideal band, uT")
+    parser.add_argument("--ideal-max", type=float, default=55.0, help="upper typical/ideal band, uT")
+    parser.add_argument("--update-rate", type=float, default=10.0, help="plot refresh rate, Hz")
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+    rclpy.init()
+    node = LiveMagPlot(args)
+
+    fig, (ax_xyz, ax_mag) = plt.subplots(2, 1, sharex=True, figsize=(10, 7))
+    fig.canvas.manager.set_window_title("HAMR live magnetometer")
+
+    line_x, = ax_xyz.plot([], [], label="x", color="#1f77b4", linewidth=1.5)
+    line_y, = ax_xyz.plot([], [], label="y", color="#2ca02c", linewidth=1.5)
+    line_z, = ax_xyz.plot([], [], label="z", color="#d62728", linewidth=1.5)
+    line_mag, = ax_mag.plot([], [], label="|B|", color="#111111", linewidth=1.8)
+
+    ax_xyz.set_ylabel("axis field (uT)")
+    ax_xyz.grid(True, alpha=0.25)
+    ax_xyz.legend(loc="upper right")
+
+    ax_mag.axhspan(args.healthy_min, args.healthy_max, color="#8fd19e", alpha=0.22,
+                   label=f"healthy-ish {args.healthy_min:g}-{args.healthy_max:g} uT")
+    ax_mag.axhspan(args.ideal_min, args.ideal_max, color="#1f77b4", alpha=0.15,
+                   label=f"typical target {args.ideal_min:g}-{args.ideal_max:g} uT")
+    ax_mag.set_xlabel("time (s)")
+    ax_mag.set_ylabel("magnitude (uT)")
+    ax_mag.grid(True, alpha=0.25)
+    ax_mag.legend(loc="upper right")
+
+    status = fig.text(0.02, 0.965, "Waiting for /imu/mag...", ha="left", va="top")
+    dt = 1.0 / max(args.update_rate, 1.0)
+
+    try:
+        while rclpy.ok() and plt.fignum_exists(fig.number):
+            rclpy.spin_once(node, timeout_sec=0.0)
+
+            t = list(node.t)
+            if t:
+                x = list(node.mx)
+                y = list(node.my)
+                z = list(node.mz)
+                mag = list(node.mag)
+
+                line_x.set_data(t, x)
+                line_y.set_data(t, y)
+                line_z.set_data(t, z)
+                line_mag.set_data(t, mag)
+
+                t_min = max(0.0, t[-1] - args.window)
+                t_max = max(args.window, t[-1])
+                ax_xyz.set_xlim(t_min, t_max)
+
+                axis_vals = x + y + z
+                axis_pad = max(5.0, 0.12 * max(abs(v) for v in axis_vals))
+                ax_xyz.set_ylim(min(axis_vals) - axis_pad, max(axis_vals) + axis_pad)
+
+                mag_pad = max(5.0, 0.15 * max(mag))
+                y_min = min(args.healthy_min, min(mag)) - mag_pad
+                y_max = max(args.healthy_max, max(mag)) + mag_pad
+                ax_mag.set_ylim(y_min, y_max)
+
+                calib = "unknown"
+                if node.last_calib is not None:
+                    calib = "S,G,A,M={} {} {} {}".format(*node.last_calib)
+                status.set_text(
+                    f"{args.topic}: x={x[-1]:.2f} y={y[-1]:.2f} z={z[-1]:.2f} uT, "
+                    f"|B|={mag[-1]:.2f} uT, Cal({calib})"
+                )
+
+            fig.canvas.draw_idle()
+            plt.pause(dt)
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    main()

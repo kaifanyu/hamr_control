@@ -1,0 +1,25 @@
+<launch>
+    <!-- Offline EKF replay: no hardware, no bridge, no controller.
+         Run the bag with clock enabled and replay only the sensor topics.
+         The bag player publishes /clock; use_sim_time=true below makes the EKF use it. -->
+
+    <let name="ekf_config_path"
+        value="$(find-pkg-share hamr_bringup)/config/ekf.yaml" />
+    <arg name="ekf_config" default="$(var ekf_config_path)" />
+
+    <!-- imu_link -> base_link identity TF same as live launch.
+         The bag also contains /tf_static with this transform, but publishing it
+         here ensures the EKF has it before the first /imu/data message arrives. -->
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="imu_link_static_tf"
+          args="--x 0.0 --y 0.0 --z 0.0 --roll 0.0 --pitch 0.0 --yaw 0.0 --frame-id base_link --child-frame-id imu_link" />
+
+    <!-- EKF node: identical config to the live run, with sim time so the bag
+         clock drives processing instead of wall time.
+         Output remapped to /local_HAMR/odom_offline to keep it separate from
+         the live EKF output (/local_HAMR/odom) that the bag also replays. -->
+    <node pkg="robot_localization" exec="ekf_node" name="ekf_filter_node_offline" output="screen">
+        <param from="$(var ekf_config)"/>
+        <param name="use_sim_time" value="true"/>
+        <remap from="odometry/filtered" to="local_HAMR/odom_offline"/>
+    </node>
+</launch>

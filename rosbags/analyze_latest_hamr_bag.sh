@@ -67,6 +67,8 @@ python3 "${ANALYZE_SCRIPT}" "${BAG_DIR}" \
   --localization-error-plot "${OUT_DIR}/vicon_onboard_error.png" \
   --wheel-plot "${OUT_DIR}/wheel_cmd_vel.png" \
   --turret-yaw-plot "${OUT_DIR}/path_reference_turret_yaw.png" \
+  --calib-plot "${OUT_DIR}/imu_calib_status.png" \
+  --heading-comparison-plot "${OUT_DIR}/heading_comparison.png" \
   --json "${OUT_DIR}/metrics.json" \
   --csv "${OUT_DIR}/base_trace.csv" \
   --localization-csv "${OUT_DIR}/localization_trace.csv" \
@@ -86,6 +88,12 @@ else
   echo "  wheel_cmd_vel.png skipped: no wheel cmd_vel samples"
 fi
 echo "  ${OUT_DIR}/path_reference_turret_yaw.png"
+if [[ -f "${OUT_DIR}/imu_calib_status.png" ]]; then
+  echo "  ${OUT_DIR}/imu_calib_status.png"
+else
+  echo "  imu_calib_status.png skipped: no /imu/calib_status samples"
+fi
+echo "  ${OUT_DIR}/heading_comparison.png"
 echo "  ${OUT_DIR}/metrics.json"
 echo "  ${OUT_DIR}/base_trace.csv"
 echo "  ${OUT_DIR}/localization_trace.csv"

@@ -27,6 +27,7 @@ DEFAULT_TURRET_TOPIC = "/HAMR_turret/odom"
 DEFAULT_REFERENCE_TOPIC = "/reference_trajectory"
 DEFAULT_LEFT_WHEEL_TOPIC = "/left_wheel/cmd_vel"
 DEFAULT_RIGHT_WHEEL_TOPIC = "/right_wheel/cmd_vel"
+DEFAULT_CALIB_STATUS_TOPIC = "/imu/calib_status"
 
 
 def yaw_from_quaternion(q):
@@ -85,6 +86,7 @@ def read_bag(
     reference_topic,
     left_wheel_topic,
     right_wheel_topic,
+    calib_status_topic,
 ):
     reader = open_reader(bag_dir, storage_id)
     topic_types = {topic.name: topic.type for topic in reader.get_all_topics_and_types()}
@@ -97,6 +99,7 @@ def read_bag(
     reference_samples = []
     left_wheel_samples = []
     right_wheel_samples = []
+    calib_samples = []
 
     wanted = {
         base_topic,
@@ -107,6 +110,7 @@ def read_bag(
         reference_topic,
         left_wheel_topic,
         right_wheel_topic,
+        calib_status_topic,
     }
     while reader.has_next():
         topic, data, bag_time_ns = reader.read_next()
@@ -161,6 +165,15 @@ def read_bag(
             left_wheel_samples.append({"t": t, "value": float(msg.data)})
         elif topic == right_wheel_topic:
             right_wheel_samples.append({"t": t, "value": float(msg.data)})
+        elif topic == calib_status_topic:
+            data = bytes(msg.data)
+            calib_samples.append({
+                "t": t,
+                "sys":  data[0] if len(data) > 0 else 0,
+                "gyro": data[1] if len(data) > 1 else 0,
+                "accel":data[2] if len(data) > 2 else 0,
+                "mag":  data[3] if len(data) > 3 else 0,
+            })
 
     return (
         topic_types,
@@ -172,6 +185,7 @@ def read_bag(
         reference_samples,
         left_wheel_samples,
         right_wheel_samples,
+        calib_samples,
     )
 
 def as_arrays(samples):
@@ -403,6 +417,109 @@ def integrate_imu_odom_samples(imu_samples, bias_window_s=1.0, max_dt=0.1):
         )
 
     return samples
+
+
+def integrate_gyro_z(imu_samples, max_dt=0.1):
+    """Numerically integrate angular_velocity.z to produce a cumulative yaw time series.
+
+    Returns samples with {"t", "yaw"} where yaw is the unwrapped accumulated angle
+    in radians, zeroed at the first sample.  Unlike the BNO055 fused orientation this
+    contains no magnetometer correction — useful for isolating gyro-only drift.
+    """
+    if not imu_samples:
+        return []
+    result = [{"t": imu_samples[0]["t"], "yaw": 0.0}]
+    yaw = 0.0
+    for i in range(1, len(imu_samples)):
+        dt = imu_samples[i]["t"] - imu_samples[i - 1]["t"]
+        if 0.0 < dt <= max_dt:
+            yaw += imu_samples[i]["gz"] * dt
+        result.append({"t": imu_samples[i]["t"], "yaw": yaw})
+    return result
+
+
+def write_calib_status_plot(plot_path, calib_samples):
+    """Plot BNO055 sys/gyro/accel/mag calibration levels (0–3) over the run."""
+    import matplotlib.pyplot as plt
+
+    if not calib_samples:
+        raise RuntimeError("No /imu/calib_status samples found.")
+
+    t0 = calib_samples[0]["t"]
+    t     = np.asarray([s["t"]    - t0 for s in calib_samples], dtype=float)
+    sys_  = np.asarray([s["sys"]       for s in calib_samples], dtype=float)
+    gyro  = np.asarray([s["gyro"]      for s in calib_samples], dtype=float)
+    accel = np.asarray([s["accel"]     for s in calib_samples], dtype=float)
+    mag   = np.asarray([s["mag"]       for s in calib_samples], dtype=float)
+
+    fig, ax = plt.subplots(figsize=(10, 4))
+    ax.step(t, sys_,  where="post", label="sys",   linewidth=1.8)
+    ax.step(t, gyro,  where="post", label="gyro",  linewidth=1.8)
+    ax.step(t, accel, where="post", label="accel", linewidth=1.8)
+    ax.step(t, mag,   where="post", label="mag",   linewidth=1.8)
+    ax.axhline(3, color="gray", linestyle="--", linewidth=0.8, alpha=0.5, label="fully calibrated")
+    ax.set_ylim(-0.2, 3.4)
+    ax.set_yticks([0, 1, 2, 3])
+    ax.set_xlabel("time (s)")
+    ax.set_ylabel("calibration level (0–3)")
+    ax.set_title("BNO055 calibration status (check_sys) over run")
+    ax.grid(True)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(plot_path, dpi=160)
+    plt.close(fig)
+
+
+def write_heading_comparison_plot(
+    plot_path,
+    base_samples,
+    imu_samples,
+    wheel_odom_samples,
+    gyro_integrated_samples,
+):
+    """Compare all heading sources on a single start-zeroed plot (degrees).
+
+    Plots Vicon yaw, BNO055 fused yaw, gyro-z integrated yaw, and
+    wheel-integrated yaw — all unwrapped and zeroed at their first sample so
+    divergence is immediately visible.
+    """
+    import matplotlib.pyplot as plt
+
+    if not imu_samples:
+        raise RuntimeError("No IMU samples for heading comparison plot.")
+
+    def unwrap_deg(samples, key="yaw"):
+        t0 = samples[0]["t"]
+        t   = np.asarray([s["t"]   - t0 for s in samples], dtype=float)
+        raw = np.asarray([s[key]        for s in samples], dtype=float)
+        rel = np.degrees(np.unwrap(raw) - np.unwrap(raw)[0])
+        return t, rel
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    if base_samples:
+        t, y = unwrap_deg(base_samples)
+        ax.plot(t, y, label="Vicon yaw (ground truth)", linewidth=2.2)
+
+    t, y = unwrap_deg(imu_samples)
+    ax.plot(t, y, label="IMU fused yaw (BNO055 NDOF)", linewidth=1.8)
+
+    if gyro_integrated_samples:
+        t, y = unwrap_deg(gyro_integrated_samples)
+        ax.plot(t, y, label="Gyro-z integrated yaw", linewidth=1.6, linestyle="--")
+
+    if wheel_odom_samples:
+        t, y = unwrap_deg(wheel_odom_samples)
+        ax.plot(t, y, label="Wheel-integrated yaw", linewidth=1.4, linestyle=":")
+
+    ax.set_xlabel("time from start (s)")
+    ax.set_ylabel("heading change (deg, start-zeroed)")
+    ax.set_title("Heading source comparison: Vicon / IMU fused / gyro-z integral / wheel")
+    ax.grid(True)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(plot_path, dpi=160)
+    plt.close(fig)
 
 
 def matched_relative_samples(reference_samples, estimate_samples, max_dt, align_yaw=True):
@@ -973,6 +1090,7 @@ def parse_args():
     parser.add_argument("--reference-topic", default=DEFAULT_REFERENCE_TOPIC)
     parser.add_argument("--left-wheel-topic", default=DEFAULT_LEFT_WHEEL_TOPIC)
     parser.add_argument("--right-wheel-topic", default=DEFAULT_RIGHT_WHEEL_TOPIC)
+    parser.add_argument("--calib-status-topic", default=DEFAULT_CALIB_STATUS_TOPIC)
     parser.add_argument("--storage-id", default="auto", help="auto, mcap, or sqlite3")
     parser.add_argument("--target-distance", type=float, default=2.0)
     parser.add_argument(
@@ -1024,6 +1142,8 @@ def parse_args():
         default=0.05,
         help="Max timestamp difference for base/turret yaw matching.",
     )
+    parser.add_argument("--calib-plot", type=Path, help="Optional BNO055 calibration status (check_sys) plot PNG")
+    parser.add_argument("--heading-comparison-plot", type=Path, help="Optional heading source comparison PNG")
     parser.add_argument(
         "--orientation-arrow-count",
         type=int,
@@ -1055,6 +1175,7 @@ def main():
         reference_samples,
         left_wheel_samples,
         right_wheel_samples,
+        calib_samples,
     ) = read_bag(
         bag_dir,
         storage_id,
@@ -1066,7 +1187,10 @@ def main():
         args.reference_topic,
         args.left_wheel_topic,
         args.right_wheel_topic,
+        args.calib_status_topic,
     )
+
+    gyro_integrated_samples = integrate_gyro_z(imu_samples)
 
     if not base_samples:
         available = "\n".join(f"  {name} [{type_name}]" for name, type_name in sorted(topic_types.items()))
@@ -1125,6 +1249,8 @@ def main():
         "wheel_odom_sample_count": len(wheel_odom_samples),
         "imu_sample_count": len(imu_samples),
         "imu_odom_sample_count": len(imu_odom_samples),
+        "gyro_integrated_sample_count": len(gyro_integrated_samples),
+        "calib_sample_count": len(calib_samples),
         "imu_bias_window_s": args.imu_bias_window_s,
         "imu_integration_max_dt_s": args.imu_integration_max_dt,
         "turret_sample_count": len(turret_samples),
@@ -1224,6 +1350,21 @@ def main():
             args.turret_max_dt,
             args.orientation_arrow_count,
             args.orientation_arrow_length,
+        )
+    if args.calib_plot:
+        args.calib_plot.parent.mkdir(parents=True, exist_ok=True)
+        if calib_samples:
+            write_calib_status_plot(args.calib_plot, calib_samples)
+        else:
+            print(f"Skipping calib plot: no samples found on {args.calib_status_topic}.")
+    if args.heading_comparison_plot:
+        args.heading_comparison_plot.parent.mkdir(parents=True, exist_ok=True)
+        write_heading_comparison_plot(
+            args.heading_comparison_plot,
+            base_samples,
+            imu_samples,
+            wheel_odom_samples,
+            gyro_integrated_samples,
         )
     if args.json:
         args.json.parent.mkdir(parents=True, exist_ok=True)

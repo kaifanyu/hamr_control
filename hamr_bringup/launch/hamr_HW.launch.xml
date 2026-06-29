@@ -13,9 +13,7 @@
     <let name="bridge_config_path"
         value="$(find-pkg-share hamr_bringup)/config/hamr_uros_bridge.yaml" />
     <arg name="record_bag" default="true" />
-    <!-- use_mag:=true loads ekf_mag.yaml (fuses BNO055 absolute yaw) for magnetometer
-         testing; default false keeps the gyro-only known-good ekf.yaml. -->
-    <arg name="use_mag" default="false" />
+    <arg name="use_mag" default="true" />
 
     
     <!-- To launch the URDF Robot State Publisher -->
@@ -49,7 +47,7 @@
         <param name="yaw_sign" value="-1.0"/>
         <param name="left_tick_scale" value="1.02"/>
         <param name="right_tick_scale" value="0.9"/>
-        <param name="ticks_per_rev" value="2550.0"/>
+        <param name="ticks_per_rev" value="4526.4"/>
     </node>
 
     <!-- IMU mounting TF: BNO055 is mounted flat and axis-aligned with base_link
