@@ -1,0 +1,419 @@
+#!/usr/bin/env python3
+"""Open-loop HAMR wheel/body velocity calibration test.
+
+Run this only when no controller or trajectory node is publishing wheel commands.
+The node publishes simple command steps, listens to Vicon odometry, and writes a
+CSV summary of measured motion for each step.
+"""
+
+import csv
+import math
+import time
+from datetime import datetime
+from pathlib import Path
+
+import rclpy
+from nav_msgs.msg import Odometry
+from rcl_interfaces.msg import ParameterDescriptor
+from rclpy.node import Node
+from std_msgs.msg import Float64
+
+
+def yaw_from_quat(q):
+    return math.atan2(
+        2.0 * (q.w * q.z + q.x * q.y),
+        1.0 - 2.0 * (q.y * q.y + q.z * q.z),
+    )
+
+
+def wrap_angle(a):
+    return (a + math.pi) % (2.0 * math.pi) - math.pi
+
+
+def parse_float_list(value):
+    if isinstance(value, str):
+        parts = [p.strip() for p in value.replace(';', ',').split(',')]
+        return [float(p) for p in parts if p]
+    if isinstance(value, (int, float)):
+        return [float(value)]
+    return [float(v) for v in value]
+
+
+def fit_slope(samples, index):
+    if len(samples) < 3:
+        return float('nan')
+    t0 = samples[0][0]
+    ts = [s[0] - t0 for s in samples]
+    xs = [s[index] for s in samples]
+    t_mean = sum(ts) / len(ts)
+    x_mean = sum(xs) / len(xs)
+    den = sum((t - t_mean) ** 2 for t in ts)
+    if den <= 1e-12:
+        return float('nan')
+    return sum((t - t_mean) * (x - x_mean) for t, x in zip(ts, xs)) / den
+
+
+class OpenLoopWheelCalibration(Node):
+    def __init__(self):
+        super().__init__('open_loop_wheel_calibration')
+
+        self.enable = self.declare_parameter('enable', False).value
+        self.command_mode = self.declare_parameter('command_mode', 'body_y').value
+        commands_param = self.declare_parameter(
+            'commands',
+            '0.05,0.10,0.15,0.20,0.25',
+            descriptor=ParameterDescriptor(dynamic_typing=True),
+        ).value
+        self.commands = parse_float_list(commands_param)
+        self.bidirectional = self.declare_parameter('bidirectional', False).value
+
+        self.duration_s = float(self.declare_parameter('duration_s', 4.0).value)
+        self.measure_s = float(self.declare_parameter('measure_s', 2.0).value)
+        self.ramp_s = float(self.declare_parameter('ramp_s', 1.0).value)
+        self.zero_s = float(self.declare_parameter('zero_s', 1.0).value)
+        self.start_delay_s = float(self.declare_parameter('start_delay_s', 3.0).value)
+        self.rate_hz = float(self.declare_parameter('rate_hz', 50.0).value)
+        self.odom_timeout_s = float(self.declare_parameter('odom_timeout_s', 5.0).value)
+        self.stale_odom_s = float(self.declare_parameter('stale_odom_s', 0.5).value)
+        self.require_wheel_subscribers = bool(
+            self.declare_parameter('require_wheel_subscribers', True).value
+        )
+        self.subscriber_timeout_s = float(
+            self.declare_parameter('subscriber_timeout_s', 3.0).value
+        )
+        self.max_displacement_m = float(
+            self.declare_parameter('max_displacement_m', 1.0).value
+        )
+
+        self.max_abs_command = float(self.declare_parameter('max_abs_command', 0.35).value)
+        self.max_abs_wheel_cmd = float(self.declare_parameter('max_abs_wheel_cmd', 4.0).value)
+        self.max_abs_turret_cmd = float(self.declare_parameter('max_abs_turret_cmd', 4.0).value)
+
+        self.r_wheel = float(self.declare_parameter('r_wheel', 0.22).value)
+        self.a_wheel = float(self.declare_parameter('a_wheel', 0.350).value)
+        self.b_wheel = float(self.declare_parameter('b_wheel', 0.43).value)
+        self.base_yaw_offset = float(
+            self.declare_parameter('base_yaw_offset', 1.57079632679).value
+        )
+
+        self.odom_topic = self.declare_parameter('odom_topic', '/HAMR_base/odom').value
+        self.left_topic = self.declare_parameter('left_topic', '/left_wheel/cmd_vel').value
+        self.right_topic = self.declare_parameter('right_topic', '/right_wheel/cmd_vel').value
+        self.turret_topic = self.declare_parameter('turret_topic', '/turret/cmd_vel').value
+        csv_path = self.declare_parameter('csv_path', '').value
+        if csv_path:
+            self.csv_path = Path(csv_path).expanduser()
+        else:
+            stamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            self.csv_path = Path('/tmp') / f'hamr_open_loop_wheel_calibration_{stamp}.csv'
+
+        self.odom_samples = []
+        self.last_odom = None
+        self.last_odom_time = None
+        self.run_start_pose = None
+
+        self.pub_left = self.create_publisher(Float64, self.left_topic, 1)
+        self.pub_right = self.create_publisher(Float64, self.right_topic, 1)
+        self.pub_turret = self.create_publisher(Float64, self.turret_topic, 1)
+        self.create_subscription(Odometry, self.odom_topic, self.odom_cb, 10)
+
+    def odom_cb(self, msg):
+        now = time.monotonic()
+        pose = msg.pose.pose
+        yaw = yaw_from_quat(pose.orientation)
+        self.last_odom = (pose.position.x, pose.position.y, yaw)
+        self.last_odom_time = now
+        self.odom_samples.append((now, pose.position.x, pose.position.y, yaw))
+        cutoff = now - 120.0
+        while self.odom_samples and self.odom_samples[0][0] < cutoff:
+            self.odom_samples.pop(0)
+
+    def publish_cmd(self, left, right, turret):
+        l_msg = Float64()
+        r_msg = Float64()
+        t_msg = Float64()
+        l_msg.data = float(left)
+        r_msg.data = float(right)
+        t_msg.data = float(turret)
+        self.pub_left.publish(l_msg)
+        self.pub_right.publish(r_msg)
+        self.pub_turret.publish(t_msg)
+
+    def zero_for(self, duration_s):
+        self.run_for(duration_s, lambda _elapsed: (0.0, 0.0, 0.0))
+
+    def displacement_from_start(self):
+        if self.run_start_pose is None or self.last_odom is None:
+            return 0.0
+        return math.hypot(
+            self.last_odom[0] - self.run_start_pose[0],
+            self.last_odom[1] - self.run_start_pose[1],
+        )
+
+    def run_for(self, duration_s, command_fn):
+        period = 1.0 / max(1.0, self.rate_hz)
+        start = time.monotonic()
+        deadline = start + max(0.0, duration_s)
+        while rclpy.ok() and time.monotonic() < deadline:
+            elapsed = time.monotonic() - start
+            left, right, turret = command_fn(elapsed)
+            moving_command = max(abs(left), abs(right), abs(turret)) > 1e-6
+            if (
+                moving_command
+                and self.max_displacement_m > 0.0
+                and self.displacement_from_start() > self.max_displacement_m
+            ):
+                raise RuntimeError(
+                    'Safety stop: displacement %.3f m exceeded max_displacement_m %.3f m'
+                    % (self.displacement_from_start(), self.max_displacement_m)
+                )
+            self.publish_cmd(left, right, turret)
+            rclpy.spin_once(self, timeout_sec=0.0)
+            time.sleep(period)
+
+    def wait_for_odom(self):
+        self.get_logger().info(f'Waiting for odom on {self.odom_topic} ...')
+        deadline = time.monotonic() + self.odom_timeout_s
+        while rclpy.ok() and time.monotonic() < deadline:
+            rclpy.spin_once(self, timeout_sec=0.05)
+            if self.last_odom is not None:
+                self.get_logger().info('Received odom; calibration can start.')
+                return True
+        self.get_logger().error('No odom received; aborting without moving.')
+        return False
+
+    def wait_for_wheel_subscribers(self):
+        if not self.require_wheel_subscribers:
+            return True
+        self.get_logger().info('Waiting for wheel command subscribers from the relay node ...')
+        deadline = time.monotonic() + self.subscriber_timeout_s
+        while rclpy.ok() and time.monotonic() < deadline:
+            rclpy.spin_once(self, timeout_sec=0.05)
+            left_count = self.pub_left.get_subscription_count()
+            right_count = self.pub_right.get_subscription_count()
+            turret_count = self.pub_turret.get_subscription_count()
+            if left_count > 0 and right_count > 0 and turret_count > 0:
+                self.get_logger().info(
+                    'Found wheel command subscribers: left=%d right=%d turret=%d'
+                    % (left_count, right_count, turret_count)
+                )
+                return True
+        self.get_logger().error(
+            'No complete wheel command subscriber set found; aborting without moving. '
+            'Start hamr_uros_bridge/relay_node first, or set require_wheel_subscribers:=false.'
+        )
+        self.get_logger().error(
+            'Current subscribers: left=%d right=%d turret=%d'
+            % (
+                self.pub_left.get_subscription_count(),
+                self.pub_right.get_subscription_count(),
+                self.pub_turret.get_subscription_count(),
+            )
+        )
+        return False
+
+    def body_y_to_joint_cmd(self, desired_y):
+        if self.last_odom is None or self.last_odom_time is None:
+            raise RuntimeError('No odom available for body_y command conversion.')
+        if time.monotonic() - self.last_odom_time > self.stale_odom_s:
+            raise RuntimeError('Odom is stale; aborting body_y command test.')
+        _, _, yaw = self.last_odom
+        theta = wrap_angle(yaw + self.base_yaw_offset)
+        c = math.cos(theta)
+        s = math.sin(theta)
+
+        desired_x = 0.0
+        desired_yaw = 0.0
+        r = self.r_wheel
+        a = self.a_wheel
+        b = self.b_wheel
+
+        a11 = r / 2.0 * (c - s * b / a)
+        a12 = r / 2.0 * (c + s * b / a)
+        a21 = r / 2.0 * (s + c * b / a)
+        a22 = r / 2.0 * (s - c * b / a)
+        det = a11 * a22 - a12 * a21
+        if abs(det) < 1e-9:
+            raise RuntimeError('Wheel Jacobian is singular for the current yaw/config.')
+
+        omega_r = (desired_x * a22 - a12 * desired_y) / det
+        omega_l = (a11 * desired_y - desired_x * a21) / det
+        omega_t = desired_yaw - r / (2.0 * a) * (omega_r - omega_l)
+        return omega_l, omega_r, omega_t
+
+    def command_to_actuators(self, command):
+        if self.command_mode == 'body_y':
+            left, right, turret = self.body_y_to_joint_cmd(command)
+        elif self.command_mode == 'wheel_equal':
+            left, right, turret = command, command, 0.0
+        else:
+            raise RuntimeError(
+                f'Unknown command_mode {self.command_mode!r}; use body_y or wheel_equal.'
+            )
+
+        if max(abs(left), abs(right)) > self.max_abs_wheel_cmd:
+            raise RuntimeError(
+                f'Wheel command too large: left={left:.3f}, right={right:.3f}; '
+                f'max_abs_wheel_cmd={self.max_abs_wheel_cmd:.3f}'
+            )
+        if abs(turret) > self.max_abs_turret_cmd:
+            raise RuntimeError(
+                f'Turret command too large: {turret:.3f}; '
+                f'max_abs_turret_cmd={self.max_abs_turret_cmd:.3f}'
+            )
+        return left, right, turret
+
+    def samples_between(self, t0, t1):
+        return [s for s in self.odom_samples if t0 <= s[0] <= t1]
+
+    def summarize_trial(self, trial, command, hold_start, hold_end):
+        measure_start = max(hold_start, hold_end - self.measure_s)
+        samples = self.samples_between(measure_start, hold_end)
+        vx = fit_slope(samples, 1)
+        vy = fit_slope(samples, 2)
+        speed = math.hypot(vx, vy) if math.isfinite(vx) and math.isfinite(vy) else float('nan')
+        if len(samples) >= 2:
+            dx = samples[-1][1] - samples[0][1]
+            dy = samples[-1][2] - samples[0][2]
+            distance = math.hypot(dx, dy)
+            dt = samples[-1][0] - samples[0][0]
+        else:
+            dx = dy = distance = dt = float('nan')
+
+        y_ratio = vy / command if abs(command) > 1e-9 else float('nan')
+        speed_per_command = speed / abs(command) if abs(command) > 1e-9 else float('nan')
+        row = {
+            'trial': trial,
+            'command_mode': self.command_mode,
+            'command': command,
+            'measure_duration_s': dt,
+            'samples': len(samples),
+            'vx_mps': vx,
+            'vy_mps': vy,
+            'speed_mps': speed,
+            'dx_m': dx,
+            'dy_m': dy,
+            'distance_m': distance,
+            'vy_over_command': y_ratio,
+            'speed_over_abs_command': speed_per_command,
+            'r_wheel': self.r_wheel,
+            'a_wheel': self.a_wheel,
+            'b_wheel': self.b_wheel,
+        }
+        return row
+
+    def run_trial(self, trial, command):
+        self.get_logger().info(f'Trial {trial}: command={command:.4f} mode={self.command_mode}')
+        self.zero_for(self.zero_s)
+
+        def ramp_fn(elapsed):
+            alpha = min(1.0, elapsed / max(1e-6, self.ramp_s))
+            return self.command_to_actuators(alpha * command)
+
+        self.run_for(self.ramp_s, ramp_fn)
+        hold_start = time.monotonic()
+        self.run_for(self.duration_s, lambda _elapsed: self.command_to_actuators(command))
+        hold_end = time.monotonic()
+        row = self.summarize_trial(trial, command, hold_start, hold_end)
+        self.zero_for(self.zero_s)
+        self.get_logger().info(
+            'Trial %d result: vx=%.3f m/s, vy=%.3f m/s, speed=%.3f m/s, vy/cmd=%.3f'
+            % (trial, row['vx_mps'], row['vy_mps'], row['speed_mps'], row['vy_over_command'])
+        )
+        return row
+
+    def validate_plan(self, commands):
+        if not commands:
+            raise RuntimeError('No commands requested.')
+        for command in commands:
+            if abs(command) > self.max_abs_command:
+                raise RuntimeError(
+                    f'Command {command:.3f} exceeds max_abs_command={self.max_abs_command:.3f}'
+                )
+        if self.duration_s <= 0.0 or self.measure_s <= 0.0:
+            raise RuntimeError('duration_s and measure_s must be positive.')
+        if self.rate_hz <= 0.0:
+            raise RuntimeError('rate_hz must be positive.')
+
+    def run(self):
+        commands = list(self.commands)
+        if self.bidirectional:
+            commands = commands + [-c for c in self.commands if abs(c) > 1e-9]
+        self.validate_plan(commands)
+
+        self.get_logger().warn(
+            'Run this with hamr_controller/waypoint_traj_simple stopped; this node publishes wheel commands directly.'
+        )
+        self.get_logger().info(
+            f'Plan: mode={self.command_mode}, commands={commands}, duration={self.duration_s}s, '
+            f'measure={self.measure_s}s, ramp={self.ramp_s}s, zero={self.zero_s}s'
+        )
+        self.get_logger().info(f'CSV output: {self.csv_path}')
+
+        if not self.wait_for_odom():
+            return 2
+
+        if not self.enable:
+            self.get_logger().warn('enable is false; dry run complete. Add -p enable:=true to move HAMR.')
+            return 0
+
+        if not self.wait_for_wheel_subscribers():
+            return 3
+
+        self.run_start_pose = self.last_odom
+        self.zero_for(0.5)
+        self.get_logger().warn(f'Starting in {self.start_delay_s:.1f}s. Be ready to stop the robot.')
+        self.zero_for(self.start_delay_s)
+
+        rows = []
+        try:
+            for i, command in enumerate(commands, start=1):
+                rows.append(self.run_trial(i, command))
+        except Exception:
+            if rows:
+                self.write_rows(rows, partial=True)
+            raise
+        finally:
+            self.get_logger().warn('Sending final zero commands.')
+            self.zero_for(1.0)
+
+        self.write_rows(rows, partial=False)
+        return 0
+
+    def write_rows(self, rows, partial=False):
+        if not rows:
+            return
+        self.csv_path.parent.mkdir(parents=True, exist_ok=True)
+        fieldnames = list(rows[0].keys())
+        with self.csv_path.open('w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+        kind = 'partial ' if partial else ''
+        self.get_logger().info(
+            f'Wrote {kind}{len(rows)} calibration rows to {self.csv_path}'
+        )
+
+
+def main():
+    rclpy.init()
+    node = OpenLoopWheelCalibration()
+    exit_code = 1
+    try:
+        exit_code = node.run()
+    except KeyboardInterrupt:
+        node.get_logger().warn('Interrupted; sending zero commands.')
+        node.zero_for(1.0)
+        exit_code = 130
+    except Exception as exc:
+        node.get_logger().error(str(exc))
+        node.zero_for(1.0)
+        exit_code = 1
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+    raise SystemExit(exit_code)
+
+
+if __name__ == '__main__':
+    main()

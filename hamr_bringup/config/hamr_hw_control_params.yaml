@@ -6,8 +6,8 @@
     I_x: 0.0
     I_y: 0.0
     I_yaw: 1.0
-    P_x: 1.0
-    P_y: 1.0
+    P_x: 0.4
+    P_y: 0.4
     P_yaw: 0.8
     a_wheel: 0.350
     b_wheel: 0.301
@@ -16,7 +16,7 @@
     d_alpha: 0.2
     reference_timeout_s: 0.5
     mode: auto
-    r_wheel: 0.1250
+    r_wheel: 0.122
     simulating: false
     start_type_description_service: true
     use_sim_time: false

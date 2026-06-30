@@ -1,4 +1,4 @@
-ekf_filter_node:
+/**:
   ros__parameters:
 
     # Set to true when replaying bags: ros2 bag play --clock <bag>
@@ -57,7 +57,7 @@ ekf_filter_node:
                   false, false, true,
                   false, false, false]
     imu0_differential: false
-    imu0_relative:     true    # yaw referenced to start pose; absolute fusion still bounds drift
+    imu0_relative:     false    # yaw referenced to start pose; absolute fusion still bounds drift
     imu0_remove_gravitational_acceleration: false  # BNO055 VECTOR_LINEARACCEL already gravity-free
     imu0_queue_size:   10
 

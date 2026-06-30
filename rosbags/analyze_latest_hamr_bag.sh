@@ -66,6 +66,7 @@ python3 "${ANALYZE_SCRIPT}" "${BAG_DIR}" \
   --imu-odom-plot "${OUT_DIR}/imu_odom_path.png" \
   --localization-error-plot "${OUT_DIR}/vicon_onboard_error.png" \
   --wheel-plot "${OUT_DIR}/wheel_cmd_vel.png" \
+  --speed-plot "${OUT_DIR}/forward_speed.png" \
   --turret-yaw-plot "${OUT_DIR}/path_reference_turret_yaw.png" \
   --calib-plot "${OUT_DIR}/imu_calib_status.png" \
   --heading-comparison-plot "${OUT_DIR}/heading_comparison.png" \
@@ -87,6 +88,7 @@ if [[ -f "${OUT_DIR}/wheel_cmd_vel.png" ]]; then
 else
   echo "  wheel_cmd_vel.png skipped: no wheel cmd_vel samples"
 fi
+echo "  ${OUT_DIR}/forward_speed.png"
 echo "  ${OUT_DIR}/path_reference_turret_yaw.png"
 if [[ -f "${OUT_DIR}/imu_calib_status.png" ]]; then
   echo "  ${OUT_DIR}/imu_calib_status.png"

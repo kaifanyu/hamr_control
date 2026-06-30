@@ -130,6 +130,11 @@ def read_bag(
                 "z": float(pose.position.z),
                 "yaw": float(yaw_from_quaternion(pose.orientation)),
             }
+            if hasattr(msg, "twist") and hasattr(msg.twist, "twist"):
+                tw = msg.twist.twist
+                sample["vx"] = float(tw.linear.x)
+                sample["vy"] = float(tw.linear.y)
+                sample["wz"] = float(tw.angular.z)
             if topic == base_topic:
                 base_samples.append(sample)
             elif topic == onboard_topic:
@@ -986,6 +991,132 @@ def write_imu_odom_plot(
     plt.close()
 
 
+def moving_average(values, window):
+    if window <= 1 or len(values) < window:
+        return values
+    kernel = np.ones(window, dtype=float) / window
+    return np.convolve(values, kernel, mode="same")
+
+
+def vicon_forward_speed(samples):
+    """Ground-truth body-frame forward speed from differentiated Vicon pose.
+
+    Returns (t, forward_speed, speed_magnitude). The world-frame velocity is
+    obtained by finite-differencing position, then projected onto the Vicon
+    heading so it is directly comparable to the odom twist.linear.x signals
+    (signed: negative when reversing). Speed magnitude is kept for reference.
+    """
+    if len(samples) < 2:
+        return np.asarray([]), np.asarray([]), np.asarray([])
+    t = np.asarray([s["t"] for s in samples], dtype=float)
+    x = np.asarray([s["x"] for s in samples], dtype=float)
+    y = np.asarray([s["y"] for s in samples], dtype=float)
+    yaw = np.asarray([s["yaw"] for s in samples], dtype=float)
+
+    # Drop near-duplicate timestamps: Vicon arrives in bursts where consecutive
+    # bag times can be ~0 apart, which would make d/dt blow up to absurd speeds.
+    min_dt = 5e-3
+    keep = [0]
+    for i in range(1, len(t)):
+        if t[i] - t[keep[-1]] >= min_dt:
+            keep.append(i)
+    keep = np.asarray(keep, dtype=int)
+    t, x, y, yaw = t[keep], x[keep], y[keep], yaw[keep]
+    if t.size < 2:
+        return np.asarray([]), np.asarray([]), np.asarray([])
+
+    vx = np.gradient(x, t)
+    vy = np.gradient(y, t)
+    forward = vx * np.cos(yaw) + vy * np.sin(yaw)
+    return t, forward, np.hypot(vx, vy)
+
+
+def write_speed_plot(
+    plot_path,
+    base_samples,
+    onboard_samples,
+    wheel_odom_samples,
+    base_topic,
+    onboard_topic,
+    wheel_odom_topic,
+    smooth_window,
+):
+    """Plot forward speed: Vicon ground truth vs onboard estimates.
+
+    Vicon speed is differentiated from pose (raw + smoothed). EKF and wheel
+    odometry speeds are taken straight from their twist.linear.x fields.
+    """
+    import matplotlib.pyplot as plt
+
+    if not base_samples:
+        raise RuntimeError("No Vicon base samples found for speed plot.")
+
+    t0 = base_samples[0]["t"]
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    # Build a y-limit from the trustworthy onboard twist signals so a Vicon
+    # marker dropout/teleport (a brief, huge d/dt spike) does not dominate.
+    speed_ref = []
+    for s in (onboard_samples, wheel_odom_samples):
+        if s and "vx" in s[0]:
+            speed_ref.extend(abs(item["vx"]) for item in s)
+
+    tv, fwd_v, _ = vicon_forward_speed(base_samples)
+    if tv.size:
+        ax.plot(
+            tv - t0,
+            fwd_v,
+            color="tab:blue",
+            alpha=0.35,
+            linewidth=1.0,
+            label="Vicon forward speed (d/dt pose, raw)",
+        )
+        if smooth_window and smooth_window > 1:
+            ax.plot(
+                tv - t0,
+                moving_average(fwd_v, smooth_window),
+                color="tab:blue",
+                linewidth=2.4,
+                label=f"Vicon forward speed (smoothed, w={smooth_window})",
+            )
+
+    if onboard_samples and "vx" in onboard_samples[0]:
+        t = np.asarray([s["t"] for s in onboard_samples], dtype=float)
+        vx = np.asarray([s["vx"] for s in onboard_samples], dtype=float)
+        ax.plot(
+            t - t0,
+            vx,
+            color="tab:green",
+            linewidth=1.6,
+            label=f"EKF speed {onboard_topic} (twist.x)",
+        )
+
+    if wheel_odom_samples and "vx" in wheel_odom_samples[0]:
+        t = np.asarray([s["t"] for s in wheel_odom_samples], dtype=float)
+        vx = np.asarray([s["vx"] for s in wheel_odom_samples], dtype=float)
+        ax.plot(
+            t - t0,
+            vx,
+            color="tab:orange",
+            alpha=0.8,
+            linewidth=1.2,
+            label=f"Wheel odom speed {wheel_odom_topic} (twist.x)",
+        )
+
+    if speed_ref:
+        limit = 1.3 * max(max(speed_ref), 1e-3)
+        ax.set_ylim(-limit, limit)
+
+    ax.set_xlabel("time from start (s)")
+    ax.set_ylabel("forward speed (m/s)")
+    ax.set_title("HAMR forward speed: Vicon ground truth vs onboard estimates")
+    ax.grid(True)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(plot_path, dpi=160)
+    plt.close(fig)
+
+
 def write_localization_error_plot(plot_path, matches, estimate_label):
     import matplotlib.pyplot as plt
 
@@ -1131,6 +1262,17 @@ def parse_args():
     parser.add_argument("--imu-odom-plot", type=Path, help="Optional full-scale IMU-only odometry plot PNG output")
     parser.add_argument("--localization-error-plot", type=Path, help="Optional Vicon/onboard error plot PNG output")
     parser.add_argument("--wheel-plot", type=Path, help="Optional wheel cmd_vel plot PNG output")
+    parser.add_argument(
+        "--speed-plot",
+        type=Path,
+        help="Optional forward-speed plot PNG: Vicon ground truth vs onboard estimates",
+    )
+    parser.add_argument(
+        "--speed-smooth-window",
+        type=int,
+        default=5,
+        help="Moving-average window (samples) for the differentiated Vicon speed.",
+    )
     parser.add_argument(
         "--turret-yaw-plot",
         type=Path,
@@ -1339,6 +1481,18 @@ def main():
         print(
             f"Skipping wheel command plot: no samples found on "
             f"{args.left_wheel_topic} or {args.right_wheel_topic}."
+        )
+    if args.speed_plot:
+        args.speed_plot.parent.mkdir(parents=True, exist_ok=True)
+        write_speed_plot(
+            args.speed_plot,
+            base_samples,
+            onboard_samples,
+            wheel_odom_samples,
+            args.base_topic,
+            args.onboard_topic,
+            args.wheel_odom_topic,
+            args.speed_smooth_window,
         )
     if args.turret_yaw_plot:
         args.turret_yaw_plot.parent.mkdir(parents=True, exist_ok=True)

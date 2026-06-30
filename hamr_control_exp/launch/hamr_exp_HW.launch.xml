@@ -6,9 +6,12 @@
     <arg name="traj" default="smooth" />
     <arg name="metrics" default="true" />
     <arg name="record_bag" default="true" />
+    <arg name="use_orientation" default="false" />
 
     <let name="ekf_config_path"
         value="$(find-pkg-share hamr_bringup)/config/ekf.yaml" />
+    <let name="ekf_orientation_config_path"
+        value="$(find-pkg-share hamr_bringup)/config/ekf_orientation.yaml" />
 
     <!-- Wheel odometry: integrates encoder ticks -> /wheel_odom
          publish_tf is false because the EKF below owns the odom->base_link TF -->
@@ -29,9 +32,17 @@
     <node pkg="tf2_ros" exec="static_transform_publisher" name="imu_link_static_tf"
           args="--x 0.0 --y 0.0 --z 0.0 --roll 0.0 --pitch 0.0 --yaw 0.0 --frame-id base_link --child-frame-id imu_link" />
 
-    <!-- EKF: fuses /wheel_odom + /imu/data into /local_HAMR/odom -->
-    <node pkg="robot_localization" exec="ekf_node" name="ekf_filter_node" output="screen">
+    <!-- EKF: fuses /wheel_odom + /imu/data into /local_HAMR/odom
+         use_orientation:=false (default) -> ekf.yaml             (raw gyro yaw-rate)
+         use_orientation:=true            -> ekf_orientation.yaml (BNO055 quaternion yaw, relative) -->
+    <node pkg="robot_localization" exec="ekf_node" name="ekf_filter_node" output="screen"
+          unless="$(var use_orientation)">
         <param from="$(var ekf_config_path)"/>
+        <remap from="odometry/filtered" to="local_HAMR/odom"/>
+    </node>
+    <node pkg="robot_localization" exec="ekf_node" name="ekf_filter_node" output="screen"
+          if="$(var use_orientation)">
+        <param from="$(var ekf_orientation_config_path)"/>
         <remap from="odometry/filtered" to="local_HAMR/odom"/>
     </node>
 

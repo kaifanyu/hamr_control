@@ -1,4 +1,4 @@
-/**:   # wildcard node name — applies to ekf_filter_node (live) AND ekf_filter_node_offline (offline replay)
+/**:
   ros__parameters:
 
     # ---------------------------------------------------------------
@@ -7,7 +7,7 @@
     frequency: 50.0       # Hz — match hamr_odometry timer rate
     two_d_mode: true      # constrain to x, y, yaw only (ground robot)
     publish_tf: true      # EKF broadcasts odom → base_link TF
-    print_diagnostics: true   # console-print per-input accept/reject status (verification)
+    print_diagnostics: true
 
     odom_frame:      odom
     base_link_frame: base_link
@@ -16,16 +16,9 @@
     # ---------------------------------------------------------------
     # Input 1: wheel odometry  (/wheel_odom → nav_msgs/Odometry)
     #
-    # State vector indices (true = fuse this element):
-    #   [x,  y,  z,  roll, pitch, yaw, vx,  vy,  vz,  vroll, vpitch, vyaw, ax, ay, az]
-    #
     # Fuse the wheel's BODY VELOCITIES only (vx, vy) — NOT its absolute
-    # pose (x, y, yaw). The 2026-06-24 bag analysis showed the wheel
-    # under-rotates ~17% (703° vs Vicon 850°) and, because an absolute-yaw
-    # measurement directly observes the heading state, the wheel yaw was
-    # pinning the filter and overriding the accurate gyro (fused tracked
-    # wheel to <0.2°). Dropping wheel pose lets heading come from the IMU
-    # yaw rate below, while the wheel still supplies forward speed.
+    # pose (x, y, yaw). Unchanged from ekf.yaml — wheel yaw under-rotates
+    # ~17% and pinned the filter when fused as absolute pose.
     # ---------------------------------------------------------------
     odom0: /wheel_odom
     odom0_config: [false, false, false,
@@ -40,20 +33,40 @@
     # ---------------------------------------------------------------
     # Input 2: IMU  (/imu/data → sensor_msgs/Imu)
     #
-    # Fuse only: angular velocity z (yaw rate). The BNO055 gyro integrated
-    # to within 1% of Vicon (842° vs 850°), so it is the heading source.
-    # Absolute orientation (mag) stays OFF — it read 745° (worse than the
-    # gyro, likely motor/metal distortion). Linear accel x,y also OFF —
-    # noisy on a small ground robot; re-enable for a slip-tolerance test.
+    # State vector indices (true = fuse this element):
+    #   [x,  y,  z,  roll, pitch, yaw,  vx,  vy,  vz,  vroll, vpitch, vyaw, ax, ay, az]
+    #
+    # KEY CHANGE vs ekf.yaml:
+    #   - Enable  yaw       (index 5)  — use msg.orientation quaternion yaw
+    #   - Disable vyaw      (index 11) — stop using raw angular_velocity.z (gz)
+    #
+    # Why: the BNO055 publishes two heading signals in every /imu/data message:
+    #   msg.orientation       — the chip's on-board NDOF fusion output (quaternion).
+    #                           The chip runs its own Kalman filter on gyro+accel+mag
+    #                           and applies internal gyro-bias correction before
+    #                           producing this quaternion.  This is what imu_odom_path
+    #                           uses for heading and it tracked rotation far better
+    #                           than the EKF in the 2026-06-29 run (1.58 m final error
+    #                           vs 7.96 m for the EKF that fused raw gz).
+    #   msg.angular_velocity.z — raw gz off the gyro register, with no on-chip bias
+    #                           correction applied.  At calibration status 0 this has
+    #                           uncorrected bias; integrating it inside the EKF drifts
+    #                           heading, which then corrupts wheel velocity integration
+    #                           and compounds into large position error.
+    #
+    # imu0_relative: true keeps the behaviour we want: the EKF stores the first
+    # quaternion yaw as its reference and only tracks changes from that point.
+    # This means the distorted magnetometer absolute heading is irrelevant —
+    # only the relative rotation tracked by the chip's fusion matters.
     # ---------------------------------------------------------------
     imu0: /imu/data
     imu0_config: [false, false, false,
-                  false, false, false,
-                  false, false, false,
                   false, false, true,
+                  false, false, false,
+                  false, false, false,
                   false, false, false]
     imu0_differential: false
-    imu0_relative:     true    # incremental changes only — safe without mag calibration
+    imu0_relative:     true    # anchor first quaternion yaw as zero; track delta only
     imu0_remove_gravitational_acceleration: false  # BNO055 VECTOR_LINEARACCEL already gravity-free
     imu0_queue_size:   10
 
@@ -61,8 +74,6 @@
     # Process noise covariance  (15×15, row-major, 225 values)
     # Diagonal order: x, y, z, roll, pitch, yaw, vx, vy, vz,
     #                 vroll, vpitch, vyaw, ax, ay, az
-    # Increase a diagonal entry to let the filter trust measurements
-    # more than its own prediction for that state component.
     # ---------------------------------------------------------------
     process_noise_covariance: [
       0.05,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
@@ -83,7 +94,6 @@
 
     # ---------------------------------------------------------------
     # Initial state covariance — robot starts at a known (0,0,0) pose
-    # so position/heading are tight; velocities/accels start wide.
     # ---------------------------------------------------------------
     initial_estimate_covariance: [
       1.0e-9, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,

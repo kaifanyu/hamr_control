@@ -23,7 +23,7 @@ import numpy as np
 class TrajectoryNode(Node):
     def __init__(self):
         super().__init__("waypoint_traj_simple_node")
-        v_lin = self.declare_parameter("v_lin", 0.2).value
+        v_lin = self.declare_parameter("v_lin", 0.25).value
         w_yaw = self.declare_parameter("w_yaw", 0.5).value
 
         self.reference_timer_hz = self.declare_parameter("reference_timer_hz", 100).value
@@ -99,10 +99,12 @@ class TrajectoryNode(Node):
 
         waypoints = np.array([ # x, y, yaw
             [0.0, 0.0, 0.0],
-            [0.0, 3.0, 0.0],
-            [-1.5, 3.0, 0.0],
-            [-1.5, 5.0, 0.0],
-            [0.0, 5.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [-2.0, 2.0, 0.0],
+            [-2.0, 5.0, 0.0],
+            [2.0, 5.0, 0.0],
+            [2.0, 2.5, 0.0],
+            [0.0, 2.5, 0.0],
             [0.0, 0.0, 0.0],
         ])
 
