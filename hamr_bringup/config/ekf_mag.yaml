@@ -44,11 +44,9 @@
     # ---------------------------------------------------------------
     # Input 2: IMU  (/imu/data → sensor_msgs/Imu)
     #
-    # TEST CONFIG (ekf_mag.yaml): magnetometer absolute-yaw fusion ENABLED.
-    # Fuse: absolute YAW (BNO055 mag heading, index 5) + yaw RATE (gyro, index 11).
-    # The absolute yaw (differential:false) is what bounds long-term heading drift.
-    # WARNING: only trustworthy once the IMU is relocated away from the motors AND
-    # the BNO055 mag calibration reaches 3 — until then this degrades heading.
+    # Gyro-only heading input:
+    # Fuse yaw RATE only (gyro z, state index 11). Do NOT fuse absolute yaw
+    # (state index 5), which is where the BNO055 magnetometer heading enters.
     # ---------------------------------------------------------------
     imu0: /imu/data
     imu0_config: [false, false, false,
@@ -57,7 +55,7 @@
                   false, false, true,
                   false, false, false]
     imu0_differential: false
-    imu0_relative:     false    # yaw referenced to start pose; absolute fusion still bounds drift
+    imu0_relative:     true
     imu0_remove_gravitational_acceleration: false  # BNO055 VECTOR_LINEARACCEL already gravity-free
     imu0_queue_size:   10
 
@@ -65,11 +63,9 @@
     # Process noise covariance  (15×15, row-major, 225 values)
     # Diagonal: x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az
     #
-    # Q[5,5]  yaw:  0.005 — tight; reduces Kalman gain on the absolute mag-yaw
-    #                        measurement so a biased magnetometer can't yank heading.
-    # Q[11,11] vyaw: 0.01  — half of original 0.02; lets the gyro-rate estimate
-    #                        respond freely during turns while still limiting static
-    #                        bias growth between mag corrections.
+    # Q[5,5]  yaw:  0.005 — retained but unused unless absolute yaw is enabled.
+    # Q[11,11] vyaw: 0.01  — lets the gyro-rate estimate respond freely during
+    #                         turns while still limiting static bias growth.
     # ---------------------------------------------------------------
     process_noise_covariance: [
       0.05,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,

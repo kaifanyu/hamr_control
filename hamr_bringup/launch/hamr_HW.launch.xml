@@ -48,9 +48,9 @@
         <param name="b_wheel" value="0.45"/>
         <param name="base_yaw_offset" value="1.57079632679"/>
         <param name="yaw_sign" value="-1.0"/>
-        <param name="left_tick_scale" value="1.612"/>
-        <param name="right_tick_scale" value="1.422"/>
-        <param name="ticks_per_rev" value="4526.4"/>
+        <param name="left_tick_scale" value="0.84"/>
+        <param name="right_tick_scale" value="0.64"/>
+        <param name="ticks_per_rev" value="2263.7"/>
     </node>
 
     <!-- IMU mounting TF: BNO055 is mounted flat and axis-aligned with base_link

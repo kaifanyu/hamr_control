@@ -38,7 +38,8 @@ constexpr uint16_t TYPE_IMU_EXT = 0x0005; // ESP->PC: IMU + magnetometer + calib
 // rate was already inverted relative to REP-103, so leave IMU yaw/gz unchanged
 // here and handle wheel-odom yaw convention in holonomic_odom_node.
 constexpr int32_t TICK_SIGN = 1;
-constexpr float   YAW_SIGN  = 1.0f;
+constexpr float ORIENTATION_YAW_SIGN = -1.0f;
+constexpr float GRYO_Z_SIGN  = 1.0f;
 
 // Wire packet (packed)
 #pragma pack(push,1)
@@ -511,8 +512,8 @@ private:
             continue;
           }
 
-          p.yaw *= YAW_SIGN;
-          p.gz  *= YAW_SIGN;
+          p.yaw *= ORIENTATION_YAW_SIGN;
+          p.gz  *= GRYO_Z_SIGN;
           publish_imu_data(p);
         } else if (type == TYPE_IMU_EXT) {
           PacketIMUExt pe{};
@@ -524,8 +525,8 @@ private:
             continue;
           }
 
-          pe.yaw *= YAW_SIGN;
-          pe.gz  *= YAW_SIGN;
+          pe.yaw *= ORIENTATION_YAW_SIGN;
+          pe.gz  *= GRYO_Z_SIGN;
 
           // Republish the standard /imu/data from the shared orientation/accel/gyro fields...
           PacketIMU base{};

@@ -28,6 +28,7 @@ DEFAULT_REFERENCE_TOPIC = "/reference_trajectory"
 DEFAULT_LEFT_WHEEL_TOPIC = "/left_wheel/cmd_vel"
 DEFAULT_RIGHT_WHEEL_TOPIC = "/right_wheel/cmd_vel"
 DEFAULT_CALIB_STATUS_TOPIC = "/imu/calib_status"
+DEFAULT_WHEEL_RADIUS_M = 0.122
 
 
 def yaw_from_quaternion(q):
@@ -731,35 +732,80 @@ def nearest_yaw_samples(base_samples, turret_samples, max_dt):
     return matched
 
 
-def write_wheel_plot(plot_path, left_samples, right_samples, left_topic, right_topic):
+def write_wheel_plot(
+    plot_path,
+    left_samples,
+    right_samples,
+    base_samples,
+    left_topic,
+    right_topic,
+    wheel_radius_m,
+    smooth_window,
+):
     import matplotlib.pyplot as plt
 
     if not left_samples and not right_samples:
         raise RuntimeError("No wheel command samples found to plot.")
 
     t0_candidates = []
+    if base_samples:
+        t0_candidates.append(base_samples[0]["t"])
     if left_samples:
         t0_candidates.append(left_samples[0]["t"])
     if right_samples:
         t0_candidates.append(right_samples[0]["t"])
     t0 = min(t0_candidates)
 
-    plt.figure(figsize=(9, 4.8))
-    if left_samples:
-        left = scalar_arrays(left_samples)
-        plt.plot(left["t"] - t0, left["value"], label=left_topic, linewidth=1.4)
-    if right_samples:
-        right = scalar_arrays(right_samples)
-        plt.plot(right["t"] - t0, right["value"], label=right_topic, linewidth=1.4)
+    tv, actual_velocity, _ = vicon_forward_speed(base_samples)
+    smooth_velocity = None
+    if tv.size and smooth_window and smooth_window > 1:
+        smooth_velocity = moving_average(actual_velocity, smooth_window)
 
-    plt.xlabel("time (s)")
-    plt.ylabel("cmd_vel")
-    plt.title("HAMR wheel command velocities")
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(plot_path, dpi=160)
-    plt.close()
+    fig, ax = plt.subplots(figsize=(10, 5.4))
+    if tv.size:
+        ax.plot(
+            tv - t0,
+            actual_velocity,
+            color="tab:green",
+            alpha=0.28 if smooth_velocity is not None else 0.9,
+            linewidth=1.0,
+            label="Vicon actual forward velocity",
+        )
+        if smooth_velocity is not None:
+            ax.plot(
+                tv - t0,
+                smooth_velocity,
+                color="tab:green",
+                linewidth=2.4,
+                label=f"Vicon actual forward velocity smoothed (w={smooth_window})",
+            )
+
+    wheel_configs = (
+        (left_samples, left_topic, "tab:blue"),
+        (right_samples, right_topic, "tab:orange"),
+    )
+    for samples, topic, color in wheel_configs:
+        if not samples:
+            continue
+        values = scalar_arrays(samples)
+        ax.step(
+            values["t"] - t0,
+            values["value"] * wheel_radius_m,
+            where="post",
+            color=color,
+            linewidth=1.5,
+            label=f"{topic} command * r ({wheel_radius_m:g} m)",
+        )
+
+    ax.axhline(0.0, color="0.35", linewidth=0.8, alpha=0.5)
+    ax.set_xlabel("time from first sample (s)")
+    ax.set_ylabel("velocity (m/s)")
+    ax.set_title("HAMR actual Vicon velocity vs commanded wheel velocity")
+    ax.grid(True)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(plot_path, dpi=160)
+    plt.close(fig)
 
 
 def write_turret_yaw_plot(
@@ -1280,7 +1326,13 @@ def parse_args():
     parser.add_argument("--localization-plot", type=Path, help="Optional Vicon/onboard path comparison PNG output")
     parser.add_argument("--imu-odom-plot", type=Path, help="Optional full-scale IMU-only odometry plot PNG output")
     parser.add_argument("--localization-error-plot", type=Path, help="Optional Vicon/onboard error plot PNG output")
-    parser.add_argument("--wheel-plot", type=Path, help="Optional wheel cmd_vel plot PNG output")
+    parser.add_argument("--wheel-plot", type=Path, help="Optional Vicon actual velocity vs wheel-command velocity plot PNG output")
+    parser.add_argument(
+        "--wheel-radius-m",
+        type=float,
+        default=DEFAULT_WHEEL_RADIUS_M,
+        help="Wheel radius used to convert wheel cmd_vel rad/s to linear m/s.",
+    )
     parser.add_argument(
         "--speed-plot",
         type=Path,
@@ -1468,6 +1520,7 @@ def main():
         "reference_topic": args.reference_topic,
         "left_wheel_topic": args.left_wheel_topic,
         "right_wheel_topic": args.right_wheel_topic,
+        "wheel_radius_m": args.wheel_radius_m,
         "base": summarize_base(base_samples, args.target_distance, align_yaw),
         "onboard_sample_count": len(onboard_samples),
         "wheel_odom_sample_count": len(wheel_odom_samples),
@@ -1556,8 +1609,11 @@ def main():
             args.wheel_plot,
             left_wheel_samples,
             right_wheel_samples,
+            base_samples,
             args.left_wheel_topic,
             args.right_wheel_topic,
+            args.wheel_radius_m,
+            args.speed_smooth_window,
         )
     elif args.wheel_plot:
         print(

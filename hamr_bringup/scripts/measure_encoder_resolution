@@ -1,0 +1,369 @@
+#!/usr/bin/env python3
+"""Measure left/right encoder ticks from manual wheel rotations.
+
+This tool keeps publishing zero velocity commands, then requires the operator
+to confirm that motor torque/power is disabled before measuring encoder ticks.
+It does not electrically disable an ODrive or motor driver by itself.
+"""
+
+import csv
+import threading
+import time
+from datetime import datetime
+from pathlib import Path
+
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import Float64, Int32
+
+
+class EncoderResolutionMeter(Node):
+    def __init__(self):
+        super().__init__('measure_encoder_resolution')
+
+        self.turns = float(self.declare_parameter('turns', 1.0).value)
+        self.encoder_timeout_s = float(
+            self.declare_parameter('encoder_timeout_s', 5.0).value
+        )
+        self.zero_rate_hz = float(self.declare_parameter('zero_rate_hz', 30.0).value)
+        self.status_rate_hz = float(self.declare_parameter('status_rate_hz', 2.0).value)
+        self.measurement_duration_s = float(
+            self.declare_parameter('measurement_duration_s', 0.0).value
+        )
+        self.require_unpowered_confirm = bool(
+            self.declare_parameter('require_unpowered_confirm', True).value
+        )
+        self.nominal_ticks_per_rev = float(
+            self.declare_parameter('nominal_ticks_per_rev', 2263.7).value
+        )
+
+        self.left_ticks_topic = self.declare_parameter(
+            'left_ticks_topic', '/left_wheel/encoder_ticks'
+        ).value
+        self.right_ticks_topic = self.declare_parameter(
+            'right_ticks_topic', '/right_wheel/encoder_ticks'
+        ).value
+        self.left_cmd_topic = self.declare_parameter(
+            'left_cmd_topic', '/left_wheel/cmd_vel'
+        ).value
+        self.right_cmd_topic = self.declare_parameter(
+            'right_cmd_topic', '/right_wheel/cmd_vel'
+        ).value
+        self.turret_cmd_topic = self.declare_parameter(
+            'turret_cmd_topic', '/turret/cmd_vel'
+        ).value
+
+        csv_path = self.declare_parameter('csv_path', '').value
+        self.csv_path = Path(csv_path).expanduser() if csv_path else None
+
+        self.latest_left = None
+        self.latest_right = None
+        self.left_count = 0
+        self.right_count = 0
+
+        self.pub_left = self.create_publisher(Float64, self.left_cmd_topic, 1)
+        self.pub_right = self.create_publisher(Float64, self.right_cmd_topic, 1)
+        self.pub_turret = self.create_publisher(Float64, self.turret_cmd_topic, 1)
+
+        self.create_subscription(Int32, self.left_ticks_topic, self._left_cb, 10)
+        self.create_subscription(Int32, self.right_ticks_topic, self._right_cb, 10)
+
+        period = 1.0 / max(1.0, self.zero_rate_hz)
+        self.create_timer(period, self.publish_zero_commands)
+
+    def _left_cb(self, msg):
+        self.latest_left = int(msg.data)
+        self.left_count += 1
+
+    def _right_cb(self, msg):
+        self.latest_right = int(msg.data)
+        self.right_count += 1
+
+    def publish_zero_commands(self):
+        msg = Float64()
+        msg.data = 0.0
+        self.pub_left.publish(msg)
+        self.pub_right.publish(msg)
+        self.pub_turret.publish(msg)
+
+    def ready(self):
+        return self.latest_left is not None and self.latest_right is not None
+
+    def snapshot(self):
+        if not self.ready():
+            raise RuntimeError('encoder ticks are not ready yet')
+        return {
+            'left': int(self.latest_left),
+            'right': int(self.latest_right),
+            'time': time.time(),
+        }
+
+    def format_delta(self, start):
+        if not self.ready():
+            return 'waiting for encoder ticks...'
+        dl = self.latest_left - start['left']
+        dr = self.latest_right - start['right']
+        return (
+            f'current delta ticks: left={dl:+d} right={dr:+d} '
+            f'(raw left={self.latest_left} right={self.latest_right})'
+        )
+
+
+def spin_until(node, predicate, timeout_s, status_fn=None, status_rate_hz=2.0):
+    deadline = time.monotonic() + max(0.0, timeout_s)
+    last_status = 0.0
+    while rclpy.ok() and time.monotonic() < deadline:
+        rclpy.spin_once(node, timeout_sec=0.05)
+        if predicate():
+            return True
+        if status_fn is not None:
+            now = time.monotonic()
+            if now - last_status >= 1.0 / max(0.1, status_rate_hz):
+                print(status_fn(), flush=True)
+                last_status = now
+    return predicate()
+
+
+def wait_for_enter(node, prompt, status_fn=None, status_rate_hz=2.0):
+    print()
+    print(prompt, flush=True)
+    done = threading.Event()
+    error = []
+
+    def reader():
+        try:
+            input()
+        except EOFError as exc:
+            error.append(exc)
+        finally:
+            done.set()
+
+    thread = threading.Thread(target=reader, daemon=True)
+    thread.start()
+
+    last_status = 0.0
+    while rclpy.ok() and not done.is_set():
+        rclpy.spin_once(node, timeout_sec=0.05)
+        if status_fn is not None:
+            now = time.monotonic()
+            if now - last_status >= 1.0 / max(0.1, status_rate_hz):
+                print(status_fn(), flush=True)
+                last_status = now
+
+    thread.join(timeout=0.1)
+    if error:
+        raise RuntimeError(
+            'stdin is not interactive; set measurement_duration_s > 0.0 '
+            'and require_unpowered_confirm:=false for unattended runs'
+        )
+
+
+def wait_duration(node, duration_s, status_fn=None, status_rate_hz=2.0):
+    deadline = time.monotonic() + max(0.0, duration_s)
+    last_status = 0.0
+    while rclpy.ok() and time.monotonic() < deadline:
+        rclpy.spin_once(node, timeout_sec=0.05)
+        if status_fn is not None:
+            now = time.monotonic()
+            if now - last_status >= 1.0 / max(0.1, status_rate_hz):
+                print(status_fn(), flush=True)
+                last_status = now
+
+
+def result_row(side, start_ticks, end_ticks, turns, nominal_ticks_per_rev):
+    delta = end_ticks - start_ticks
+    signed_ticks_per_rev = delta / turns
+    abs_ticks_per_rev = abs(delta) / turns
+    row = {
+        'side': side,
+        'start_ticks': start_ticks,
+        'end_ticks': end_ticks,
+        'delta_ticks': delta,
+        'turns': turns,
+        'signed_ticks_per_rev': signed_ticks_per_rev,
+        'abs_ticks_per_rev': abs_ticks_per_rev,
+    }
+    if nominal_ticks_per_rev > 0.0 and abs_ticks_per_rev > 0.0:
+        row['suggested_tick_scale_for_nominal'] = (
+            nominal_ticks_per_rev / abs_ticks_per_rev
+        )
+    else:
+        row['suggested_tick_scale_for_nominal'] = ''
+    return row
+
+
+def print_results(rows, nominal_ticks_per_rev):
+    print()
+    print('Encoder measurement result')
+    print('--------------------------')
+    for row in rows:
+        print(
+            f"{row['side']:>5}: start={row['start_ticks']} "
+            f"end={row['end_ticks']} delta={row['delta_ticks']:+d} "
+            f"turns={row['turns']:.6g} "
+            f"ticks/rev signed={row['signed_ticks_per_rev']:.3f} "
+            f"abs={row['abs_ticks_per_rev']:.3f}"
+        )
+        scale = row['suggested_tick_scale_for_nominal']
+        if scale != '':
+            print(
+                f"      suggested *_tick_scale with ticks_per_rev="
+                f"{nominal_ticks_per_rev:.3f}: {scale:.6f}"
+            )
+
+    valid = [r['abs_ticks_per_rev'] for r in rows if r['abs_ticks_per_rev'] > 0.0]
+    if valid:
+        avg = sum(valid) / len(valid)
+        print(f'average abs ticks/rev: {avg:.3f}')
+
+
+def write_csv(path, rows):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fields = [
+        'timestamp',
+        'side',
+        'start_ticks',
+        'end_ticks',
+        'delta_ticks',
+        'turns',
+        'signed_ticks_per_rev',
+        'abs_ticks_per_rev',
+        'suggested_tick_scale_for_nominal',
+    ]
+    stamp = datetime.now().isoformat(timespec='seconds')
+    with path.open('w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        for row in rows:
+            out = dict(row)
+            out['timestamp'] = stamp
+            writer.writerow(out)
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = EncoderResolutionMeter()
+    exit_code = 0
+
+    try:
+        if node.turns <= 0.0:
+            raise RuntimeError('turns must be > 0.0')
+
+        node.get_logger().warn(
+            'This tool cannot electrically unpower the motor drivers. It only '
+            'publishes zero cmd_vel commands.'
+        )
+        node.get_logger().warn(
+            'Before rotating by hand, disable motor torque or motor power while '
+            'keeping the MCU/encoder sensing powered.'
+        )
+
+        print('Publishing zero commands to:')
+        print(f'  {node.left_cmd_topic}')
+        print(f'  {node.right_cmd_topic}')
+        print(f'  {node.turret_cmd_topic}')
+        print('Listening for encoder ticks on:')
+        print(f'  {node.left_ticks_topic}')
+        print(f'  {node.right_ticks_topic}')
+
+        ok = spin_until(
+            node,
+            node.ready,
+            node.encoder_timeout_s,
+            status_fn=lambda: (
+                f'waiting for ticks... left samples={node.left_count} '
+                f'right samples={node.right_count}'
+            ),
+            status_rate_hz=node.status_rate_hz,
+        )
+        if not ok:
+            raise RuntimeError(
+                'No complete left/right encoder tick stream received. '
+                'Start hamr_uros_bridge first and keep encoder electronics powered.'
+            )
+
+        if node.require_unpowered_confirm:
+            wait_for_enter(
+                node,
+                'Disable motor torque/power now. Keep the MCU/encoders powered. '
+                'Press Enter only after the drive wheels can spin freely by hand.',
+            )
+        else:
+            node.get_logger().warn(
+                'require_unpowered_confirm is false; verify motors are unpowered.'
+            )
+
+        wait_for_enter(
+            node,
+            'Put marks on both drive wheels/motor shafts at the zero position, '
+            'then press Enter to capture the start ticks.',
+        )
+        start = node.snapshot()
+        print(f"start ticks: left={start['left']} right={start['right']}")
+
+        if node.measurement_duration_s > 0.0:
+            print(
+                f'Rotate each motor exactly {node.turns:g} revolution(s) now. '
+                f'Measuring for {node.measurement_duration_s:g} seconds.'
+            )
+            wait_duration(
+                node,
+                node.measurement_duration_s,
+                status_fn=lambda: node.format_delta(start),
+                status_rate_hz=node.status_rate_hz,
+            )
+        else:
+            wait_for_enter(
+                node,
+                f'Rotate each motor exactly {node.turns:g} revolution(s) by hand. '
+                'Press Enter when both are back on their marks.',
+                status_fn=lambda: node.format_delta(start),
+                status_rate_hz=node.status_rate_hz,
+            )
+
+        end = node.snapshot()
+        rows = [
+            result_row(
+                'left',
+                start['left'],
+                end['left'],
+                node.turns,
+                node.nominal_ticks_per_rev,
+            ),
+            result_row(
+                'right',
+                start['right'],
+                end['right'],
+                node.turns,
+                node.nominal_ticks_per_rev,
+            ),
+        ]
+        print_results(rows, node.nominal_ticks_per_rev)
+
+        if node.csv_path is not None:
+            write_csv(node.csv_path, rows)
+            print(f'wrote CSV: {node.csv_path}')
+
+        print()
+        print('Leaving zero velocity commands published until shutdown completes.')
+
+    except KeyboardInterrupt:
+        print()
+        node.get_logger().warn('Interrupted; zero commands are still being sent during shutdown.')
+        exit_code = 130
+    except Exception as exc:
+        node.get_logger().error(str(exc))
+        exit_code = 1
+    finally:
+        for _ in range(10):
+            node.publish_zero_commands()
+            rclpy.spin_once(node, timeout_sec=0.01)
+            time.sleep(0.01)
+        node.destroy_node()
+        rclpy.shutdown()
+
+    return exit_code
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

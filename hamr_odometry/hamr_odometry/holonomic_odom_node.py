@@ -28,7 +28,7 @@ class HolonomicOdomNode(Node):
         self.declare_parameter('a_wheel', 0.345)
         self.declare_parameter('b_wheel', 0.301)
         self.declare_parameter('base_yaw_offset', math.pi / 2.0)
-        self.declare_parameter('ticks_per_rev', 4526.4)
+        self.declare_parameter('ticks_per_rev', 2263.7)
         self.declare_parameter('left_tick_scale', 1.0)
         self.declare_parameter('right_tick_scale', 1.0)
         self.declare_parameter('yaw_sign', -1.0)
@@ -92,7 +92,7 @@ class HolonomicOdomNode(Node):
 
         self.get_logger().info(
             f'HolonomicOdomNode ready  r={self.r} a={self.a} b={self.b} '
-            f'ticks_per_rev={self.ticks_per_rev:.0f} '
+            f'ticks_per_rev={self.ticks_per_rev:.1f} '
             f'tick_scale=({self.left_tick_scale:.3f},{self.right_tick_scale:.3f}) '
             f'yaw_sign={self.yaw_sign:+.1f} publish_tf={self.publish_tf}'
         )

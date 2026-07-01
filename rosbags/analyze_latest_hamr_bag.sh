@@ -7,6 +7,7 @@ BASE_TOPIC="${BASE_TOPIC:-/HAMR_base/odom}"
 ONBOARD_TOPIC="${ONBOARD_TOPIC:-/local_HAMR/odom}"
 WHEEL_ODOM_TOPIC="${WHEEL_ODOM_TOPIC:-/wheel_odom}"
 IMU_TOPIC="${IMU_TOPIC:-/imu/data}"
+WHEEL_RADIUS_M="${WHEEL_RADIUS_M:-0.122}"
 
 if [[ $# -gt 0 ]]; then
   BAG_DIR="$1"
@@ -55,6 +56,7 @@ echo "  vicon:   ${BASE_TOPIC}"
 echo "  onboard: ${ONBOARD_TOPIC}"
 echo "  wheel:   ${WHEEL_ODOM_TOPIC}"
 echo "  imu:     ${IMU_TOPIC}"
+echo "  r_wheel: ${WHEEL_RADIUS_M} m"
 
 python3 "${ANALYZE_SCRIPT}" "${BAG_DIR}" \
   --base-topic "${BASE_TOPIC}" \
@@ -65,7 +67,8 @@ python3 "${ANALYZE_SCRIPT}" "${BAG_DIR}" \
   --localization-plot "${OUT_DIR}/vicon_onboard_path.png" \
   --imu-odom-plot "${OUT_DIR}/imu_odom_path.png" \
   --localization-error-plot "${OUT_DIR}/vicon_onboard_error.png" \
-  --wheel-plot "${OUT_DIR}/wheel_cmd_vel.png" \
+  --wheel-plot "${OUT_DIR}/wheel_velocity_compare.png" \
+  --wheel-radius-m "${WHEEL_RADIUS_M}" \
   --speed-plot "${OUT_DIR}/forward_speed.png" \
   --turret-yaw-plot "${OUT_DIR}/path_reference_turret_yaw.png" \
   --calib-plot "${OUT_DIR}/imu_calib_status.png" \
@@ -83,10 +86,10 @@ echo "  ${OUT_DIR}/vicon_onboard_error.png"
 if [[ -f "${OUT_DIR}/imu_odom_path.png" ]]; then
   echo "  ${OUT_DIR}/imu_odom_path.png"
 fi
-if [[ -f "${OUT_DIR}/wheel_cmd_vel.png" ]]; then
-  echo "  ${OUT_DIR}/wheel_cmd_vel.png"
+if [[ -f "${OUT_DIR}/wheel_velocity_compare.png" ]]; then
+  echo "  ${OUT_DIR}/wheel_velocity_compare.png"
 else
-  echo "  wheel_cmd_vel.png skipped: no wheel cmd_vel samples"
+  echo "  wheel_velocity_compare.png skipped: no wheel cmd_vel samples"
 fi
 echo "  ${OUT_DIR}/forward_speed.png"
 echo "  ${OUT_DIR}/path_reference_turret_yaw.png"
