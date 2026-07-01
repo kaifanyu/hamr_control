@@ -1215,7 +1215,26 @@ def parse_args():
     parser.add_argument("bag_dir", type=Path, help="Path to rosbag directory")
     parser.add_argument("--base-topic", default=DEFAULT_BASE_TOPIC)
     parser.add_argument("--onboard-topic", default=DEFAULT_ONBOARD_TOPIC)
+    parser.add_argument(
+        "--source-bag-dir",
+        type=Path,
+        help=(
+            "Optional source rosbag from which to load wheel odometry, IMU, "
+            "turret, reference, wheel-command, and calibration topics. This "
+            "lets a compact offline-EKF result bag be analyzed against all "
+            "topics from the replayed hardware bag."
+        ),
+    )
     parser.add_argument("--wheel-odom-topic", default=DEFAULT_WHEEL_ODOM_TOPIC)
+    parser.add_argument(
+        "--wheel-bag-dir",
+        type=Path,
+        help=(
+            "Optional rosbag from which to load the wheel-odometry topic. "
+            "Useful when an offline EKF result bag contains Vicon and the EKF "
+            "output but the replay source bag contains /wheel_odom."
+        ),
+    )
     parser.add_argument("--imu-topic", default=DEFAULT_IMU_TOPIC)
     parser.add_argument("--turret-topic", default=DEFAULT_TURRET_TOPIC)
     parser.add_argument("--reference-topic", default=DEFAULT_REFERENCE_TOPIC)
@@ -1332,6 +1351,67 @@ def main():
         args.calib_status_topic,
     )
 
+    source_bag_dir = bag_dir
+    if args.source_bag_dir:
+        source_bag_dir = args.source_bag_dir.expanduser().resolve()
+        if not source_bag_dir.exists():
+            raise FileNotFoundError(
+                f"Source bag directory does not exist: {source_bag_dir}"
+            )
+        source_storage_id = detect_storage_id(source_bag_dir)
+        source = read_bag(
+            source_bag_dir,
+            source_storage_id,
+            "/__unused/base",
+            "/__unused/onboard",
+            args.wheel_odom_topic,
+            args.imu_topic,
+            args.turret_topic,
+            args.reference_topic,
+            args.left_wheel_topic,
+            args.right_wheel_topic,
+            args.calib_status_topic,
+        )
+        wheel_odom_samples = source[3]
+        imu_samples = source[4]
+        turret_samples = source[5]
+        reference_samples = source[6]
+        left_wheel_samples = source[7]
+        right_wheel_samples = source[8]
+        calib_samples = source[9]
+
+    wheel_bag_dir = source_bag_dir
+    if args.wheel_bag_dir:
+        wheel_bag_dir = args.wheel_bag_dir.expanduser().resolve()
+        if not wheel_bag_dir.exists():
+            raise FileNotFoundError(
+                f"Wheel-odometry bag directory does not exist: {wheel_bag_dir}"
+            )
+        wheel_storage_id = detect_storage_id(wheel_bag_dir)
+        supplemental = read_bag(
+            wheel_bag_dir,
+            wheel_storage_id,
+            "/__unused/base",
+            "/__unused/onboard",
+            args.wheel_odom_topic,
+            "/__unused/imu",
+            "/__unused/turret",
+            "/__unused/reference",
+            "/__unused/left_wheel",
+            "/__unused/right_wheel",
+            "/__unused/calib",
+        )
+        wheel_odom_samples = supplemental[3]
+        if not wheel_odom_samples:
+            available = "\n".join(
+                f"  {name} [{type_name}]"
+                for name, type_name in sorted(supplemental[0].items())
+            )
+            raise RuntimeError(
+                f"No samples found on {args.wheel_odom_topic} in "
+                f"{wheel_bag_dir}. Available topics:\n{available}"
+            )
+
     gyro_integrated_samples = integrate_gyro_z(imu_samples)
 
     if not base_samples:
@@ -1378,9 +1458,11 @@ def main():
     metrics = {
         "bag_dir": str(bag_dir),
         "storage_id": storage_id,
+        "source_bag_dir": str(source_bag_dir),
         "base_topic": args.base_topic,
         "onboard_topic": args.onboard_topic,
         "wheel_odom_topic": args.wheel_odom_topic,
+        "wheel_odom_bag_dir": str(wheel_bag_dir),
         "imu_topic": args.imu_topic,
         "turret_topic": args.turret_topic,
         "reference_topic": args.reference_topic,
