@@ -125,8 +125,9 @@ map ─(rtabmap)→ odom ─(rgbd_odometry OR wheel odom)→ base_link ─(URDF 
 - **Localization mode** (`localization:=true` / `Mem/IncrementalMemory false`): loads the
   `.db`, stops growing it, publishes live `map→odom` + `/rtabmap/localization_pose`.
 - **Odometry choice:** visual (`rgbd_odometry`) is simplest but fragile on low texture / fast
-  motion. On a wheeled robot, feeding **wheel/EKF odom** (already on `/odom` from relay_node)
-  as external odometry and letting `rtabmap` add visual loop closures is more robust off-road.
+  motion. On a wheeled robot, feeding **wheel/EKF odom** (`/local_HAMR/odom` from
+  `robot_localization`) as external odometry and letting `rtabmap` add visual loop closures
+  is more robust off-road.
 - **Always also record a raw rosbag** of the camera while mapping — it's the portable artifact
   you replay to rebuild/re-tune a map without re-driving. (The `.db` is space-specific.)
 - **A real-world `.db` is NOT portable into sim.** Sim and real share the pipeline/config, not

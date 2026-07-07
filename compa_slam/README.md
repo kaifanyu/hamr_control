@@ -29,8 +29,8 @@ gz depth camera (sim)  ─┴─► RTAB-Map ──► robot pose (map→base) �
 - Robot compute: **CPU-only, no NVIDIA GPU.** Therefore we use the C++ **`elevation_mapping`**
   package, NOT `elevation_mapping_cupy` (CuPy is GPU-only and will not run here). Revisit
   CuPy only if an NVIDIA GPU / Jetson is added later.
-- Onboard odometry already exists: the MCU EKF (encoders + IMU) is published as `/odom` and
-  `/robot_pose` by `hamr_uros_bridge/relay_node` — usable as RTAB-Map's external odom input.
+- Onboard odometry already exists: encoders + IMU are fused by `robot_localization` and
+  published as `/local_HAMR/odom` — usable as RTAB-Map's external odom input.
 
 ## Directory layout
 
