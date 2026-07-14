@@ -1,0 +1,6 @@
+msg/LiveGains.idl
+msg/LiveGains.msg
+msg/ReferenceTraj.idl
+msg/ReferenceTraj.msg
+msg/StateError.idl
+msg/StateError.msg

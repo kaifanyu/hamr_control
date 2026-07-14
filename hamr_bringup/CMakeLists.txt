@@ -14,7 +14,10 @@ install(
 )
 
 install(
-  PROGRAMS scripts/record_hamr_vicon_bag
+  PROGRAMS
+    scripts/record_hamr_vicon_bag
+    scripts/run_slam_mapping.sh
+    scripts/heightmap_to_mesh.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

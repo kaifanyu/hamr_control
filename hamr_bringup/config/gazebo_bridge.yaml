@@ -22,7 +22,8 @@
   gz_type_name: "gz.msgs.Odometry"
   direction: GZ_TO_ROS
 
-# Camera
+# Camera (rgbd_camera sensor: gz publishes camera/image, camera/depth_image,
+# camera/points and camera/camera_info under its <topic> prefix "camera")
 - ros_topic_name: "/camera/camera_info"
   gz_topic_name: "/camera/camera_info"
   ros_type_name: "sensor_msgs/msg/CameraInfo"
@@ -30,9 +31,21 @@
   direction: GZ_TO_ROS
 
 - ros_topic_name: "/camera/image_raw"
-  gz_topic_name: "/camera/image_raw"
+  gz_topic_name: "/camera/image"
   ros_type_name: "sensor_msgs/msg/Image"
   gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/camera/depth_image"
+  gz_topic_name: "/camera/depth_image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/camera/points"
+  gz_topic_name: "/camera/points"
+  ros_type_name: "sensor_msgs/msg/PointCloud2"
+  gz_type_name: "gz.msgs.PointCloudPacked"
   direction: GZ_TO_ROS
 
 # Wheels

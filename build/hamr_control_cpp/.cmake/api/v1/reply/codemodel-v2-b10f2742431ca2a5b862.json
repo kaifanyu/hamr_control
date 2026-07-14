@@ -1,0 +1,151 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-f0827ced71e8e586aafc.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "hamr_control_cpp",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "astar_search::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-astar_search-2501da8cf4ae479cbc98.json",
+					"name" : "astar_search",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "compa_path_tracer::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-compa_path_tracer-6b21d92f5d179c0981d2.json",
+					"name" : "compa_path_tracer",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "cost_map_publisher::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cost_map_publisher-d229c0d7e5a85258f384.json",
+					"name" : "cost_map_publisher",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hamr_control_cpp_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hamr_control_cpp_uninstall-0d06ddaad7bb0677d513.json",
+					"name" : "hamr_control_cpp_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hamr_controller::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hamr_controller-45395de8b4f5101606f5.json",
+					"name" : "hamr_controller",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "hamr_path_tracer::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hamr_path_tracer-6e58eb4e152e24dee823.json",
+					"name" : "hamr_path_tracer",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "image_to_gridmap::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-image_to_gridmap-8723459066467cbb4358.json",
+					"name" : "image_to_gridmap",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "map_publisher::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-map_publisher-e1ee58ca414c332795b0.json",
+					"name" : "map_publisher",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "or_planner::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-or_planner-d4f1db3c243ccae0fce4.json",
+					"name" : "or_planner",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "prm_builder::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-prm_builder-5848b556176ae3a4cd8f.json",
+					"name" : "prm_builder",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-e2c30aca7a2bc7ab04d1.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/ranaudo/Documents/hamr_control/build/hamr_control_cpp",
+		"source" : "/home/ranaudo/Documents/hamr_control/hamr_control_cpp"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 6
+	}
+}

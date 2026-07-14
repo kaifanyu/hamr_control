@@ -1,0 +1,8 @@
+{
+  "package_name": "hamr_interfaces",
+  "non_idl_tuples": [
+    "/home/ranaudo/Documents/hamr_control/hamr_interfaces:msg/StateError.msg",
+    "/home/ranaudo/Documents/hamr_control/hamr_interfaces:msg/LiveGains.msg",
+    "/home/ranaudo/Documents/hamr_control/hamr_interfaces:msg/ReferenceTraj.msg"
+  ]
+}

@@ -1,0 +1,89 @@
+<launch>
+    <!-- Same bringup as hamr_maze.launch.xml, plus RTAB-Map visual SLAM:
+         - camera is RGB-D (camera.xacro), depth bridged in gazebo_bridge.yaml
+         - NO static map->odom transform: RTAB-Map publishes map->odom itself
+         - use_sim_time on every node (Gazebo /clock is bridged) -->
+
+    <let name="urdf_path"
+        value="$(find-pkg-share hamr_description)/urdf/hamr.urdf.xacro" />
+    <let name="gazebo_config_path"
+        value="$(find-pkg-share hamr_bringup)/config/gazebo_bridge.yaml" />
+    <let name="rviz_config_path"
+        value="$(find-pkg-share hamr_description)/rviz/config_slam.rviz" />
+    <let name="pid_config_path"
+        value="$(find-pkg-share hamr_bringup)/config/hamr_pid_params.yaml" />
+
+    <set_parameter name="use_sim_time" value="true" />
+
+    <!-- Make gz resource resolution independent of the shell's
+         GZ_SIM_RESOURCE_PATH (e.g. ~/.bashrc bakes paths from the old
+         ~/ros2_ws overlay, which lacks the terrain mesh used below) -->
+    <set_env name="GZ_SIM_RESOURCE_PATH"
+        value="$(find-pkg-prefix hamr_description)/share:$(find-pkg-prefix hamr_bringup)/share:$(env GZ_SIM_RESOURCE_PATH '')" />
+
+    <!-- To launch GZ. NOTE the world is 2.5D_maze_vslam.sdf - identical
+         terrain, but the visual is a mesh because the RGB-D camera's depth
+         pass crashes on <heightmap> visuals (gz-rendering ogre2 limitation) -->
+    <include file="$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
+        <arg name="gz_args" value="$(find-pkg-share hamr_bringup)/worlds/2.5D_maze_vslam.sdf -r" />
+    </include>
+    <!-- Spawn at the world origin. waypoint_traj_simple's waypoints start at
+         (0,0) and gz's OdometryPublisher initializes odom at the WORLD spawn
+         pose (unlike hardware odometry, which starts at zero), so spawning
+         elsewhere makes the robot drive a long transient to reach the
+         trajectory. z = terrain height at origin (0.55m) + clearance. -->
+    <node pkg="ros_gz_sim" exec="create" args="-topic robot_description -x 0 -y 0 -z 0.7" />
+
+    <!-- To launch the URDF Robot State Publisher -->
+    <node pkg="robot_state_publisher" exec="robot_state_publisher">
+        <param name= "robot_description"
+            value="$(command 'xacro $(var urdf_path)')" />
+    </node>
+
+    <!-- To bridge ros and upload the config file to bridge topic by topic -->
+    <node pkg="ros_gz_bridge" exec="parameter_bridge">
+        <param name="config_file" value="$(var gazebo_config_path)" />
+    </node>
+
+    <!-- Launch Rviz with the configuration -->
+    <node pkg="rviz2" exec="rviz2" output="screen"
+          args="-d $(var rviz_config_path)" />
+
+    <!-- RTAB-Map RGB-D SLAM.
+         Odometry comes from the odom->base_footprint TF that Gazebo's
+         OdometryPublisher already provides (bridged on /tf), so mapping is
+         decoupled from tracking for now; swap in rgbd_odometry later for
+         full visual odometry.
+         args: "-d" wipes ~/.ros/rtabmap.db on start (fresh map every run,
+         remove it to accumulate sessions); Optimizer/Strategy 2 = GTSAM
+         pose-graph optimization.
+         Live outputs: /rtabmap/cloud_map (PointCloud2), /rtabmap/map
+         (OccupancyGrid), /rtabmap/mapData. -->
+    <node pkg="rtabmap_slam" exec="rtabmap" namespace="rtabmap" output="screen"
+          args="-d --Optimizer/Strategy 2">
+        <param name="frame_id" value="base_footprint" />
+        <param name="odom_frame_id" value="odom" />
+        <param name="odom_tf_linear_variance" value="0.0005" />
+        <param name="odom_tf_angular_variance" value="0.0005" />
+        <param name="subscribe_depth" value="true" />
+        <param name="approx_sync" value="true" />
+        <param name="sync_queue_size" value="20" />
+        <remap from="rgb/image" to="/camera/image_raw" />
+        <remap from="rgb/camera_info" to="/camera/camera_info" />
+        <remap from="depth/image" to="/camera/depth_image" />
+    </node>
+
+    <!-- Launch HAMR Controller -->
+    <node pkg="hamr_control" exec="hamr_controller" >
+        <param from="$(var pid_config_path)" />
+    </node>
+
+    <!-- Drives the fixed waypoint loop immediately, so the map grows as soon
+         as the sim is up. For maze mapping with the planner stack instead,
+         re-add map_publisher/astar_search/prm_builder/hamr_path_tracer +
+         waypoint_traj, give map_publisher a valid yaml_path param (its
+         default is a hardcoded /home/cedric/... path), and click a 2D Goal
+         Pose in RViz. -->
+    <node pkg="reference_trajectory" exec="waypoint_traj_simple" />
+
+</launch>

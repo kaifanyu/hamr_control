@@ -1,0 +1,10 @@
+setup.py
+hamr_interfaces/__init__.py
+hamr_interfaces.egg-info/PKG-INFO
+hamr_interfaces.egg-info/SOURCES.txt
+hamr_interfaces.egg-info/dependency_links.txt
+hamr_interfaces.egg-info/top_level.txt
+hamr_interfaces/msg/__init__.py
+hamr_interfaces/msg/_live_gains.py
+hamr_interfaces/msg/_reference_traj.py
+hamr_interfaces/msg/_state_error.py

@@ -1,0 +1,9 @@
+{
+  "package_name": "hamr_interfaces",
+  "output_dir": "/home/ranaudo/Documents/hamr_control/build/hamr_interfaces/rosidl_generator_type_description/hamr_interfaces",
+  "idl_tuples": [
+    "/home/ranaudo/Documents/hamr_control/build/hamr_interfaces/rosidl_adapter/hamr_interfaces:msg/StateError.idl",
+    "/home/ranaudo/Documents/hamr_control/build/hamr_interfaces/rosidl_adapter/hamr_interfaces:msg/LiveGains.idl",
+    "/home/ranaudo/Documents/hamr_control/build/hamr_interfaces/rosidl_adapter/hamr_interfaces:msg/ReferenceTraj.idl"
+  ]
+}

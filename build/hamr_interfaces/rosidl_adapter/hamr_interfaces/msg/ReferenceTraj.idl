@@ -1,0 +1,30 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hamr_interfaces/msg/ReferenceTraj.msg
+// generated code does not contain a copyright notice
+
+
+module hamr_interfaces {
+  module msg {
+    struct ReferenceTraj {
+      double x;
+
+      double y;
+
+      double roll;
+
+      double pitch;
+
+      double yaw;
+
+      double x_dot;
+
+      double y_dot;
+
+      double roll_dot;
+
+      double pitch_dot;
+
+      double yaw_dot;
+    };
+  };
+};

@@ -1,0 +1,21 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/hamr_interfaces__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/hamr_interfaces/msg/detail/live_gains__type_support.c.o"
+  "CMakeFiles/hamr_interfaces__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/hamr_interfaces/msg/detail/live_gains__type_support.c.o.d"
+  "CMakeFiles/hamr_interfaces__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/hamr_interfaces/msg/detail/reference_traj__type_support.c.o"
+  "CMakeFiles/hamr_interfaces__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/hamr_interfaces/msg/detail/reference_traj__type_support.c.o.d"
+  "CMakeFiles/hamr_interfaces__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/hamr_interfaces/msg/detail/state_error__type_support.c.o"
+  "CMakeFiles/hamr_interfaces__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/hamr_interfaces/msg/detail/state_error__type_support.c.o.d"
+  "libhamr_interfaces__rosidl_typesupport_introspection_c.pdb"
+  "libhamr_interfaces__rosidl_typesupport_introspection_c.so"
+  "rosidl_typesupport_introspection_c/hamr_interfaces/msg/detail/live_gains__rosidl_typesupport_introspection_c.h"
+  "rosidl_typesupport_introspection_c/hamr_interfaces/msg/detail/live_gains__type_support.c"
+  "rosidl_typesupport_introspection_c/hamr_interfaces/msg/detail/reference_traj__rosidl_typesupport_introspection_c.h"
+  "rosidl_typesupport_introspection_c/hamr_interfaces/msg/detail/reference_traj__type_support.c"
+  "rosidl_typesupport_introspection_c/hamr_interfaces/msg/detail/state_error__rosidl_typesupport_introspection_c.h"
+  "rosidl_typesupport_introspection_c/hamr_interfaces/msg/detail/state_error__type_support.c"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang C)
+  include(CMakeFiles/hamr_interfaces__rosidl_typesupport_introspection_c.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

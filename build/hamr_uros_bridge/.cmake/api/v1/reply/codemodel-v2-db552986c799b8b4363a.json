@@ -1,0 +1,88 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-15d2917d2445a191062a.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "hamr_uros_bridge",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "hamr_uros_bridge_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-hamr_uros_bridge_uninstall-45d4cdbd56f6d22ea4b0.json",
+					"name" : "hamr_uros_bridge_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "odometry_eval::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-odometry_eval-5d4fa761e5ea3b3406a2.json",
+					"name" : "odometry_eval",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "relay_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-relay_node-97203d709fe9ab1eba4c.json",
+					"name" : "relay_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-db9fe5540c68e2152f68.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/ranaudo/Documents/hamr_control/build/hamr_uros_bridge",
+		"source" : "/home/ranaudo/Documents/hamr_control/hamr_uros_bridge"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 6
+	}
+}

@@ -1,0 +1,4 @@
+source;share/hamr_control_cpp/local_setup.bash
+source;share/hamr_control_cpp/local_setup.dsv
+source;share/hamr_control_cpp/local_setup.sh
+source;share/hamr_control_cpp/local_setup.zsh

@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "hamr_interfaces__rs",
+		"source" : "/home/ranaudo/Documents/hamr_control/build/hamr_interfaces/hamr_interfaces__rs"
+	}
+}

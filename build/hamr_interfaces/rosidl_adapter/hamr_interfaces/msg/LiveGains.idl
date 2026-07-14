@@ -1,0 +1,28 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hamr_interfaces/msg/LiveGains.msg
+// generated code does not contain a copyright notice
+
+
+module hamr_interfaces {
+  module msg {
+    struct LiveGains {
+      double p_x;
+
+      double d_x;
+
+      double i_x;
+
+      double p_y;
+
+      double d_y;
+
+      double i_y;
+
+      double p_yaw;
+
+      double d_yaw;
+
+      double i_yaw;
+    };
+  };
+};

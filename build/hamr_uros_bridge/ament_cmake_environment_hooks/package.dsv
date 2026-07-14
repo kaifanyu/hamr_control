@@ -1,0 +1,4 @@
+source;share/hamr_uros_bridge/local_setup.bash
+source;share/hamr_uros_bridge/local_setup.dsv
+source;share/hamr_uros_bridge/local_setup.sh
+source;share/hamr_uros_bridge/local_setup.zsh
