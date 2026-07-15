@@ -28,7 +28,10 @@
     <joint name="turret_camera_joint" type="fixed">
         <parent link="turret_link" />
         <child link="camera_link" />
-        <origin xyz="0 0 0.1" rpy="0 0 ${-pi / 2.0}"/>
+        <!-- pitched 20 deg down so visual odometry always sees nearby
+             depth-valid terrain instead of horizon/sky (level mounting
+             starves VO of 3D features on open ground) -->
+        <origin xyz="0 0 0.1" rpy="0 ${20.0 * pi / 180.0} ${-pi / 2.0}"/>
     </joint>
     
     <!-- generate an optical frame 
@@ -52,7 +55,9 @@
     <gazebo reference="camera_link">
         <sensor name="camera" type="rgbd_camera">
             <camera>
-                <horizontal_fov>1.3962634</horizontal_fov>
+                <!-- 100 deg - wide FOV keeps features in view through the
+                     base's fast yaw swings (visual odometry robustness) -->
+                <horizontal_fov>1.7453293</horizontal_fov>
                 <image>
                     <width>640</width>
                     <height>480</height>
@@ -65,7 +70,7 @@
                 <depth_camera>
                     <clip>
                         <near>0.1</near>
-                        <far>10</far>
+                        <far>15</far>
                     </clip>
                 </depth_camera>
                 <noise>

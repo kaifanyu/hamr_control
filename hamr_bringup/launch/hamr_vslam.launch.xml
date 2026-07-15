@@ -1,0 +1,83 @@
+<launch>
+    <!-- FULL VSLAM variant of hamr_slam.launch.xml:
+         - odom->base_footprint TF comes from rgbd_odometry (camera-based),
+           NOT from Gazebo (bridge config keeps gz ground truth off /tf;
+           it stays available as the /hamr/odom topic for the controller
+           and for evaluation against the VSLAM estimate)
+         - rtabmap consumes the visual odometry topic (/rtabmap/odom)
+         - everything else (camera, controller, trajectory) unchanged -->
+
+    <let name="urdf_path"
+        value="$(find-pkg-share hamr_description)/urdf/hamr.urdf.xacro" />
+    <let name="gazebo_config_path"
+        value="$(find-pkg-share hamr_bringup)/config/gazebo_bridge_vslam.yaml" />
+    <let name="rviz_config_path"
+        value="$(find-pkg-share hamr_description)/rviz/config_slam.rviz" />
+    <let name="pid_config_path"
+        value="$(find-pkg-share hamr_bringup)/config/hamr_pid_params.yaml" />
+
+    <set_parameter name="use_sim_time" value="true" />
+
+    <set_env name="GZ_SIM_RESOURCE_PATH"
+        value="$(find-pkg-prefix hamr_description)/share:$(find-pkg-prefix hamr_bringup)/share:$(env GZ_SIM_RESOURCE_PATH '')" />
+
+    <!-- Gazebo (mesh-terrain world: depth cameras crash on heightmap visuals) -->
+    <include file="$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
+        <arg name="gz_args" value="$(find-pkg-share hamr_bringup)/worlds/2.5D_maze_vslam.sdf -r" />
+    </include>
+    <!-- Spawn at origin (waypoint_traj_simple waypoints start at (0,0) and
+         gz odom initializes at the world spawn pose) -->
+    <node pkg="ros_gz_sim" exec="create" args="-topic robot_description -x 0 -y 0 -z 0.7" />
+
+    <node pkg="robot_state_publisher" exec="robot_state_publisher">
+        <param name= "robot_description"
+            value="$(command 'xacro $(var urdf_path)')" />
+    </node>
+
+    <node pkg="ros_gz_bridge" exec="parameter_bridge">
+        <param name="config_file" value="$(var gazebo_config_path)" />
+    </node>
+
+    <node pkg="rviz2" exec="rviz2" output="screen"
+          args="-d $(var rviz_config_path)" />
+
+    <!-- Visual odometry: estimates odom->base_footprint from RGB-D frames
+         and publishes it as TF + /rtabmap/odom (with real covariance).
+         Odom/ResetCountdown 1 auto-resets after a lost-tracking frame
+         instead of freezing the estimate. -->
+    <node pkg="rtabmap_odom" exec="rgbd_odometry" namespace="rtabmap" output="screen"
+          args="--Odom/ResetCountdown 1 --Odom/ImageDecimation 2 --Vis/MinInliers 12">
+        <param name="frame_id" value="base_footprint" />
+        <param name="odom_frame_id" value="odom" />
+        <param name="publish_tf" value="true" />
+        <param name="approx_sync" value="false" />
+        <param name="sync_queue_size" value="20" />
+        <remap from="rgb/image" to="/camera/image_raw" />
+        <remap from="rgb/camera_info" to="/camera/camera_info" />
+        <remap from="depth/image" to="/camera/depth_image" />
+        <remap from="imu" to="/imu" />
+        <param name="wait_imu_to_init" value="true" />
+    </node>
+
+    <!-- RTAB-Map SLAM: same as hamr_slam.launch.xml but consuming the
+         visual odometry topic (default in-namespace wiring: both nodes
+         live in /rtabmap, so "odom" resolves to /rtabmap/odom). -->
+    <node pkg="rtabmap_slam" exec="rtabmap" namespace="rtabmap" output="screen"
+          args="-d --Optimizer/Strategy 2 --Vis/MinInliers 12">
+        <param name="frame_id" value="base_footprint" />
+        <param name="subscribe_depth" value="true" />
+        <param name="approx_sync" value="true" />
+        <param name="sync_queue_size" value="20" />
+        <remap from="rgb/image" to="/camera/image_raw" />
+        <remap from="rgb/camera_info" to="/camera/camera_info" />
+        <remap from="depth/image" to="/camera/depth_image" />
+    </node>
+
+    <!-- Controller still runs on ground-truth /hamr/odom (Stage C swaps
+         this to the VSLAM estimate once VO is validated) -->
+    <node pkg="hamr_control" exec="hamr_controller" >
+        <param from="$(var pid_config_path)" />
+    </node>
+    <node pkg="reference_trajectory" exec="waypoint_traj_simple" />
+
+</launch>

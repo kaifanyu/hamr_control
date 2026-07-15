@@ -5,5 +5,6 @@
     <xacro:include filename="hamr_sw_v_simplified.xacro" /> 
     <xacro:include filename="hamr_gazebo.xacro" />
     <xacro:include filename="camera.xacro" />
+    <xacro:include filename="imu.xacro" />
 
 </robot>

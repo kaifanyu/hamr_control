@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- IMU on base_link. Used as an orientation prior by visual odometry
+         (rgbd_odometry) - makes tracking robust to the base's fast yaw
+         swings, same role the real IMU plays on hardware.
+         Requires the gz-sim-imu-system plugin in the world SDF. -->
+    <gazebo reference="base_link">
+        <sensor name="imu_sensor" type="imu">
+            <always_on>1</always_on>
+            <update_rate>100</update_rate>
+            <topic>imu</topic>
+            <gz_frame_id>base_link</gz_frame_id>
+        </sensor>
+    </gazebo>
+
+</robot>

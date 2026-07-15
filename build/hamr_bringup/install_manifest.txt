@@ -7,11 +7,13 @@
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//launch/hamr.launch.xml
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//launch/hamr_slam.launch.xml
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//launch/hamr_HW.launch.xml
+/home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//launch/hamr_vslam.launch.xml
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//launch/hamr_maze.launch.xml
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//launch/hamr_rough_terrain.launch.xml
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//config/hamr_hw_control_params.yaml
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//config/hamr_uros_bridge.yaml
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//config/gazebo_bridge_compa.yaml
+/home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//config/gazebo_bridge_vslam.yaml
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//config/hamr_pid_params.yaml
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//config/gazebo_bridge.yaml
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//config/compa_pid_params.yaml
@@ -31,9 +33,11 @@
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//terrain_assets/textures/albedo_out.png
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//terrain_assets/textures/albedo_out_rgba.png
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//terrain_assets/textures/checker.png
+/home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//terrain_assets/meshes/albedo_out.png
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//terrain_assets/meshes/terrain1_maze.obj
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//terrain_assets/meshes/terrain1_maze.mtl
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//terrain_assets/meshes/checker.png
+/home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//terrain_assets/meshes/terrain_speckle.png
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//terrain_assets/heightmaps/volcano_terrain_1024_blurred.png
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//terrain_assets/heightmaps/verti_arena_512.png
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup//terrain_assets/heightmaps/verti_1024.png
@@ -72,6 +76,7 @@
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/lib/hamr_bringup/record_hamr_vicon_bag
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/lib/hamr_bringup/run_slam_mapping.sh
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/lib/hamr_bringup/heightmap_to_mesh.py
+/home/ranaudo/Documents/hamr_control/install/hamr_bringup/lib/hamr_bringup/compare_vslam_traj.py
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/ament_index/resource_index/package_run_dependencies/hamr_bringup
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/ament_index/resource_index/parent_prefix_path/hamr_bringup
 /home/ranaudo/Documents/hamr_control/install/hamr_bringup/share/hamr_bringup/environment/ament_prefix_path.sh

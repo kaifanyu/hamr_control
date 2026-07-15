@@ -56,6 +56,7 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
     "/home/ranaudo/Documents/hamr_control/hamr_bringup/scripts/record_hamr_vicon_bag"
     "/home/ranaudo/Documents/hamr_control/hamr_bringup/scripts/run_slam_mapping.sh"
     "/home/ranaudo/Documents/hamr_control/hamr_bringup/scripts/heightmap_to_mesh.py"
+    "/home/ranaudo/Documents/hamr_control/hamr_bringup/scripts/compare_vslam_traj.py"
     )
 endif()
 

@@ -1,3 +1,4 @@
+/home/ranaudo/Documents/hamr_control/install/hamr_description/share/hamr_description//urdf/imu.xacro
 /home/ranaudo/Documents/hamr_control/install/hamr_description/share/hamr_description//urdf/camera.xacro
 /home/ranaudo/Documents/hamr_control/install/hamr_description/share/hamr_description//urdf/hamr.urdf.xacro
 /home/ranaudo/Documents/hamr_control/install/hamr_description/share/hamr_description//urdf/hamr_sw.xacro
