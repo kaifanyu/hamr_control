@@ -20,6 +20,11 @@
   <depend>xacro</depend>
   <depend>rviz2</depend>
   <depend>tf2_ros</depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>hamr_interfaces</exec_depend>
+  <exec_depend>reference_trajectory</exec_depend>
 
   <!-- Reuse the existing COMPA robot description (meshes/links) -->
   <exec_depend>compa_description</exec_depend>
@@ -60,6 +65,7 @@
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
+  <test_depend>ament_cmake_pytest</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

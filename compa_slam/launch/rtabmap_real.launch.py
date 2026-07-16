@@ -18,14 +18,14 @@ only use_sim_time matters: keep it TRUE for bag replay (the bag carries the cloc
 Build a map from your bag (one command — it plays the bag for you):
     ros2 launch compa_slam rtabmap_real.launch.py \
         bag:=$HOME/hamster_ws/src/hamr_control/rosbags/loop_lab_01
-    # -> writes maps/compa_real.db on shutdown (auto-stops when the bag ends if you Ctrl-C)
+    # -> writes ~/.ros/compa_real.db by default (pass database_path for another location)
 
 Or drive the replay yourself in a second terminal:
     ros2 launch compa_slam rtabmap_real.launch.py            # waits for data
     ros2 bag play ~/hamster_ws/src/hamr_control/rosbags/loop_lab_01 --clock
 
-Then later, LOCALIZE against the saved map (live on hardware, use_sim_time:=false):
-    ros2 launch compa_slam rtabmap_real.launch.py localization:=true use_sim_time:=false visual_odometry:=true
+Then later, LOCALIZE against the saved map with the onboard EKF (live hardware):
+    ros2 launch compa_slam rtabmap_real.launch.py localization:=true use_sim_time:=false visual_odometry:=false
 
 Needs:  ros-jazzy-rtabmap-ros
 """
@@ -44,8 +44,11 @@ from launch_ros.parameter_descriptions import ParameterValue
 def generate_launch_description():
     pkg = get_package_share_directory("compa_slam")
     params = os.path.join(pkg, "config", "rtabmap.yaml")
-    default_db = os.path.join(pkg, "maps", "compa_real.db")
-    # rtabmap won't create a missing parent dir for the database -> ensure it exists.
+    # Runtime databases do not belong in the installed package share (and *.db files
+    # are intentionally excluded from installation). Keep the conventional default
+    # in ~/.ros and allow callers to pass an explicit source-workspace path.
+    default_db = os.path.expanduser("~/.ros/compa_real.db")
+    # RTAB-Map won't create a missing parent dir for the database -> ensure it exists.
     os.makedirs(os.path.dirname(default_db), exist_ok=True)
 
     database_path = LaunchConfiguration("database_path")
@@ -102,7 +105,13 @@ def generate_launch_description():
     # MAPPING: fresh DB each run.
     rtabmap_mapping = Node(
         package="rtabmap_slam", executable="rtabmap", output="screen",
-        parameters=[params, sim_time, {"database_path": database_path}],
+        parameters=[params, sim_time, {
+            "database_path": database_path,
+            # Empty means consume the remapped nav_msgs/Odometry topic. The shared
+            # YAML's "odom" value is retained for rgbd_odometry, where it names the
+            # TF that visual odometry would publish.
+            "odom_frame_id": "",
+        }],
         remappings=remappings + [odom_remap],
         arguments=["--delete_db_on_start"],
         condition=UnlessCondition(localization),
@@ -113,6 +122,7 @@ def generate_launch_description():
         package="rtabmap_slam", executable="rtabmap", output="screen",
         parameters=[params, sim_time, {
             "database_path": database_path,
+            "odom_frame_id": "",
             "Mem/IncrementalMemory": "false",
             "Mem/InitWMWithAllNodes": "true",
         }],
@@ -122,7 +132,7 @@ def generate_launch_description():
 
     rtabmap_viz = Node(
         package="rtabmap_viz", executable="rtabmap_viz", output="screen",
-        parameters=[params, sim_time],
+        parameters=[params, sim_time, {"odom_frame_id": ""}],
         remappings=remappings + [odom_remap],
         condition=IfCondition(use_rtabmap_viz),
     )

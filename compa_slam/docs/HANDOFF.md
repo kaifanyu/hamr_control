@@ -238,8 +238,11 @@ loop closure ... graph error ratio" / "transform too large"). Root causes, in pr
   `apt install ros-jazzy-rtabmap-ros` (not yet installed).
 - Done-when: a globally-consistent real map with loop closures exists.
 
-**M1.6 — Real localization.** Run the localization launch against `compa_real.db`; confirm stable
-pose while driving the real space.
+**M1.6 — Real localization. [~] CODE-COMPLETE, HARDWARE TEST PENDING.**
+`launch/localization_runtime.launch.py` now starts the Vicon-free wheel/IMU EKF, D455,
+saved-DB RTAB-Map localization, local controller remapping, and the map-reference-to-odom
+adapter. See `docs/LOCALIZATION_RUNTIME.md` for staged checks and run commands. Confirm stable
+pose while driving the real space before marking this complete.
 
 ### Phase 2 — Elevation mapping (CPU)
 
@@ -274,10 +277,13 @@ follower that walks the planned Path and emits ReferenceTraj setpoints (model it
 `reference_trajectory/waypoint_traj_simple.py`, but driven by the planned Path instead of hardcoded
 waypoints).
 
-**M3.3 — SLAM pose → controller.** *(new adapter node)* `compa_controller` reads pose from
-`/compa/odom` (sim truth) / Vicon. Replace with the SLAM pose: look up TF `map→base_link` and
-publish `nav_msgs/Odometry` (frame `map`) on the topic the controller reads, or remap. The
-controller computes x/y/yaw error in the world frame, which is now `map`.
+**M3.3 — SLAM correction → local controller. [~] CODE-COMPLETE, HARDWARE TEST PENDING.**
+The hardware controller now remains in the smooth `odom` frame: its former Vicon subscription
+is scoped-remapped to `/local_HAMR/odom`. `scripts/map_reference_to_odom.py` transforms each
+map/start-relative `ReferenceTraj` through the latest RTAB-Map `map→odom`, so global drift
+correction changes the local target instead of jumping the controller's measured pose. This is
+the preferred two-frame design for stable control. The old direct `map→base_link` pose-adapter
+proposal is superseded.
 
 **M3.4 — Closed loop in sim.** goal → plan (elevation) → path follower → reference traj →
 compa_controller → wheels. Done-when the robot autonomously drives a planned off-road path using

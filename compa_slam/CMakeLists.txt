@@ -20,6 +20,13 @@ install(
     scripts/map_to_sim.py
     scripts/record_compa_slam_bag
     scripts/analyze_rosbag.py
+    scripts/map_reference_to_odom.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# Imported by map_reference_to_odom.py and directly unit-tested without ROS.
+install(
+  FILES scripts/reference_transform_math.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -38,6 +45,10 @@ install(
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+  find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(reference_transform_math_test
+    test/test_reference_transform_math.py
+  )
 endif()
 
 ament_package()

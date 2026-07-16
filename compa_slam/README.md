@@ -6,21 +6,24 @@ Adds only new files; the rest of the `hamr_holonomic_robot` workspace is untouch
 > **Continuing this work?** Read [`docs/HANDOFF.md`](docs/HANDOFF.md) — full knowledge
 > transfer: current setup, what's built, and every remaining milestone (Phase 0→3).
 
+> **Run without Vicon:** [`docs/LOCALIZATION_RUNTIME.md`](docs/LOCALIZATION_RUNTIME.md)
+> covers the completed wheel/IMU local-control runtime, RTAB-Map saved-DB
+> corrections, staged tests, and `waypoint_traj_simple` behavior.
+
 ## Pipeline
 
 ```
 RealSense D455 (real)  ─┐
-gz depth camera (sim)  ─┴─► RTAB-Map ──► robot pose (map→base) ─┐
-                             │  rgbd_odometry / wheel odom       │
-                             │  loop closure + graph             ├─► elevation_mapping (CPU)
-                             │  saves maps/compa.db              │     └─► /elevation_map (grid_map)
-                             └─► localization mode (map→odom)    │
-                                                                 ▼
-                            EXISTING planners (or_planner / astar_search / prm_builder)
-                            consume /elevation_map + /costmap ──► /reference_trajectory
-                                                                 ▼
-                            EXISTING compa_controller (PID + Jacobian)
-                            pose source switched: Vicon/`/compa/odom` ──► SLAM pose
+gz depth camera (sim)  ─┴─► RTAB-Map ──► map→odom correction ────┐
+                             │  loop closure + localization       ├─► elevation_mapping (CPU)
+                             │  saves/loads maps/compa.db         │     └─► /elevation_map
+                             │                                    ▼
+wheel encoders + BNO055 ──► local EKF ──► odom→base_link    planners / map route
+                                  │                              │
+                                  │      map-reference adapter ◄─┘
+                                  │                │ odom reference
+                                  ▼                ▼
+                            local hardware controller ──► wheel/turret commands
 ```
 
 ## Hardware / constraints
@@ -53,17 +56,18 @@ gz depth camera (sim)  ─┴─► RTAB-Map ──► robot pose (map→base) �
 - [~] **Phase 1 — Real SLAM.** Camera bring-up + trajectory recording are **done and verified on
       the Pi** (`launch/realsense.launch.py`, `config/realsense_d455.yaml`,
       `launch/record_trajectory.launch.py`, `scripts/record_compa_slam_bag`). The real bag
-      mapping launch exists (`launch/rtabmap_real.launch.py`) and builds a map, but loop closures
-      are rejected until the real `base_link -> camera_link` mount is measured and the recorded
-      camera frame rate is raised.
+      mapping launch exists (`launch/rtabmap_real.launch.py`) and builds a map. The Vicon-free
+      localization/local-control runtime is code-complete (`localization_runtime.launch.py`) but
+      still needs hardware validation. Existing map quality remains limited until the real
+      `base_link -> camera_link` mount is measured and the recorded camera frame rate is raised.
 - [x] **Phase 1.5 — Sim replay of a recorded map.** `scripts/map_to_sim.py` turns a recorded
       RTAB-Map cloud/`.db` (or a DEM) into a Gazebo heightmap world + `/elevation_map` +
       `/costmap`; `replay_map_sim.launch.py` drives that terrain in sim. (Code-complete,
       untested on Linux — same status as Phase 0.) See **Sim replay** below.
 - [ ] **Phase 2 — Elevation mapping (CPU).** Feed RTAB-Map pose + point cloud into
       `elevation_mapping`; publish `grid_map` as `/elevation_map` (the topic the planner reads).
-- [ ] **Phase 3 — Planning + control.** Point `or_planner`/`astar` at the live `/elevation_map`;
-      switch `compa_controller`'s pose input to the SLAM pose; run autonomous trajectories.
+- [~] **Phase 3 — Planning + control.** Vicon-free local EKF control plus map-corrected simple
+      trajectories are code-complete. Live elevation/cost maps and planner-path integration remain.
 
 ## Build
 
@@ -102,7 +106,8 @@ ros2 topic pub /left_wheel/cmd_vel  std_msgs/msg/Float64 "{data: 3.0}"
 ros2 topic pub /right_wheel/cmd_vel std_msgs/msg/Float64 "{data: 3.0}"
 ```
 Map saves to `maps/compa_sim.db` on shutdown. Watch `rtabmap_viz` for tracked features +
-loop closures. Next: a localization launch (run against the saved `.db`).
+loop closures. A dedicated sim localization launch is still pending; the real-hardware saved-DB
+runtime is `localization_runtime.launch.py`.
 
 **C. Record a real trajectory (hardware D455)** — camera + onboard local odom + Vicon odom:
 ```bash
