@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Start only the hardware/controller/Vicon stack and its auto-labelled bag.
+# Keeping reference publication in a second process makes the operator's three
+# terminal workflow explicit and prevents motion merely from starting this one.
+# This is a fixed test profile: accepting overrides could disable the recorder
+# or make the v020 bag label disagree with the separately fixed reference.
+if (( $# != 0 )); then
+  echo "run_waypoint_stack takes no arguments; its stack/recording profile is fixed" >&2
+  exit 2
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "${SCRIPT_DIR}/run_waypoint_test" enable_waypoint:=false

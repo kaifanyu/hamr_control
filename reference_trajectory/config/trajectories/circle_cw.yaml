@@ -1,0 +1,13 @@
+schema_version: 1
+name: circle_cw
+kind: circle
+description: One clockwise 2 m radius lap starting at (0,0) with +Y velocity.
+closed: true
+default_speed_m_s: 0.15
+fixed_yaw_rad: 0.0
+center_m: [2.0, 0.0]
+radius_m: 2.0
+start_angle_rad: 3.141592653589793
+direction: cw
+laps: 1
+visualization_samples: 129

@@ -5,11 +5,12 @@ rtabmap_real.launch.py
 Phase 1: build (or localize against) a map from the REAL D455 — either by replaying a
 recorded trajectory bag, or live on hardware.
 
-Default mode = MAPPING from a replayed bag, using the onboard EKF odometry
-(/local_HAMR/odom, ~47 Hz, continuous) as RTAB-Map's odometry and letting RTAB-Map add
-visual loop closures from the camera. This is far more robust than visual odometry when
-the recorded camera frame rate is low or uneven (which it is — recording drops frames
-under load on the Pi).
+Default mode = MAPPING from a replayed bag, using the onboard EKF's continuous
+odom -> base_link TF as RTAB-Map's odometry and letting RTAB-Map add visual loop
+closures from the camera. TF mode avoids covariance-triggered resets seen in
+legacy bags recorded with an older, partly unobservable EKF configuration. For
+a newly validated bag, use_odom_topic:=true remains available. External EKF
+odometry is more robust than visual odometry when camera rate is low or uneven.
 
 It reuses config/rtabmap.yaml unchanged (same canonical /d455/... topic remaps as sim);
 only use_sim_time matters: keep it TRUE for bag replay (the bag carries the clock via
@@ -55,10 +56,12 @@ def generate_launch_description():
     localization = LaunchConfiguration("localization")
     visual_odometry = LaunchConfiguration("visual_odometry")
     odom_topic = LaunchConfiguration("odom_topic")
+    use_odom_topic = LaunchConfiguration("use_odom_topic")
     use_rtabmap_viz = LaunchConfiguration("use_rtabmap_viz")
     use_sim_time = LaunchConfiguration("use_sim_time")
     bag = LaunchConfiguration("bag")
     rate = LaunchConfiguration("rate")
+    playback_delay = LaunchConfiguration("playback_delay")
 
     declare = [
         DeclareLaunchArgument("database_path", default_value=default_db,
@@ -66,10 +69,17 @@ def generate_launch_description():
         DeclareLaunchArgument("localization", default_value="false",
                               description="true = localize against an existing .db (no growth)."),
         DeclareLaunchArgument("visual_odometry", default_value="false",
-                              description="false = use external odom_topic (robust, bag replay); "
-                                          "true = run rgbd_odometry (live hardware only)."),
+                              description="false = use external EKF odometry (TF by default); "
+                                          "true = run rgbd_odometry."),
         DeclareLaunchArgument("odom_topic", default_value="/local_HAMR/odom",
-                              description="External odometry topic (the onboard EKF output)."),
+                              description="External odometry topic used only when use_odom_topic=true."),
+        DeclareLaunchArgument(
+            "use_odom_topic",
+            default_value="false",
+            description="Use nav_msgs/Odometry instead of odom->base_link TF. TF is the "
+                        "compatibility default because legacy bags contain pathological "
+                        "EKF covariance; validate covariance before enabling topic mode.",
+        ),
         DeclareLaunchArgument("use_rtabmap_viz", default_value="false",
                               description="GUI viz — leave off on a headless Pi."),
         DeclareLaunchArgument("use_sim_time", default_value="true",
@@ -78,6 +88,8 @@ def generate_launch_description():
                               description="If set, auto-play this bag with --clock."),
         DeclareLaunchArgument("rate", default_value="1.0",
                               description="Bag playback rate (lower if the Pi can't keep up)."),
+        DeclareLaunchArgument("playback_delay", default_value="3.0",
+                              description="Seconds to let RTAB-Map initialize before bag playback."),
     ]
 
     sim_time = {"use_sim_time": ParameterValue(use_sim_time, value_type=bool)}
@@ -89,10 +101,22 @@ def generate_launch_description():
         ("rgb/camera_info", "/d455/color/camera_info"),
         ("imu", "/d455/imu"),
     ]
-    # In external-odom mode RTAB-Map reads odometry from odom_topic; in visual mode it
-    # reads the /odom that rgbd_odometry publishes.
+    # This remap is active only when use_odom_topic=true. In visual mode that
+    # topic is /odom from rgbd_odometry; otherwise it is the selected EKF topic.
     odom_remap = ("odom", PythonExpression(
         ["'/odom' if '", visual_odometry, "' == 'true' else '", odom_topic, "'"]))
+    # Some legacy bags used an EKF preset that did not observe one body-velocity
+    # state, so both pose and twist covariance eventually crossed CoreWrapper's
+    # reset threshold. TF mode preserves their continuous transforms with
+    # provisional explicit variances. Topic mode remains available for bags whose
+    # covariance has been checked over the complete capture.
+    external_odom = {
+        "odom_frame_id": PythonExpression(
+            ["'' if '", use_odom_topic, "' == 'true' else 'odom'"]
+        ),
+        "odom_tf_linear_variance": 0.001,
+        "odom_tf_angular_variance": 0.01,
+    }
 
     # Visual odometry — only for LIVE hardware (the bag already carries odom + odom->base_link TF).
     rgbd_odometry = Node(
@@ -105,12 +129,8 @@ def generate_launch_description():
     # MAPPING: fresh DB each run.
     rtabmap_mapping = Node(
         package="rtabmap_slam", executable="rtabmap", output="screen",
-        parameters=[params, sim_time, {
+        parameters=[params, sim_time, external_odom, {
             "database_path": database_path,
-            # Empty means consume the remapped nav_msgs/Odometry topic. The shared
-            # YAML's "odom" value is retained for rgbd_odometry, where it names the
-            # TF that visual odometry would publish.
-            "odom_frame_id": "",
         }],
         remappings=remappings + [odom_remap],
         arguments=["--delete_db_on_start"],
@@ -120,9 +140,8 @@ def generate_launch_description():
     # LOCALIZATION: load the DB, stop growing it.
     rtabmap_localization = Node(
         package="rtabmap_slam", executable="rtabmap", output="screen",
-        parameters=[params, sim_time, {
+        parameters=[params, sim_time, external_odom, {
             "database_path": database_path,
-            "odom_frame_id": "",
             "Mem/IncrementalMemory": "false",
             "Mem/InitWMWithAllNodes": "true",
         }],
@@ -132,14 +151,15 @@ def generate_launch_description():
 
     rtabmap_viz = Node(
         package="rtabmap_viz", executable="rtabmap_viz", output="screen",
-        parameters=[params, sim_time, {"odom_frame_id": ""}],
+        parameters=[params, sim_time, external_odom],
         remappings=remappings + [odom_remap],
         condition=IfCondition(use_rtabmap_viz),
     )
 
     # Optional convenience: play the bag (only when bag:=<path> is given).
     play_bag = ExecuteProcess(
-        cmd=["ros2", "bag", "play", bag, "--clock", "--rate", rate],
+        cmd=["ros2", "bag", "play", bag, "--clock", "--rate", rate,
+             "--delay", playback_delay],
         output="screen",
         condition=IfCondition(PythonExpression(["'", bag, "' != ''"])),
     )

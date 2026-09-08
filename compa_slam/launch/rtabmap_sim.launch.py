@@ -7,7 +7,7 @@ Phase 0 visual SLAM in sim (MAPPING mode).
 Includes slam_sim.launch.py (Gazebo + COMPA + D455 + bridge), but with its RViz and
 its static map->odom DISABLED, then adds the RTAB-Map stack:
 
-  rgbd_odometry  -> visual odometry, publishes odom -> base_link
+  rgbd_odometry  -> visual odometry, publishes odom -> base_footprint
   rtabmap        -> SLAM graph + loop closure, publishes map -> odom, builds the .db
   rtabmap_viz    -> live SLAM visualization (features, loop closures, map)
 
@@ -19,7 +19,7 @@ Run it, then drive the robot around the room to build a map:
     ros2 topic pub /left_wheel/cmd_vel  std_msgs/msg/Float64 "{data: 3.0}"
     ros2 topic pub /right_wheel/cmd_vel std_msgs/msg/Float64 "{data: 3.0}"
 
-The map is saved to maps/compa_sim.db on shutdown. This launch uses MAPPING mode
+The map is saved to ~/.ros/compa_sim.db by default on shutdown. This launch uses MAPPING mode
 (--delete_db_on_start = start a fresh map each run). Localization mode against a saved
 .db is a separate launch (added later).
 """
@@ -39,7 +39,10 @@ def generate_launch_description():
     pkg = get_package_share_directory("compa_slam")
     params = os.path.join(pkg, "config", "rtabmap.yaml")
     slam_sim = os.path.join(pkg, "launch", "slam_sim.launch.py")
-    default_db = os.path.join(pkg, "maps", "compa_sim.db")
+    # Installed package shares can be read-only. Keep runtime databases in the
+    # conventional user-writable ROS directory unless an explicit path is passed.
+    default_db = os.path.expanduser("~/.ros/compa_sim.db")
+    os.makedirs(os.path.dirname(default_db), exist_ok=True)
 
     database_path = LaunchConfiguration("database_path")
     use_rtabmap_viz = LaunchConfiguration("use_rtabmap_viz")
@@ -65,14 +68,21 @@ def generate_launch_description():
         launch_arguments={
             "use_rviz": "false",
             "publish_map_odom_tf": "false",
+            "publish_ground_truth_tf": "false",
         }.items(),
     )
+
+    # The included URDF already publishes base_footprint -> base_link. Use the
+    # URDF root as RTAB-Map's robot frame so visual odometry owns exactly one TF:
+    # odom -> base_footprint. Using base_link here would give base_link a second
+    # parent alongside robot_state_publisher's fixed base_footprint -> base_link.
+    sim_frame = {"frame_id": "base_footprint"}
 
     rgbd_odometry = Node(
         package="rtabmap_odom",
         executable="rgbd_odometry",
         output="screen",
-        parameters=[params],
+        parameters=[params, sim_frame],
         remappings=remappings,
     )
 
@@ -80,7 +90,7 @@ def generate_launch_description():
         package="rtabmap_slam",
         executable="rtabmap",
         output="screen",
-        parameters=[params, {"database_path": database_path}],
+        parameters=[params, sim_frame, {"database_path": database_path}],
         remappings=remappings,
         arguments=["--delete_db_on_start"],  # MAPPING mode: fresh map each run
     )
@@ -89,7 +99,7 @@ def generate_launch_description():
         package="rtabmap_viz",
         executable="rtabmap_viz",
         output="screen",
-        parameters=[params],
+        parameters=[params, sim_frame],
         remappings=remappings,
         condition=IfCondition(use_rtabmap_viz),
     )

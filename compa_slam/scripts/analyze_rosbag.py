@@ -55,11 +55,14 @@ def read_bag(bag, metadata):
     types = {item.name: item.type for item in reader.get_all_topics_and_types()}
     times, odom, imus, scalars = defaultdict(list), defaultdict(lambda: defaultdict(list)), \
         defaultdict(lambda: defaultdict(list)), defaultdict(lambda: defaultdict(list))
+    multiarrays = defaultdict(lambda: {"t": [], "value": [], "label": []})
     delays, tf_pairs = defaultdict(list), defaultdict(Counter)
     images, image_dist = defaultdict(lambda: [None]*3), defaultdict(lambda: [float("inf")]*3)
     targets = np.array([.05, .5, .95]) * duration
     supported = {"nav_msgs/msg/Odometry", "sensor_msgs/msg/Imu", "sensor_msgs/msg/Image",
-                 "std_msgs/msg/Float64", "std_msgs/msg/Int32", "tf2_msgs/msg/TFMessage"}
+                 "std_msgs/msg/Float64", "std_msgs/msg/Int32",
+                 "std_msgs/msg/Float64MultiArray", "std_msgs/msg/UInt8MultiArray",
+                 "tf2_msgs/msg/TFMessage"}
 
     while reader.has_next():
         topic, raw, stamp_ns = reader.read_next()
@@ -76,7 +79,13 @@ def read_bag(bag, metadata):
                    "z": msg.pose.pose.position.z, "roll": roll, "pitch": pitch, "yaw": yaw,
                    "vx": msg.twist.twist.linear.x, "vy": msg.twist.twist.linear.y,
                    "vz": msg.twist.twist.linear.z, "wx": msg.twist.twist.angular.x,
-                   "wy": msg.twist.twist.angular.y, "wz": msg.twist.twist.angular.z}
+                   "wy": msg.twist.twist.angular.y, "wz": msg.twist.twist.angular.z,
+                   "pose_cov_x": msg.pose.covariance[0],
+                   "pose_cov_y": msg.pose.covariance[7],
+                   "pose_cov_yaw": msg.pose.covariance[35],
+                   "twist_cov_x": msg.twist.covariance[0],
+                   "twist_cov_y": msg.twist.covariance[7],
+                   "twist_cov_yaw": msg.twist.covariance[35]}
             for name, value in row.items():
                 odom[key][name].append(value)
             header = msg.header.stamp.sec + msg.header.stamp.nanosec*1e-9
@@ -94,6 +103,11 @@ def read_bag(bag, metadata):
         elif msg_type in {"std_msgs/msg/Float64", "std_msgs/msg/Int32"}:
             scalars[topic]["t"].append(time)
             scalars[topic]["value"].append(msg.data)
+        elif msg_type in {"std_msgs/msg/Float64MultiArray", "std_msgs/msg/UInt8MultiArray"}:
+            multiarrays[topic]["t"].append(time)
+            multiarrays[topic]["value"].append(list(msg.data))
+            label = msg.layout.dim[0].label if msg.layout.dim else ""
+            multiarrays[topic]["label"].append(label)
         elif msg_type == "tf2_msgs/msg/TFMessage":
             for transform in msg.transforms:
                 tf_pairs[topic][(transform.header.frame_id, transform.child_frame_id)] += 1
@@ -105,6 +119,7 @@ def read_bag(bag, metadata):
             "odom": {k: as_arrays(v) for k, v in odom.items()},
             "imus": {k: as_arrays(v) for k, v in imus.items()},
             "scalars": {k: as_arrays(v) for k, v in scalars.items()},
+            "multiarrays": {k: as_arrays(v) for k, v in multiarrays.items()},
             "delays": {k: np.asarray(v) for k, v in delays.items()},
             "tf": tf_pairs, "images": images}
 
@@ -278,6 +293,8 @@ def decode_image(msg):
 
 def save_cameras(data, out):
     topics=sorted(k for k,v in data["images"].items() if any(x is not None for x in v))
+    if not topics:
+        return
     fig,axes=plt.subplots(len(topics),3,figsize=(14,4.2*len(topics)),squeeze=False)
     for row,topic in enumerate(topics):
         decoded=[decode_image(msg) if msg else None for msg in data["images"][topic]]
@@ -338,6 +355,85 @@ def write_reports(data, metadata, result, out):
         lines += ["","Automatic observations:",f"  - Local odometry reports {ratio*100:.1f}% of Vicon path length."]
         if result["gt_yaw"][-1]*result["local_yaw"][-1] < 0: lines.append("  - Vicon and local yaw accumulate with opposite signs; check encoder polarity/yaw_sign.")
         if result.get("local_wheel_rms",1)<.02: lines.append("  - local_HAMR and wheel_odom are nearly identical; EKF does not materially correct position drift.")
+    _, local_odom = find_odom(data, "/local_HAMR/odom")
+    if local_odom is not None:
+        covariance_fields = (
+            "pose_cov_x", "pose_cov_y", "pose_cov_yaw",
+            "twist_cov_x", "twist_cov_y", "twist_cov_yaw",
+        )
+        covariance = np.column_stack([local_odom[field] for field in covariance_fields])
+        nonfinite = ~np.all(np.isfinite(covariance), axis=1)
+
+        def finite_max(field):
+            values = local_odom[field][np.isfinite(local_odom[field])]
+            return float(np.max(values)) if len(values) else float("nan")
+
+        reset_guard = ((local_odom["pose_cov_x"] >= 9999.0) &
+                       (local_odom["twist_cov_x"] >= 9999.0))
+        lines += [
+            "",
+            "Local-EKF covariance preflight:",
+            f"  Max pose covariance x/y/yaw: "
+            f"{finite_max('pose_cov_x'):.6g} / "
+            f"{finite_max('pose_cov_y'):.6g} / "
+            f"{finite_max('pose_cov_yaw'):.6g}",
+            f"  Max twist covariance x/y/yaw: "
+            f"{finite_max('twist_cov_x'):.6g} / "
+            f"{finite_max('twist_cov_y'):.6g} / "
+            f"{finite_max('twist_cov_yaw'):.6g}",
+            f"  Samples with non-finite covariance: "
+            f"{np.count_nonzero(nonfinite)} / {len(nonfinite)}",
+            f"  Samples crossing RTAB-Map's pose+twist x reset guard: "
+            f"{np.count_nonzero(reset_guard)} / {len(reset_guard)}",
+        ]
+        if np.any(nonfinite):
+            first = int(np.flatnonzero(nonfinite)[0])
+            lines.append(
+                f"  WARNING: first non-finite covariance at bag time "
+                f"{local_odom['t'][first]:.3f} s; repair the EKF and recapture."
+            )
+        if np.any(reset_guard):
+            first = int(np.flatnonzero(reset_guard)[0])
+            lines.append(
+                f"  WARNING: first reset-guard crossing at bag time "
+                f"{local_odom['t'][first]:.3f} s; repair/select an observable EKF before "
+                "using Odometry-topic mode. TF mode can replay this legacy bag."
+            )
+    status = data["multiarrays"].get("/wheel_control/status")
+    diagnostics = data["multiarrays"].get("/wheel_encoder/diagnostics")
+    if status is not None and status["value"].ndim == 2 and status["value"].shape[1] >= 17:
+        values = status["value"].astype(float)
+        moving = np.maximum(np.abs(values[:, 0]), np.abs(values[:, 8])) > 0.05
+        active = values[moving]
+        lines += ["", "Encoder-v4 wheel-control status:",
+                  f"  Schema labels: {', '.join(sorted(set(status['label'])))}",
+                  f"  Samples / moving samples: {len(values)} / {len(active)}"]
+        if len(active):
+            lines += [
+                f"  Moving target-tracking MAE L/R: "
+                f"{np.mean(np.abs(active[:, 1]-active[:, 0])):.3f} / "
+                f"{np.mean(np.abs(active[:, 9]-active[:, 8])):.3f} RPM",
+                f"  Moving saturation fraction L/R: "
+                f"{np.mean(active[:, 7] != 0)*100:.2f}% / "
+                f"{np.mean(active[:, 15] != 0)*100:.2f}%",
+                f"  Control sources observed: "
+                f"{', '.join(str(int(x)) for x in np.unique(active[:, 16]))}",
+            ]
+    if (diagnostics is not None and diagnostics["value"].ndim == 2 and
+            diagnostics["value"].shape[1] >= 22 and len(diagnostics["value"]) >= 2):
+        values = diagnostics["value"].astype(float)
+        delta = values[-1] - values[0]
+        left_ratio = abs(delta[1] / delta[0]) if delta[0] else float("nan")
+        right_ratio = abs(delta[12] / delta[11]) if delta[11] else float("nan")
+        lines += [
+            "",
+            "Encoder-v4 quadrature diagnostics:",
+            f"  Schema labels: {', '.join(sorted(set(diagnostics['label'])))}",
+            f"  Legacy tick delta L/R: {delta[0]:.0f} / {delta[11]:.0f}",
+            f"  Full-quadrature / legacy ratio L/R: {left_ratio:.3f} / {right_ratio:.3f}",
+            f"  Invalid-transition growth L/R: {delta[8]:.0f} / {delta[19]:.0f}",
+            f"  Duplicate-sample growth L/R: {delta[9]:.0f} / {delta[20]:.0f}",
+        ]
     lines += ["","Median publisher-to-bag delay:"]+[f"  {k}: {np.median(v)*1000:.2f} ms" for k,v in sorted(data["delays"].items())]
     lines += ["","TF frame pairs:"]
     for topic,pairs in data["tf"].items():

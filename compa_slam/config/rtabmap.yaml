@@ -9,7 +9,7 @@
     use_sim_time: true
 
     # --- Frames (must match the URDF TF tree) ---
-    frame_id: "base_link"       # robot base; RTAB-Map needs TF base_link -> camera optical
+    frame_id: "base_link"       # real robot base; sim launch overrides to base_footprint
     odom_frame_id: "odom"       # published by rgbd_odometry
     map_frame_id: "map"         # published by rtabmap
     publish_tf: true
@@ -22,9 +22,14 @@
     # gz (and RealSense) timestamps aren't perfectly aligned -> approximate sync.
     approx_sync: true
     approx_sync_max_interval: 0.02
-    queue_size: 30
-    qos: 1                      # 1 = reliable (matches ros_gz_bridge). If RGB/depth
-                                # never sync, try qos: 2 (best-effort).
+    topic_queue_size: 30          # queue for each image/camera/IMU subscriber
+    sync_queue_size: 30           # queue for the approximate-time synchronizer
+    # Best-effort subscriptions connect to both best-effort RealSense streams
+    # and reliable ros_gz / historical-bag publishers. Reliable subscriptions
+    # would reject a best-effort camera publisher entirely.
+    qos: 2
+    qos_camera_info: 2
+    qos_imu: 2
     qos_odom: 1                 # robot_localization publishes reliable odometry
 
     # --- D455 IMU: gravity alignment + odometry init ---

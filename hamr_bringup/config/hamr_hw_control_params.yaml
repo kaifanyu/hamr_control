@@ -1,7 +1,7 @@
 /hamr_controller_node:
   ros__parameters:
-    D_x: 0.7
-    D_y: 0.7
+    D_x: 0.4
+    D_y: 0.4
     D_yaw: 0.05
     I_x: 0.0
     I_y: 0.0
@@ -14,7 +14,58 @@
     base_yaw_offset: 1.57079632679
     control_rate_hz: 100.0
     d_alpha: 0.2
-    reference_timeout_s: 0.5
+    # This Vicon driver's Odometry twist was validated against timestamped
+    # pose differences (0.998 correlation, 0.011 m/s RMSE) and is expressed in
+    # the Vicon/world frame despite its child_frame_id. Using it avoids noisy
+    # derivatives caused by asynchronous reference/pose/control callbacks.
+    xy_velocity_source: odom_twist_world
+    # Keep ROS-side inverse-response compensation neutral while the restored
+    # firmware wheel PI loop is validated. If loaded wheel-speed under-response
+    # remains, this can be raised explicitly (first trial: 1.10) without editing
+    # the reference; the independent cap, XY norm cap, and wheel-pair limit all
+    # remain authoritative. Do not stack compensation on a corrected wheel loop.
+    xy_feedforward_gain: 1.0
+    xy_feedforward_max_extra_m_s: 0.025
+    # The turret/gimbal actuator is currently unavailable. The controller still
+    # solves the full holonomic Jacobian; this only removes the unreliable
+    # turret-feedback gate and hard-zeros its output after the solve. Because
+    # the turret column is zero in the Jacobian's x/y rows, wheel commands are
+    # unchanged and the base motion can still be validated.
+    turret_enabled: false
+    # Stop a cached moving reference within 120 ms if its supervised publisher
+    # exits or aborts. This is coordinated with the harness' stricter 100 ms
+    # maximum reference-publication gap.
+    reference_timeout_s: 0.12
+    # Normal hardware default: stop within 120 ms if accepted Vicon/base
+    # odometry stops arriving. A supervised diagnostic may explicitly widen
+    # this through the launch override while retaining source-stamp ordering
+    # and all geometric guards.
+    odom_timeout_s: 0.12
+    # Both recorded Vicon failures changed the full 3-D attitude by about 80 deg
+    # in one sample (one also moved 10 cm vertically). Clean sharp-turn samples
+    # stayed below 6.6 deg and 5.1 cm. Reject above these guarded margins, stop
+    # immediately, and require roughly 0.1--0.16 s of stable Vicon at 60--90 Hz.
+    vicon_pose_guard_enabled: true
+    vicon_max_position_jump_m: 0.08
+    vicon_max_orientation_jump_rad: 0.35
+    vicon_recovery_samples: 10
+    # Across retained-good ground-test samples, z stayed below 0.3772 m and
+    # gravity tilt stayed small. The stable-wrong startup cluster began at
+    # z=0.4428 m with about 1.99 rad of yaw-invariant body-Z tilt. These wider
+    # bounds allow placement/noise while rejecting that startup solution.
+    vicon_min_z_m: 0.25
+    vicon_max_z_m: 0.40
+    vicon_max_tilt_rad: 0.35
+    # Vicon runs on an unsynchronized remote clock whose offset drifts. Use the
+    # local callback receipt watchdog for freshness; still require every source
+    # stamp to be valid, nonzero, and strictly increasing for pose-delta timing.
+    vicon_source_stamp_policy: receipt_monotonic
+    # Match the firmware's 28 RPM pair ceiling while remaining below the
+    # measured 32.34 RPM motor maximum. The firmware bounds feedforward to
+    # 3500 PWM, leaving up to 595 PWM for PI correction before its final clamp;
+    # loaded speed remains bounded by that final output authority.
+    # The ROS controller scales both wheels together, preserving curvature.
+    wheel_speed_limit_rad_s: 2.93215314335
     mode: auto
     r_wheel: 0.122
     simulating: false

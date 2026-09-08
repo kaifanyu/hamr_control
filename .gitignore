@@ -5,7 +5,11 @@ __pycache__/
 *.bag/
 /rosbags/*
 !/rosbags/analyze_hamr_vicon_straight.py
+!/rosbags/analyze_hamr_study.py
 !/rosbags/analyze_latest_hamr_bag.sh
+!/rosbags/plot_hamr_actuators.py
+!/rosbags/analyze_hamr_firmware_pid_straight.py
+!/rosbags/test_analyze_hamr_firmware_pid_straight.py
 
 # Saved RTAB-Map databases — large and tied to one physical space, do not commit.
 maps/*.db

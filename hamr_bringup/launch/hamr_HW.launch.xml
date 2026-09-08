@@ -15,6 +15,27 @@
     <let name="bridge_config_path"
         value="$(find-pkg-share hamr_bringup)/config/hamr_uros_bridge.yaml" />
     <arg name="record_bag" default="true" />
+    <arg name="run_controller" default="true" />
+    <!-- Bound how long a cached trajectory command can survive a publisher
+         abort. Supervised hardware tests require this exact 120 ms value. -->
+    <arg name="controller_reference_timeout_s" default="0.12" />
+    <!-- Opt-in only: exact mirrored diagnostics use 0.45 s at 0.15 m/s or
+         0.20 s at 0.20 m/s to bridge measured short Vicon receipt gaps.
+         Normal hardware remains at the 0.12 s fail-stop default. -->
+    <arg name="controller_odom_timeout_s" default="0.12" />
+    <!-- Normal hardware closes the loop on raw Vicon odometry.  These
+         default-preserving overrides also let the dedicated waypoint/local
+         wrapper select onboard odometry without duplicating this launch. -->
+    <arg name="controller_odom_topic" default="/HAMR_base/odom" />
+    <arg name="controller_xy_velocity_source" default="odom_twist_world" />
+    <arg name="controller_vicon_pose_guard_enabled" default="true" />
+    <arg name="controller_vicon_min_z_m" default="0.25" />
+    <arg name="controller_vicon_max_z_m" default="0.40" />
+    <!-- Vicon is stamped on an unsynchronized remote host. Freshness is based
+         on local receipt time while source stamps remain valid and monotonic. -->
+    <arg name="controller_vicon_source_stamp_policy"
+         default="receipt_monotonic" />
+    <arg name="run_foxglove" default="true" />
     <arg name="use_mag" default="true" />
     <arg name="use_orientation" default="false" />
 
@@ -30,8 +51,16 @@
           args="-d $(var rviz_config_path)" /> -->
 
     <!-- Launch HAMR Controller -->
-    <node pkg="hamr_control" exec="hamr_controller" >
+    <node pkg="hamr_control" exec="hamr_controller" if="$(var run_controller)">
         <param from="$(var pid_config_path)" />
+        <param name="reference_timeout_s" value="$(var controller_reference_timeout_s)" />
+        <param name="odom_timeout_s" value="$(var controller_odom_timeout_s)" />
+        <param name="xy_velocity_source" value="$(var controller_xy_velocity_source)" />
+        <param name="vicon_pose_guard_enabled" value="$(var controller_vicon_pose_guard_enabled)" />
+        <param name="vicon_min_z_m" value="$(var controller_vicon_min_z_m)" />
+        <param name="vicon_max_z_m" value="$(var controller_vicon_max_z_m)" />
+        <param name="vicon_source_stamp_policy" value="$(var controller_vicon_source_stamp_policy)" />
+        <remap from="HAMR_base/odom" to="$(var controller_odom_topic)" />
     </node>
 
     <!-- Graphing -->
@@ -47,9 +76,11 @@
         <param name="a_wheel" value="0.350"/>
         <param name="b_wheel" value="0.45"/>
         <param name="base_yaw_offset" value="1.57079632679"/>
-        <param name="yaw_sign" value="-1.0"/>
-        <param name="left_tick_scale" value="0.84"/>
-        <param name="right_tick_scale" value="0.64"/>
+        <param name="yaw_sign" value="1.0"/>
+        <!-- Post-filter five-revolution calibration, 2026-08-18:
+             left=2260.4 ticks/rev, right=2263.6 ticks/rev. -->
+        <param name="left_tick_scale" value="1.001460"/>
+        <param name="right_tick_scale" value="1.000044"/>
         <param name="ticks_per_rev" value="2263.7"/>
     </node>
 
@@ -97,7 +128,8 @@
           output="screen" if="$(var record_bag)" />
 
     <!-- Foxglove WebSocket bridge — connect Foxglove Studio to ws://<robot-ip>:8765 -->
-    <node pkg="foxglove_bridge" exec="foxglove_bridge" name="foxglove_bridge">
+    <node pkg="foxglove_bridge" exec="foxglove_bridge" name="foxglove_bridge"
+          if="$(var run_foxglove)">
         <param name="port" value="8765" />
     </node>
 

@@ -1,7 +1,8 @@
 # compa_slam
 
 Self-contained **visual SLAM + off-road perception** pipeline for the COMPA robot.
-Adds only new files; the rest of the `hamr_holonomic_robot` workspace is untouched.
+It integrates with the existing HAMR bringup, encoder/IMU odometry, controller,
+and serial bridge through their current topic and launch contracts.
 
 > **Continuing this work?** Read [`docs/HANDOFF.md`](docs/HANDOFF.md) — full knowledge
 > transfer: current setup, what's built, and every remaining milestone (Phase 0→3).
@@ -9,6 +10,9 @@ Adds only new files; the rest of the `hamr_holonomic_robot` workspace is untouch
 > **Run without Vicon:** [`docs/LOCALIZATION_RUNTIME.md`](docs/LOCALIZATION_RUNTIME.md)
 > covers the completed wheel/IMU local-control runtime, RTAB-Map saved-DB
 > corrections, staged tests, and `waypoint_traj_simple` behavior.
+
+> **Record a real environment:** [`docs/MAPPING_CAPTURE.md`](docs/MAPPING_CAPTURE.md)
+> is the encoder-v4 preflight, safe driving, bag validation, and map-build runbook.
 
 ## Pipeline
 
@@ -33,7 +37,10 @@ wheel encoders + BNO055 ──► local EKF ──► odom→base_link    planne
   package, NOT `elevation_mapping_cupy` (CuPy is GPU-only and will not run here). Revisit
   CuPy only if an NVIDIA GPU / Jetson is added later.
 - Onboard odometry already exists: encoders + IMU are fused by `robot_localization` and
-  published as `/local_HAMR/odom` — usable as RTAB-Map's external odom input.
+  published as `/local_HAMR/odom` plus `odom -> base_link`; RTAB-Map uses the
+  continuous TF by default for compatibility with legacy bags whose partly
+  unobservable EKF covariance triggered false map resets. Topic odometry remains
+  available after covariance validation.
 
 ## Directory layout
 
@@ -50,20 +57,20 @@ wheel encoders + BNO055 ──► local EKF ──► odom→base_link    planne
 
 ## Phased plan (status)
 
-- [~] **Phase 0 — Sim SLAM.** Depth/RGBD camera + textured world + bridge + RTAB-Map mapping
-      launch are all in place. Remaining: run on the Linux/ROS box, confirm topics + a map
-      builds, tune sync/QoS if needed, then add a localization launch.
+- [~] **Phase 0 — Sim SLAM.** The TF ownership, Gazebo IMU bridge, and RTAB-Map path were
+      validated headlessly (including a synthetic RGB-D map build). Full OGRE2 RGB-D rendering
+      of the textured world still needs a host with a working OpenGL display.
 - [~] **Phase 1 — Real SLAM.** Camera bring-up + trajectory recording are **done and verified on
       the Pi** (`launch/realsense.launch.py`, `config/realsense_d455.yaml`,
       `launch/record_trajectory.launch.py`, `scripts/record_compa_slam_bag`). The real bag
       mapping launch exists (`launch/rtabmap_real.launch.py`) and builds a map. The Vicon-free
       localization/local-control runtime is code-complete (`localization_runtime.launch.py`) but
-      still needs hardware validation. Existing map quality remains limited until the real
-      `base_link -> camera_link` mount is measured and the recorded camera frame rate is raised.
-- [x] **Phase 1.5 — Sim replay of a recorded map.** `scripts/map_to_sim.py` turns a recorded
+      still needs hardware validation. A new encoder-v4 map still requires a measured real
+      `base_link -> camera_link` mount and a sustained camera rate.
+- [~] **Phase 1.5 — Sim replay of a recorded map.** `scripts/map_to_sim.py` turns a recorded
       RTAB-Map cloud/`.db` (or a DEM) into a Gazebo heightmap world + `/elevation_map` +
-      `/costmap`; `replay_map_sim.launch.py` drives that terrain in sim. (Code-complete,
-      untested on Linux — same status as Phase 0.) See **Sim replay** below.
+      `/costmap`; `replay_map_sim.launch.py` drives that terrain in sim. Launch/TF paths are
+      validated; rendered terrain/physics inspection remains display-host work. See **Sim replay**.
 - [ ] **Phase 2 — Elevation mapping (CPU).** Feed RTAB-Map pose + point cloud into
       `elevation_mapping`; publish `grid_map` as `/elevation_map` (the topic the planner reads).
 - [~] **Phase 3 — Planning + control.** Vicon-free local EKF control plus map-corrected simple
@@ -84,7 +91,7 @@ source install/setup.bash
 
 ## Status
 
-Phase 0 SLAM stack complete (untested on hardware). Two entry points:
+Phase 0 SLAM stack is headless-validated; rendered Gazebo inspection remains. Two entry points:
 
 **A. Topic checkpoint** — sim + camera only, confirm the D455 reaches ROS:
 ```bash
@@ -105,32 +112,43 @@ ros2 launch compa_slam rtabmap_sim.launch.py
 ros2 topic pub /left_wheel/cmd_vel  std_msgs/msg/Float64 "{data: 3.0}"
 ros2 topic pub /right_wheel/cmd_vel std_msgs/msg/Float64 "{data: 3.0}"
 ```
-Map saves to `maps/compa_sim.db` on shutdown. Watch `rtabmap_viz` for tracked features +
+Map saves to `~/.ros/compa_sim.db` by default on shutdown. Watch `rtabmap_viz` for tracked features +
 loop closures. A dedicated sim localization launch is still pending; the real-hardware saved-DB
 runtime is `localization_runtime.launch.py`.
 
-**C. Record a real trajectory (hardware D455)** — camera + onboard local odom + Vicon odom:
+**C. Record a real trajectory (hardware D455)** — camera + onboard local odom + optional Vicon:
 ```bash
 sudo apt install ros-jazzy-imu-filter-madgwick   # for /d455/imu with orientation
 colcon build --packages-select compa_slam --symlink-install && source install/setup.bash
-ros2 launch compa_slam record_trajectory.launch.py bag_name:=loop_lab_01
-# drive the robot (raw wheel cmds), then Ctrl-C to finalize the bag:
-ros2 topic pub /left_wheel/cmd_vel  std_msgs/msg/Float64 "{data: 3.0}"
-ros2 topic pub /right_wheel/cmd_vel std_msgs/msg/Float64 "{data: 3.0}"
+ros2 launch compa_slam record_trajectory.launch.py \
+  bag_name:=map_encoder_v4_01 run_controller:=false run_foxglove:=false \
+  use_orientation:=true use_mag:=false \
+  mount_x:=MEASURED_X mount_y:=MEASURED_Y mount_z:=MEASURED_Z \
+  mount_roll:=MEASURED_ROLL mount_pitch:=MEASURED_PITCH mount_yaw:=MEASURED_YAW
 ```
 Bags land in `hamr_control/rosbags/`. Already running your own robot bringup? add `robot:=false`.
-Camera only (verify topics first): `ros2 launch compa_slam realsense.launch.py use_madgwick:=false`.
+Use a continuous command source at about 0.10-0.15 m/s; a one-hertz default
+`ros2 topic pub` will trip the 0.25-second relay watchdog. Follow the full
+[mapping capture runbook](docs/MAPPING_CAPTURE.md) before driving. In
+particular, measure the camera transform in the deployed `base_link` axes: the
+current holonomic stack's `pi/2` kinematic offset means wheel-forward is +Y.
 
-**D. Build a map from a recorded bag** — replay + RTAB-Map (external EKF odom + visual loop closures):
+**D. Build a map from a recorded bag** — replay + RTAB-Map (EKF odom + visual loop closures):
 ```bash
 ros2 launch compa_slam rtabmap_real.launch.py \
-    bag:=$HOME/hamster_ws/src/hamr_control/rosbags/loop_lab_01 \
-    database_path:=$HOME/hamster_ws/src/hamr_control/compa_slam/maps/compa_real.db
+    bag:=$HOME/hamster_ws/src/hamr_control/rosbags/map_encoder_v4_01 \
+    database_path:=$HOME/hamster_ws/src/hamr_control/compa_slam/maps/compa_real_encoder_v4.db \
+    use_odom_topic:=true
 # Ctrl-C after the bag finishes -> the .db is saved.
 ```
-> Tested 2026-06-24: builds (~134 nodes) but loop closures get rejected until the real
-> `base_link -> camera_link` mount is measured (set `mount_*` in `realsense.launch.py`) and the
-> recorded camera frame rate is raised. See `docs/HANDOFF.md` M1.4.
+Use topic mode for a new capture only after `analyze_rosbag.py` reports zero
+non-finite covariance samples and zero RTAB-Map reset-guard crossings; leave
+the TF compatibility default for older bags recorded with the unobservable EKF preset.
+> The first June capture rejected its loop closures, but the current July
+> `compa_real.db` is a valid 227 MB database with 443 nodes, 47 global closures,
+> and 18 local-space closures. It predates encoder v4, so preserve it as evidence
+> and build a new database from a v4 bag for current localization. The measured
+> `base_link -> camera_link` transform remains mandatory. See `docs/HANDOFF.md` M1.4.
 
 ## Sim replay (record -> convert -> run in sim)
 

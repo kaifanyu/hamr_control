@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+"""Run the installed HAMR independent-study bag analyzer."""
+
+from pathlib import Path
+import os
+import sys
+
+
+def find_analyzer() -> Path:
+    installed = Path(__file__).resolve().parent / "analyze_hamr_study.py"
+    if installed.is_file():
+        return installed
+    source = Path(__file__).resolve().parents[2] / "rosbags" / "analyze_hamr_study.py"
+    if source.is_file():
+        return source
+    raise RuntimeError("analyze_hamr_study.py is not installed")
+
+
+if __name__ == "__main__":
+    try:
+        analyzer = find_analyzer()
+    except RuntimeError as exc:
+        print(f"analyze_study_test: {exc}", file=sys.stderr)
+        raise SystemExit(1)
+    os.execv(sys.executable, [sys.executable, str(analyzer), *sys.argv[1:]])

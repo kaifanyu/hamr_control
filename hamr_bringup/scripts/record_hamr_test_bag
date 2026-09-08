@@ -16,6 +16,24 @@ STORAGE_ID="${STORAGE_ID:-${HAMR_BAG_STORAGE_ID:-mcap}}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 QOS_PROFILE_OVERRIDES_PATH="${HAMR_BAG_QOS_OVERRIDES:-}"
 
+# ros2 bag refuses to open an existing output directory.  Hardware operators
+# commonly reuse a shell whose HAMR_BAG_NAME still contains an older run name;
+# choose a deterministic unused suffix instead of losing the recorder (and,
+# with subscriber-gated trajectories, leaving the test waiting indefinitely).
+REQUESTED_BAG_DIR="${BAG_DIR}"
+suffix=1
+while [[ -e "${BAG_DIR}" ]]; do
+  if (( suffix > 999 )); then
+    echo "Could not find an unused bag path derived from ${REQUESTED_BAG_DIR}" >&2
+    exit 1
+  fi
+  BAG_DIR="$(printf '%s_%03d' "${REQUESTED_BAG_DIR}" "${suffix}")"
+  ((suffix += 1))
+done
+if [[ "${BAG_DIR}" != "${REQUESTED_BAG_DIR}" ]]; then
+  echo "Requested bag path already exists; using ${BAG_DIR}" >&2
+fi
+
 if [[ -z "${QOS_PROFILE_OVERRIDES_PATH}" && -f "${SCRIPT_DIR}/../config/record_qos.yaml" ]]; then
   QOS_PROFILE_OVERRIDES_PATH="${SCRIPT_DIR}/../config/record_qos.yaml"
 elif [[ -z "${QOS_PROFILE_OVERRIDES_PATH}" ]] && command -v ros2 >/dev/null 2>&1; then
@@ -31,6 +49,9 @@ if [[ -n "${QOS_PROFILE_OVERRIDES_PATH}" ]]; then
 fi
 
 TOPIC_REGEX='^/(HAMR_base|HAMR_turret)/(odom|pose|individual_marker_array)$|^/(local_HAMR/odom|wheel_odom|imu/data|imu/data_raw|imu/mag|imu/calib_status|tf|tf_static)$|^/(reference_trajectory|waypoints_path|state_error|live_gains)$|^/(left_wheel|right_wheel|turret)/cmd_vel$|^/(left_wheel|right_wheel|turret)/encoder_ticks$|^/(robot_pose|odom|cmd_vel)$'
+TOPIC_REGEX="${TOPIC_REGEX}|^/wheel_control/status$"
+TOPIC_REGEX="${TOPIC_REGEX}|^/wheel_encoder/diagnostics$"
+TOPIC_REGEX="${TOPIC_REGEX}|^/hamr_test/trajectory_metadata$"
 
 mkdir -p "$(dirname "${BAG_DIR}")"
 

@@ -1,0 +1,2140 @@
+#!/usr/bin/env python3
+"""Supervised HAMR wheel mapping and response test.
+
+This node commands the base wheels directly. It never commands turret motion.
+It refuses to move if another ROS publisher (for example hamr_controller) is
+present on either wheel command topic. The default enable=false is a dry run.
+"""
+
+from collections import Counter
+import csv
+from datetime import datetime
+import math
+from pathlib import Path
+from statistics import median
+import time
+
+from hamr_control.hamr_controller import (
+    VICON_SOURCE_STAMP_POLICY,
+    ViconPosePlausibilityGuard,
+    source_timestamp_is_valid_and_monotonic,
+    validated_vicon_source_stamp_policy,
+)
+from nav_msgs.msg import Odometry
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import (
+    DurabilityPolicy,
+    HistoryPolicy,
+    QoSProfile,
+    ReliabilityPolicy,
+)
+from std_msgs.msg import Float64, Float64MultiArray, Int32
+
+
+# CSV columns use ``controller_<field>`` for each signal below. Saturation
+# adds ``_fraction`` and ``_any``; source adds code, name, minimum, and maximum
+# columns so a command-source transition cannot be hidden by a median.
+CONTROLLER_STATUS_FIELDS = (
+    'left_target_rpm',
+    'left_measured_rpm',
+    'left_ff_pwm',
+    'left_pid_pwm',
+    'left_output_pwm',
+    'left_error_rpm',
+    'left_integral_rpm_s',
+    'left_saturated',
+    'right_target_rpm',
+    'right_measured_rpm',
+    'right_ff_pwm',
+    'right_pid_pwm',
+    'right_output_pwm',
+    'right_error_rpm',
+    'right_integral_rpm_s',
+    'right_saturated',
+    'source',
+)
+CONTROLLER_STATUS_SCHEMA = 'wheel_control_status_v1'
+CONTROLLER_STATUS_SOURCE_NAMES = {
+    0: 'NONE',
+    1: 'UART_ROS',
+    2: 'USB_SERIAL',
+    3: 'UDP',
+    4: 'WEB',
+    5: 'UART_ZERO',
+    6: 'TOF_STOP',
+    7: 'COMMS_TIMEOUT',
+}
+
+# This direct-wheel harness bypasses ``hamr_controller``, so it instantiates
+# the controller's pose guard with the exact hardware ground-test limits.  The
+# limits are fixed rather than launch-overridable to preserve an independent
+# safety boundary.
+VICON_MAX_POSITION_STEP_M = 0.08
+VICON_MAX_ORIENTATION_STEP_RAD = 0.35
+VICON_MIN_Z_M = 0.25
+VICON_MAX_Z_M = 0.40
+VICON_MAX_TILT_RAD = 0.35
+
+# Vicon odometry is sampled state: keep only the newest sample and do not let
+# reliable DDS backlog masquerade as live tracking. Vicon's remote clock is not
+# synchronized to this host, so local callback receipt time owns freshness;
+# source stamps remain valid, nonzero, and strictly increasing for ordering.
+ODOM_MONITOR_QOS = QoSProfile(
+    history=HistoryPolicy.KEEP_LAST,
+    depth=1,
+    reliability=ReliabilityPolicy.BEST_EFFORT,
+    durability=DurabilityPolicy.VOLATILE,
+)
+
+ENCODER_DIAG_SCHEMA = 'wheel_encoder_diag_v1'
+ENCODER_DIAG_WHEEL_FIELDS = (
+    'legacy_ticks',
+    'quadrature_count',
+    'a_rise',
+    'a_fall',
+    'b_rise',
+    'b_fall',
+    'valid_positive',
+    'valid_negative',
+    'invalid_transitions',
+    'duplicate_samples',
+    'ab_state',
+)
+ENCODER_DIAG_FIELDS = tuple(
+    f'{wheel}_{field}'
+    for wheel in ('left', 'right')
+    for field in ENCODER_DIAG_WHEEL_FIELDS
+)
+
+# Explicit Vicon-independent firmware-PI calibration.  This is intentionally
+# one short, forward, equal-wheel trial rather than another general direct-drive
+# mode.  These are hard code ceilings: ROS parameters may make a run shorter or
+# slower, but may not widen its motion envelope.
+FIRMWARE_PID_STRAIGHT_PROFILE = 'firmware_pid_straight'
+# Equal wheel speed corresponding to a modeled 0.20 m/s straight translation
+# with the deployed 0.122 m controller radius.  Keep the hard command ceiling
+# only 0.65% above that exact diagnostic target so a rounded 1.64 rad/s request
+# is accepted without widening this into a general high-speed direct-drive
+# mode.  The independent live 1200-tick travel guard remains authoritative.
+FIRMWARE_PID_V020_LEVEL_RAD_S = 0.20 / 0.122
+FIRMWARE_PID_MAX_LEVEL_RAD_S = 1.65
+FIRMWARE_PID_MAX_RAMP_S = 0.75
+FIRMWARE_PID_MAX_HOLD_S = 1.5
+FIRMWARE_PID_MAX_SCHEDULED_MOTION_S = 2.0
+FIRMWARE_PID_MAX_MOTION_S = 2.25
+FIRMWARE_PID_MAX_WHEEL_TICKS = 1200
+FIRMWARE_PID_MAX_DIFFERENTIAL_TICKS = 120
+FIRMWARE_PID_SOURCE_GRACE_S = 0.12
+FIRMWARE_PID_DIRECTION_GRACE_S = 0.35
+FIRMWARE_PID_PLATEAU_GRACE_S = 0.20
+FIRMWARE_PID_PLATEAU_TARGET_TOLERANCE_RPM = 0.25
+FIRMWARE_PID_MIN_HOLD_S = 0.50
+FIRMWARE_PID_MAX_NONZERO_PUBLICATION_GAP_S = 0.05
+FIRMWARE_PID_POST_STOP_FREEZE_S = 0.50
+FIRMWARE_PID_POST_STOP_TIMEOUT_S = 1.50
+FIRMWARE_PID_POST_STOP_ZERO_ACK_MAX_S = 0.15
+FIRMWARE_PID_MAX_POST_STOP_AVG_COAST_TICKS = 50.0
+FIRMWARE_PID_MAX_POST_STOP_DIFFERENTIAL_TICKS = 20.0
+FIRMWARE_PID_CALLBACK_DRAIN_LIMIT = 16
+FIRMWARE_PID_ZERO_ACK_GRACE_S = 0.50
+FIRMWARE_PID_FINAL_ZERO_TIMEOUT_S = 1.0
+FIRMWARE_PID_MAX_TARGET_DIFFERENCE_RPM = 0.25
+FIRMWARE_PID_MAX_REVERSE_RPM = 0.5
+FIRMWARE_PID_MAX_VALID_NEGATIVE_TRANSITIONS = 5
+FIRMWARE_PID_MAX_INVALID_TRANSITIONS = 2
+FIRMWARE_PID_MIN_RATE_HZ = 50.0
+FIRMWARE_PID_MAX_RATE_HZ = 100.0
+FIRMWARE_PID_MAX_TELEMETRY_AGE_S = 0.20
+# Encoder counts, controller status, and cumulative encoder diagnostics are
+# sampled state for this one-shot profile.  Retaining only the newest queued
+# sample prevents executor latency from making the captured stop baseline look
+# older than the zero command which immediately follows it.
+FIRMWARE_PID_MONITOR_QOS_DEPTH = 1
+
+
+def is_firmware_pid_straight(profile):
+    return str(profile) == FIRMWARE_PID_STRAIGHT_PROFILE
+
+
+def require_firmware_pid_straight_command(left, right):
+    """Return one bounded equal-wheel forward command or fail closed."""
+    values = (float(left), float(right))
+    if not all(math.isfinite(value) for value in values):
+        raise RuntimeError('Firmware-PID command must be finite.')
+    if values[0] < 0.0 or values[1] < 0.0:
+        raise RuntimeError(
+            'Firmware-PID calibration permits forward commands only.'
+        )
+    if not math.isclose(values[0], values[1], rel_tol=0.0, abs_tol=1e-12):
+        raise RuntimeError(
+            'Firmware-PID calibration requires equal wheel commands.'
+        )
+    if max(values) > FIRMWARE_PID_MAX_LEVEL_RAD_S + 1e-12:
+        raise RuntimeError(
+            'Firmware-PID command exceeds the hard wheel-speed ceiling.'
+        )
+    return values
+
+
+def require_firmware_pid_tick_travel(start_left, start_right, left, right):
+    """Return forward tick travel after enforcing hard straight bounds."""
+    values = tuple(float(value) for value in (
+        start_left, start_right, left, right
+    ))
+    if not all(math.isfinite(value) for value in values):
+        raise RuntimeError('Encoder tick travel must be finite.')
+    left_delta = values[2] - values[0]
+    right_delta = values[3] - values[1]
+    if left_delta < 0.0 or right_delta < 0.0:
+        raise RuntimeError(
+            'Safety stop: an encoder moved opposite the requested direction.'
+        )
+    if max(left_delta, right_delta) > FIRMWARE_PID_MAX_WHEEL_TICKS:
+        raise RuntimeError(
+            'Safety stop: firmware-PID wheel tick-travel limit exceeded.'
+        )
+    if abs(left_delta - right_delta) > FIRMWARE_PID_MAX_DIFFERENTIAL_TICKS:
+        raise RuntimeError(
+            'Safety stop: firmware-PID differential tick limit exceeded.'
+        )
+    return left_delta, right_delta
+
+
+def require_firmware_pid_post_stop_coast(
+    start_left, start_right, left, right
+):
+    """Bound observed encoder travel after the first zero publication."""
+    values = tuple(float(value) for value in (
+        start_left, start_right, left, right
+    ))
+    if not all(math.isfinite(value) for value in values):
+        raise RuntimeError('Post-stop encoder tick travel must be finite.')
+    left_delta = values[2] - values[0]
+    right_delta = values[3] - values[1]
+    average_coast = 0.5 * (abs(left_delta) + abs(right_delta))
+    differential_growth = abs(left_delta - right_delta)
+    if average_coast > FIRMWARE_PID_MAX_POST_STOP_AVG_COAST_TICKS:
+        raise RuntimeError(
+            'Safety stop: average post-zero encoder coast exceeded the hard '
+            'limit.'
+        )
+    if (
+        differential_growth
+        > FIRMWARE_PID_MAX_POST_STOP_DIFFERENTIAL_TICKS
+    ):
+        raise RuntimeError(
+            'Safety stop: post-zero differential encoder growth exceeded the '
+            'hard limit.'
+        )
+    return left_delta, right_delta, average_coast, differential_growth
+
+
+def wheel_rad_s_to_rpm(command_rad_s):
+    return float(command_rad_s) * 60.0 / (2.0 * math.pi)
+
+
+def firmware_status_value(row, field):
+    return row[1 + CONTROLLER_STATUS_FIELDS.index(field)]
+
+
+def firmware_zero_status_is_acknowledged(row):
+    """Check a fresh status row for the complete UART-zero stopped state."""
+    if int(round(firmware_status_value(row, 'source'))) != 5:
+        return False
+    return all(
+        abs(float(firmware_status_value(row, field))) <= 1e-9
+        for field in CONTROLLER_STATUS_FIELDS[:-1]
+    )
+
+
+def firmware_status_reports_zero_actuation(row):
+    """Check targets and actuator-producing status fields for exact zero."""
+    exact_zero_fields = (
+        'left_target_rpm', 'left_ff_pwm', 'left_pid_pwm', 'left_output_pwm',
+        'left_integral_rpm_s',
+        'right_target_rpm', 'right_ff_pwm', 'right_pid_pwm',
+        'right_output_pwm', 'right_integral_rpm_s',
+        'left_saturated', 'right_saturated',
+    )
+    return all(
+        abs(float(firmware_status_value(row, field))) <= 1e-9
+        for field in exact_zero_fields
+    )
+
+
+def safe_ratio(numerator, denominator):
+    return (
+        float(numerator) / float(denominator)
+        if denominator != 0 else float('nan')
+    )
+
+
+def monotonic_delta(values, field_name):
+    integers = [int(round(value)) for value in values]
+    if any(after < before for before, after in zip(integers, integers[1:])):
+        raise RuntimeError(
+            f'Encoder diagnostic counter {field_name} decreased during the '
+            'measurement window; the firmware likely restarted.'
+        )
+    return integers[-1] - integers[0]
+
+
+def summarize_encoder_diagnostics(samples, left_cmd, right_cmd):
+    if len(samples) < 2:
+        raise RuntimeError(
+            'Insufficient encoder diagnostics in measurement window.'
+        )
+    span_s = samples[-1][0] - samples[0][0]
+    if span_s <= 0.0:
+        raise RuntimeError('Encoder diagnostic timestamps did not advance.')
+
+    result = {
+        'encoder_diag_samples': len(samples),
+        'encoder_diag_span_s': span_s,
+    }
+    width = len(ENCODER_DIAG_WHEEL_FIELDS)
+    for wheel_index, (wheel, command) in enumerate((
+        ('left', left_cmd), ('right', right_cmd)
+    )):
+        offset = 1 + wheel_index * width
+        values = {
+            field: [row[offset + index] for row in samples]
+            for index, field in enumerate(ENCODER_DIAG_WHEEL_FIELDS)
+        }
+        legacy_delta = int(round(values['legacy_ticks'][-1])) - int(
+            round(values['legacy_ticks'][0])
+        )
+        quadrature_delta = int(
+            round(values['quadrature_count'][-1])
+        ) - int(round(values['quadrature_count'][0]))
+        deltas = {
+            field: monotonic_delta(values[field], f'{wheel}_{field}')
+            for field in ENCODER_DIAG_WHEEL_FIELDS[2:10]
+        }
+
+        a_edges = deltas['a_rise'] + deltas['a_fall']
+        b_edges = deltas['b_rise'] + deltas['b_fall']
+        valid = deltas['valid_positive'] + deltas['valid_negative']
+        classified = valid + deltas['invalid_transitions']
+        sampled = classified + deltas['duplicate_samples']
+        if command > 1e-9:
+            correct = deltas['valid_positive']
+        elif command < -1e-9:
+            correct = deltas['valid_negative']
+        else:
+            correct = None
+
+        prefix = f'encoder_{wheel}_'
+        result.update({
+            f'{prefix}legacy_delta': legacy_delta,
+            f'{prefix}legacy_rate_ticks_s': legacy_delta / span_s,
+            f'{prefix}quadrature_delta': quadrature_delta,
+            f'{prefix}quadrature_rate_counts_s': quadrature_delta / span_s,
+            f'{prefix}a_rise_delta': deltas['a_rise'],
+            f'{prefix}a_fall_delta': deltas['a_fall'],
+            f'{prefix}b_rise_delta': deltas['b_rise'],
+            f'{prefix}b_fall_delta': deltas['b_fall'],
+            f'{prefix}a_edges_delta': a_edges,
+            f'{prefix}b_edges_delta': b_edges,
+            f'{prefix}a_b_edge_imbalance': safe_ratio(
+                a_edges - b_edges, a_edges + b_edges
+            ),
+            f'{prefix}a_rise_fall_imbalance': safe_ratio(
+                deltas['a_rise'] - deltas['a_fall'], a_edges
+            ),
+            f'{prefix}b_rise_fall_imbalance': safe_ratio(
+                deltas['b_rise'] - deltas['b_fall'], b_edges
+            ),
+            f'{prefix}valid_positive_delta': deltas['valid_positive'],
+            f'{prefix}valid_negative_delta': deltas['valid_negative'],
+            f'{prefix}invalid_transition_delta': deltas['invalid_transitions'],
+            f'{prefix}duplicate_sample_delta': deltas['duplicate_samples'],
+            f'{prefix}invalid_fraction': safe_ratio(
+                deltas['invalid_transitions'], classified
+            ),
+            f'{prefix}duplicate_fraction': safe_ratio(
+                deltas['duplicate_samples'], sampled
+            ),
+            f'{prefix}direction_correct_fraction': (
+                safe_ratio(correct, valid)
+                if correct is not None else float('nan')
+            ),
+            f'{prefix}quadrature_transition_error': (
+                quadrature_delta
+                - deltas['valid_positive']
+                + deltas['valid_negative']
+            ),
+            f'{prefix}quadrature_to_legacy_ratio': safe_ratio(
+                quadrature_delta, 2 * legacy_delta
+            ),
+            f'{prefix}ab_state_start': int(round(values['ab_state'][0])),
+            f'{prefix}ab_state_end': int(round(values['ab_state'][-1])),
+        })
+    return result
+
+
+def yaw_from_quat(q):
+    return math.atan2(
+        2.0 * (q.w * q.z + q.x * q.y),
+        1.0 - 2.0 * (q.y * q.y + q.z * q.z),
+    )
+
+
+def yaw_from_normalized_quaternion(q):
+    """Return yaw from a normalized ``(x, y, z, w)`` tuple."""
+    x, y, z, w = q
+    return math.atan2(
+        2.0 * (w * z + x * y),
+        1.0 - 2.0 * (y * y + z * z),
+    )
+
+
+def angle_delta(a, b):
+    return (a - b + math.pi) % (2.0 * math.pi) - math.pi
+
+
+def fit_slope(samples, value_index):
+    if len(samples) < 3:
+        return float('nan')
+    t0 = samples[0][0]
+    ts = [row[0] - t0 for row in samples]
+    values = [row[value_index] for row in samples]
+    t_mean = sum(ts) / len(ts)
+    value_mean = sum(values) / len(values)
+    denominator = sum((t - t_mean) ** 2 for t in ts)
+    if denominator <= 1e-12:
+        return float('nan')
+    return sum(
+        (t - t_mean) * (value - value_mean)
+        for t, value in zip(ts, values)
+    ) / denominator
+
+
+def summarize_controller_status(samples):
+    """Summarize status samples with physical-left/right field semantics."""
+    result = {'controller_status_samples': len(samples)}
+    for field_index, field_name in enumerate(CONTROLLER_STATUS_FIELDS[:-1]):
+        values = [row[field_index + 1] for row in samples]
+        if field_name.endswith('_saturated'):
+            prefix = f'controller_{field_name}'
+            result[f'{prefix}_fraction'] = (
+                sum(values) / len(values) if values else float('nan')
+            )
+            result[f'{prefix}_any'] = (
+                int(any(value > 0.5 for value in values))
+                if values else 0
+            )
+        else:
+            result[f'controller_{field_name}'] = (
+                median(values) if values else float('nan')
+            )
+
+    source_index = CONTROLLER_STATUS_FIELDS.index('source') + 1
+    sources = [int(round(row[source_index])) for row in samples]
+    if sources:
+        source_code = Counter(sources).most_common(1)[0][0]
+        result.update({
+            'controller_source_code': source_code,
+            'controller_source_name': CONTROLLER_STATUS_SOURCE_NAMES.get(
+                source_code, f'UNKNOWN_{source_code}'
+            ),
+            'controller_source_min': min(sources),
+            'controller_source_max': max(sources),
+        })
+    else:
+        result.update({
+            'controller_source_code': -1,
+            'controller_source_name': 'NO_SAMPLES',
+            'controller_source_min': -1,
+            'controller_source_max': -1,
+        })
+    return result
+
+
+def build_plan(profile, level):
+    if is_firmware_pid_straight(profile):
+        return [('equal_positive_pid', level, level)]
+    if profile == 'left_encoder':
+        return [
+            ('left_positive', level, 0.0),
+            ('left_negative', -level, 0.0),
+        ]
+    if profile == 'mapping':
+        return [
+            ('left_positive', level, 0.0),
+            ('left_negative', -level, 0.0),
+            ('right_positive', 0.0, level),
+            ('right_negative', 0.0, -level),
+        ]
+    if profile == 'ground':
+        return [
+            ('equal_positive', level, level),
+            ('equal_negative', -level, -level),
+            ('ccw_moving', 0.5 * level, level),
+            ('cw_moving', level, 0.5 * level),
+        ]
+    raise ValueError(
+        "profile must be 'left_encoder', 'mapping', 'ground', or "
+        f"'{FIRMWARE_PID_STRAIGHT_PROFILE}'"
+    )
+
+
+class WheelResponseTest(Node):
+    def __init__(self):
+        super().__init__('wheel_response_test')
+
+        self.enable = bool(self.declare_parameter('enable', False).value)
+        self.profile = str(self.declare_parameter('profile', 'mapping').value)
+        self.encoder_only_mode = is_firmware_pid_straight(self.profile)
+        self.allow_encoder_only = bool(
+            self.declare_parameter('allow_encoder_only', False).value
+        )
+        self.level = float(self.declare_parameter('level_rad_s', 0.5).value)
+        self.repeat_count = int(self.declare_parameter('repeat_count', 1).value)
+
+        self.hold_s = float(self.declare_parameter('hold_s', 1.5).value)
+        self.measure_s = float(self.declare_parameter('measure_s', 0.8).value)
+        self.ramp_s = float(self.declare_parameter('ramp_s', 0.5).value)
+        self.zero_s = float(self.declare_parameter('zero_s', 1.0).value)
+        self.start_delay_s = float(self.declare_parameter('start_delay_s', 3.0).value)
+        self.rate_hz = float(self.declare_parameter('rate_hz', 50.0).value)
+
+        self.max_abs_wheel_cmd = float(
+            self.declare_parameter(
+                'max_abs_wheel_cmd',
+                (
+                    FIRMWARE_PID_MAX_LEVEL_RAD_S
+                    if self.encoder_only_mode else 2.8
+                ),
+            ).value
+        )
+        self.stale_odom_s = float(self.declare_parameter('stale_odom_s', 0.35).value)
+        self.vicon_source_stamp_policy = validated_vicon_source_stamp_policy(
+            self.declare_parameter(
+                'vicon_source_stamp_policy',
+                VICON_SOURCE_STAMP_POLICY,
+            ).value
+        )
+        self.stale_controller_status_s = float(
+            self.declare_parameter(
+                'stale_controller_status_s',
+                (
+                    FIRMWARE_PID_MAX_TELEMETRY_AGE_S
+                    if self.encoder_only_mode else 0.35
+                ),
+            ).value
+        )
+        self.stale_encoder_diag_s = float(
+            self.declare_parameter(
+                'stale_encoder_diag_s',
+                (
+                    FIRMWARE_PID_MAX_TELEMETRY_AGE_S
+                    if self.encoder_only_mode else 0.35
+                ),
+            ).value
+        )
+        self.startup_timeout_s = float(
+            self.declare_parameter('startup_timeout_s', 5.0).value
+        )
+        self.max_trial_path_m = float(
+            self.declare_parameter('max_trial_path_m', 0.5).value
+        )
+        self.max_trial_yaw_rad = float(
+            self.declare_parameter('max_trial_yaw_rad', 1.0).value
+        )
+        self.max_total_displacement_m = float(
+            self.declare_parameter('max_total_displacement_m', 1.0).value
+        )
+        self.max_total_path_m = float(
+            self.declare_parameter('max_total_path_m', 3.0).value
+        )
+
+        self.r_wheel = float(self.declare_parameter('r_wheel', 0.122).value)
+        self.a_wheel = float(self.declare_parameter('a_wheel', 0.350).value)
+        self.base_yaw_offset = float(
+            self.declare_parameter('base_yaw_offset', math.pi / 2.0).value
+        )
+
+        self.odom_topic = str(
+            self.declare_parameter('odom_topic', '/HAMR_base/odom').value
+        )
+        self.left_topic = str(
+            self.declare_parameter('left_topic', '/left_wheel/cmd_vel').value
+        )
+        self.right_topic = str(
+            self.declare_parameter('right_topic', '/right_wheel/cmd_vel').value
+        )
+        self.turret_topic = str(
+            self.declare_parameter('turret_topic', '/turret/cmd_vel').value
+        )
+        self.left_ticks_topic = str(
+            self.declare_parameter(
+                'left_ticks_topic', '/left_wheel/encoder_ticks'
+            ).value
+        )
+        self.right_ticks_topic = str(
+            self.declare_parameter(
+                'right_ticks_topic', '/right_wheel/encoder_ticks'
+            ).value
+        )
+        self.controller_status_topic = str(
+            self.declare_parameter(
+                'controller_status_topic', '/wheel_control/status'
+            ).value
+        )
+        self.encoder_diag_topic = str(
+            self.declare_parameter(
+                'encoder_diag_topic', '/wheel_encoder/diagnostics'
+            ).value
+        )
+
+        csv_path = str(self.declare_parameter('csv_path', '').value)
+        if csv_path:
+            self.csv_path = Path(csv_path).expanduser()
+        else:
+            stamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            self.csv_path = (
+                Path.home() / 'hamster_ws' / 'calibration_results'
+                / f'wheel_response_{self.profile}_{stamp}.csv'
+            )
+
+        self.last_odom_time = None
+        self.last_odom_source_stamp_ns = None
+        self.pose = None
+        self.latched_odom_guard_error = None
+        self.vicon_pose_guard = ViconPosePlausibilityGuard(
+            VICON_MAX_POSITION_STEP_M,
+            VICON_MAX_ORIENTATION_STEP_RAD,
+            1,
+            VICON_MIN_Z_M,
+            VICON_MAX_Z_M,
+            VICON_MAX_TILT_RAD,
+        )
+        self.last_raw_yaw = None
+        self.unwrapped_yaw = None
+        self.odom_samples = []
+        self.left_tick_samples = []
+        self.right_tick_samples = []
+        self.last_left_tick_time = None
+        self.last_right_tick_time = None
+        self.controller_status_samples = []
+        self.last_controller_status_time = None
+        self.controller_status_schema_error = None
+        self.warned_controller_status_extra_fields = False
+        self.encoder_diag_samples = []
+        self.last_encoder_diag_time = None
+        self.encoder_diag_schema_error = None
+        self.warned_encoder_diag_extra_fields = False
+        self.total_path_m = 0.0
+        self.last_path_pose = None
+        self.run_start_pose = None
+        self.trial_start_pose = None
+        self.trial_start_path_m = 0.0
+        self.firmware_pid_motion_start_time = None
+        self.firmware_pid_tick_start = None
+        self.firmware_pid_diag_start = None
+        self.firmware_pid_plateau_start_time = None
+        self.firmware_pid_plateau_target_rpm = None
+        self.firmware_pid_stop_time = None
+        self.firmware_pid_stop_tick_start = None
+        self.firmware_pid_stop_proof = None
+        self.last_wheel_command_publish_time = None
+        self.rows = []
+
+        self.pub_left = self.create_publisher(Float64, self.left_topic, 1)
+        self.pub_right = self.create_publisher(Float64, self.right_topic, 1)
+        self.pub_turret = self.create_publisher(Float64, self.turret_topic, 1)
+        if not self.encoder_only_mode:
+            self.create_subscription(
+                Odometry, self.odom_topic, self.odom_cb, ODOM_MONITOR_QOS
+            )
+        tick_qos_depth = (
+            FIRMWARE_PID_MONITOR_QOS_DEPTH
+            if self.encoder_only_mode else 20
+        )
+        status_qos_depth = (
+            FIRMWARE_PID_MONITOR_QOS_DEPTH
+            if self.encoder_only_mode else 10
+        )
+        self.create_subscription(
+            Int32, self.left_ticks_topic, self.left_ticks_cb, tick_qos_depth
+        )
+        self.create_subscription(
+            Int32, self.right_ticks_topic, self.right_ticks_cb, tick_qos_depth
+        )
+        self.create_subscription(
+            Float64MultiArray,
+            self.controller_status_topic,
+            self.controller_status_cb,
+            status_qos_depth,
+        )
+        self.create_subscription(
+            Float64MultiArray,
+            self.encoder_diag_topic,
+            self.encoder_diag_cb,
+            status_qos_depth,
+        )
+
+    def odom_cb(self, msg):
+        # This one named profile deliberately derives its motion envelope from
+        # independent wheel encoders.  Vicon may remain present on the graph,
+        # but it is neither a readiness input nor an abort source for this
+        # explicitly acknowledged calibration.
+        if getattr(self, 'encoder_only_mode', False):
+            return
+        # A direct hardware test is one-shot.  Once either source timing or
+        # pose geometry fails, later good samples cannot recover this process
+        # or become a new baseline.
+        if self.latched_odom_guard_error is not None:
+            return
+
+        stamp = msg.header.stamp
+        source_status = source_timestamp_is_valid_and_monotonic(
+            stamp.sec,
+            stamp.nanosec,
+            self.last_odom_source_stamp_ns,
+        )
+        if not source_status.accepted:
+            self.latched_odom_guard_error = (
+                f'base Vicon {source_status.reason}'
+            )
+            return
+        self.last_odom_source_stamp_ns = source_status.stamp_ns
+
+        pose = msg.pose.pose
+        guard_result = self.vicon_pose_guard.observe(
+            (pose.position.x, pose.position.y, pose.position.z),
+            (
+                pose.orientation.x,
+                pose.orientation.y,
+                pose.orientation.z,
+                pose.orientation.w,
+            ),
+        )
+        if not guard_result.accepted:
+            detail = guard_result.reason
+            if (
+                guard_result.position_jump_m > 0.0
+                or guard_result.orientation_jump_rad > 0.0
+            ):
+                detail += (
+                    f' (3-D step={guard_result.position_jump_m:.3f} m, '
+                    'quaternion angle='
+                    f'{guard_result.orientation_jump_rad:.3f} rad)'
+                )
+            self.latched_odom_guard_error = f'base Vicon {detail}'
+            return
+
+        # Only a fully valid, source-ordered observation may update the pose,
+        # path, or local callback-receipt watchdog.
+        now = time.monotonic()
+        position = self.vicon_pose_guard.last_position
+        quaternion = self.vicon_pose_guard.last_quaternion
+        raw_yaw = yaw_from_normalized_quaternion(quaternion)
+        if self.last_raw_yaw is None:
+            self.unwrapped_yaw = raw_yaw
+        else:
+            self.unwrapped_yaw += angle_delta(raw_yaw, self.last_raw_yaw)
+        self.last_raw_yaw = raw_yaw
+
+        x, y, _ = position
+        self.pose = (x, y, self.unwrapped_yaw)
+        self.last_odom_time = now
+        self.odom_samples.append((now, x, y, self.unwrapped_yaw))
+        if self.last_path_pose is not None:
+            self.total_path_m += math.hypot(
+                x - self.last_path_pose[0], y - self.last_path_pose[1]
+            )
+        self.last_path_pose = (x, y)
+        self.trim_samples(now)
+
+    def left_ticks_cb(self, msg):
+        now = time.monotonic()
+        self.left_tick_samples.append((now, float(msg.data)))
+        self.last_left_tick_time = now
+        self.trim_samples(now)
+
+    def right_ticks_cb(self, msg):
+        now = time.monotonic()
+        self.right_tick_samples.append((now, float(msg.data)))
+        self.last_right_tick_time = now
+        self.trim_samples(now)
+
+    def controller_status_cb(self, msg):
+        if self.controller_status_schema_error is not None:
+            return
+
+        expected_size = len(CONTROLLER_STATUS_FIELDS)
+        actual_size = len(msg.data)
+        if actual_size < expected_size:
+            self.controller_status_schema_error = (
+                f'Invalid {self.controller_status_topic} schema: expected at '
+                f'least {expected_size} values, received {actual_size}. Rebuild '
+                'and restart the firmware and relay before testing.'
+            )
+            return
+        if (
+            actual_size > expected_size
+            and not self.warned_controller_status_extra_fields
+        ):
+            self.get_logger().warn(
+                f'{self.controller_status_topic} has {actual_size} values; '
+                f'using the first {expected_size} fields from '
+                f'{CONTROLLER_STATUS_SCHEMA}.'
+            )
+            self.warned_controller_status_extra_fields = True
+
+        if msg.layout.dim:
+            dim = msg.layout.dim[0]
+            if (
+                dim.label != CONTROLLER_STATUS_SCHEMA
+                or dim.size < expected_size
+                or dim.stride < expected_size
+            ):
+                self.controller_status_schema_error = (
+                    f'Invalid {self.controller_status_topic} layout: expected '
+                    f'label={CONTROLLER_STATUS_SCHEMA}, size/stride at least '
+                    f'{expected_size}; received label={dim.label!r}, '
+                    f'size={dim.size}, stride={dim.stride}.'
+                )
+                return
+
+        values = [float(value) for value in msg.data[:expected_size]]
+        if not all(math.isfinite(value) for value in values):
+            self.controller_status_schema_error = (
+                f'Invalid {self.controller_status_topic}: every controller '
+                'status value must be finite.'
+            )
+            return
+        for field_index in (7, 15):
+            if values[field_index] not in (0.0, 1.0):
+                self.controller_status_schema_error = (
+                    f'Invalid {self.controller_status_topic}: '
+                    f'{CONTROLLER_STATUS_FIELDS[field_index]} must be 0 or 1, '
+                    f'received {values[field_index]}.'
+                )
+                return
+        source = values[16]
+        source_code = int(round(source))
+        if (
+            abs(source - source_code) > 1e-9
+            or source_code not in CONTROLLER_STATUS_SOURCE_NAMES
+        ):
+            self.controller_status_schema_error = (
+                f'Invalid {self.controller_status_topic}: source must be one '
+                'of the documented integer codes 0 through 7, received '
+                f'{source}.'
+            )
+            return
+
+        now = time.monotonic()
+        self.controller_status_samples.append((now, *values))
+        self.last_controller_status_time = now
+        self.trim_samples(now)
+
+    def encoder_diag_cb(self, msg):
+        if self.encoder_diag_schema_error is not None:
+            return
+
+        expected_size = len(ENCODER_DIAG_FIELDS)
+        actual_size = len(msg.data)
+        if actual_size < expected_size:
+            self.encoder_diag_schema_error = (
+                f'Invalid {self.encoder_diag_topic} schema: expected at least '
+                f'{expected_size} values, received {actual_size}. Rebuild and '
+                'restart protocol-v4 firmware and relay before testing.'
+            )
+            return
+        if (
+            actual_size > expected_size
+            and not self.warned_encoder_diag_extra_fields
+        ):
+            self.get_logger().warn(
+                f'{self.encoder_diag_topic} has {actual_size} values; using '
+                f'the first {expected_size} fields from {ENCODER_DIAG_SCHEMA}.'
+            )
+            self.warned_encoder_diag_extra_fields = True
+
+        if msg.layout.dim:
+            dim = msg.layout.dim[0]
+            if (
+                dim.label != ENCODER_DIAG_SCHEMA
+                or dim.size < expected_size
+                or dim.stride < expected_size
+            ):
+                self.encoder_diag_schema_error = (
+                    f'Invalid {self.encoder_diag_topic} layout: expected '
+                    f'label={ENCODER_DIAG_SCHEMA}, size/stride at least '
+                    f'{expected_size}; received label={dim.label!r}, '
+                    f'size={dim.size}, stride={dim.stride}.'
+                )
+                return
+
+        values = [float(value) for value in msg.data[:expected_size]]
+        if not all(
+            math.isfinite(value) and value.is_integer() for value in values
+        ):
+            self.encoder_diag_schema_error = (
+                f'Invalid {self.encoder_diag_topic}: every diagnostic value '
+                'must be a finite integer.'
+            )
+            return
+
+        width = len(ENCODER_DIAG_WHEEL_FIELDS)
+        for wheel_index, wheel in enumerate(('left', 'right')):
+            offset = wheel_index * width
+            signed_counts = values[offset:offset + 2]
+            counters = values[offset + 2:offset + 10]
+            state = values[offset + 10]
+            if any(
+                value < -(2 ** 31) or value > 2 ** 31 - 1
+                for value in signed_counts
+            ):
+                self.encoder_diag_schema_error = (
+                    f'Invalid {self.encoder_diag_topic}: {wheel} signed '
+                    'encoder count is outside int32 range.'
+                )
+                return
+            if any(
+                value < 0 or value > 2 ** 32 - 1 for value in counters
+            ):
+                self.encoder_diag_schema_error = (
+                    f'Invalid {self.encoder_diag_topic}: {wheel} cumulative '
+                    'counter is outside uint32 range.'
+                )
+                return
+            if state not in (0.0, 1.0, 2.0, 3.0):
+                self.encoder_diag_schema_error = (
+                    f'Invalid {self.encoder_diag_topic}: {wheel} AB state '
+                    f'must be 0 through 3, received {state}.'
+                )
+                return
+
+        now = time.monotonic()
+        self.encoder_diag_samples.append((now, *values))
+        self.last_encoder_diag_time = now
+        self.trim_samples(now)
+
+    def trim_samples(self, now):
+        cutoff = now - 120.0
+        for samples in (
+            self.odom_samples,
+            self.left_tick_samples,
+            self.right_tick_samples,
+            self.controller_status_samples,
+            self.encoder_diag_samples,
+        ):
+            while samples and samples[0][0] < cutoff:
+                samples.pop(0)
+
+    def service_callbacks(self, timeout_sec=0.0):
+        """Service one blocking wait, then a bounded ready-callback burst."""
+        rclpy.spin_once(self, timeout_sec=timeout_sec)
+        if not getattr(self, 'encoder_only_mode', False):
+            return
+        for _ in range(FIRMWARE_PID_CALLBACK_DRAIN_LIMIT - 1):
+            rclpy.spin_once(self, timeout_sec=0.0)
+
+    def publish_firmware_pid_stop(self):
+        """Capture a current encoder baseline, then publish the first zero."""
+        if not getattr(self, 'encoder_only_mode', False):
+            self.publish_cmd(0.0, 0.0)
+            return
+
+        # The stop baseline must represent state immediately before the first
+        # zero publication.  A bounded, entirely nonblocking drain consumes
+        # the newest depth-one tick/status samples without inserting a graph
+        # query, disk I/O, or a blocking wait ahead of the stop.  Keep the
+        # capture and zero in ``finally`` so even an executor failure cannot
+        # prevent the stop command from being attempted.
+        try:
+            self.service_callbacks(timeout_sec=0.0)
+        finally:
+            self.firmware_pid_stop_time = time.monotonic()
+            left_samples = getattr(self, 'left_tick_samples', ())
+            right_samples = getattr(self, 'right_tick_samples', ())
+            self.firmware_pid_stop_tick_start = (
+                (
+                    left_samples[-1][1],
+                    right_samples[-1][1],
+                )
+                if left_samples and right_samples else None
+            )
+            self.publish_cmd(0.0, 0.0)
+
+    def publish_cmd(self, left, right):
+        if not all(math.isfinite(v) for v in (left, right)):
+            raise RuntimeError('Refusing to publish a non-finite wheel command.')
+        left_msg = Float64()
+        right_msg = Float64()
+        turret_msg = Float64()
+        left_msg.data = float(left)
+        right_msg.data = float(right)
+        turret_msg.data = 0.0
+        self.pub_left.publish(left_msg)
+        self.pub_right.publish(right_msg)
+        self.last_wheel_command_publish_time = time.monotonic()
+        self.pub_turret.publish(turret_msg)
+
+    def assert_exclusive_publishers(self):
+        left_count = self.count_publishers(self.left_topic)
+        right_count = self.count_publishers(self.right_topic)
+        turret_count = self.count_publishers(self.turret_topic)
+        wrong_turret_count = (
+            getattr(self, 'encoder_only_mode', False)
+            and turret_count != 1
+        )
+        if left_count != 1 or right_count != 1 or wrong_turret_count:
+            raise RuntimeError(
+                'Safety stop: expected this test to be the only wheel-command '
+                'publisher, found left=%d, right=%d, turret=%d. '
+                'Launch hardware with run_controller:=false and stop teleop.'
+                % (left_count, right_count, turret_count)
+            )
+
+    def assert_ready(self):
+        encoder_only = getattr(self, 'encoder_only_mode', False)
+        if not encoder_only:
+            self.assert_odom_guard_safe()
+        if self.controller_status_schema_error is not None:
+            raise RuntimeError(self.controller_status_schema_error)
+        if self.encoder_diag_schema_error is not None:
+            raise RuntimeError(self.encoder_diag_schema_error)
+        if not encoder_only:
+            if self.pose is None or self.last_odom_time is None:
+                raise RuntimeError(
+                    f'No Vicon odometry received on {self.odom_topic}.'
+                )
+        if not self.left_tick_samples or not self.right_tick_samples:
+            raise RuntimeError('No complete left/right encoder tick stream.')
+        if (
+            not self.controller_status_samples
+            or self.last_controller_status_time is None
+        ):
+            raise RuntimeError(
+                'No wheel-controller telemetry received on '
+                f'{self.controller_status_topic}. Rebuild and restart the '
+                'firmware and relay before testing.'
+            )
+        if not self.encoder_diag_samples or self.last_encoder_diag_time is None:
+            raise RuntimeError(
+                'No protocol-v4 encoder diagnostics received on '
+                f'{self.encoder_diag_topic}. Rebuild, flash, and restart both '
+                'the firmware and relay before testing.'
+            )
+
+        # Perform synchronous graph-cache queries before the final receipt-age
+        # checks. If graph access is delayed, old telemetry cannot pass merely
+        # because freshness was sampled before that delay.
+        self.assert_exclusive_publishers()
+        if (
+            self.pub_left.get_subscription_count() < 1
+            or self.pub_right.get_subscription_count() < 1
+            or (
+                encoder_only
+                and self.pub_turret.get_subscription_count() < 1
+            )
+        ):
+            raise RuntimeError(
+                'No relay subscriber on every required direct-command topic.'
+            )
+
+        now = time.monotonic()
+        if not encoder_only and now - self.last_odom_time > self.stale_odom_s:
+            raise RuntimeError('Safety stop: Vicon odometry became stale.')
+        if encoder_only:
+            for wheel, stamp in (
+                ('left', self.last_left_tick_time),
+                ('right', self.last_right_tick_time),
+            ):
+                if (
+                    stamp is None
+                    or now - stamp > FIRMWARE_PID_MAX_TELEMETRY_AGE_S
+                ):
+                    raise RuntimeError(
+                        f'Safety stop: {wheel} encoder ticks became stale.'
+                    )
+        if (
+            now - self.last_controller_status_time
+            > self.stale_controller_status_s
+        ):
+            raise RuntimeError(
+                'Safety stop: wheel-controller telemetry became stale.'
+            )
+        if now - self.last_encoder_diag_time > self.stale_encoder_diag_s:
+            raise RuntimeError(
+                'Safety stop: encoder diagnostic telemetry became stale.'
+            )
+
+    def assert_odom_guard_safe(self):
+        if getattr(self, 'encoder_only_mode', False):
+            return
+        if self.latched_odom_guard_error is not None:
+            raise RuntimeError(
+                'Safety stop: '
+                f'{self.latched_odom_guard_error}. Vicon guard is latched; '
+                'restart the direct wheel test after correcting tracking.'
+            )
+
+    def latest_controller_source(self):
+        source_offset = 1 + CONTROLLER_STATUS_FIELDS.index('source')
+        return int(round(self.controller_status_samples[-1][source_offset]))
+
+    def assert_zero_heartbeat_acknowledged(self):
+        """Require proof that the firmware received the preflight zero command."""
+        source_code = self.latest_controller_source()
+        if source_code != 5:
+            source_name = CONTROLLER_STATUS_SOURCE_NAMES.get(
+                source_code, f'UNKNOWN({source_code})'
+            )
+            raise RuntimeError(
+                'Preflight zero command was not acknowledged by the wheel '
+                f'controller; latest source is {source_name}, expected '
+                'UART_ZERO. Motion remains disabled.'
+            )
+        if (
+            getattr(self, 'encoder_only_mode', False)
+            and not firmware_zero_status_is_acknowledged(
+                self.controller_status_samples[-1]
+            )
+        ):
+            raise RuntimeError(
+                'Preflight UART_ZERO status did not report zero targets and '
+                'zero wheel actuator outputs. Motion remains disabled.'
+            )
+
+    def assert_firmware_pid_preflight_fatal_safe(self):
+        """Fail immediately on conflicts or an actively unsafe source state."""
+        if not getattr(self, 'encoder_only_mode', False):
+            return
+        # This check deliberately precedes the first zero heartbeat. The test
+        # must never contend with an autonomous controller or teleop publisher,
+        # even briefly while waiting for the rest of preflight telemetry.
+        self.assert_exclusive_publishers()
+        if self.controller_status_schema_error is not None:
+            raise RuntimeError(self.controller_status_schema_error)
+        if self.encoder_diag_schema_error is not None:
+            raise RuntimeError(self.encoder_diag_schema_error)
+        if not self.controller_status_samples:
+            return
+
+        row = self.controller_status_samples[-1]
+        source = int(round(firmware_status_value(row, 'source')))
+        if source in (2, 3, 4):
+            source_name = CONTROLLER_STATUS_SOURCE_NAMES[source]
+            raise RuntimeError(
+                'Preflight refused an active external firmware source: '
+                f'{source_name}. Stop every teleop source before retrying.'
+            )
+        if not firmware_status_reports_zero_actuation(row):
+            source_name = CONTROLLER_STATUS_SOURCE_NAMES.get(
+                source, f'UNKNOWN({source})'
+            )
+            raise RuntimeError(
+                'Preflight observed nonzero wheel targets or actuator output '
+                f'from {source_name}; refusing to publish into contention.'
+            )
+
+    def assert_active_controller_source_safe(self):
+        """Abort a trial if a firmware interlock or other control source wins."""
+        source_code = self.latest_controller_source()
+        # UART_ZERO is permitted only as the brief acknowledgement lag between
+        # the first ramp command and the next status packet. A persistent value
+        # produces no motion, while either explicit firmware stop source must
+        # terminate the trial and may not auto-resume.
+        if source_code not in (1, 5):
+            source_name = CONTROLLER_STATUS_SOURCE_NAMES.get(
+                source_code, f'UNKNOWN({source_code})'
+            )
+            raise RuntimeError(
+                'Safety stop: wheel controller changed to '
+                f'{source_name} while a nonzero trial command was requested.'
+            )
+
+    def begin_firmware_pid_motion(self):
+        """Capture independent encoder baselines immediately before motion."""
+        if not getattr(self, 'encoder_only_mode', False):
+            return
+        self.assert_ready()
+        self.assert_zero_heartbeat_acknowledged()
+        self.firmware_pid_motion_start_time = time.monotonic()
+        self.firmware_pid_tick_start = (
+            self.left_tick_samples[-1][1],
+            self.right_tick_samples[-1][1],
+        )
+        self.firmware_pid_diag_start = self.encoder_diag_samples[-1]
+        self.firmware_pid_plateau_start_time = None
+        self.firmware_pid_plateau_target_rpm = None
+        self.firmware_pid_stop_time = None
+        self.firmware_pid_stop_tick_start = None
+        self.firmware_pid_stop_proof = None
+
+    def begin_firmware_pid_plateau(self, left, right, start_time):
+        left, right = require_firmware_pid_straight_command(left, right)
+        self.firmware_pid_plateau_start_time = float(start_time)
+        self.firmware_pid_plateau_target_rpm = (
+            wheel_rad_s_to_rpm(left),
+            wheel_rad_s_to_rpm(right),
+        )
+
+    def assert_firmware_pid_publication_gap_safe(self, context):
+        """Publish zero and abort before a delayed heartbeat can resume motion."""
+        now = time.monotonic()
+        previous = getattr(self, 'last_wheel_command_publish_time', None)
+        gap = float('inf') if previous is None else now - previous
+        if (
+            not math.isfinite(gap)
+            or gap < 0.0
+            or gap > FIRMWARE_PID_MAX_NONZERO_PUBLICATION_GAP_S
+        ):
+            self.publish_cmd(0.0, 0.0)
+            raise RuntimeError(
+                'Safety stop: wheel-command publication gap exceeded %.3f s '
+                'during %s; refusing to resume after a possible firmware '
+                'dead-man stop.'
+                % (FIRMWARE_PID_MAX_NONZERO_PUBLICATION_GAP_S, context)
+            )
+        return gap
+
+    def assert_firmware_pid_status_safe(self, now):
+        start = self.firmware_pid_motion_start_time
+        if start is None:
+            raise RuntimeError(
+                'Firmware-PID motion baseline was not established.'
+            )
+        samples = [
+            row for row in self.controller_status_samples
+            if row[0] >= start
+        ]
+        elapsed = now - start
+        if not samples:
+            if elapsed > FIRMWARE_PID_SOURCE_GRACE_S:
+                raise RuntimeError(
+                    'Safety stop: no post-command firmware status received.'
+                )
+            return
+
+        for row in samples:
+            source = int(round(firmware_status_value(row, 'source')))
+            row_elapsed = row[0] - start
+            if source not in (1, 5):
+                name = CONTROLLER_STATUS_SOURCE_NAMES.get(
+                    source, f'UNKNOWN({source})'
+                )
+                raise RuntimeError(
+                    f'Safety stop: firmware source changed to {name}.'
+                )
+            if row_elapsed > FIRMWARE_PID_SOURCE_GRACE_S and source != 1:
+                raise RuntimeError(
+                    'Safety stop: firmware did not acknowledge the nonzero '
+                    'UART_ROS command before the source grace expired.'
+                )
+            if (
+                firmware_status_value(row, 'left_saturated') > 0.5
+                or firmware_status_value(row, 'right_saturated') > 0.5
+            ):
+                raise RuntimeError(
+                    'Safety stop: firmware wheel output saturated.'
+                )
+            if source != 1:
+                continue
+
+            left_target = firmware_status_value(row, 'left_target_rpm')
+            right_target = firmware_status_value(row, 'right_target_rpm')
+            if left_target < -1e-9 or right_target < -1e-9:
+                raise RuntimeError(
+                    'Safety stop: firmware reported a reverse wheel target.'
+                )
+            if (
+                abs(left_target - right_target)
+                > FIRMWARE_PID_MAX_TARGET_DIFFERENCE_RPM
+            ):
+                raise RuntimeError(
+                    'Safety stop: firmware targets are not an equal-wheel pair.'
+                )
+            for field in ('left_output_pwm', 'right_output_pwm'):
+                if firmware_status_value(row, field) < -1e-9:
+                    raise RuntimeError(
+                        'Safety stop: firmware reported reverse motor output.'
+                    )
+            if row_elapsed > FIRMWARE_PID_DIRECTION_GRACE_S:
+                for field in ('left_measured_rpm', 'right_measured_rpm'):
+                    if (
+                        firmware_status_value(row, field)
+                        < -FIRMWARE_PID_MAX_REVERSE_RPM
+                    ):
+                        raise RuntimeError(
+                            'Safety stop: firmware measured reverse wheel speed.'
+                        )
+
+        source_acknowledgements = [
+            row for row in samples
+            if (
+                row[0] >= start + FIRMWARE_PID_SOURCE_GRACE_S
+                and int(round(firmware_status_value(row, 'source'))) == 1
+            )
+        ]
+        if (
+            elapsed > FIRMWARE_PID_SOURCE_GRACE_S
+            and not source_acknowledgements
+        ):
+            raise RuntimeError(
+                'Safety stop: no firmware source acknowledgement after grace.'
+            )
+
+        plateau_start = getattr(
+            self, 'firmware_pid_plateau_start_time', None
+        )
+        plateau_target = getattr(
+            self, 'firmware_pid_plateau_target_rpm', None
+        )
+        if (
+            plateau_start is not None
+            and plateau_target is not None
+            and now > plateau_start + FIRMWARE_PID_PLATEAU_GRACE_S
+        ):
+            plateau_samples = [
+                row for row in samples
+                if row[0]
+                >= plateau_start + FIRMWARE_PID_PLATEAU_GRACE_S
+            ]
+            if not plateau_samples:
+                raise RuntimeError(
+                    'Safety stop: no firmware target acknowledgement for the '
+                    'constant-speed plateau.'
+                )
+            for row in plateau_samples:
+                for field, expected in (
+                    ('left_target_rpm', plateau_target[0]),
+                    ('right_target_rpm', plateau_target[1]),
+                ):
+                    observed = firmware_status_value(row, field)
+                    if (
+                        abs(observed - expected)
+                        > FIRMWARE_PID_PLATEAU_TARGET_TOLERANCE_RPM
+                    ):
+                        raise RuntimeError(
+                            'Safety stop: firmware plateau target does not '
+                            'match the requested wheel speed.'
+                        )
+
+    def assert_firmware_pid_diagnostics_safe(self, now):
+        start = self.firmware_pid_motion_start_time
+        baseline = self.firmware_pid_diag_start
+        if start is None or baseline is None:
+            raise RuntimeError(
+                'Firmware-PID encoder diagnostic baseline is missing.'
+            )
+        samples = [baseline] + [
+            row for row in self.encoder_diag_samples
+            if row[0] > baseline[0]
+        ]
+        if len(samples) < 2:
+            if now - start > FIRMWARE_PID_DIRECTION_GRACE_S:
+                raise RuntimeError(
+                    'Safety stop: no post-command encoder diagnostics received.'
+                )
+            return
+
+        width = len(ENCODER_DIAG_WHEEL_FIELDS)
+        for wheel_index, wheel in enumerate(('left', 'right')):
+            offset = 1 + wheel_index * width
+            field_values = {
+                field: [row[offset + index] for row in samples]
+                for index, field in enumerate(ENCODER_DIAG_WHEEL_FIELDS)
+            }
+            for field in ENCODER_DIAG_WHEEL_FIELDS[2:10]:
+                monotonic_delta(field_values[field], f'{wheel}_{field}')
+            legacy_delta = (
+                field_values['legacy_ticks'][-1]
+                - field_values['legacy_ticks'][0]
+            )
+            quadrature_delta = (
+                field_values['quadrature_count'][-1]
+                - field_values['quadrature_count'][0]
+            )
+            reverse_delta = monotonic_delta(
+                field_values['valid_negative'],
+                f'{wheel}_valid_negative',
+            )
+            invalid_delta = monotonic_delta(
+                field_values['invalid_transitions'],
+                f'{wheel}_invalid_transitions',
+            )
+            if legacy_delta < 0.0 or quadrature_delta < 0.0:
+                raise RuntimeError(
+                    f'Safety stop: {wheel} encoder moved in reverse.'
+                )
+            if reverse_delta > FIRMWARE_PID_MAX_VALID_NEGATIVE_TRANSITIONS:
+                raise RuntimeError(
+                    f'Safety stop: {wheel} encoder exceeded the hard reverse '
+                    'quadrature-transition tolerance.'
+                )
+            if invalid_delta > FIRMWARE_PID_MAX_INVALID_TRANSITIONS:
+                raise RuntimeError(
+                    f'Safety stop: {wheel} encoder exceeded the hard invalid '
+                    'quadrature-transition tolerance.'
+                )
+            if (
+                now - start > FIRMWARE_PID_DIRECTION_GRACE_S
+                and (legacy_delta <= 0.0 or quadrature_delta <= 0.0)
+            ):
+                raise RuntimeError(
+                    f'Safety stop: {wheel} encoder did not advance forward.'
+                )
+
+    def assert_firmware_pid_motion_safety(self):
+        now = time.monotonic()
+        start = self.firmware_pid_motion_start_time
+        tick_start = self.firmware_pid_tick_start
+        if start is None or tick_start is None:
+            raise RuntimeError(
+                'Firmware-PID motion baseline was not established.'
+            )
+        if now < start or now - start > FIRMWARE_PID_MAX_MOTION_S:
+            raise RuntimeError(
+                'Safety stop: firmware-PID hard motion duration exceeded.'
+            )
+        require_firmware_pid_tick_travel(
+            tick_start[0],
+            tick_start[1],
+            self.left_tick_samples[-1][1],
+            self.right_tick_samples[-1][1],
+        )
+        self.assert_firmware_pid_status_safe(now)
+        self.assert_firmware_pid_diagnostics_safe(now)
+
+    def assert_motion_safety(self):
+        self.assert_ready()
+        if getattr(self, 'encoder_only_mode', False):
+            self.assert_firmware_pid_motion_safety()
+            return
+        self.assert_active_controller_source_safe()
+        if self.trial_start_pose is not None:
+            trial_path = self.total_path_m - self.trial_start_path_m
+            yaw_change = abs(self.pose[2] - self.trial_start_pose[2])
+            if trial_path > self.max_trial_path_m:
+                raise RuntimeError(
+                    f'Safety stop: trial path {trial_path:.3f} m exceeds '
+                    f'{self.max_trial_path_m:.3f} m.'
+                )
+            if yaw_change > self.max_trial_yaw_rad:
+                raise RuntimeError(
+                    f'Safety stop: trial yaw {yaw_change:.3f} rad exceeds '
+                    f'{self.max_trial_yaw_rad:.3f} rad.'
+                )
+        if self.run_start_pose is not None:
+            displacement = math.hypot(
+                self.pose[0] - self.run_start_pose[0],
+                self.pose[1] - self.run_start_pose[1],
+            )
+            if displacement > self.max_total_displacement_m:
+                raise RuntimeError(
+                    f'Safety stop: displacement {displacement:.3f} m exceeds '
+                    f'{self.max_total_displacement_m:.3f} m.'
+                )
+        if self.total_path_m > self.max_total_path_m:
+            raise RuntimeError(
+                f'Safety stop: total path {self.total_path_m:.3f} m exceeds '
+                f'{self.max_total_path_m:.3f} m.'
+            )
+
+    def run_for(self, duration_s, command_fn):
+        start = time.monotonic()
+        period = 1.0 / self.rate_hz
+        while rclpy.ok() and time.monotonic() - start < duration_s:
+            self.service_callbacks(timeout_sec=0.0)
+            try:
+                self.assert_odom_guard_safe()
+            except RuntimeError:
+                # Make zero the first publication after a processed Vicon
+                # fault.  The run/main finally blocks continue the zero
+                # heartbeat while the exception terminates this process.
+                self.publish_cmd(0.0, 0.0)
+                raise
+            elapsed = time.monotonic() - start
+            left, right = command_fn(elapsed)
+            encoder_only = getattr(self, 'encoder_only_mode', False)
+            if encoder_only:
+                left, right = require_firmware_pid_straight_command(
+                    left, right
+                )
+            command_limit = self.max_abs_wheel_cmd
+            if encoder_only:
+                command_limit = min(
+                    command_limit, FIRMWARE_PID_MAX_LEVEL_RAD_S
+                )
+            if max(abs(left), abs(right)) > command_limit + 1e-9:
+                raise RuntimeError('Generated wheel command exceeds safety limit.')
+            nonzero = max(abs(left), abs(right)) > 1e-6
+            if nonzero:
+                self.assert_motion_safety()
+                if encoder_only:
+                    # Publisher/subscriber counts come from the local ROS graph
+                    # cache, but graph and callback queries are still allowed
+                    # to take time. Measure after all active supervision and
+                    # before each nonzero publish. A late cycle must send zero
+                    # and abort, never revive motion after the firmware's
+                    # independent 100 ms UART dead-man may have fired.
+                    self.assert_firmware_pid_publication_gap_safe(
+                        'active telemetry and graph checks'
+                    )
+            elif encoder_only:
+                # Zero heartbeats still supervise all telemetry and graph
+                # invariants, but a nonzero cycle checks readiness exactly
+                # once through assert_motion_safety().
+                self.assert_ready()
+            self.publish_cmd(left, right)
+            time.sleep(period)
+
+    def zero_for(self, duration_s):
+        self.run_for(duration_s, lambda _elapsed: (0.0, 0.0))
+
+    def wait_for_firmware_pid_stop_proof(self):
+        """Prove bounded coast followed by an observed zero-command freeze."""
+        if not getattr(self, 'encoder_only_mode', False):
+            return
+        stop_time = self.firmware_pid_stop_time
+        tick_start = self.firmware_pid_stop_tick_start
+        motion_tick_start = self.firmware_pid_tick_start
+        if (
+            stop_time is None
+            or tick_start is None
+            or motion_tick_start is None
+        ):
+            raise RuntimeError('Firmware-PID post-stop baseline is missing.')
+
+        now = time.monotonic()
+        if now < stop_time:
+            raise RuntimeError('Safety stop: monotonic clock moved backward.')
+        deadline = stop_time + FIRMWARE_PID_POST_STOP_TIMEOUT_S
+        freeze_ticks = (
+            self.left_tick_samples[-1][1],
+            self.right_tick_samples[-1][1],
+        )
+        freeze_start = now
+        zero_ack_time = None
+        latest_coast = None
+
+        while rclpy.ok() and time.monotonic() < deadline:
+            # A zero heartbeat is part of the proof. If callback processing or
+            # ROS graph-cache queries delay it past the fixed gap ceiling, the
+            # proof is invalid even though the firmware dead-man also stops.
+            self.assert_firmware_pid_publication_gap_safe(
+                'post-stop zero heartbeat'
+            )
+            self.publish_cmd(0.0, 0.0)
+            self.service_callbacks(timeout_sec=0.01)
+            self.assert_ready()
+            self.assert_firmware_pid_publication_gap_safe(
+                'post-stop telemetry and graph checks'
+            )
+
+            now = time.monotonic()
+            current_ticks = (
+                self.left_tick_samples[-1][1],
+                self.right_tick_samples[-1][1],
+            )
+            latest_coast = require_firmware_pid_post_stop_coast(
+                tick_start[0],
+                tick_start[1],
+                current_ticks[0],
+                current_ticks[1],
+            )
+            # The original motion envelope remains in force through coast; a
+            # trial cannot stop at 1190 ticks and then coast beyond the hard
+            # 1200-tick or 120-tick differential ceiling.
+            require_firmware_pid_tick_travel(
+                motion_tick_start[0],
+                motion_tick_start[1],
+                current_ticks[0],
+                current_ticks[1],
+            )
+            if current_ticks != freeze_ticks:
+                freeze_ticks = current_ticks
+                freeze_start = now
+
+            source = self.latest_controller_source()
+            if source not in (1, 5):
+                source_name = CONTROLLER_STATUS_SOURCE_NAMES.get(
+                    source, f'UNKNOWN({source})'
+                )
+                raise RuntimeError(
+                    'Safety stop: wheel controller changed to '
+                    f'{source_name} during post-stop proof.'
+                )
+            latest_status = self.controller_status_samples[-1]
+            if (
+                self.last_controller_status_time is not None
+                and self.last_controller_status_time >= stop_time
+                and firmware_zero_status_is_acknowledged(latest_status)
+                and zero_ack_time is None
+            ):
+                candidate_ack_time = self.last_controller_status_time
+                if (
+                    candidate_ack_time - stop_time
+                    > FIRMWARE_PID_POST_STOP_ZERO_ACK_MAX_S
+                ):
+                    raise RuntimeError(
+                        'Safety stop: complete UART-zero acknowledgement was '
+                        'not prompt.'
+                    )
+                zero_ack_time = candidate_ack_time
+            if zero_ack_time is not None:
+                regressed_rows = [
+                    row for row in self.controller_status_samples
+                    if (
+                        row[0] > zero_ack_time
+                        and (
+                            int(round(firmware_status_value(row, 'source')))
+                            != 5
+                            or not firmware_status_reports_zero_actuation(row)
+                        )
+                    )
+                ]
+                if regressed_rows:
+                    raise RuntimeError(
+                        'Safety stop: firmware zero state regressed during '
+                        'the post-stop encoder freeze proof.'
+                    )
+            if (
+                zero_ack_time is None
+                and now - stop_time
+                > FIRMWARE_PID_POST_STOP_ZERO_ACK_MAX_S
+            ):
+                raise RuntimeError(
+                    'Safety stop: complete UART-zero acknowledgement was not '
+                    'received within %.2f s.'
+                    % FIRMWARE_PID_POST_STOP_ZERO_ACK_MAX_S
+                )
+
+            freeze_s = now - freeze_start
+            if (
+                zero_ack_time is not None
+                and freeze_s >= FIRMWARE_PID_POST_STOP_FREEZE_S
+                and firmware_zero_status_is_acknowledged(latest_status)
+            ):
+                self.firmware_pid_stop_proof = {
+                    'post_stop_left_coast_ticks': latest_coast[0],
+                    'post_stop_right_coast_ticks': latest_coast[1],
+                    'post_stop_average_abs_coast_ticks': latest_coast[2],
+                    'post_stop_differential_growth_ticks': latest_coast[3],
+                    'post_stop_encoder_freeze_s': freeze_s,
+                    'post_stop_zero_ack_latency_s': (
+                        zero_ack_time - stop_time
+                    ),
+                }
+                return
+
+        self.publish_cmd(0.0, 0.0)
+        raise RuntimeError(
+            'Safety stop: no bounded %.2f s encoder freeze was proven within '
+            'the %.2f s post-stop timeout.'
+            % (
+                FIRMWARE_PID_POST_STOP_FREEZE_S,
+                FIRMWARE_PID_POST_STOP_TIMEOUT_S,
+            )
+        )
+
+    def wait_for_firmware_pid_final_zero(self):
+        """Publish zero until a new complete UART-zero status is observed."""
+        if not getattr(self, 'encoder_only_mode', False):
+            return
+        request_time = time.monotonic()
+        deadline = request_time + FIRMWARE_PID_FINAL_ZERO_TIMEOUT_S
+        while rclpy.ok() and time.monotonic() < deadline:
+            self.publish_cmd(0.0, 0.0)
+            self.service_callbacks(timeout_sec=0.02)
+            self.assert_ready()
+            if (
+                self.last_controller_status_time is not None
+                and self.last_controller_status_time >= request_time
+                and firmware_zero_status_is_acknowledged(
+                    self.controller_status_samples[-1]
+                )
+            ):
+                return
+        raise RuntimeError(
+            'Safety stop: firmware did not acknowledge the final UART zero.'
+        )
+
+    def wait_for_inputs(self):
+        deadline = time.monotonic() + self.startup_timeout_s
+        zero_ack_deadline = None
+        while rclpy.ok() and time.monotonic() < deadline:
+            if getattr(self, 'encoder_only_mode', False):
+                self.assert_firmware_pid_preflight_fatal_safe()
+                if (
+                    zero_ack_deadline is not None
+                    and time.monotonic() >= zero_ack_deadline
+                ):
+                    self.assert_ready()
+                    self.assert_zero_heartbeat_acknowledged()
+                    return
+            # The firmware dead-man intentionally stops its telemetry loop
+            # when every command source is silent.  Keep the UART source fresh
+            # with an explicit zero while preflight waits for status/encoder
+            # samples.  Nonzero commands remain impossible until assert_ready
+            # has passed below and run() enters the bounded test plan.
+            self.publish_cmd(0.0, 0.0)
+            self.service_callbacks(timeout_sec=0.05)
+            # Source/geometry failures are process-latched and must abort
+            # preflight immediately; do not swallow them while waiting for a
+            # later sample.  With no fault, assert_ready still requires one
+            # fully accepted pose before motion can arm.
+            self.assert_odom_guard_safe()
+            self.assert_firmware_pid_preflight_fatal_safe()
+            try:
+                self.assert_ready()
+            except RuntimeError:
+                continue
+            if getattr(self, 'encoder_only_mode', False):
+                if zero_ack_deadline is None:
+                    zero_ack_deadline = (
+                        time.monotonic() + FIRMWARE_PID_ZERO_ACK_GRACE_S
+                    )
+                try:
+                    self.assert_zero_heartbeat_acknowledged()
+                    return
+                except RuntimeError:
+                    if time.monotonic() >= zero_ack_deadline:
+                        raise
+            else:
+                try:
+                    self.assert_zero_heartbeat_acknowledged()
+                    return
+                except RuntimeError:
+                    pass
+        self.assert_firmware_pid_preflight_fatal_safe()
+        self.assert_ready()
+        self.assert_zero_heartbeat_acknowledged()
+
+    @staticmethod
+    def between(samples, start, end):
+        return [row for row in samples if start <= row[0] <= end]
+
+    def summarize(self, trial, label, left, right, hold_start, hold_end):
+        measure_start = max(hold_start, hold_end - self.measure_s)
+        odom = self.between(self.odom_samples, measure_start, hold_end)
+        left_ticks = self.between(
+            self.left_tick_samples, measure_start, hold_end
+        )
+        right_ticks = self.between(
+            self.right_tick_samples, measure_start, hold_end
+        )
+        controller_status = self.between(
+            self.controller_status_samples, measure_start, hold_end
+        )
+        encoder_diag = self.between(
+            self.encoder_diag_samples, measure_start, hold_end
+        )
+        if len(controller_status) < 3:
+            raise RuntimeError(
+                'Insufficient wheel-controller telemetry in measurement window.'
+            )
+        vx = fit_slope(odom, 1)
+        vy = fit_slope(odom, 2)
+        yaw_rate = fit_slope(odom, 3)
+        heading = (
+            median(row[3] for row in odom) + self.base_yaw_offset
+            if odom else float('nan')
+        )
+        if all(math.isfinite(v) for v in (vx, vy, heading)):
+            forward = math.cos(heading) * vx + math.sin(heading) * vy
+            lateral = -math.sin(heading) * vx + math.cos(heading) * vy
+        else:
+            forward = lateral = float('nan')
+        if math.isfinite(forward) and math.isfinite(yaw_rate):
+            inferred_right = (
+                forward + self.a_wheel * yaw_rate
+            ) / self.r_wheel
+            inferred_left = (
+                forward - self.a_wheel * yaw_rate
+            ) / self.r_wheel
+        else:
+            inferred_left = inferred_right = float('nan')
+
+        requested_yaw_rate = (
+            self.r_wheel / (2.0 * self.a_wheel) * (right - left)
+        )
+        yaw_gain = (
+            yaw_rate / requested_yaw_rate
+            if abs(requested_yaw_rate) > 1e-9 else float('nan')
+        )
+        row = {
+            'trial': trial,
+            'label': label,
+            'profile': self.profile,
+            'left_cmd_rad_s': left,
+            'right_cmd_rad_s': right,
+            'requested_yaw_rate_rad_s': requested_yaw_rate,
+            'actual_yaw_rate_rad_s': yaw_rate,
+            'actual_over_requested_yaw': yaw_gain,
+            'vx_world_m_s': vx,
+            'vy_world_m_s': vy,
+            'body_forward_m_s': forward,
+            'body_lateral_m_s': lateral,
+            'vicon_inferred_left_rad_s': inferred_left,
+            'vicon_inferred_right_rad_s': inferred_right,
+            'left_tick_rate_ticks_s': fit_slope(left_ticks, 1),
+            'right_tick_rate_ticks_s': fit_slope(right_ticks, 1),
+            'delta_x_m': (
+                self.pose[0] - self.trial_start_pose[0]
+                if self.pose and self.trial_start_pose else float('nan')
+            ),
+            'delta_y_m': (
+                self.pose[1] - self.trial_start_pose[1]
+                if self.pose and self.trial_start_pose else float('nan')
+            ),
+            'delta_yaw_rad': (
+                self.pose[2] - self.trial_start_pose[2]
+                if self.pose and self.trial_start_pose else float('nan')
+            ),
+            'measure_samples': len(odom),
+        }
+        row.update(summarize_controller_status(controller_status))
+        row.update(summarize_encoder_diagnostics(encoder_diag, left, right))
+        if getattr(self, 'encoder_only_mode', False):
+            if not self.firmware_pid_stop_proof:
+                raise RuntimeError(
+                    'Firmware-PID result cannot be recorded without the '
+                    'post-stop encoder proof.'
+                )
+            row.update(self.firmware_pid_stop_proof)
+        return row
+
+    def write_rows(self):
+        if not self.rows:
+            return
+        self.csv_path.parent.mkdir(parents=True, exist_ok=True)
+        with self.csv_path.open('w', newline='') as handle:
+            writer = csv.DictWriter(
+                handle, fieldnames=list(self.rows[0].keys())
+            )
+            writer.writeheader()
+            writer.writerows(self.rows)
+
+    def run_trial(self, trial, label, left, right):
+        self.get_logger().warn(
+            f'Trial {trial} {label}: L={left:+.3f}, R={right:+.3f} rad/s'
+        )
+        self.zero_for(self.zero_s)
+        self.trial_start_pose = self.pose
+        self.trial_start_path_m = self.total_path_m
+        if getattr(self, 'encoder_only_mode', False):
+            self.begin_firmware_pid_motion()
+
+        def ramp(elapsed):
+            alpha = min(1.0, elapsed / max(self.ramp_s, 1e-6))
+            return alpha * left, alpha * right
+
+        try:
+            self.run_for(self.ramp_s, ramp)
+            hold_start = time.monotonic()
+            if getattr(self, 'encoder_only_mode', False):
+                self.begin_firmware_pid_plateau(left, right, hold_start)
+            self.run_for(self.hold_s, lambda _elapsed: (left, right))
+            hold_end = time.monotonic()
+        finally:
+            # Do not defer the first stop publication to logging, CSV I/O, or
+            # an outer exception handler. Drain only already-ready depth-one
+            # telemetry, capture the latest tick state, and publish zero.
+            self.publish_firmware_pid_stop()
+        self.wait_for_firmware_pid_stop_proof()
+        row = self.summarize(
+            trial, label, left, right, hold_start, hold_end
+        )
+        self.rows.append(row)
+        self.write_rows()
+        self.zero_for(self.zero_s)
+        self.wait_for_firmware_pid_final_zero()
+        if getattr(self, 'encoder_only_mode', False):
+            self.get_logger().info(
+                'Post-stop proof: coast L=%+.0f R=%+.0f ticks, average=%.1f, '
+                'differential=%.1f; encoder freeze=%.3f s'
+                % (
+                    row['post_stop_left_coast_ticks'],
+                    row['post_stop_right_coast_ticks'],
+                    row['post_stop_average_abs_coast_ticks'],
+                    row['post_stop_differential_growth_ticks'],
+                    row['post_stop_encoder_freeze_s'],
+                )
+            )
+        self.get_logger().info(
+            'Result: yaw_rate=%+.3f rad/s, ticks/s L=%+.1f R=%+.1f'
+            % (
+                row['actual_yaw_rate_rad_s'],
+                row['left_tick_rate_ticks_s'],
+                row['right_tick_rate_ticks_s'],
+            )
+        )
+        self.get_logger().info(
+            'Controller source=%s(%d), observed range=%d..%d, samples=%d'
+            % (
+                row['controller_source_name'],
+                row['controller_source_code'],
+                row['controller_source_min'],
+                row['controller_source_max'],
+                row['controller_status_samples'],
+            )
+        )
+        self.get_logger().info(
+            'Physical left: target=%+.2f, measured=%+.2f, error=%+.2f rpm, '
+            'integral=%+.2f rpm*s; PWM ff=%+.1f, pid=%+.1f, out=%+.1f, '
+            'saturated=%.0f%%'
+            % (
+                row['controller_left_target_rpm'],
+                row['controller_left_measured_rpm'],
+                row['controller_left_error_rpm'],
+                row['controller_left_integral_rpm_s'],
+                row['controller_left_ff_pwm'],
+                row['controller_left_pid_pwm'],
+                row['controller_left_output_pwm'],
+                100.0 * row['controller_left_saturated_fraction'],
+            )
+        )
+        self.get_logger().info(
+            'Physical right: target=%+.2f, measured=%+.2f, error=%+.2f rpm, '
+            'integral=%+.2f rpm*s; PWM ff=%+.1f, pid=%+.1f, out=%+.1f, '
+            'saturated=%.0f%%'
+            % (
+                row['controller_right_target_rpm'],
+                row['controller_right_measured_rpm'],
+                row['controller_right_error_rpm'],
+                row['controller_right_integral_rpm_s'],
+                row['controller_right_ff_pwm'],
+                row['controller_right_pid_pwm'],
+                row['controller_right_output_pwm'],
+                100.0 * row['controller_right_saturated_fraction'],
+            )
+        )
+        for wheel in ('left', 'right'):
+            prefix = f'encoder_{wheel}_'
+            self.get_logger().info(
+                'Encoder diag physical %s: legacy delta=%+d, quadrature '
+                'delta=%+d, A/B edges=%d/%d, invalid=%.2f%%, '
+                'duplicates=%.2f%%, requested-direction valid=%.2f%%'
+                % (
+                    wheel,
+                    row[f'{prefix}legacy_delta'],
+                    row[f'{prefix}quadrature_delta'],
+                    row[f'{prefix}a_edges_delta'],
+                    row[f'{prefix}b_edges_delta'],
+                    100.0 * row[f'{prefix}invalid_fraction'],
+                    100.0 * row[f'{prefix}duplicate_fraction'],
+                    100.0 * row[f'{prefix}direction_correct_fraction'],
+                )
+            )
+
+    def validate(self, plan):
+        values = [
+            self.level,
+            self.hold_s,
+            self.measure_s,
+            self.ramp_s,
+            self.zero_s,
+            self.start_delay_s,
+            self.rate_hz,
+            self.max_abs_wheel_cmd,
+            self.stale_odom_s,
+            self.stale_controller_status_s,
+            self.stale_encoder_diag_s,
+            self.startup_timeout_s,
+            self.max_trial_path_m,
+            self.max_trial_yaw_rad,
+            self.max_total_displacement_m,
+            self.max_total_path_m,
+            self.r_wheel,
+            self.a_wheel,
+        ]
+        if not all(math.isfinite(v) for v in values):
+            raise RuntimeError('All numeric test parameters must be finite.')
+        positive_safety_values = (
+            self.max_abs_wheel_cmd,
+            self.stale_odom_s,
+            self.stale_controller_status_s,
+            self.stale_encoder_diag_s,
+            self.startup_timeout_s,
+            self.max_trial_path_m,
+            self.max_trial_yaw_rad,
+            self.max_total_displacement_m,
+            self.max_total_path_m,
+            self.r_wheel,
+            self.a_wheel,
+        )
+        if not all(value > 0.0 for value in positive_safety_values):
+            raise RuntimeError(
+                'Wheel geometry, freshness timeouts, and safety limits '
+                'must be positive.'
+            )
+        if self.level <= 0.0 or self.repeat_count < 1:
+            raise RuntimeError('level_rad_s and repeat_count must be positive.')
+        if self.rate_hz <= 0.0 or self.hold_s <= 0.0:
+            raise RuntimeError('rate_hz and hold_s must be positive.')
+        if self.measure_s <= 0.0 or self.measure_s > self.hold_s:
+            raise RuntimeError('measure_s must be in (0, hold_s].')
+
+        encoder_only = getattr(self, 'encoder_only_mode', False)
+        allow_encoder_only = getattr(self, 'allow_encoder_only', False)
+        if allow_encoder_only and not encoder_only:
+            raise RuntimeError(
+                'allow_encoder_only is valid only with '
+                f'profile:={FIRMWARE_PID_STRAIGHT_PROFILE}.'
+            )
+        if encoder_only:
+            if self.enable and not allow_encoder_only:
+                raise RuntimeError(
+                    'Firmware-PID encoder-only motion requires two explicit '
+                    'opt-ins: profile:=firmware_pid_straight and '
+                    'allow_encoder_only:=true.'
+                )
+            if self.repeat_count != 1 or len(plan) != 1:
+                raise RuntimeError(
+                    'Firmware-PID calibration permits exactly one trial.'
+                )
+            require_firmware_pid_straight_command(plan[0][1], plan[0][2])
+            if self.ramp_s <= 0.0 or self.ramp_s > FIRMWARE_PID_MAX_RAMP_S:
+                raise RuntimeError(
+                    'Firmware-PID ramp_s must be in (0, %.2f].'
+                    % FIRMWARE_PID_MAX_RAMP_S
+                )
+            if not (
+                FIRMWARE_PID_MIN_HOLD_S
+                <= self.hold_s
+                <= FIRMWARE_PID_MAX_HOLD_S
+            ):
+                raise RuntimeError(
+                    'Firmware-PID hold_s must be between %.2f and %.2f.'
+                    % (
+                        FIRMWARE_PID_MIN_HOLD_S,
+                        FIRMWARE_PID_MAX_HOLD_S,
+                    )
+                )
+            if (
+                self.ramp_s + self.hold_s
+                > FIRMWARE_PID_MAX_SCHEDULED_MOTION_S
+            ):
+                raise RuntimeError(
+                    'Firmware-PID scheduled motion must not exceed %.2f s.'
+                    % FIRMWARE_PID_MAX_SCHEDULED_MOTION_S
+                )
+            if self.zero_s <= 0.0 or self.start_delay_s < 0.0:
+                raise RuntimeError(
+                    'Firmware-PID zero_s must be positive and start_delay_s '
+                    'must be nonnegative.'
+                )
+            if not (
+                FIRMWARE_PID_MIN_RATE_HZ
+                <= self.rate_hz
+                <= FIRMWARE_PID_MAX_RATE_HZ
+            ):
+                raise RuntimeError(
+                    'Firmware-PID rate_hz must be between %.0f and %.0f.'
+                    % (
+                        FIRMWARE_PID_MIN_RATE_HZ,
+                        FIRMWARE_PID_MAX_RATE_HZ,
+                    )
+                )
+            if (
+                self.stale_controller_status_s
+                > FIRMWARE_PID_MAX_TELEMETRY_AGE_S
+                or self.stale_encoder_diag_s
+                > FIRMWARE_PID_MAX_TELEMETRY_AGE_S
+            ):
+                raise RuntimeError(
+                    'Firmware-PID status and diagnostic freshness limits may '
+                    'not exceed %.2f s.'
+                    % FIRMWARE_PID_MAX_TELEMETRY_AGE_S
+                )
+        for _label, left, right in plan:
+            if max(abs(left), abs(right)) > self.max_abs_wheel_cmd:
+                raise RuntimeError(
+                    'Requested level exceeds max_abs_wheel_cmd.'
+                )
+
+    def run(self):
+        base_plan = build_plan(self.profile, self.level)
+        plan = base_plan * self.repeat_count
+        self.validate(plan)
+        if self.encoder_only_mode:
+            self.get_logger().warn(
+                'ENCODER-ONLY FIRMWARE-PID TEST: Vicon is deliberately not '
+                'used. hamr_controller and teleop must be stopped, both '
+                'wheels move forward together once, turret stays zero, and '
+                'the physical stop control must remain ready.'
+            )
+        else:
+            self.get_logger().warn(
+                'Direct wheel test: hamr_controller and teleop must be '
+                'stopped. Turret command is always zero.'
+            )
+        self.get_logger().info(
+            'Plan: ' + ', '.join(
+                f'{label}(L={left:+.2f},R={right:+.2f})'
+                for label, left, right in plan
+            )
+        )
+        self.get_logger().info(f'CSV output: {self.csv_path}')
+
+        if not self.enable:
+            self.get_logger().warn(
+                'Dry run only (enable=false); no motion was commanded. '
+                'Rerun with -p enable:=true while hardware bringup is active.'
+            )
+            return 0
+
+        self.wait_for_inputs()
+        self.total_path_m = 0.0
+        if self.encoder_only_mode:
+            self.run_start_pose = None
+            self.last_path_pose = None
+        else:
+            self.run_start_pose = self.pose
+            self.last_path_pose = self.pose[:2]
+        self.get_logger().warn(
+            f'Starting in {self.start_delay_s:.1f} s; keep the stop control ready.'
+        )
+        self.zero_for(self.start_delay_s)
+
+        try:
+            for trial, (label, left, right) in enumerate(plan, start=1):
+                self.run_trial(trial, label, left, right)
+        finally:
+            self.write_rows()
+            for _ in range(25):
+                self.publish_cmd(0.0, 0.0)
+                rclpy.spin_once(self, timeout_sec=0.0)
+                time.sleep(0.02)
+        return 0
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = WheelResponseTest()
+    exit_code = 1
+    try:
+        exit_code = node.run()
+    except KeyboardInterrupt:
+        node.get_logger().warn('Interrupted; sending final zero commands.')
+        exit_code = 130
+    except Exception as exc:
+        node.get_logger().error(str(exc))
+        exit_code = 1
+    finally:
+        node.write_rows()
+        if node.enable:
+            for _ in range(25):
+                try:
+                    node.publish_cmd(0.0, 0.0)
+                    rclpy.spin_once(node, timeout_sec=0.0)
+                    time.sleep(0.02)
+                except Exception:
+                    break
+        node.destroy_node()
+        rclpy.shutdown()
+    raise SystemExit(exit_code)
+
+
+if __name__ == '__main__':
+    main()

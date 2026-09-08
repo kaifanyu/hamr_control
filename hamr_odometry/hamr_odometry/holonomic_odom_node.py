@@ -3,10 +3,24 @@ import math
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import (
+    QoSDurabilityPolicy,
+    QoSHistoryPolicy,
+    QoSProfile,
+    QoSReliabilityPolicy,
+)
 from std_msgs.msg import Int32
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster
+
+
+VICON_ODOM_QOS = QoSProfile(
+    history=QoSHistoryPolicy.KEEP_LAST,
+    depth=1,
+    reliability=QoSReliabilityPolicy.BEST_EFFORT,
+    durability=QoSDurabilityPolicy.VOLATILE,
+)
 
 
 def wrap_angle(a):
@@ -31,7 +45,7 @@ class HolonomicOdomNode(Node):
         self.declare_parameter('ticks_per_rev', 2263.7)
         self.declare_parameter('left_tick_scale', 1.0)
         self.declare_parameter('right_tick_scale', 1.0)
-        self.declare_parameter('yaw_sign', -1.0)
+        self.declare_parameter('yaw_sign', 1.0)
         self.declare_parameter('ticks_per_turret_rev', 2704)  # 13 PPR × 2 quadrature × 104 gear ratio
         self.declare_parameter('odom_frame', 'odom')
         self.declare_parameter('base_frame', 'base_link')
@@ -77,11 +91,11 @@ class HolonomicOdomNode(Node):
         self.create_subscription(Int32, '/turret/encoder_ticks', self._cb_T, 10)
 
         # subscribe to odometry topic
-        self.create_subscription(
+        self.base_odom_sub = self.create_subscription(
             Odometry,
             self.base_odom_topic,
             self._cb_base_odom,
-            10
+            VICON_ODOM_QOS,
         )
 
         self.pub_odom = self.create_publisher(Odometry, '/wheel_odom', 10)
@@ -167,7 +181,9 @@ class HolonomicOdomNode(Node):
         vy_body = -st * x_dot + ct * y_dot
 
 
-        self.get_logger().info(
+        # This callback runs at 50 Hz; keep per-cycle telemetry available for
+        # targeted debugging without flooding normal hardware-run logs.
+        self.get_logger().debug(
             f"dL={delta_L:.1f}, dR={delta_R:.1f}, "
             f"omega_L={omega_L:.3f}, omega_R={omega_R:.3f}, "
             f"yaw_dot={yaw_dot:.3f}, theta={self.theta:.3f}"

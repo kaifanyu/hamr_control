@@ -688,6 +688,179 @@ def reference_arrays(reference_samples):
     }
 
 
+def _cross_2d(first, second):
+    return float(first[0] * second[1] - first[1] * second[0])
+
+
+def detect_reference_turns(reference_samples, min_turn_angle_deg=10.0):
+    """Find direction changes in a piecewise-linear planar reference.
+
+    The returned corner position is the intersection of the incoming and
+    outgoing reference lines.  This avoids assigning the corner to the first
+    post-turn sample, which can already be a few millimetres down the next
+    leg at finite publication rates.
+    """
+    turns = []
+    previous_direction = None
+    previous_index = None
+    counts = {"L": 0, "R": 0}
+    direction_cosine = math.cos(math.radians(min_turn_angle_deg))
+
+    for index, sample in enumerate(reference_samples):
+        velocity = np.asarray([sample["x_dot"], sample["y_dot"]], dtype=float)
+        speed = float(np.linalg.norm(velocity))
+        if speed < 1e-6:
+            continue
+        direction = velocity / speed
+
+        if previous_direction is not None:
+            alignment = float(np.dot(previous_direction, direction))
+            if alignment < direction_cosine:
+                determinant = _cross_2d(previous_direction, direction)
+                if abs(determinant) > 1e-6:
+                    previous = reference_samples[previous_index]
+                    incoming_point = np.asarray(
+                        [previous["x"], previous["y"]], dtype=float
+                    )
+                    outgoing_point = np.asarray(
+                        [sample["x"], sample["y"]], dtype=float
+                    )
+                    displacement = outgoing_point - incoming_point
+                    incoming_distance = (
+                        _cross_2d(displacement, direction) / determinant
+                    )
+                    corner = (
+                        incoming_point + incoming_distance * previous_direction
+                    )
+                    outgoing_distance = float(
+                        np.dot(outgoing_point - corner, direction)
+                    )
+                    corner_time = sample["t"] - outgoing_distance / speed
+                    turn_type = "L" if determinant > 0.0 else "R"
+                    counts[turn_type] += 1
+                    turns.append(
+                        {
+                            "label": f"{turn_type}{counts[turn_type]}",
+                            "turn": turn_type,
+                            "t": float(corner_time),
+                            "x": float(corner[0]),
+                            "y": float(corner[1]),
+                            "incoming_x": float(previous_direction[0]),
+                            "incoming_y": float(previous_direction[1]),
+                            "outgoing_x": float(direction[0]),
+                            "outgoing_y": float(direction[1]),
+                            "speed_m_s": speed,
+                        }
+                    )
+
+        previous_direction = direction
+        previous_index = index
+
+    return turns
+
+
+def _interpolate_xy(samples, times):
+    sample_times = np.asarray([s["t"] for s in samples], dtype=float)
+    sample_x = np.asarray([s["x"] for s in samples], dtype=float)
+    sample_y = np.asarray([s["y"] for s in samples], dtype=float)
+    return (
+        np.interp(times, sample_times, sample_x),
+        np.interp(times, sample_times, sample_y),
+    )
+
+
+def summarize_sharp_turns(
+    base_samples,
+    reference_samples,
+    window_before_s=1.25,
+    window_after_s=1.50,
+):
+    """Measure time-aligned tracking around reference direction changes."""
+    if not base_samples or not reference_samples:
+        return None
+
+    turns = detect_reference_turns(reference_samples)
+    if not turns:
+        reference = reference_arrays(reference_samples)
+        return {
+            "status": "incomplete_no_commanded_corner",
+            "observed_turn_count": 0,
+            "reference_sample_count": int(len(reference_samples)),
+            "reference_duration_s": float(
+                reference["t"][-1] - reference["t"][0]
+            ),
+            "reference_path_length_m": path_length(
+                reference["x"], reference["y"]
+            ),
+            "window_before_s": float(window_before_s),
+            "window_after_s": float(window_after_s),
+            "turns": [],
+        }
+
+    base_times = np.asarray([s["t"] for s in base_samples], dtype=float)
+    base_x = np.asarray([s["x"] for s in base_samples], dtype=float)
+    base_y = np.asarray([s["y"] for s in base_samples], dtype=float)
+    sample_count = max(
+        201,
+        int(math.ceil((window_before_s + window_after_s) * 200.0)) + 1,
+    )
+    relative_time = np.linspace(-window_before_s, window_after_s, sample_count)
+    results = []
+
+    for turn in turns:
+        turn_time = turn["t"]
+        query_time = turn_time + relative_time
+        actual_x, actual_y = _interpolate_xy(base_samples, query_time)
+        reference_x, reference_y = _interpolate_xy(reference_samples, query_time)
+        tracking_error = np.hypot(
+            actual_x - reference_x,
+            actual_y - reference_y,
+        )
+
+        actual_corner_x, actual_corner_y = _interpolate_xy(
+            base_samples, np.asarray([turn_time], dtype=float)
+        )
+        corner_error = math.hypot(
+            float(actual_corner_x[0]) - turn["x"],
+            float(actual_corner_y[0]) - turn["y"],
+        )
+
+        closest_mask = (
+            (base_times >= turn_time - window_before_s)
+            & (base_times <= turn_time + window_after_s)
+        )
+        closest_distance = np.hypot(
+            base_x[closest_mask] - turn["x"],
+            base_y[closest_mask] - turn["y"],
+        )
+        closest_index = int(np.argmin(closest_distance))
+        closest_times = base_times[closest_mask]
+        post_mask = relative_time >= 0.0
+        results.append(
+            {
+                **turn,
+                "commanded_corner_error_m": float(corner_error),
+                "closest_corner_distance_m": float(
+                    closest_distance[closest_index]
+                ),
+                "closest_point_delay_s": float(
+                    closest_times[closest_index] - turn_time
+                ),
+                "post_corner_xy_rmse_m": float(
+                    np.sqrt(np.mean(tracking_error[post_mask] ** 2))
+                ),
+            }
+        )
+
+    return {
+        "status": "turns_detected",
+        "observed_turn_count": int(len(results)),
+        "window_before_s": float(window_before_s),
+        "window_after_s": float(window_after_s),
+        "turns": results,
+    }
+
+
 def scalar_arrays(samples):
     return {
         "t": np.asarray([s["t"] for s in samples], dtype=float),
@@ -895,6 +1068,436 @@ def write_plot(plot_path, samples, rel_x, rel_y, target_distance, reference_samp
     plt.tight_layout()
     plt.savefig(plot_path, dpi=160)
     plt.close()
+
+
+def write_incomplete_turn_plot(
+    plot_path,
+    base_samples,
+    reference_samples,
+    turn_summary,
+):
+    """Plot a run that ended before its first commanded corner."""
+    import matplotlib.pyplot as plt
+
+    reference = reference_arrays(reference_samples)
+    base = as_arrays(base_samples)
+    start_time = reference["t"][0]
+    end_time = reference["t"][-1]
+    origin_x = reference["x"][0]
+    origin_y = reference["y"][0]
+    elapsed = reference["t"] - start_time
+    actual_x, actual_y = _interpolate_xy(base_samples, reference["t"])
+
+    velocities = np.column_stack(
+        (
+            np.asarray([s["x_dot"] for s in reference_samples], dtype=float),
+            np.asarray([s["y_dot"] for s in reference_samples], dtype=float),
+        )
+    )
+    speeds = np.linalg.norm(velocities, axis=1)
+    moving = speeds > 1e-6
+    if np.any(moving):
+        direction = np.mean(velocities[moving] / speeds[moving, None], axis=0)
+        direction /= np.linalg.norm(direction)
+        commanded_speed = float(np.median(speeds[moving]))
+    else:
+        displacement = np.asarray(
+            [reference["x"][-1] - origin_x, reference["y"][-1] - origin_y]
+        )
+        distance = float(np.linalg.norm(displacement))
+        direction = displacement / distance if distance > 1e-9 else np.asarray([1.0, 0.0])
+        commanded_speed = 0.0
+
+    reference_offset = np.column_stack(
+        (reference["x"] - origin_x, reference["y"] - origin_y)
+    )
+    actual_offset = np.column_stack((actual_x - origin_x, actual_y - origin_y))
+    reference_progress = reference_offset @ direction
+    actual_progress = actual_offset @ direction
+    tracking_error_mm = 1000.0 * np.hypot(
+        actual_x - reference["x"], actual_y - reference["y"]
+    )
+
+    active_mask = (base["t"] >= start_time) & (base["t"] <= end_time)
+    post_mask = (base["t"] > end_time) & (base["t"] <= end_time + 1.5)
+
+    fig = plt.figure(figsize=(13.8, 6.8), constrained_layout=True)
+    grid = fig.add_gridspec(2, 2, width_ratios=(0.85, 1.35))
+    path_ax = fig.add_subplot(grid[:, 0])
+    progress_ax = fig.add_subplot(grid[0, 1])
+    error_ax = fig.add_subplot(grid[1, 1])
+
+    path_ax.plot(
+        reference["x"] - origin_x,
+        reference["y"] - origin_y,
+        color="black",
+        linestyle="--",
+        linewidth=2.0,
+        label="Published reference",
+    )
+    path_ax.plot(
+        base["x"][active_mask] - origin_x,
+        base["y"][active_mask] - origin_y,
+        color="#0072B2",
+        linewidth=2.4,
+        label="Vicon while reference was active",
+    )
+    if np.any(post_mask):
+        path_ax.plot(
+            base["x"][post_mask] - origin_x,
+            base["y"][post_mask] - origin_y,
+            color="#0072B2",
+            linestyle=":",
+            linewidth=1.8,
+            label="Vicon after reference ended",
+        )
+    path_ax.scatter(
+        [0.0],
+        [0.0],
+        color="#009E73",
+        s=55,
+        edgecolor="white",
+        linewidth=0.8,
+        zorder=5,
+        label="Start",
+    )
+    path_ax.scatter(
+        [reference["x"][-1] - origin_x],
+        [reference["y"][-1] - origin_y],
+        marker="x",
+        color="#D55E00",
+        s=75,
+        linewidth=2.0,
+        zorder=6,
+        label="Last published reference",
+    )
+    path_ax.set_title("Recorded path fragment")
+    path_ax.set_xlabel("x from reference start (m)")
+    path_ax.set_ylabel("y from reference start (m)")
+    path_ax.set_aspect("equal", adjustable="datalim")
+    path_ax.legend(loc="best", fontsize=9, frameon=True)
+    path_ax.text(
+        0.04,
+        0.97,
+        (
+            "ABORTED BEFORE FIRST CORNER\n"
+            f'{turn_summary["reference_sample_count"]} reference samples over '
+            f'{turn_summary["reference_duration_s"]:.2f} s\n'
+            "0 direction changes observed\n"
+            "No corner was commanded or reached;\n"
+            "no left/right comparison is valid."
+        ),
+        transform=path_ax.transAxes,
+        ha="left",
+        va="top",
+        fontsize=10,
+        color="#8C2D04",
+        bbox={
+            "boxstyle": "round,pad=0.45",
+            "facecolor": "#FFF4E6",
+            "edgecolor": "#D55E00",
+            "alpha": 0.96,
+        },
+    )
+
+    progress_ax.plot(
+        elapsed,
+        reference_progress,
+        color="black",
+        linestyle="--",
+        linewidth=2.0,
+        label="Reference progress",
+    )
+    progress_ax.plot(
+        elapsed,
+        actual_progress,
+        color="#0072B2",
+        linewidth=2.1,
+        label="Vicon progress",
+    )
+    progress_ax.axvline(
+        elapsed[-1], color="#D55E00", linestyle=":", linewidth=1.7
+    )
+    progress_ax.set_title("Progress along the only recorded straight leg")
+    progress_ax.set_ylabel("start-relative progress (m)")
+    progress_ax.legend(loc="upper left", frameon=True)
+
+    error_ax.plot(
+        elapsed,
+        tracking_error_mm,
+        color="#0072B2",
+        linewidth=2.1,
+    )
+    error_ax.axvline(
+        elapsed[-1],
+        color="#D55E00",
+        linestyle=":",
+        linewidth=1.7,
+        label="reference stream ended",
+    )
+    error_ax.set_title("Time-aligned XY tracking error before abort")
+    error_ax.set_xlabel("time from first reference (s)")
+    error_ax.set_ylabel("reference-to-Vicon error (mm)")
+    error_ax.set_ylim(bottom=0.0)
+    error_ax.legend(loc="best", frameon=True)
+
+    for axis in (path_ax, progress_ax, error_ax):
+        axis.grid(True, color="#D9D9D9", linewidth=0.8, alpha=0.85)
+        axis.set_axisbelow(True)
+        for spine in axis.spines.values():
+            spine.set_color("#666666")
+
+    speed_text = f" at {commanded_speed:.2f} m/s" if commanded_speed > 0.0 else ""
+    fig.suptitle(
+        f"HAMR sharp-turn test{speed_text} — incomplete recording",
+        fontsize=16,
+        fontweight="semibold",
+    )
+    fig.savefig(plot_path, dpi=190, facecolor="white")
+    plt.close(fig)
+
+
+def write_turn_comparison_plot(
+    plot_path,
+    base_samples,
+    reference_samples,
+    turn_summary,
+):
+    """Plot the full XY route and canonical, time-aligned corner behavior."""
+    import matplotlib.pyplot as plt
+
+    if not reference_samples:
+        raise RuntimeError("No reference samples found for turn comparison plot.")
+    if not turn_summary:
+        raise RuntimeError("No sharp-turn summary could be calculated.")
+    if not turn_summary["turns"]:
+        write_incomplete_turn_plot(
+            plot_path,
+            base_samples,
+            reference_samples,
+            turn_summary,
+        )
+        return
+
+    colors = {
+        "L1": "#0072B2",
+        "R1": "#D55E00",
+        "R2": "#E69F00",
+        "L2": "#56B4E9",
+    }
+    fallback_colors = plt.get_cmap("tab10").colors
+    turns = turn_summary["turns"]
+    before = turn_summary["window_before_s"]
+    after = turn_summary["window_after_s"]
+    relative_time = np.linspace(
+        -before,
+        after,
+        max(201, int(math.ceil((before + after) * 200.0)) + 1),
+    )
+
+    reference = reference_arrays(reference_samples)
+    base = as_arrays(base_samples)
+    origin_x = reference["x"][0]
+    origin_y = reference["y"][0]
+    active_mask = (
+        (base["t"] >= reference["t"][0])
+        & (base["t"] <= reference["t"][-1])
+    )
+    active_x = base["x"][active_mask] - origin_x
+    active_y = base["y"][active_mask] - origin_y
+    reference_x = reference["x"] - origin_x
+    reference_y = reference["y"] - origin_y
+    commanded_speed = float(
+        np.median([turn["speed_m_s"] for turn in turns])
+    )
+
+    fig = plt.figure(figsize=(14.2, 8.2), constrained_layout=True)
+    grid = fig.add_gridspec(
+        2,
+        2,
+        width_ratios=(0.82, 1.35),
+        height_ratios=(1.0, 1.0),
+    )
+    path_ax = fig.add_subplot(grid[:, 0])
+    corner_ax = fig.add_subplot(grid[0, 1])
+    error_ax = fig.add_subplot(grid[1, 1])
+
+    path_ax.plot(
+        reference_x,
+        reference_y,
+        color="black",
+        linestyle="--",
+        linewidth=1.8,
+        label="Reference",
+        zorder=2,
+    )
+    path_ax.plot(
+        active_x,
+        active_y,
+        color="#555555",
+        linewidth=2.2,
+        label="Vicon base path",
+        zorder=3,
+    )
+    path_ax.scatter(
+        [reference_x[0]],
+        [reference_y[0]],
+        marker="o",
+        s=55,
+        facecolor="#009E73",
+        edgecolor="white",
+        linewidth=0.8,
+        label="Start",
+        zorder=5,
+    )
+    path_ax.scatter(
+        [reference_x[-1]],
+        [reference_y[-1]],
+        marker="s",
+        s=48,
+        facecolor="#CC79A7",
+        edgecolor="white",
+        linewidth=0.8,
+        label="Finish",
+        zorder=5,
+    )
+
+    for color_index, turn in enumerate(turns):
+        color = colors.get(
+            turn["label"], fallback_colors[color_index % len(fallback_colors)]
+        )
+        turn_x = turn["x"] - origin_x
+        turn_y = turn["y"] - origin_y
+        path_ax.scatter(
+            [turn_x],
+            [turn_y],
+            s=66,
+            color=color,
+            edgecolor="white",
+            linewidth=0.9,
+            zorder=6,
+        )
+        path_ax.annotate(
+            turn["label"],
+            xy=(turn_x, turn_y),
+            xytext=(7, 7),
+            textcoords="offset points",
+            color=color,
+            fontsize=10,
+            fontweight="bold",
+        )
+
+        query_time = turn["t"] + relative_time
+        actual_x, actual_y = _interpolate_xy(base_samples, query_time)
+        desired_x, desired_y = _interpolate_xy(reference_samples, query_time)
+        incoming = np.asarray(
+            [turn["incoming_x"], turn["incoming_y"]], dtype=float
+        )
+        rightward = np.asarray([incoming[1], -incoming[0]], dtype=float)
+        actual_offset = np.column_stack(
+            (actual_x - turn["x"], actual_y - turn["y"])
+        )
+        mirrored_x = actual_offset @ rightward
+        incoming_y = actual_offset @ incoming
+        if turn["turn"] == "R":
+            mirrored_x = -mirrored_x
+
+        corner_ax.plot(
+            mirrored_x,
+            incoming_y,
+            color=color,
+            linewidth=2.0,
+            label=turn["label"],
+        )
+        corner_index = int(np.argmin(np.abs(relative_time)))
+        corner_ax.scatter(
+            [mirrored_x[corner_index]],
+            [incoming_y[corner_index]],
+            color=color,
+            s=34,
+            edgecolor="white",
+            linewidth=0.7,
+            zorder=5,
+        )
+
+        tracking_error_mm = 1000.0 * np.hypot(
+            actual_x - desired_x,
+            actual_y - desired_y,
+        )
+        error_ax.plot(
+            relative_time,
+            tracking_error_mm,
+            color=color,
+            linewidth=1.9,
+            label=(
+                f'{turn["label"]} '
+                f'({1000.0 * turn["commanded_corner_error_m"]:.0f} mm at corner)'
+            ),
+        )
+
+    ideal_x = np.where(relative_time <= 0.0, 0.0, -commanded_speed * relative_time)
+    ideal_y = np.where(relative_time <= 0.0, commanded_speed * relative_time, 0.0)
+    corner_ax.plot(
+        ideal_x,
+        ideal_y,
+        color="black",
+        linestyle="--",
+        linewidth=1.7,
+        label="Reference",
+        zorder=1,
+    )
+    corner_ax.scatter(
+        [0.0],
+        [0.0],
+        marker="+",
+        s=85,
+        color="black",
+        linewidth=1.3,
+        zorder=6,
+    )
+
+    path_ax.set_title("Full route in translated Vicon coordinates")
+    path_ax.set_xlabel("x from reference start (m)")
+    path_ax.set_ylabel("y from reference start (m)")
+    path_ax.set_aspect("equal", adjustable="box")
+    path_ax.legend(loc="best", frameon=True)
+
+    corner_ax.set_title(
+        "Corner-aligned Vicon paths\n(right turns reflected onto left turns)"
+    )
+    corner_ax.set_xlabel("mirrored lateral position (m)")
+    corner_ax.set_ylabel("incoming-axis position (m)")
+    corner_ax.set_aspect("equal", adjustable="datalim")
+    corner_ax.legend(loc="best", ncol=3, frameon=True)
+
+    error_ax.axvline(
+        0.0,
+        color="black",
+        linestyle="--",
+        linewidth=1.0,
+        alpha=0.75,
+        label="commanded corner",
+    )
+    error_ax.set_title("Time-aligned XY tracking error")
+    error_ax.set_xlabel("time relative to commanded corner (s)")
+    error_ax.set_ylabel("reference-to-Vicon error (mm)")
+    error_ax.set_xlim(-before, after)
+    error_ax.set_ylim(bottom=0.0)
+    error_ax.legend(loc="upper left", ncol=2, fontsize=9, frameon=True)
+
+    for axis in (path_ax, corner_ax, error_ax):
+        axis.grid(True, color="#D9D9D9", linewidth=0.8, alpha=0.85)
+        axis.set_axisbelow(True)
+        for spine in axis.spines.values():
+            spine.set_color("#666666")
+
+    fig.suptitle(
+        f"HAMR mirrored 90-degree tracking at {commanded_speed:.2f} m/s",
+        fontsize=16,
+        fontweight="semibold",
+    )
+    fig.savefig(plot_path, dpi=190, facecolor="white")
+    plt.close(fig)
 
 
 
@@ -1323,6 +1926,25 @@ def parse_args():
     parser.add_argument("--localization-csv", type=Path, help="Optional matched Vicon/onboard CSV output")
     parser.add_argument("--imu-odom-csv", type=Path, help="Optional derived IMU-only odometry CSV output")
     parser.add_argument("--plot", type=Path, help="Optional path/reference plot PNG output")
+    parser.add_argument(
+        "--turn-comparison-plot",
+        type=Path,
+        help=(
+            "Optional XY path plus time-aligned sharp-turn comparison PNG output"
+        ),
+    )
+    parser.add_argument(
+        "--turn-window-before-s",
+        type=float,
+        default=1.25,
+        help="Seconds before each reference direction change to compare.",
+    )
+    parser.add_argument(
+        "--turn-window-after-s",
+        type=float,
+        default=1.50,
+        help="Seconds after each reference direction change to compare.",
+    )
     parser.add_argument("--localization-plot", type=Path, help="Optional Vicon/onboard path comparison PNG output")
     parser.add_argument("--imu-odom-plot", type=Path, help="Optional full-scale IMU-only odometry plot PNG output")
     parser.add_argument("--localization-error-plot", type=Path, help="Optional Vicon/onboard error plot PNG output")
@@ -1551,6 +2173,14 @@ def main():
     )
     if ref_metrics:
         metrics["reference_tracking"] = ref_metrics
+    turn_metrics = summarize_sharp_turns(
+        base_samples,
+        reference_samples,
+        window_before_s=args.turn_window_before_s,
+        window_after_s=args.turn_window_after_s,
+    )
+    if turn_metrics:
+        metrics["sharp_turn_tracking"] = turn_metrics
 
     arr, rel_x, rel_y, rel_yaw = start_relative_path(base_samples, align_yaw=align_yaw)
     del arr
@@ -1569,6 +2199,14 @@ def main():
     if args.plot:
         args.plot.parent.mkdir(parents=True, exist_ok=True)
         write_plot(args.plot, base_samples, rel_x, rel_y, args.target_distance, reference_samples)
+    if args.turn_comparison_plot:
+        args.turn_comparison_plot.parent.mkdir(parents=True, exist_ok=True)
+        write_turn_comparison_plot(
+            args.turn_comparison_plot,
+            base_samples,
+            reference_samples,
+            turn_metrics,
+        )
     if args.localization_plot:
         args.localization_plot.parent.mkdir(parents=True, exist_ok=True)
         write_localization_plot(

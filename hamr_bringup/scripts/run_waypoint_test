@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# One-command operator entry point for the dedicated, Vicon-feedback waypoint
+# launch.  The command itself is explicit motion authorization, so the launch
+# file's opt-in switch is enabled here. Recording is forced on and Foxglove is
+# off by default to keep the test process lean; explicit caller overrides win.
+
+DEFAULT_V_LIN="0.20"
+V_LIN="${DEFAULT_V_LIN}"
+HAS_ENABLE_WAYPOINT=false
+HAS_RECORD_BAG=false
+HAS_RUN_FOXGLOVE=false
+
+for arg in "$@"; do
+  case "${arg}" in
+    v_lin:=*)
+      V_LIN="${arg#v_lin:=}"
+      ;;
+    enable_waypoint:=*)
+      HAS_ENABLE_WAYPOINT=true
+      ;;
+    record_bag:=*)
+      HAS_RECORD_BAG=true
+      ;;
+    run_foxglove:=*)
+      HAS_RUN_FOXGLOVE=true
+      ;;
+  esac
+done
+
+# Match the existing operator naming convention: 0.20 m/s -> v020,
+# 0.15 m/s -> v015. Reject a malformed value here so it cannot produce an
+# ambiguous bag label before ros2 launch reports its own parameter error.
+if [[ ! "${V_LIN}" =~ ^[+]?([0-9]+([.][0-9]{0,2})?|[.][0-9]{1,2})$ ]]; then
+  echo "v_lin must be a positive decimal with at most two fractional digits, got: ${V_LIN}" >&2
+  exit 2
+fi
+SPEED_TOKEN="$({ awk -v speed="${V_LIN}" '
+  BEGIN {
+    scaled = speed * 100.0
+    if (scaled <= 0.0 || scaled > 999.0) {
+      exit 1
+    }
+    printf "v%03d", int(scaled + 0.5)
+  }
+'; } || true)"
+if [[ -z "${SPEED_TOKEN}" ]]; then
+  echo "v_lin must be positive and within the supported bag-label range: ${V_LIN}" >&2
+  exit 2
+fi
+
+RUN_STAMP="$(date +%Y%m%d_%H%M%S)"
+BAG_ROOT="${HAMR_BAG_ROOT:-${HOME}/hamster_ws/src/hamr_control/rosbags}"
+BASE_RUN_NAME="hamr_waypoint_simple_vicon_noguard_${SPEED_TOKEN}_${RUN_STAMP}"
+RUN_NAME="${BASE_RUN_NAME}"
+
+# The recorder independently applies the same kind of suffix. Doing it before
+# launch also makes the displayed/analyzer-visible name agree with the actual
+# output for ordinary repeated commands within the same second.
+suffix=1
+while [[ -e "${BAG_ROOT}/${RUN_NAME}" ]]; do
+  if (( suffix > 999 )); then
+    echo "Could not find an unused bag label derived from ${BASE_RUN_NAME}" >&2
+    exit 1
+  fi
+  RUN_NAME="$(printf '%s_%03d' "${BASE_RUN_NAME}" "${suffix}")"
+  ((suffix += 1))
+done
+export HAMR_BAG_NAME="${RUN_NAME}"
+
+LAUNCH_ARGS=("$@")
+if [[ "${HAS_ENABLE_WAYPOINT}" == false ]]; then
+  LAUNCH_ARGS=("enable_waypoint:=true" "${LAUNCH_ARGS[@]}")
+fi
+if [[ "${HAS_RECORD_BAG}" == false ]]; then
+  LAUNCH_ARGS=("record_bag:=true" "${LAUNCH_ARGS[@]}")
+fi
+if [[ "${HAS_RUN_FOXGLOVE}" == false ]]; then
+  LAUNCH_ARGS=("run_foxglove:=false" "${LAUNCH_ARGS[@]}")
+fi
+
+echo "HAMR Vicon waypoint test"
+echo "  bag:   ${BAG_ROOT}/${HAMR_BAG_NAME}"
+echo "  speed: ${V_LIN} m/s"
+echo "After the run: ros2 run hamr_bringup analyze_waypoint_test"
+
+exec ros2 launch hamr_bringup \
+  hamr_HW_waypoint_vicon_unprotected.launch.xml \
+  "${LAUNCH_ARGS[@]}"

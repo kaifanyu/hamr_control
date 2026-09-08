@@ -16,6 +16,7 @@
 #              /d455/imu  /d455/imu_raw
 #   local odom /local_HAMR/odom (EKF)  /wheel_odom  /imu/data
 #              /{left,right,turret}/encoder_ticks
+#   encoder v4 /wheel_control/status  /wheel_encoder/diagnostics
 #   vicon      /HAMR_base/odom /HAMR_base/pose  /HAMR_turret/odom /HAMR_turret/pose
 #   commands   /{left,right,turret}/cmd_vel
 #   tf         /tf  /tf_static
@@ -36,6 +37,23 @@ STORAGE_ID="${STORAGE_ID:-${HAMR_BAG_STORAGE_ID:-mcap}}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 QOS_PROFILE_OVERRIDES_PATH="${HAMR_BAG_QOS_OVERRIDES:-}"
 
+# ros2 bag will refuse an existing output directory while the camera and robot
+# continue running. Select a deterministic suffix so an accidentally reused
+# name still records rather than looking like a successful live capture.
+REQUESTED_BAG_DIR="${BAG_DIR}"
+suffix=1
+while [[ -e "${BAG_DIR}" ]]; do
+  if (( suffix > 999 )); then
+    echo "Could not find an unused bag path derived from ${REQUESTED_BAG_DIR}" >&2
+    exit 1
+  fi
+  BAG_DIR="$(printf '%s_%03d' "${REQUESTED_BAG_DIR}" "${suffix}")"
+  ((suffix += 1))
+done
+if [[ "${BAG_DIR}" != "${REQUESTED_BAG_DIR}" ]]; then
+  echo "Requested bag path already exists; using ${BAG_DIR}" >&2
+fi
+
 # Find record_slam_qos.yaml: prefer a sibling config dir (source tree), else the
 # installed share dir.
 if [[ -z "${QOS_PROFILE_OVERRIDES_PATH}" && -f "${SCRIPT_DIR}/../config/record_slam_qos.yaml" ]]; then
@@ -52,7 +70,7 @@ if [[ -n "${QOS_PROFILE_OVERRIDES_PATH}" ]]; then
   QOS_ARGS=(--qos-profile-overrides-path "${QOS_PROFILE_OVERRIDES_PATH}")
 fi
 
-TOPIC_REGEX='^/d455/(color/image_raw|color/camera_info|depth/image_rect_raw|depth/color/points|imu|imu_raw)$|^/(HAMR_base|HAMR_turret)/(odom|pose|individual_marker_array)$|^/(local_HAMR/odom|wheel_odom|imu/data|imu/data_raw|tf|tf_static)$|^/(reference_trajectory|waypoints_path|state_error|live_gains)$|^/(left_wheel|right_wheel|turret)/cmd_vel$|^/(left_wheel|right_wheel|turret)/encoder_ticks$|^/(robot_pose|odom|cmd_vel)$'
+TOPIC_REGEX='^/d455/(color/image_raw|color/camera_info|depth/image_rect_raw|depth/color/points|imu|imu_raw)$|^/(HAMR_base|HAMR_turret)/(odom|pose|individual_marker_array)$|^/(local_HAMR/odom|wheel_odom|imu/data|imu/data_raw|imu/mag|imu/calib_status|wheel_control/status|wheel_encoder/diagnostics|tf|tf_static)$|^/(reference_trajectory|waypoints_path|state_error|live_gains)$|^/(left_wheel|right_wheel|turret)/cmd_vel$|^/(left_wheel|right_wheel|turret)/encoder_ticks$|^/(robot_pose|odom|cmd_vel)$'
 
 mkdir -p "$(dirname "${BAG_DIR}")"
 

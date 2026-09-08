@@ -9,6 +9,7 @@ Brings up:
   - the COMPA robot + D455 (urdf/compa_slam.urdf.xacro), spawned via robot_description
   - robot_state_publisher (publishes the static TF chain incl. base_link -> d455_optical)
   - the ros_gz bridge (control/state + D455 RGBD+IMU, renamed to /d455/...)
+  - Gazebo ground-truth odom -> base_footprint TF (optional; disabled by RTAB-Map)
   - a static map -> odom TF (placeholder until RTAB-Map provides it)
   - RViz (optional)
 
@@ -52,6 +53,7 @@ def generate_launch_description():
     world = LaunchConfiguration("world")
     use_rviz = LaunchConfiguration("use_rviz")
     publish_map_odom_tf = LaunchConfiguration("publish_map_odom_tf")
+    publish_ground_truth_tf = LaunchConfiguration("publish_ground_truth_tf")
     x = LaunchConfiguration("x")
     y = LaunchConfiguration("y")
     z = LaunchConfiguration("z")
@@ -63,6 +65,8 @@ def generate_launch_description():
         DeclareLaunchArgument("use_rviz", default_value="true"),
         # Set false when RTAB-Map is running — it owns the map->odom transform.
         DeclareLaunchArgument("publish_map_odom_tf", default_value="true"),
+        # Set false when visual odometry is running — it owns odom->base_footprint.
+        DeclareLaunchArgument("publish_ground_truth_tf", default_value="true"),
         DeclareLaunchArgument("x", default_value="0.0"),
         DeclareLaunchArgument("y", default_value="0.0"),
         # Spawn a bit above ground and let it settle (matches compa.launch.xml style).
@@ -117,6 +121,22 @@ def generate_launch_description():
         parameters=[{"config_file": bridge_config, "use_sim_time": True}],
     )
 
+    # Keep Gazebo ground truth available for camera-only simulation, but make it
+    # independently switchable. Bridging this TF while rgbd_odometry publishes
+    # odom -> base_footprint would give that frame two competing parents.
+    ground_truth_tf_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        name="ground_truth_tf_bridge",
+        output="screen",
+        arguments=[
+            "/model/compa/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V",
+        ],
+        remappings=[("/model/compa/tf", "/tf")],
+        parameters=[{"use_sim_time": True}],
+        condition=IfCondition(publish_ground_truth_tf),
+    )
+
     # --- Placeholder map -> odom until RTAB-Map publishes it ---
     # Disabled (publish_map_odom_tf:=false) when running rtabmap_sim, since RTAB-Map
     # publishes this transform itself; two publishers would conflict.
@@ -146,6 +166,7 @@ def generate_launch_description():
             robot_state_publisher,
             spawn,
             bridge,
+            ground_truth_tf_bridge,
             static_map_to_odom,
             rviz,
         ]

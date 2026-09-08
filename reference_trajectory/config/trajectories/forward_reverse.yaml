@@ -1,0 +1,12 @@
+schema_version: 1
+name: forward_reverse
+kind: polyline
+description: One 1 m fixed-axis +Y leg, a 1 s stop, then a return to the origin.
+closed: true
+default_speed_m_s: 0.15
+fixed_yaw_rad: 0.0
+points_m:
+  - [0.0, 0.0]
+  - [0.0, 1.0]
+  - [0.0, 0.0]
+waypoint_dwells_s: [0.0, 1.0, 0.0]

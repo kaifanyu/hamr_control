@@ -51,6 +51,7 @@ def generate_launch_description():
 
     database_path = LaunchConfiguration("database_path")
     use_rtabmap_viz = LaunchConfiguration("use_rtabmap_viz")
+    use_odom_topic = LaunchConfiguration("use_odom_topic")
     pointcloud = LaunchConfiguration("pointcloud")
     use_orientation = LaunchConfiguration("use_orientation")
     use_mag = LaunchConfiguration("use_mag")
@@ -78,6 +79,12 @@ def generate_launch_description():
             "use_rtabmap_viz",
             default_value="false",
             description="Start the RTAB-Map GUI (leave false on the robot computer).",
+        ),
+        DeclareLaunchArgument(
+            "use_odom_topic",
+            default_value="true",
+            description="Feed validated /local_HAMR/odom covariance to RTAB-Map. Set false "
+                        "only for legacy/diagnostic TF compatibility mode.",
         ),
         DeclareLaunchArgument(
             "pointcloud",
@@ -135,8 +142,13 @@ def generate_launch_description():
         DeclareLaunchArgument("mount_yaw", default_value="0.0"),
     ]
 
-    # Scoped remapping keeps the existing hardware launch unchanged while replacing
-    # every Vicon base-odometry consumer inside it with the onboard EKF output.
+    # Scoped remapping replaces the wheel-odometry helper's former Vicon yaw input
+    # with the onboard EKF output.  The controller also receives explicit launch
+    # overrides below because the hardware bringup's defaults are intentionally
+    # Vicon-specific: Vicon twist is world-frame and its pose guard requires the
+    # mocap marker's nonzero height.  /local_HAMR/odom instead has planar z=0 and
+    # standard base-frame twist, so the controller must derive world velocity from
+    # consecutive EKF poses and must not apply the Vicon geometric guard.
     robot_stack = GroupAction(
         actions=[
             SetRemap(src="/HAMR_base/odom", dst="/local_HAMR/odom"),
@@ -144,8 +156,12 @@ def generate_launch_description():
                 AnyLaunchDescriptionSource(hw_launch),
                 launch_arguments={
                     "record_bag": "false",
+                    "run_foxglove": "false",
                     "use_orientation": use_orientation,
                     "use_mag": use_mag,
+                    "controller_odom_topic": "/local_HAMR/odom",
+                    "controller_xy_velocity_source": "pose_delta",
+                    "controller_vicon_pose_guard_enabled": "false",
                 }.items(),
             ),
         ]
@@ -172,6 +188,7 @@ def generate_launch_description():
             "localization": "true",
             "visual_odometry": "false",
             "odom_topic": "/local_HAMR/odom",
+            "use_odom_topic": use_odom_topic,
             "use_rtabmap_viz": use_rtabmap_viz,
             "use_sim_time": "false",
         }.items(),

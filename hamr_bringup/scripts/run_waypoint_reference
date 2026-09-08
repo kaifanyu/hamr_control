@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Publish the fixed waypoint_traj_simple test reference only. The stack and
+# recorder must already be running in the first terminal. Requiring two stable
+# subscribers gates the trajectory on both the controller and recorder.
+if (( $# != 0 )); then
+  echo "run_waypoint_reference takes no arguments; its test profile is fixed" >&2
+  exit 2
+fi
+
+exec ros2 run reference_trajectory waypoint_traj_simple \
+  --ros-args \
+  -p v_lin:=0.20 \
+  -p w_yaw:=0.50 \
+  -p reference_timer_hz:=50.0 \
+  -p startup_hold_s:=2.0 \
+  -p final_hold_s:=3.0 \
+  -p loop:=false \
+  -p required_reference_subscribers:=2 \
+  -p subscriber_stable_s:=1.0

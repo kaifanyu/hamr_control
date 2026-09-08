@@ -1,7 +1,7 @@
 # ros_gz parameter bridge for the COMPA SLAM sim.
 #
 # Self-contained: includes the robot control/state bridges (so the robot can be
-# driven and TF/odom work) PLUS the D455 RGBD+IMU camera bridges. It mirrors the
+# driven and odometry is observable) PLUS the D455 RGBD+IMU camera bridges. It mirrors the
 # robot entries from hamr_bringup/config/gazebo_bridge_compa.yaml and adds the camera.
 #
 # The gz camera topics are RENAMED to a RealSense-style /d455/... namespace so the
@@ -23,11 +23,10 @@
   gz_type_name: "gz.msgs.Model"
   direction: GZ_TO_ROS
 
-- ros_topic_name: "/tf"
-  gz_topic_name: "/model/compa/tf"
-  ros_type_name: "tf2_msgs/msg/TFMessage"
-  gz_type_name: "gz.msgs.Pose_V"
-  direction: GZ_TO_ROS
+# Gazebo ground-truth TF is deliberately not part of this shared bridge. The
+# launch files bridge it separately when requested. Visual-SLAM sim disables
+# that bridge so rgbd_odometry is the sole odom parent; camera-only/replay sim
+# enables it for a ground-truth odom -> base_footprint transform.
 
 - ros_topic_name: "/compa/odom"
   gz_topic_name: "/model/compa/odometry"

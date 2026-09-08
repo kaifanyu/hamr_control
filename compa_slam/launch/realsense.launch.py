@@ -46,7 +46,9 @@ def generate_launch_description():
     use_madgwick = LaunchConfiguration("use_madgwick")
     publish_tf = LaunchConfiguration("publish_tf")
     use_sim_time = LaunchConfiguration("use_sim_time")
-    # base_link -> camera_link mount offset (REP-103: x fwd, y left, z up; rpy in rad).
+    # base_link -> camera_link mount offset in the deployed base_link axes (rpy in rad).
+    # Do not assume physical wheel-forward is +X: the current hardware odometry
+    # applies base_yaw_offset=pi/2, so verify the axes before measuring this TF.
     mount_x = LaunchConfiguration("mount_x")
     mount_y = LaunchConfiguration("mount_y")
     mount_z = LaunchConfiguration("mount_z")
@@ -63,8 +65,8 @@ def generate_launch_description():
         DeclareLaunchArgument("publish_tf", default_value="true",
                               description="Publish the static base_link -> camera_link TF."),
         DeclareLaunchArgument("use_sim_time", default_value="false"),
-        # --- MEASURE THESE on the real robot. Defaults mirror the sim mount as a
-        #     starting point: 0.2 m forward, 0.2 m up, pitched ~20 deg (0.349 rad) down. ---
+        # --- MEASURE THESE on the real robot in its actual base_link axes. Defaults
+        #     mirror the sim mount only; they are not a calibrated hardware transform. ---
         DeclareLaunchArgument("mount_x", default_value="0.2"),
         DeclareLaunchArgument("mount_y", default_value="0.0"),
         DeclareLaunchArgument("mount_z", default_value="0.2"),

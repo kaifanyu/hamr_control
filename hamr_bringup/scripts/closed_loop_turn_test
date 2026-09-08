@@ -1,0 +1,2031 @@
+#!/usr/bin/env python3
+"""Supervised, one-shot closed-loop left/right turn validation for HAMR.
+
+The node publishes only ``/reference_trajectory``; ``hamr_controller`` remains
+the sole wheel-command publisher. Compact routes are transformed relative to
+the first stable Vicon pose; the Vicon corridor and legacy routes translate to
+that pose while retaining fixed Vicon-axis directions. Motion is opt-in,
+bounded, monitored, and followed by a deliberate reference timeout whose zero
+wheel commands are verified before this exits.
+"""
+
+from collections import deque
+import math
+import time
+
+from hamr_control.hamr_controller import (
+    VICON_SOURCE_STAMP_POLICY,
+    source_timestamp_is_valid_and_monotonic,
+    validated_vicon_source_stamp_policy,
+)
+from hamr_interfaces.msg import ReferenceTraj
+from nav_msgs.msg import Odometry
+import rclpy
+from rclpy.executors import SingleThreadedExecutor
+from rclpy.node import Node
+from rclpy.parameter import parameter_value_to_python
+from rclpy.parameter_client import AsyncParameterClient
+from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
+from std_msgs.msg import Float64, Float64MultiArray
+
+
+# For the compact profile, local +Y is forward when HAMR's configured
+# base_yaw_offset is pi/2.  Those offsets are rotated by the captured raw Vicon
+# yaw. The legacy profile translates with the start but deliberately retains
+# fixed Vicon-axis directions rather than rotating with HAMR's heading.
+S_CURVE_PATH_OFFSETS = (
+    (0.000, 0.00),
+    (-0.025, 0.10),
+    (-0.070, 0.20),
+    (-0.070, 0.30),
+    (0.000, 0.40),
+    (0.070, 0.50),
+    (0.070, 0.60),
+    (0.025, 0.70),
+    (0.000, 0.80),
+)
+
+# Fixed-axis corridor used to isolate powered Vicon tracking from turns.
+VICON_STRAIGHT_PATH_OFFSETS = (
+    (0.0, 0.0),
+    (0.0, 0.8),
+)
+
+# Short, fixed-axis serpentine for comparing sharp left and right turns in one
+# uninterrupted run.  Its direction sequence is N,W,N,E,N, giving mirrored
+# L,R,R,L corners without any intermediate hold or state-dependent gate.
+MIRRORED_90_PATH_OFFSETS = (
+    (0.0, 0.0),
+    (0.0, 1.0),
+    (-1.0, 1.0),
+    (-1.0, 2.0),
+    (0.0, 2.0),
+    (0.0, 3.0),
+)
+
+# Historical ``waypoint_traj_simple`` route, kept here as an explicit,
+# supervised, one-shot validation profile.  Do not silently make it the
+# default: its 13 m route is materially larger than the compact S test.
+LEGACY_90_PATH_OFFSETS = (
+    (0.0, 0.0),
+    (0.0, 2.0),
+    (-2.0, 2.0),
+    (-2.0, 4.5),
+    (0.0, 4.5),
+    (0.0, 2.0),
+    (0.0, 0.0),
+)
+
+# Backward-compatible names for the original compact profile and its tests.
+LOCAL_PATH_OFFSETS = S_CURVE_PATH_OFFSETS
+ABSOLUTE_HARD_TIMEOUT_S = 18.0
+ABSOLUTE_MAX_SPEED_M_S = 0.12
+
+# Most short validation profiles retain the original 120 ms missing-delivery
+# watchdog. The mirrored route has two exact, evidence-bounded exceptions:
+# 450 ms at 0.15 m/s covers the observed accepted-delivery gaps, while 200 ms
+# at 0.20 m/s covers the 145 ms maximum raw receipt gap in the completed run.
+# This does not relax the independent source-stamp ordering check below.
+# Absolute source age is not a valid freshness signal because Vicon stamps
+# originate on an unsynchronized remote clock. Nominal travel inside either
+# exception (67.5 mm or 40 mm) remains below the controller's independent
+# 80 mm position-jump guard, and a severe 667 ms receipt outage still aborts.
+DEFAULT_STALE_ODOM_S = 0.12
+MIRRORED_90_DIAGNOSTIC_SPEED_M_S = 0.15
+MIRRORED_90_STALE_ODOM_S = 0.45
+MIRRORED_90_FULL_SPEED_M_S = 0.20
+MIRRORED_90_FULL_SPEED_STALE_ODOM_S = 0.20
+MAX_CONTROLLER_ODOM_TIMEOUT_S = MIRRORED_90_STALE_ODOM_S
+# A safety-triggered publication stop must expire the controller's cached
+# moving reference promptly.  Keep this just above the supervisor's 100 ms
+# late-publication cutoff so an allowed scheduler gap cannot stop and then
+# restart the controller, while a rejected cycle reaches zero within 120 ms of
+# its last published reference.
+REQUIRED_CONTROLLER_REFERENCE_TIMEOUT_S = 0.12
+# Match the firmware's 28 RPM pair ceiling, below the measured 32.34 RPM motor
+# maximum. Firmware feedforward is independently bounded at 3500 PWM so the PI
+# loop retains 595 PWM of correction authority before the final output clamp.
+# The controller must pair-scale both wheel targets before publishing.
+HARDWARE_WHEEL_SPEED_LIMIT_RAD_S = 2.93215314335
+
+PROFILE_CONFIGS = {
+    's_curve': {
+        'path_offsets': S_CURVE_PATH_OFFSETS,
+        'default_speed_m_s': 0.08,
+        'max_speed_m_s': ABSOLUTE_MAX_SPEED_M_S,
+        'default_hard_timeout_s': ABSOLUTE_HARD_TIMEOUT_S,
+        'max_hard_timeout_s': ABSOLUTE_HARD_TIMEOUT_S,
+        'default_max_displacement_m': 1.0,
+        'max_displacement_m': 1.0,
+        'default_max_total_path_m': 1.5,
+        'max_total_path_m': 1.5,
+        'default_max_yaw_change_rad': 1.0,
+        'max_yaw_change_rad': 1.0,
+        'default_saturation_timeout_s': 0.0,
+        'max_saturation_timeout_s': 0.0,
+        'default_stale_odom_s': DEFAULT_STALE_ODOM_S,
+        'max_stale_odom_s': DEFAULT_STALE_ODOM_S,
+        'description': 'compact mirrored S',
+        'frame_mode': 'relative',
+        'max_start_position_error_m': None,
+        'max_start_yaw_error_rad': None,
+        'vicon_bounds_offsets': None,
+    },
+    'vicon_straight': {
+        'path_offsets': VICON_STRAIGHT_PATH_OFFSETS,
+        'default_speed_m_s': 0.05,
+        # Faster stages must be requested explicitly; the conservative default
+        # remains the already-validated 0.05 m/s corridor run.
+        # The direct wheel-response calibration has now been validated through
+        # 1.0 rad/s.  Under the chassis' worst ideal direction coefficient, a
+        # 0.15 m/s translation requests 1.886 rad/s before position feedback,
+        # leaving 35.7% headroom below the supervised 28 RPM wheel ceiling.
+        # Permit that explicit closed-loop check without changing the profile
+        # default or any Vicon watchdog.
+        'max_speed_m_s': 0.15,
+        # 2 s start hold + 16 s motion + 3 s final hold = 21 s.
+        'default_hard_timeout_s': 24.0,
+        'max_hard_timeout_s': 24.0,
+        'default_max_displacement_m': 1.0,
+        'max_displacement_m': 1.0,
+        'default_max_total_path_m': 1.1,
+        'max_total_path_m': 1.1,
+        'default_max_yaw_change_rad': 0.5,
+        'max_yaw_change_rad': 0.5,
+        'default_saturation_timeout_s': 0.0,
+        'max_saturation_timeout_s': 0.0,
+        # The first 0.15 m/s run produced one 12 ms PWM-saturation sample at
+        # the velocity step. Permit only this exact, explicitly requested
+        # transient window; every other straight stage remains zero-tolerance.
+        'explicit_saturation_speed_m_s': 0.15,
+        'explicit_saturation_timeout_s': 0.05,
+        # Recent stationary monitoring observed Vicon guard recoveries no more
+        # than 10.628 s apart. Require a longer uninterrupted interval before
+        # this powered diagnostic, with enough startup time to reacquire it
+        # after more than one rejected interval.
+        'explicit_clean_preflight_speed_m_s': 0.15,
+        'required_clean_preflight_s': 12.0,
+        'required_startup_timeout_s': 30.0,
+        'default_stale_odom_s': DEFAULT_STALE_ODOM_S,
+        'max_stale_odom_s': DEFAULT_STALE_ODOM_S,
+        'description': 'short powered Vicon corridor',
+        'frame_mode': 'translated_vicon',
+        'max_start_position_error_m': None,
+        'max_start_yaw_error_rad': 0.15,
+        'vicon_bounds_offsets': (-0.20, 0.20, -0.20, 1.0),
+    },
+    'mirrored_90': {
+        'path_offsets': MIRRORED_90_PATH_OFFSETS,
+        # At 0.20 m/s the ideal feedforward can reach 2.514 rad/s, leaving
+        # 14.3% margin below the 2.932 rad/s wheel ceiling before feedback.
+        # This is command-space feasibility only; the independent firmware
+        # feedforward/output saturation monitor remains authoritative.
+        # At 0.25 m/s it can reach 3.143 rad/s and is therefore intentionally
+        # rejected rather than turning this comparison into sustained clipping.
+        'default_speed_m_s': 0.20,
+        'max_speed_m_s': 0.20,
+        # 2 s start hold + 25 s motion + 3 s final hold = 30 s.
+        'default_hard_timeout_s': 33.0,
+        # An explicitly slower 0.15 m/s comparison takes 38.333 s including
+        # holds and therefore requires ``hard_timeout_s:=42.0``. Keep the
+        # validated 0.20 m/s run's default at 33 s, but permit that bounded
+        # override without opening the profile to an arbitrary runtime.
+        'max_hard_timeout_s': 42.0,
+        'default_max_displacement_m': 3.3,
+        'max_displacement_m': 3.3,
+        'default_max_total_path_m': 5.8,
+        'max_total_path_m': 5.8,
+        'default_max_yaw_change_rad': 2.5,
+        'max_yaw_change_rad': 2.5,
+        # Sharp velocity-vector changes can briefly consume the remaining
+        # feedback headroom. Keep the same bounded transient policy as the
+        # legacy sharp-turn test; persistence beyond 0.5 s still aborts.
+        'default_saturation_timeout_s': 0.5,
+        'max_saturation_timeout_s': 0.5,
+        # Keep the ordinary 120 ms default. Exact 0.15 and 0.20 m/s runs must
+        # explicitly select their evidence-bounded receipt watchdog and match
+        # it at the controller preflight. Source stamps remain valid and
+        # monotonic, but their absolute remote/local clock offset is ignored.
+        'default_stale_odom_s': DEFAULT_STALE_ODOM_S,
+        'max_stale_odom_s': DEFAULT_STALE_ODOM_S,
+        'required_stale_odom_s_by_speed': (
+            (
+                MIRRORED_90_DIAGNOSTIC_SPEED_M_S,
+                MIRRORED_90_STALE_ODOM_S,
+            ),
+            (
+                MIRRORED_90_FULL_SPEED_M_S,
+                MIRRORED_90_FULL_SPEED_STALE_ODOM_S,
+            ),
+        ),
+        'description': 'short mirrored 90-degree route',
+        'frame_mode': 'translated_vicon',
+        'max_start_position_error_m': None,
+        'max_start_yaw_error_rad': 0.15,
+        'vicon_bounds_offsets': (-1.3, 0.3, -0.3, 3.3),
+    },
+    'legacy_90': {
+        'path_offsets': LEGACY_90_PATH_OFFSETS,
+        # The 0.25 m/s historical reference can demand 3.143 rad/s from a
+        # wheel before feedback, above the 2.932 rad/s actuator ceiling. Use a
+        # feasible diagnostic speed with about 36% wheel-command headroom.
+        'default_speed_m_s': 0.15,
+        'max_speed_m_s': 0.15,
+        'default_hard_timeout_s': 95.0,
+        'max_hard_timeout_s': 95.0,
+        'default_max_displacement_m': 5.5,
+        'max_displacement_m': 5.5,
+        'default_max_total_path_m': 15.0,
+        'max_total_path_m': 15.0,
+        'default_max_yaw_change_rad': 4.0,
+        'max_yaw_change_rad': 4.0,
+        'default_saturation_timeout_s': 0.5,
+        'max_saturation_timeout_s': 0.5,
+        'default_stale_odom_s': DEFAULT_STALE_ODOM_S,
+        'max_stale_odom_s': DEFAULT_STALE_ODOM_S,
+        'description': 'legacy 90-degree route',
+        'frame_mode': 'translated_vicon',
+        'max_start_position_error_m': None,
+        'max_start_yaw_error_rad': 0.15,
+        # Bounds are offsets from the captured start and are translated once
+        # with the route. They stay aligned to the fixed Vicon axes.
+        'vicon_bounds_offsets': (-2.3, 0.3, -0.3, 4.8),
+    },
+}
+
+# These five safety-monitoring streams can all update faster than the reference
+# loop. Retain only each stream's newest sample; the active loop services the
+# executor continuously between wall-clock reference deadlines.
+MONITOR_QOS_DEPTH = 1
+MONITOR_STREAM_COUNT = 5
+
+# A missed reference slot must never be replayed after a scheduler stall.  The
+# controller independently expires references after 0.5 s; this tighter
+# supervisor deadline stops publication before a late callback loop can resume
+# a trajectory from a discontinuous wall-clock point.
+MAX_REFERENCE_PUBLICATION_GAP_S = 0.10
+
+# Vicon pose is sampled state, so an old reliable delivery is less useful than
+# the newest available sample. Keep the command/status monitors reliable, but
+# prevent a supervisor-local DDS backlog from surfacing an obsolete odometry
+# sample after the run has armed.
+ODOM_MONITOR_QOS = QoSProfile(
+    history=HistoryPolicy.KEEP_LAST,
+    depth=MONITOR_QOS_DEPTH,
+    reliability=ReliabilityPolicy.BEST_EFFORT,
+)
+
+# This hardware validation targets the derivative implementation verified
+# against the latest Vicon bag.  Refuse to move under an older controller that
+# still differentiates pose error on the asynchronous control timer.
+REQUIRED_XY_VELOCITY_SOURCE = 'odom_twist_world'
+DEFAULT_VICON_MIN_Z_M = 0.25
+DEFAULT_VICON_MAX_Z_M = 0.40
+DEFAULT_VICON_MAX_TILT_RAD = 0.35
+VICON_POSE_ENVELOPE_PARAMETER_NAMES = (
+    'vicon_min_z_m',
+    'vicon_max_z_m',
+    'vicon_max_tilt_rad',
+)
+
+
+def get_profile_config(profile):
+    """Return the immutable-by-convention safety settings for a profile."""
+    name = str(profile)
+    if name not in PROFILE_CONFIGS:
+        choices = ', '.join(sorted(PROFILE_CONFIGS))
+        raise ValueError(f'profile must be one of: {choices}')
+    return PROFILE_CONFIGS[name]
+
+
+def require_profile_speed(profile, speed_m_s, profile_config):
+    """Return a finite positive speed no greater than the profile ceiling."""
+    speed = float(speed_m_s)
+    max_speed = float(profile_config['max_speed_m_s'])
+    if not math.isfinite(speed) or speed <= 0.0 or speed > max_speed:
+        raise ValueError(
+            f'speed_m_s for profile {str(profile)!r} must be in '
+            f'(0, {max_speed}]'
+        )
+    return speed
+
+
+def require_profile_stale_odom_timeout(
+    profile,
+    speed_m_s,
+    stale_odom_s,
+    profile_config,
+):
+    """Return the bounded receipt timeout allowed for this exact run."""
+    timeout = float(stale_odom_s)
+    required_speed = None
+    required_timeout = None
+    for candidate_speed, candidate_timeout in profile_config.get(
+        'required_stale_odom_s_by_speed', ()
+    ):
+        if math.isclose(
+            float(speed_m_s),
+            float(candidate_speed),
+            rel_tol=0.0,
+            abs_tol=1e-9,
+        ):
+            required_speed = float(candidate_speed)
+            required_timeout = float(candidate_timeout)
+            break
+    if required_timeout is not None:
+        max_timeout = float(required_timeout)
+    else:
+        max_timeout = float(profile_config['max_stale_odom_s'])
+    if not math.isfinite(timeout) or timeout <= 0.0 or timeout > max_timeout:
+        raise ValueError(
+            f'stale_odom_s for profile {str(profile)!r} must be in '
+            f'(0, {max_timeout:.2f}]'
+        )
+
+    if (
+        required_timeout is not None
+        and not math.isclose(
+            timeout,
+            float(required_timeout),
+            rel_tol=0.0,
+            abs_tol=1e-9,
+        )
+    ):
+        raise ValueError(
+            f'profile {str(profile)!r} at {float(required_speed):.3f}m/s '
+            f'requires explicit stale_odom_s={float(required_timeout):.2f}s'
+        )
+    return timeout
+
+
+def require_profile_saturation_timeout(
+    profile,
+    speed_m_s,
+    saturation_timeout_s,
+    profile_config,
+):
+    """Return the bounded saturation allowance for this exact run."""
+    timeout = float(saturation_timeout_s)
+    ordinary_max = float(profile_config['max_saturation_timeout_s'])
+    explicit_speed = profile_config.get('explicit_saturation_speed_m_s')
+    explicit_timeout = profile_config.get('explicit_saturation_timeout_s')
+    explicit_override = (
+        explicit_speed is not None
+        and explicit_timeout is not None
+        and math.isclose(
+            float(speed_m_s),
+            float(explicit_speed),
+            rel_tol=0.0,
+            abs_tol=1e-9,
+        )
+        and math.isclose(
+            timeout,
+            float(explicit_timeout),
+            rel_tol=0.0,
+            abs_tol=1e-9,
+        )
+    )
+    if (
+        not math.isfinite(timeout)
+        or timeout < 0.0
+        or (timeout > ordinary_max and not explicit_override)
+    ):
+        detail = f'in [0, {ordinary_max}]'
+        if explicit_speed is not None and explicit_timeout is not None:
+            detail += (
+                f', or exactly {float(explicit_timeout):.2f}s at '
+                f'{float(explicit_speed):.3f}m/s'
+            )
+        raise ValueError(
+            f'saturation_timeout_s for profile {str(profile)!r} must be '
+            f'{detail}'
+        )
+    return timeout
+
+
+def require_profile_clean_preflight(
+    profile,
+    speed_m_s,
+    startup_timeout_s,
+    profile_config,
+):
+    """Return the fixed clean-window duration required for this run."""
+    required_speed = profile_config.get(
+        'explicit_clean_preflight_speed_m_s'
+    )
+    required_clean_s = profile_config.get('required_clean_preflight_s')
+    required_startup_s = profile_config.get('required_startup_timeout_s')
+    exact_diagnostic = (
+        required_speed is not None
+        and required_clean_s is not None
+        and required_startup_s is not None
+        and math.isclose(
+            float(speed_m_s),
+            float(required_speed),
+            rel_tol=0.0,
+            abs_tol=1e-9,
+        )
+    )
+    if not exact_diagnostic:
+        return 0.0
+
+    startup = float(startup_timeout_s)
+    if (
+        not math.isfinite(startup)
+        or startup < float(required_startup_s)
+    ):
+        raise ValueError(
+            f'profile {str(profile)!r} at {float(required_speed):.3f}m/s '
+            f'requires explicit startup_timeout_s >= '
+            f'{float(required_startup_s):.1f}s for a continuous '
+            f'{float(required_clean_s):.1f}s clean preflight window'
+        )
+    return float(required_clean_s)
+
+
+def normalized_quat(q):
+    """Return normalized ``(x, y, z, w)`` or reject an invalid quaternion."""
+    values = tuple(float(value) for value in (q.x, q.y, q.z, q.w))
+    if not all(math.isfinite(value) for value in values):
+        raise ValueError('quaternion must be finite')
+    norm = math.sqrt(sum(value * value for value in values))
+    if norm < 1e-9:
+        raise ValueError('quaternion norm is too small')
+    return tuple(value / norm for value in values)
+
+
+def rpy_from_quat(q):
+    """Return roll, pitch, yaw from a normalized quaternion-like object."""
+    x, y, z, w = normalized_quat(q)
+    roll = math.atan2(
+        2.0 * (w * x + y * z),
+        1.0 - 2.0 * (x * x + y * y),
+    )
+    pitch = math.asin(max(-1.0, min(1.0, 2.0 * (w * y - z * x))))
+    yaw = math.atan2(
+        2.0 * (w * z + x * y),
+        1.0 - 2.0 * (y * y + z * z),
+    )
+    return roll, pitch, yaw
+
+
+def yaw_from_quat(q):
+    """Return planar yaw from a normalized quaternion-like object."""
+    return rpy_from_quat(q)[2]
+
+
+def base_pose_envelope_status(
+    pose,
+    min_z_m,
+    max_z_m,
+    max_tilt_rad,
+):
+    """Validate absolute base height and yaw-invariant gravity tilt."""
+    position = pose.position
+    coordinates = (
+        float(position.x),
+        float(position.y),
+        float(position.z),
+    )
+    if not all(math.isfinite(value) for value in coordinates):
+        return False, None, 'pose has non-finite position'
+    try:
+        x, y, _, _ = normalized_quat(pose.orientation)
+        yaw = yaw_from_quat(pose.orientation)
+    except (TypeError, ValueError):
+        return False, None, 'pose has invalid quaternion'
+
+    z = coordinates[2]
+    if z < float(min_z_m) or z > float(max_z_m):
+        return (
+            False,
+            None,
+            f'pose z={z:.3f}m is outside inclusive range '
+            f'[{float(min_z_m):.3f}, {float(max_z_m):.3f}]m',
+        )
+    # R_zz is the dot product between body +Z and world +Z. Unlike separate
+    # Euler roll/pitch limits, its angle is invariant to yaw.
+    tilt = math.acos(max(-1.0, min(1.0, 1.0 - 2.0 * (x * x + y * y))))
+    if tilt > float(max_tilt_rad) + 1e-12:
+        return (
+            False,
+            None,
+            f'pose tilt={tilt:.3f}rad exceeds '
+            f'{float(max_tilt_rad):.3f}rad',
+        )
+    return True, (tilt, yaw), ''
+
+
+def angle_delta(a, b):
+    """Return wrapped angle ``a - b`` in radians."""
+    return (a - b + math.pi) % (2.0 * math.pi) - math.pi
+
+
+def transform_path(offsets, start_x, start_y, start_yaw):
+    """Rotate robot-relative offsets into Vicon and translate to the start."""
+    c = math.cos(start_yaw)
+    s = math.sin(start_yaw)
+    return tuple(
+        (
+            float(start_x) + c * float(dx) - s * float(dy),
+            float(start_y) + s * float(dx) + c * float(dy),
+        )
+        for dx, dy in offsets
+    )
+
+
+def translate_path(offsets, start_x, start_y):
+    """Translate offsets while preserving their fixed Vicon-axis directions."""
+    return tuple(
+        (
+            float(start_x) + float(dx),
+            float(start_y) + float(dy),
+        )
+        for dx, dy in offsets
+    )
+
+
+def translate_bounds(bounds, start_x, start_y):
+    """Translate ``(xmin, xmax, ymin, ymax)`` offsets to Vicon coordinates."""
+    if bounds is None:
+        return None
+    x_min, x_max, y_min, y_max = bounds
+    return (
+        float(start_x) + float(x_min),
+        float(start_x) + float(x_max),
+        float(start_y) + float(y_min),
+        float(start_y) + float(y_max),
+    )
+
+
+def path_timing(points, speed_m_s):
+    """Return cumulative segment-end times and total path length."""
+    speed = float(speed_m_s)
+    if not math.isfinite(speed) or speed <= 0.0:
+        raise ValueError('speed_m_s must be finite and positive')
+    if len(points) < 2:
+        raise ValueError('at least two path points are required')
+
+    cumulative_times = [0.0]
+    total_length = 0.0
+    for start, end in zip(points, points[1:]):
+        length = math.hypot(end[0] - start[0], end[1] - start[1])
+        if not math.isfinite(length) or length <= 0.0:
+            raise ValueError('path segments must have finite, positive length')
+        total_length += length
+        cumulative_times.append(total_length / speed)
+    return tuple(cumulative_times), total_length
+
+
+def sample_path(points, cumulative_times, elapsed_s):
+    """Sample a piecewise-linear path as ``x, y, x_dot, y_dot``."""
+    elapsed = max(0.0, float(elapsed_s))
+    if elapsed >= cumulative_times[-1]:
+        return float(points[-1][0]), float(points[-1][1]), 0.0, 0.0
+
+    segment = 0
+    while elapsed >= cumulative_times[segment + 1]:
+        segment += 1
+
+    start = points[segment]
+    end = points[segment + 1]
+    duration = cumulative_times[segment + 1] - cumulative_times[segment]
+    fraction = (elapsed - cumulative_times[segment]) / duration
+    x = start[0] + fraction * (end[0] - start[0])
+    y = start[1] + fraction * (end[1] - start[1])
+    return (
+        float(x),
+        float(y),
+        float((end[0] - start[0]) / duration),
+        float((end[1] - start[1]) / duration),
+    )
+
+
+def scheduled_runtime_s(
+    points, speed_m_s, start_hold_s, final_hold_s
+):
+    """Return the armed duration before reference publishing ceases."""
+    cumulative_times, _ = path_timing(points, speed_m_s)
+    return (
+        float(start_hold_s)
+        + cumulative_times[-1]
+        + float(final_hold_s)
+    )
+
+
+def next_reference_deadline(run_start, period_s, now):
+    """Return the first absolute schedule slot strictly after ``now``."""
+    start = float(run_start)
+    period = float(period_s)
+    current = float(now)
+    if not all(math.isfinite(value) for value in (start, period, current)):
+        raise ValueError('reference schedule times must be finite')
+    if period <= 0.0:
+        raise ValueError('reference schedule period must be positive')
+
+    elapsed = max(0.0, current - start)
+    slot = math.floor(elapsed / period) + 1
+    deadline = start + slot * period
+    # Protect the strict-future contract from floating-point cancellation at
+    # large monotonic timestamps.
+    while deadline <= current:
+        slot += 1
+        deadline = start + slot * period
+    return deadline
+
+
+def require_reference_publication_gap(
+    now,
+    last_publish_time,
+    max_gap_s=MAX_REFERENCE_PUBLICATION_GAP_S,
+):
+    """Reject a late scheduler cycle before it can resume publication."""
+    if last_publish_time is None:
+        return 0.0
+    current = float(now)
+    previous = float(last_publish_time)
+    maximum = float(max_gap_s)
+    if not all(math.isfinite(value) for value in (current, previous, maximum)):
+        raise RuntimeError('reference publication timing became non-finite')
+    gap = current - previous
+    if gap < 0.0:
+        raise RuntimeError('reference publication clock moved backwards')
+    if maximum <= 0.0 or gap > maximum + 1e-12:
+        raise RuntimeError(
+            f'reference publication gap {gap:.3f}s exceeded '
+            f'{maximum:.3f}s; refusing a late trajectory restart'
+        )
+    return gap
+
+
+def sample_reference_schedule(
+    points,
+    cumulative_times,
+    elapsed_s,
+    start_hold_s,
+    final_hold_s,
+):
+    """Sample the complete wall-clock schedule, independent of robot state."""
+    elapsed = float(elapsed_s)
+    start_hold = float(start_hold_s)
+    final_hold = float(final_hold_s)
+    if elapsed < start_hold:
+        return float(points[0][0]), float(points[0][1]), 0.0, 0.0
+
+    motion_elapsed = elapsed - start_hold
+    if motion_elapsed < cumulative_times[-1]:
+        return sample_path(points, cumulative_times, motion_elapsed)
+    if motion_elapsed < cumulative_times[-1] + final_hold:
+        return float(points[-1][0]), float(points[-1][1]), 0.0, 0.0
+    return None
+
+
+def saturation_timeout_exceeded(duration_s, timeout_s):
+    """Return whether the active saturation episode must abort the run."""
+    duration = max(0.0, float(duration_s))
+    timeout = max(0.0, float(timeout_s))
+    return timeout <= 0.0 or duration > timeout
+
+
+def point_in_bounds(x, y, bounds):
+    """Return whether a Vicon point is inside inclusive XY bounds."""
+    if bounds is None:
+        return True
+    x_min, x_max, y_min, y_max = bounds
+    return x_min <= float(x) <= x_max and y_min <= float(y) <= y_max
+
+
+def source_stamp_status(
+    stamp_sec,
+    stamp_nanosec,
+    previous_stamp_ns=None,
+):
+    """Expose the controller's shared source-order policy to pure tests."""
+    result = source_timestamp_is_valid_and_monotonic(
+        stamp_sec,
+        stamp_nanosec,
+        previous_stamp_ns,
+    )
+    return result.accepted, result.stamp_ns, result.reason
+
+
+def require_vicon_source_stamp_policy(value):
+    """Require local-receipt freshness plus monotonic source timing."""
+    try:
+        return validated_vicon_source_stamp_policy(value)
+    except ValueError as error:
+        raise RuntimeError(
+            'vicon_source_stamp_policy must exactly equal '
+            f'{VICON_SOURCE_STAMP_POLICY!r}; got {value!r}'
+        ) from error
+
+
+def require_controller_xy_velocity_source(value):
+    """Reject a controller without the Vicon world-twist derivative source."""
+    if value != REQUIRED_XY_VELOCITY_SOURCE:
+        raise RuntimeError(
+            'controller xy_velocity_source must be '
+            f'{REQUIRED_XY_VELOCITY_SOURCE!r} for this hardware test; '
+            f'got {value!r}'
+        )
+
+
+def require_controller_reference_timeout(value):
+    """Require the coordinated 120 ms hardware reference watchdog."""
+    required = REQUIRED_CONTROLLER_REFERENCE_TIMEOUT_S
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+        or not math.isclose(
+            float(value), required, rel_tol=0.0, abs_tol=1e-9
+        )
+    ):
+        raise RuntimeError(
+            'controller reference_timeout_s must exactly equal '
+            f'{required:.3f}s for this hardware test; got {value!r}'
+        )
+    return float(value)
+
+
+def require_controller_wheel_speed_limit(value):
+    """Require the firmware-matched 28 RPM wheel-command ceiling."""
+    required = HARDWARE_WHEEL_SPEED_LIMIT_RAD_S
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+        or not math.isclose(
+            float(value), required, rel_tol=0.0, abs_tol=1e-9
+        )
+    ):
+        raise RuntimeError(
+            'controller wheel_speed_limit_rad_s must exactly equal the '
+            f'28 RPM operating ceiling ({required:.11f}rad/s); got {value!r}'
+        )
+    return float(value)
+
+
+def require_controller_odom_timeout(value, expected_timeout_s):
+    """Require one bounded controller/supervisor receipt watchdog value."""
+    if (
+        isinstance(expected_timeout_s, bool)
+        or not isinstance(expected_timeout_s, (int, float))
+        or not math.isfinite(float(expected_timeout_s))
+        or float(expected_timeout_s) <= 0.0
+        or float(expected_timeout_s) > MAX_CONTROLLER_ODOM_TIMEOUT_S
+    ):
+        raise RuntimeError(
+            'supervisor stale_odom_s must be enabled and <= '
+            f'{MAX_CONTROLLER_ODOM_TIMEOUT_S:.2f}s'
+        )
+    expected = float(expected_timeout_s)
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+        or float(value) <= 0.0
+        or float(value) > MAX_CONTROLLER_ODOM_TIMEOUT_S
+        or not math.isclose(
+            float(value), expected, rel_tol=0.0, abs_tol=1e-9
+        )
+    ):
+        raise RuntimeError(
+            'controller odom_timeout_s must exactly match supervisor '
+            f'stale_odom_s={expected:.3f}s and be <= '
+            f'{MAX_CONTROLLER_ODOM_TIMEOUT_S:.2f}s; got {value!r}'
+        )
+    return float(value)
+
+
+def require_matching_controller_pose_envelope(values, expected):
+    """Require controller and supervisor to use exactly the same envelope."""
+    for name in VICON_POSE_ENVELOPE_PARAMETER_NAMES:
+        value = values.get(name)
+        target = expected[name]
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(float(value))
+            or not math.isclose(
+                float(value), float(target), rel_tol=0.0, abs_tol=1e-9
+            )
+        ):
+            raise RuntimeError(
+                f'controller {name} must exactly match supervisor value '
+                f'{float(target):.6g}; got {value!r}'
+            )
+
+
+class ClosedLoopTurnTest(Node):
+    """Publish and supervise one selected closed-loop validation path."""
+
+    def __init__(self):
+        super().__init__('closed_loop_turn_test')
+
+        self.enable = bool(self.declare_parameter('enable', False).value)
+        self.profile = str(
+            self.declare_parameter('profile', 's_curve').value
+        )
+        self.profile_config = get_profile_config(self.profile)
+        self.path_offsets = self.profile_config['path_offsets']
+        self.speed_m_s = float(
+            self.declare_parameter(
+                'speed_m_s',
+                self.profile_config['default_speed_m_s'],
+            ).value
+        )
+        self.start_hold_s = float(
+            self.declare_parameter('start_hold_s', 2.0).value
+        )
+        self.final_hold_s = float(
+            self.declare_parameter('final_hold_s', 3.0).value
+        )
+        self.publish_rate_hz = float(
+            self.declare_parameter('publish_rate_hz', 50.0).value
+        )
+        self.hard_timeout_s = float(
+            self.declare_parameter(
+                'hard_timeout_s',
+                self.profile_config['default_hard_timeout_s'],
+            ).value
+        )
+        self.startup_timeout_s = float(
+            self.declare_parameter('startup_timeout_s', 6.0).value
+        )
+        self.clean_preflight_window_s = require_profile_clean_preflight(
+            self.profile,
+            self.speed_m_s,
+            self.startup_timeout_s,
+            self.profile_config,
+        )
+        self.stale_odom_s = float(
+            self.declare_parameter(
+                'stale_odom_s',
+                self.profile_config['default_stale_odom_s'],
+            ).value
+        )
+        self.vicon_source_stamp_policy = str(
+            self.declare_parameter(
+                'vicon_source_stamp_policy',
+                VICON_SOURCE_STAMP_POLICY,
+            ).value
+        )
+        self.vicon_min_z_m = float(
+            self.declare_parameter(
+                'vicon_min_z_m', DEFAULT_VICON_MIN_Z_M
+            ).value
+        )
+        self.vicon_max_z_m = float(
+            self.declare_parameter(
+                'vicon_max_z_m', DEFAULT_VICON_MAX_Z_M
+            ).value
+        )
+        self.vicon_max_tilt_rad = float(
+            self.declare_parameter(
+                'vicon_max_tilt_rad', DEFAULT_VICON_MAX_TILT_RAD
+            ).value
+        )
+        self.stale_status_s = float(
+            self.declare_parameter('stale_status_s', 0.35).value
+        )
+        self.stale_command_s = float(
+            self.declare_parameter('stale_command_s', 0.25).value
+        )
+        self.command_startup_grace_s = float(
+            self.declare_parameter('command_startup_grace_s', 0.75).value
+        )
+        self.stationary_window_s = float(
+            self.declare_parameter('stationary_window_s', 1.0).value
+        )
+        self.stationary_position_m = float(
+            self.declare_parameter('stationary_position_m', 0.015).value
+        )
+        self.stationary_yaw_rad = float(
+            self.declare_parameter('stationary_yaw_rad', 0.08).value
+        )
+        self.max_abs_wheel_cmd = float(
+            self.declare_parameter(
+                'max_abs_wheel_cmd', HARDWARE_WHEEL_SPEED_LIMIT_RAD_S
+            ).value
+        )
+        self.max_displacement_m = float(
+            self.declare_parameter(
+                'max_displacement_m',
+                self.profile_config['default_max_displacement_m'],
+            ).value
+        )
+        self.max_total_path_m = float(
+            self.declare_parameter(
+                'max_total_path_m',
+                self.profile_config['default_max_total_path_m'],
+            ).value
+        )
+        self.max_yaw_change_rad = float(
+            self.declare_parameter(
+                'max_yaw_change_rad',
+                self.profile_config['default_max_yaw_change_rad'],
+            ).value
+        )
+        self.saturation_timeout_s = float(
+            self.declare_parameter(
+                'saturation_timeout_s',
+                self.profile_config['default_saturation_timeout_s'],
+            ).value
+        )
+        self.stop_verify_timeout_s = float(
+            self.declare_parameter('stop_verify_timeout_s', 1.75).value
+        )
+        self.stop_zero_hold_s = float(
+            self.declare_parameter('stop_zero_hold_s', 0.20).value
+        )
+
+        self.odom_topic = str(
+            self.declare_parameter(
+                'odom_topic', '/HAMR_base/odom'
+            ).value
+        )
+        self.reference_topic = str(
+            self.declare_parameter(
+                'reference_topic', '/reference_trajectory'
+            ).value
+        )
+        self.left_topic = str(
+            self.declare_parameter(
+                'left_topic', '/left_wheel/cmd_vel'
+            ).value
+        )
+        self.right_topic = str(
+            self.declare_parameter(
+                'right_topic', '/right_wheel/cmd_vel'
+            ).value
+        )
+        self.turret_topic = str(
+            self.declare_parameter(
+                'turret_topic', '/turret/cmd_vel'
+            ).value
+        )
+        self.status_topic = str(
+            self.declare_parameter(
+                'status_topic', '/wheel_control/status'
+            ).value
+        )
+        self.controller_node = str(
+            self.declare_parameter(
+                'controller_node', '/hamr_controller_node'
+            ).value
+        )
+
+        self._validate_parameters()
+
+        self.pose = None
+        self.raw_yaw = None
+        self.unwrapped_yaw = None
+        self.last_raw_yaw = None
+        self.last_odom_time = None
+        self.last_odom_source_stamp_ns = None
+        self.odom_source_error = None
+        self.latched_odom_source_error = None
+        self.odom_pose_envelope_error = None
+        self.latched_odom_pose_envelope_error = None
+        self.preflight_ready_since = None
+        self.base_z = None
+        self.base_tilt = None
+        self.odom_history = deque()
+
+        self.left_cmd = None
+        self.right_cmd = None
+        self.turret_cmd = None
+        self.left_cmd_time = None
+        self.right_cmd_time = None
+        self.turret_cmd_time = None
+        self.left_cmd_seq = 0
+        self.right_cmd_seq = 0
+        self.turret_cmd_seq = 0
+        self.max_observed_wheel_cmd = 0.0
+
+        self.last_status_time = None
+        self.status_source = None
+        self.status_saturated = False
+        self.status_schema_error = None
+        self.saturation_started_time = None
+        self.saturation_seen = False
+        self.saturation_sample_count = 0
+        self.max_saturation_episode_s = 0.0
+
+        self.armed = False
+        self.run_start_pose = None
+        self.run_start_yaw = None
+        self.active_vicon_bounds = None
+        self.total_path_m = 0.0
+        self.last_path_pose = None
+        self.reference_timeout_s = None
+
+        self.reference_pub = self.create_publisher(
+            ReferenceTraj, self.reference_topic, 1
+        )
+        self.create_subscription(
+            Odometry, self.odom_topic, self.odom_cb, ODOM_MONITOR_QOS
+        )
+        self.create_subscription(
+            Float64, self.left_topic, self.left_cmd_cb, MONITOR_QOS_DEPTH
+        )
+        self.create_subscription(
+            Float64, self.right_topic, self.right_cmd_cb, MONITOR_QOS_DEPTH
+        )
+        self.create_subscription(
+            Float64, self.turret_topic, self.turret_cmd_cb, MONITOR_QOS_DEPTH
+        )
+        self.create_subscription(
+            Float64MultiArray,
+            self.status_topic,
+            self.status_cb,
+            MONITOR_QOS_DEPTH,
+        )
+
+        self.controller_params = AsyncParameterClient(
+            self, self.controller_node
+        )
+
+        # Keep this node attached to one executor for its whole lifetime.
+        # ``rclpy.spin_once(node, ...)`` uses the global executor and
+        # repeatedly adds/removes the node; a persistent executor avoids graph
+        # churn in the timing-critical reference loop.
+        self.callback_executor = SingleThreadedExecutor(context=self.context)
+        self.callback_executor.add_node(self)
+
+    def shutdown_callback_executor(self):
+        """Detach and stop the persistent callback executor exactly once."""
+        executor = getattr(self, 'callback_executor', None)
+        if executor is None:
+            return
+        executor.remove_node(self)
+        executor.shutdown(timeout_sec=0.0)
+        self.callback_executor = None
+
+    def _drain_latest_callbacks(self):
+        """Service at most one queued sample from each latest-only monitor."""
+        for _ in range(MONITOR_STREAM_COUNT):
+            if self.armed and (
+                self.latched_odom_source_error is not None
+                or self.latched_odom_pose_envelope_error is not None
+            ):
+                return
+            self.callback_executor.spin_once(timeout_sec=0.0)
+
+    def _service_callbacks_until(self, deadline):
+        """Continuously service ready callbacks until a monotonic deadline."""
+        while rclpy.ok():
+            if self.armed and (
+                self.latched_odom_source_error is not None
+                or self.latched_odom_pose_envelope_error is not None
+            ):
+                return
+            remaining_s = float(deadline) - time.monotonic()
+            if remaining_s <= 0.0:
+                return
+            # spin_once handles one callback, or waits no later than the next
+            # reference deadline when nothing is ready. Repeating here drains
+            # all five latest-only monitoring streams instead of sleeping.
+            self.callback_executor.spin_once(timeout_sec=remaining_s)
+
+    def _prepare_reference_cycle(self, run_start, last_publish_time):
+        """Drain latest state and perform the final pre-publication checks."""
+        # If the preceding executor wait overran, its one completed callback
+        # may not be odometry. Drain each depth-one monitor once before reading
+        # freshness. The current time is intentionally sampled only afterward.
+        self._drain_latest_callbacks()
+        now = time.monotonic()
+        require_reference_publication_gap(now, last_publish_time)
+        elapsed = now - float(run_start)
+        # This check contains only local state/arithmetic. In particular, no
+        # synchronous DDS graph query may sit between this current-time
+        # freshness check and reference publication.
+        self.assert_active_safety(now, elapsed)
+        return now, elapsed
+
+    def _validate_parameters(self):
+        finite_values = {
+            'speed_m_s': self.speed_m_s,
+            'start_hold_s': self.start_hold_s,
+            'final_hold_s': self.final_hold_s,
+            'publish_rate_hz': self.publish_rate_hz,
+            'hard_timeout_s': self.hard_timeout_s,
+            'startup_timeout_s': self.startup_timeout_s,
+            'stale_odom_s': self.stale_odom_s,
+            'vicon_min_z_m': self.vicon_min_z_m,
+            'vicon_max_z_m': self.vicon_max_z_m,
+            'vicon_max_tilt_rad': self.vicon_max_tilt_rad,
+            'max_abs_wheel_cmd': self.max_abs_wheel_cmd,
+            'max_displacement_m': self.max_displacement_m,
+            'max_total_path_m': self.max_total_path_m,
+            'max_yaw_change_rad': self.max_yaw_change_rad,
+            'saturation_timeout_s': self.saturation_timeout_s,
+        }
+        for name, value in finite_values.items():
+            if not math.isfinite(value):
+                raise ValueError(f'{name} must be finite')
+        require_profile_speed(
+            self.profile, self.speed_m_s, self.profile_config
+        )
+        if self.start_hold_s < 0.0 or self.final_hold_s < 0.0:
+            raise ValueError('hold durations must be non-negative')
+        require_profile_stale_odom_timeout(
+            self.profile,
+            self.speed_m_s,
+            self.stale_odom_s,
+            self.profile_config,
+        )
+        require_vicon_source_stamp_policy(self.vicon_source_stamp_policy)
+        if (
+            self.vicon_min_z_m < DEFAULT_VICON_MIN_Z_M
+            or self.vicon_max_z_m > DEFAULT_VICON_MAX_Z_M
+            or self.vicon_min_z_m >= self.vicon_max_z_m
+        ):
+            raise ValueError(
+                'Vicon z envelope must be non-empty and no looser than '
+                f'[{DEFAULT_VICON_MIN_Z_M}, {DEFAULT_VICON_MAX_Z_M}]m'
+            )
+        if (
+            self.vicon_max_tilt_rad <= 0.0
+            or self.vicon_max_tilt_rad > DEFAULT_VICON_MAX_TILT_RAD
+        ):
+            raise ValueError(
+                'vicon_max_tilt_rad must be in '
+                f'(0, {DEFAULT_VICON_MAX_TILT_RAD}]'
+            )
+        if self.publish_rate_hz < 20.0 or self.publish_rate_hz > 100.0:
+            raise ValueError('publish_rate_hz must be between 20 and 100')
+        max_hard_timeout = self.profile_config['max_hard_timeout_s']
+        if (
+            self.hard_timeout_s <= 0.0
+            or self.hard_timeout_s > max_hard_timeout
+        ):
+            raise ValueError(
+                f'hard_timeout_s for profile {self.profile!r} must be in '
+                f'(0, {max_hard_timeout}]'
+            )
+        if (
+            self.max_abs_wheel_cmd <= 0.0
+            or self.max_abs_wheel_cmd
+            > HARDWARE_WHEEL_SPEED_LIMIT_RAD_S + 1e-9
+        ):
+            raise ValueError(
+                'max_abs_wheel_cmd must be positive and no greater than the '
+                f'28 RPM operating ceiling '
+                f'({HARDWARE_WHEEL_SPEED_LIMIT_RAD_S:.11f}rad/s)'
+            )
+        safety_bounds = (
+            (
+                'max_displacement_m',
+                self.max_displacement_m,
+                self.profile_config['max_displacement_m'],
+            ),
+            (
+                'max_total_path_m',
+                self.max_total_path_m,
+                self.profile_config['max_total_path_m'],
+            ),
+            (
+                'max_yaw_change_rad',
+                self.max_yaw_change_rad,
+                self.profile_config['max_yaw_change_rad'],
+            ),
+        )
+        for name, value, profile_maximum in safety_bounds:
+            if value <= 0.0 or value > profile_maximum:
+                raise ValueError(
+                    f'{name} for profile {self.profile!r} must be in '
+                    f'(0, {profile_maximum}]'
+                )
+        require_profile_saturation_timeout(
+            self.profile,
+            self.speed_m_s,
+            self.saturation_timeout_s,
+            self.profile_config,
+        )
+
+        planned = scheduled_runtime_s(
+            self.path_offsets,
+            self.speed_m_s,
+            self.start_hold_s,
+            self.final_hold_s,
+        )
+        if planned > self.hard_timeout_s - 0.25:
+            raise ValueError(
+                f'worst-case armed duration {planned:.2f}s leaves insufficient '
+                f'margin inside the {self.hard_timeout_s:.2f}s hard timeout'
+            )
+
+    def _reset_clean_preflight(self):
+        """Discard any partial exact-stage preflight clean interval."""
+        if getattr(self, 'clean_preflight_window_s', 0.0) <= 0.0:
+            return
+        self.preflight_ready_since = None
+        # Do not let the one-second stationary check reuse pre-fault samples.
+        # The next accepted observation starts a new stationary history.
+        if hasattr(self, 'odom_history'):
+            self.odom_history.clear()
+
+    def odom_cb(self, msg):
+        now = time.monotonic()
+        previous_odom_time = self.last_odom_time
+        stamp = msg.header.stamp
+        source_ok, source_stamp_ns, source_reason = source_stamp_status(
+            stamp.sec,
+            stamp.nanosec,
+            getattr(self, 'last_odom_source_stamp_ns', None),
+        )
+        if not source_ok:
+            self._reset_clean_preflight()
+            # Re-baseline after a duplicate/reversed stamp so the next
+            # strictly increasing stream can establish a clean preflight.
+            if source_stamp_ns is not None:
+                self.last_odom_source_stamp_ns = source_stamp_ns
+            self.odom_source_error = f'base Vicon {source_reason}'
+            if self.armed and self.latched_odom_source_error is None:
+                # Preserve the first in-run failure so a later callback cannot
+                # erase the reason to abort before the active loop observes it.
+                self.latched_odom_source_error = self.odom_source_error
+            # Invalidly timed data cannot refresh pose or local receipt
+            # freshness. The active loop will cease reference publication.
+            return
+        self.last_odom_source_stamp_ns = source_stamp_ns
+        self.odom_source_error = None
+        pose = msg.pose.pose
+        pose_ok, pose_state, pose_reason = base_pose_envelope_status(
+            pose,
+            self.vicon_min_z_m,
+            self.vicon_max_z_m,
+            self.vicon_max_tilt_rad,
+        )
+        if not pose_ok:
+            self._reset_clean_preflight()
+            self.odom_pose_envelope_error = f'base Vicon {pose_reason}'
+            if self.armed and self.latched_odom_pose_envelope_error is None:
+                self.latched_odom_pose_envelope_error = (
+                    self.odom_pose_envelope_error
+                )
+            # A stable but physically impossible rigid-body solution must not
+            # refresh odometry freshness or establish a preflight baseline.
+            return
+        self.odom_pose_envelope_error = None
+        self.base_z = float(pose.position.z)
+        self.base_tilt, raw_yaw = pose_state
+        if self.last_raw_yaw is None:
+            self.unwrapped_yaw = raw_yaw
+        else:
+            self.unwrapped_yaw += angle_delta(raw_yaw, self.last_raw_yaw)
+        self.last_raw_yaw = raw_yaw
+        self.raw_yaw = raw_yaw
+        self.pose = (float(pose.position.x), float(pose.position.y))
+        if (
+            not self.armed
+            and previous_odom_time is not None
+            and now - previous_odom_time
+            > getattr(self, 'stale_odom_s', DEFAULT_STALE_ODOM_S) + 1e-12
+        ):
+            self._reset_clean_preflight()
+        if (
+            getattr(self, 'clean_preflight_window_s', 0.0) > 0.0
+            and not self._profile_start_ready()
+        ):
+            self._reset_clean_preflight()
+        self.last_odom_time = now
+        self.odom_history.append(
+            (now, self.pose[0], self.pose[1], self.unwrapped_yaw)
+        )
+        history_cutoff = now - max(3.0, 2.0 * self.stationary_window_s)
+        while self.odom_history and self.odom_history[0][0] < history_cutoff:
+            self.odom_history.popleft()
+
+        if self.armed:
+            if self.last_path_pose is not None:
+                self.total_path_m += math.hypot(
+                    self.pose[0] - self.last_path_pose[0],
+                    self.pose[1] - self.last_path_pose[1],
+                )
+            self.last_path_pose = self.pose
+
+    def left_cmd_cb(self, msg):
+        self.left_cmd = float(msg.data)
+        self.left_cmd_time = time.monotonic()
+        self.left_cmd_seq += 1
+        self._observe_wheel_command(self.left_cmd)
+
+    def right_cmd_cb(self, msg):
+        self.right_cmd = float(msg.data)
+        self.right_cmd_time = time.monotonic()
+        self.right_cmd_seq += 1
+        self._observe_wheel_command(self.right_cmd)
+
+    def turret_cmd_cb(self, msg):
+        self.turret_cmd = float(msg.data)
+        self.turret_cmd_time = time.monotonic()
+        self.turret_cmd_seq += 1
+
+    def _observe_wheel_command(self, command):
+        if math.isfinite(command):
+            self.max_observed_wheel_cmd = max(
+                self.max_observed_wheel_cmd, abs(command)
+            )
+
+    def status_cb(self, msg):
+        now = time.monotonic()
+        schema = (
+            msg.layout.dim[0].label
+            if msg.layout.dim
+            else ''
+        )
+        if schema != 'wheel_control_status_v1':
+            self.status_schema_error = (
+                f'{self.status_topic} schema is {schema!r}; expected '
+                "'wheel_control_status_v1'"
+            )
+            return
+        if len(msg.data) < 17:
+            self.status_schema_error = (
+                f'{self.status_topic} has {len(msg.data)} values; expected '
+                'at least 17 from wheel_control_status_v1'
+            )
+            return
+        values = [float(value) for value in msg.data[:17]]
+        if not all(math.isfinite(value) for value in values):
+            self.status_schema_error = (
+                f'{self.status_topic} contains a non-finite value'
+            )
+            return
+        self.status_saturated = values[7] > 0.5 or values[15] > 0.5
+        if self.armed and self.status_saturated:
+            self.saturation_sample_count += 1
+        self.status_source = int(round(values[16]))
+        self.last_status_time = now
+
+    def assert_saturation_safety(self, now):
+        """Allow only the profile's bounded transient saturation window."""
+        if not self.status_saturated:
+            if self.saturation_started_time is not None:
+                duration = now - self.saturation_started_time
+                self.max_saturation_episode_s = max(
+                    self.max_saturation_episode_s, duration
+                )
+                self.saturation_started_time = None
+                if saturation_timeout_exceeded(
+                    duration, self.saturation_timeout_s
+                ):
+                    raise RuntimeError(
+                        f'firmware wheel-controller saturation episode '
+                        f'cleared after {duration:.3f}s (limit '
+                        f'{self.saturation_timeout_s:.3f}s)'
+                    )
+                self.get_logger().warn(
+                    f'Wheel saturation cleared after {duration:.3f}s '
+                    f'(profile={self.profile}).'
+                )
+            return
+
+        self.saturation_seen = True
+        if self.saturation_started_time is None:
+            self.saturation_started_time = now
+            self.get_logger().warn(
+                f'Wheel saturation observed (profile={self.profile}); '
+                f'abort threshold is {self.saturation_timeout_s:.3f}s.'
+            )
+        duration = now - self.saturation_started_time
+        self.max_saturation_episode_s = max(
+            self.max_saturation_episode_s, duration
+        )
+        if saturation_timeout_exceeded(
+            duration, self.saturation_timeout_s
+        ):
+            raise RuntimeError(
+                f'firmware wheel-controller saturation persisted for '
+                f'{duration:.3f}s (limit '
+                f'{self.saturation_timeout_s:.3f}s)'
+            )
+
+    def _stationary(self, now):
+        cutoff = now - self.stationary_window_s
+        samples = [sample for sample in self.odom_history if sample[0] >= cutoff]
+        if len(samples) < 5 or samples[0][0] > cutoff + 0.10:
+            return False
+        x0, y0 = samples[0][1], samples[0][2]
+        max_position_change = max(
+            math.hypot(sample[1] - x0, sample[2] - y0)
+            for sample in samples
+        )
+        yaws = [sample[3] for sample in samples]
+        return (
+            max_position_change <= self.stationary_position_m
+            and max(yaws) - min(yaws) <= self.stationary_yaw_rad
+        )
+
+    def _fresh(self, timestamp, max_age, now):
+        # Monotonic times are floating-point seconds; retain inclusive timeout
+        # semantics despite sub-picosecond subtraction roundoff.
+        return (
+            timestamp is not None
+            and now - timestamp <= max_age + 1e-12
+        )
+
+    def _profile_start_ready(self):
+        """Check profile heading/alignment before allowing motion."""
+        if self.profile_config['frame_mode'] == 'relative':
+            return True
+        if self.pose is None or self.raw_yaw is None:
+            return False
+        yaw_error = abs(angle_delta(self.raw_yaw, 0.0))
+        if yaw_error > self.profile_config['max_start_yaw_error_rad']:
+            return False
+        max_position_error = self.profile_config['max_start_position_error_m']
+        if max_position_error is None:
+            return True
+        return math.hypot(self.pose[0], self.pose[1]) <= max_position_error
+
+    def _graph_ready(self):
+        return (
+            self.count_publishers(self.left_topic) == 1
+            and self.count_publishers(self.right_topic) == 1
+            and self.count_publishers(self.turret_topic) == 1
+            and self.count_publishers(self.reference_topic) == 1
+            # Each command topic has this supervisor plus at least one
+            # downstream consumer (normally the relay; the fresh relay status
+            # check below confirms that consumer is actually connected).
+            and self.count_subscribers(self.left_topic) >= 2
+            and self.count_subscribers(self.right_topic) >= 2
+            and self.count_subscribers(self.turret_topic) >= 2
+            and self.reference_pub.get_subscription_count() >= 1
+        )
+
+    def _instantaneous_preflight_ready(self, now):
+        """Check current non-stationary preflight prerequisites."""
+        return (
+            self.pose is not None
+            and self._fresh(self.last_odom_time, self.stale_odom_s, now)
+            and self.odom_source_error is None
+            and self.odom_pose_envelope_error is None
+            and self._fresh(self.last_status_time, self.stale_status_s, now)
+            and self.status_schema_error is None
+            and self._profile_start_ready()
+            and self._graph_ready()
+        )
+
+    def _preflight_ready(self, now):
+        instantaneous_ready = self._instantaneous_preflight_ready(now)
+        stationary = self._stationary(now)
+        required_clean_s = getattr(self, 'clean_preflight_window_s', 0.0)
+        if required_clean_s <= 0.0:
+            return instantaneous_ready and stationary
+
+        # The exact 0.15 m/s diagnostic additionally treats preflight wheel
+        # saturation as a readiness loss. Other profiles retain their existing
+        # behavior because they return above.
+        instantaneous_ready = (
+            instantaneous_ready and not self.status_saturated
+        )
+        if not instantaneous_ready:
+            self._reset_clean_preflight()
+            return False
+        if not stationary:
+            # Before the first stationary baseline exists, retain observations
+            # so its one-second window can accumulate. Once clean timing has
+            # begun, any motion invalidates both windows.
+            if self.preflight_ready_since is not None:
+                self._reset_clean_preflight()
+            return False
+
+        if (
+            self.preflight_ready_since is None
+            or float(now) < self.preflight_ready_since
+        ):
+            self.preflight_ready_since = float(now)
+            return False
+        return (
+            float(now) - self.preflight_ready_since
+            >= required_clean_s - 1e-12
+        )
+
+    def wait_for_preflight(self, deadline=None):
+        if deadline is None:
+            deadline = time.monotonic() + self.startup_timeout_s
+        while rclpy.ok() and time.monotonic() < deadline:
+            self.callback_executor.spin_once(timeout_sec=0.05)
+            if self._preflight_ready(time.monotonic()):
+                return
+
+        now = time.monotonic()
+        details = []
+        if not self._fresh(self.last_odom_time, self.stale_odom_s, now):
+            details.append('fresh base Vicon odometry missing')
+        if self.odom_source_error:
+            details.append(self.odom_source_error)
+        if self.odom_pose_envelope_error:
+            details.append(self.odom_pose_envelope_error)
+        if not self._fresh(self.last_status_time, self.stale_status_s, now):
+            details.append('fresh wheel-controller telemetry missing')
+        if self.status_schema_error:
+            details.append(self.status_schema_error)
+        if not self._stationary(now):
+            details.append('robot was not stationary for the preflight window')
+        if self.clean_preflight_window_s > 0.0:
+            clean_elapsed_s = (
+                0.0
+                if self.preflight_ready_since is None
+                else max(0.0, now - self.preflight_ready_since)
+            )
+            if clean_elapsed_s < self.clean_preflight_window_s:
+                details.append(
+                    f'continuous clean preflight was {clean_elapsed_s:.2f}s; '
+                    f'requires {self.clean_preflight_window_s:.2f}s'
+                )
+        if not self._profile_start_ready():
+            max_position_error = self.profile_config[
+                'max_start_position_error_m'
+            ]
+            if max_position_error is None:
+                position_requirement = 'at any tracked Vicon position'
+            else:
+                position_requirement = (
+                    f'within {max_position_error:.2f}m of (0,0)'
+                )
+            details.append(
+                f'profile {self.profile!r} requires Vicon start '
+                f'{position_requirement} and raw yaw within '
+                f'{self.profile_config["max_start_yaw_error_rad"]:.2f}rad '
+                'of zero'
+            )
+        if not self._graph_ready():
+            details.append(
+                'expected exactly one wheel-command publisher (controller), '
+                'downstream command subscribers, this node as the only '
+                'reference publisher, and a reference subscriber'
+            )
+        raise RuntimeError('Preflight failed: ' + '; '.join(details))
+
+    def read_controller_parameters(self):
+        if not self.controller_params.wait_for_services(timeout_sec=2.0):
+            raise RuntimeError(
+                f'parameter services for {self.controller_node} are unavailable'
+            )
+        names = (
+            'reference_timeout_s',
+            'odom_timeout_s',
+            'xy_velocity_source',
+            'vicon_pose_guard_enabled',
+            'vicon_max_position_jump_m',
+            'vicon_max_orientation_jump_rad',
+            'vicon_recovery_samples',
+            'vicon_source_stamp_policy',
+            *VICON_POSE_ENVELOPE_PARAMETER_NAMES,
+            'wheel_speed_limit_rad_s',
+            'turret_enabled',
+            'simulating',
+            'mode',
+        )
+        future = self.controller_params.get_parameters(list(names))
+        deadline = time.monotonic() + 2.0
+        while rclpy.ok() and not future.done() and time.monotonic() < deadline:
+            self.callback_executor.spin_once(timeout_sec=0.05)
+            # Preserve an uninterrupted clean interval across this query, but
+            # reset it if any ordinary preflight prerequisite drops out.
+            self._preflight_ready(time.monotonic())
+        if not future.done() or future.result() is None:
+            raise RuntimeError('controller parameter query timed out')
+
+        values = {
+            name: parameter_value_to_python(value)
+            for name, value in zip(names, future.result().values)
+        }
+        controller_reference_timeout_s = (
+            require_controller_reference_timeout(
+                values['reference_timeout_s']
+            )
+        )
+        controller_odom_timeout_s = require_controller_odom_timeout(
+            values['odom_timeout_s'], self.stale_odom_s
+        )
+        require_controller_xy_velocity_source(values['xy_velocity_source'])
+        vicon_position_jump = values['vicon_max_position_jump_m']
+        vicon_orientation_jump = values['vicon_max_orientation_jump_rad']
+        vicon_recovery_samples = values['vicon_recovery_samples']
+        require_vicon_source_stamp_policy(
+            values['vicon_source_stamp_policy']
+        )
+        supervisor_pose_envelope = {
+            'vicon_min_z_m': self.vicon_min_z_m,
+            'vicon_max_z_m': self.vicon_max_z_m,
+            'vicon_max_tilt_rad': self.vicon_max_tilt_rad,
+        }
+        require_matching_controller_pose_envelope(
+            values, supervisor_pose_envelope
+        )
+        wheel_limit = require_controller_wheel_speed_limit(
+            values['wheel_speed_limit_rad_s']
+        )
+        if wheel_limit > self.max_abs_wheel_cmd + 1e-9:
+            raise RuntimeError(
+                'controller wheel_speed_limit_rad_s exceeds the supervised '
+                'max_abs_wheel_cmd bound'
+            )
+        if values['vicon_pose_guard_enabled'] is not True:
+            raise RuntimeError(
+                'controller vicon_pose_guard_enabled must be true for this test'
+            )
+        if (
+            not isinstance(vicon_position_jump, (int, float))
+            or not math.isfinite(float(vicon_position_jump))
+            or float(vicon_position_jump) <= 0.0
+            or float(vicon_position_jump) > 0.08
+        ):
+            raise RuntimeError(
+                'controller vicon_max_position_jump_m must be enabled and '
+                '<= 0.08m'
+            )
+        if (
+            not isinstance(vicon_orientation_jump, (int, float))
+            or not math.isfinite(float(vicon_orientation_jump))
+            or float(vicon_orientation_jump) <= 0.0
+            or float(vicon_orientation_jump) > 0.35
+        ):
+            raise RuntimeError(
+                'controller vicon_max_orientation_jump_rad must be enabled '
+                'and <= 0.35rad'
+            )
+        if (
+            not isinstance(vicon_recovery_samples, int)
+            or isinstance(vicon_recovery_samples, bool)
+            or vicon_recovery_samples < 10
+        ):
+            raise RuntimeError(
+                'controller vicon_recovery_samples must be at least 10'
+            )
+        if values['turret_enabled'] is not False:
+            raise RuntimeError(
+                'controller turret_enabled must be false for this test'
+            )
+        if values['simulating'] is not False or values['mode'] != 'auto':
+            raise RuntimeError(
+                'controller must be in hardware auto mode for this test'
+            )
+        self.reference_timeout_s = controller_reference_timeout_s
+
+    def publish_reference(self, x, y, x_dot, y_dot, yaw):
+        values = (x, y, x_dot, y_dot, yaw)
+        if not all(math.isfinite(float(value)) for value in values):
+            raise RuntimeError('refusing to publish a non-finite reference')
+        msg = ReferenceTraj()
+        msg.x = float(x)
+        msg.y = float(y)
+        msg.yaw = float(yaw)
+        msg.x_dot = float(x_dot)
+        msg.y_dot = float(y_dot)
+        msg.yaw_dot = 0.0
+        self.reference_pub.publish(msg)
+
+    def assert_active_safety(self, now, armed_elapsed):
+        if armed_elapsed > self.hard_timeout_s:
+            raise RuntimeError(
+                f'hard runtime limit {self.hard_timeout_s:.2f}s exceeded'
+            )
+        if self.latched_odom_source_error:
+            raise RuntimeError(self.latched_odom_source_error)
+        if self.odom_source_error:
+            raise RuntimeError(self.odom_source_error)
+        if self.latched_odom_pose_envelope_error:
+            raise RuntimeError(self.latched_odom_pose_envelope_error)
+        if self.odom_pose_envelope_error:
+            raise RuntimeError(self.odom_pose_envelope_error)
+        if not self._fresh(self.last_odom_time, self.stale_odom_s, now):
+            raise RuntimeError('base Vicon odometry receipt became stale')
+        if not self._fresh(self.last_status_time, self.stale_status_s, now):
+            raise RuntimeError('wheel-controller telemetry became stale')
+        if self.status_schema_error:
+            raise RuntimeError(self.status_schema_error)
+        self.assert_saturation_safety(now)
+
+        if armed_elapsed >= self.command_startup_grace_s:
+            if not self._fresh(
+                self.left_cmd_time, self.stale_command_s, now
+            ) or not self._fresh(
+                self.right_cmd_time, self.stale_command_s, now
+            ):
+                raise RuntimeError('controller wheel commands became stale')
+            if not self._fresh(
+                self.turret_cmd_time, self.stale_command_s, now
+            ):
+                raise RuntimeError('controller turret command became stale')
+            if (
+                self.turret_cmd is None
+                or not math.isfinite(self.turret_cmd)
+                or abs(self.turret_cmd) > 1e-6
+            ):
+                raise RuntimeError(
+                    f'turret-disabled controller published nonzero turret '
+                    f'command {self.turret_cmd!r}'
+                )
+            if self.status_source not in (1, 5):
+                raise RuntimeError(
+                    f'unexpected firmware command source {self.status_source}'
+                )
+
+        for name, command in (
+            ('left', self.left_cmd), ('right', self.right_cmd)
+        ):
+            if command is not None and (
+                not math.isfinite(command)
+                or abs(command) > self.max_abs_wheel_cmd + 1e-6
+            ):
+                raise RuntimeError(
+                    f'{name} wheel command {command!r} exceeds the safe bound'
+                )
+
+        displacement = math.hypot(
+            self.pose[0] - self.run_start_pose[0],
+            self.pose[1] - self.run_start_pose[1],
+        )
+        yaw_change = abs(self.unwrapped_yaw - self.run_start_yaw)
+        if not point_in_bounds(
+            self.pose[0], self.pose[1], self.active_vicon_bounds
+        ):
+            x_min, x_max, y_min, y_max = self.active_vicon_bounds
+            raise RuntimeError(
+                f'Vicon pose ({self.pose[0]:.3f}, {self.pose[1]:.3f}) left '
+                f'profile bounds x=[{x_min:.3f},{x_max:.3f}], '
+                f'y=[{y_min:.3f},{y_max:.3f}]'
+            )
+        if displacement > self.max_displacement_m:
+            raise RuntimeError(
+                f'displacement {displacement:.3f}m exceeded '
+                f'{self.max_displacement_m:.3f}m'
+            )
+        if self.total_path_m > self.max_total_path_m:
+            raise RuntimeError(
+                f'Vicon path {self.total_path_m:.3f}m exceeded '
+                f'{self.max_total_path_m:.3f}m'
+            )
+        if yaw_change > self.max_yaw_change_rad:
+            raise RuntimeError(
+                f'yaw change {yaw_change:.3f}rad exceeded '
+                f'{self.max_yaw_change_rad:.3f}rad'
+            )
+
+    def verify_stopped(self):
+        """Wait for the controller reference watchdog and verify fresh zeros."""
+        if not rclpy.ok():
+            return False
+        start = time.monotonic()
+        deadline = start + self.stop_verify_timeout_s
+        zero_since = None
+        initial_left_seq = self.left_cmd_seq
+        initial_right_seq = self.right_cmd_seq
+        initial_turret_seq = self.turret_cmd_seq
+
+        while rclpy.ok() and time.monotonic() < deadline:
+            self.callback_executor.spin_once(timeout_sec=0.02)
+            now = time.monotonic()
+            new_commands = (
+                self.left_cmd_seq > initial_left_seq
+                and self.right_cmd_seq > initial_right_seq
+                and self.turret_cmd_seq > initial_turret_seq
+            )
+            fresh_commands = self._fresh(
+                self.left_cmd_time, self.stale_command_s, now
+            ) and self._fresh(
+                self.right_cmd_time, self.stale_command_s, now
+            ) and self._fresh(
+                self.turret_cmd_time, self.stale_command_s, now
+            )
+            zero = (
+                self.left_cmd is not None
+                and self.right_cmd is not None
+                and abs(self.left_cmd) <= 0.02
+                and abs(self.right_cmd) <= 0.02
+                and self.turret_cmd is not None
+                and abs(self.turret_cmd) <= 1e-6
+            )
+            if new_commands and fresh_commands and zero:
+                if zero_since is None:
+                    zero_since = now
+                elif now - zero_since >= self.stop_zero_hold_s:
+                    return True
+            else:
+                zero_since = None
+        return False
+
+    def run_enabled(self):
+        self.get_logger().info(
+            'Waiting for fresh Vicon/telemetry, a stationary robot, and an '
+            'exclusive controller/reference graph.'
+        )
+        # The exact-stage clean window shares one fixed startup deadline across
+        # both checks; a reset during parameter discovery cannot extend it.
+        clean_preflight_deadline = (
+            time.monotonic() + self.startup_timeout_s
+            if self.clean_preflight_window_s > 0.0
+            else None
+        )
+        self.wait_for_preflight(deadline=clean_preflight_deadline)
+        self.read_controller_parameters()
+        # Parameter discovery may take a couple of seconds. Re-confirm fresh,
+        # stationary tracking immediately before locking the translated origin.
+        self.wait_for_preflight(deadline=clean_preflight_deadline)
+
+        start_x, start_y = self.pose
+        start_raw_yaw = self.raw_yaw
+        # The controller is required to have turret_enabled=false, so yaw is
+        # intentionally ignored and zero is the clearest reference value.
+        reference_yaw = 0.0
+        frame_mode = self.profile_config['frame_mode']
+        bounds_offsets = self.profile_config['vicon_bounds_offsets']
+        if frame_mode == 'relative':
+            points = transform_path(
+                self.path_offsets, start_x, start_y, start_raw_yaw
+            )
+            self.active_vicon_bounds = None
+        elif frame_mode == 'translated_vicon':
+            # Preserve the historical Vicon-axis directions while moving its
+            # origin to HAMR's stable pose captured immediately above.
+            points = translate_path(self.path_offsets, start_x, start_y)
+            self.active_vicon_bounds = translate_bounds(
+                bounds_offsets, start_x, start_y
+            )
+        elif frame_mode == 'fixed_vicon':
+            points = self.path_offsets
+            self.active_vicon_bounds = bounds_offsets
+        else:
+            raise RuntimeError(f'unsupported frame mode {frame_mode!r}')
+        timing, length = path_timing(points, self.speed_m_s)
+        planned_s = scheduled_runtime_s(
+            points,
+            self.speed_m_s,
+            self.start_hold_s,
+            self.final_hold_s,
+        )
+
+        self.run_start_pose = self.pose
+        self.run_start_yaw = self.unwrapped_yaw
+        self.last_path_pose = self.pose
+        self.total_path_m = 0.0
+        self.saturation_started_time = None
+        self.saturation_seen = False
+        self.saturation_sample_count = 0
+        self.max_saturation_episode_s = 0.0
+        self.latched_odom_source_error = None
+        self.latched_odom_pose_envelope_error = None
+        self.armed = True
+
+        if self.active_vicon_bounds is None:
+            bounds_text = 'Vicon fence=none'
+        else:
+            x_min, x_max, y_min, y_max = self.active_vicon_bounds
+            bounds_text = (
+                f'Vicon fence x=[{x_min:.3f},{x_max:.3f}], '
+                f'y=[{y_min:.3f},{y_max:.3f}]'
+            )
+
+        self.get_logger().warn(
+            f'ARMED profile={self.profile}: {length:.3f}m '
+            f'{self.profile_config["description"]} at '
+            f'{self.speed_m_s:.3f}m/s; reference duration '
+            f'{planned_s:.2f}s, '
+            f'hard stop {self.hard_timeout_s:.2f}s. '
+            f'frame={frame_mode}; {bounds_text}; '
+            f'Start=({start_x:.3f}, {start_y:.3f}, yaw '
+            f'{start_raw_yaw:.3f}).'
+        )
+
+        run_start = time.monotonic()
+        period = 1.0 / self.publish_rate_hz
+        last_publish_time = None
+        try:
+            while rclpy.ok():
+                publish_time, elapsed = self._prepare_reference_cycle(
+                    run_start,
+                    last_publish_time,
+                )
+
+                reference = sample_reference_schedule(
+                    points,
+                    timing,
+                    elapsed,
+                    self.start_hold_s,
+                    self.final_hold_s,
+                )
+                if reference is None:
+                    break
+                x, y, x_dot, y_dot = reference
+
+                self.publish_reference(
+                    x, y, x_dot, y_dot, reference_yaw
+                )
+                last_publish_time = publish_time
+                next_publish = next_reference_deadline(
+                    run_start,
+                    period,
+                    time.monotonic(),
+                )
+                self._service_callbacks_until(next_publish)
+        finally:
+            # Do not refresh the reference here.  The controller's verified
+            # reference timeout must become the stop source.
+            self.armed = False
+
+        self.get_logger().info(
+            'Path publication complete; waiting for the controller reference '
+            'watchdog to produce fresh zero wheel commands.'
+        )
+        if not self.verify_stopped():
+            raise RuntimeError(
+                'did not observe sustained zero wheel commands after reference '
+                'publication stopped; stop bringup or motor power immediately'
+            )
+        final_displacement = math.hypot(
+            self.pose[0] - self.run_start_pose[0],
+            self.pose[1] - self.run_start_pose[1],
+        )
+        self.get_logger().info(
+            f'STOP VERIFIED: max wheel command '
+            f'{self.max_observed_wheel_cmd:.3f}rad/s, Vicon path '
+            f'{self.total_path_m:.3f}m, final displacement '
+            f'{final_displacement:.3f}m, saturation_seen='
+            f'{self.saturation_seen}, saturation_samples='
+            f'{self.saturation_sample_count}, longest_saturation='
+            f'{self.max_saturation_episode_s:.3f}s.'
+        )
+
+    def run(self):
+        _, path_length = path_timing(
+            self.path_offsets, self.speed_m_s
+        )
+        planned = scheduled_runtime_s(
+            self.path_offsets,
+            self.speed_m_s,
+            self.start_hold_s,
+            self.final_hold_s,
+        )
+        if not self.enable:
+            xs = [point[0] for point in self.path_offsets]
+            ys = [point[1] for point in self.path_offsets]
+            bounds_offsets = self.profile_config['vicon_bounds_offsets']
+            if bounds_offsets is None:
+                bounds_text = 'Vicon fence offsets=none'
+            else:
+                x_min, x_max, y_min, y_max = bounds_offsets
+                bounds_text = (
+                    f'start-relative Vicon fence x=['
+                    f'{x_min:.3f},{x_max:.3f}]m, '
+                    f'y=[{y_min:.3f},{y_max:.3f}]m'
+                )
+            self.get_logger().info(
+                f'DRY RUN ONLY (enable=false): profile={self.profile}, path '
+                f'{path_length:.3f}m, frame='
+                f'{self.profile_config["frame_mode"]}, '
+                f'start-relative x=[{min(xs):.3f},{max(xs):.3f}]m, '
+                f'y=[{min(ys):.3f},{max(ys):.3f}]m, {bounds_text}, '
+                f'continuous wall-clock sampling, reference duration '
+                f'{planned:.2f}s, hard stop '
+                f'{self.hard_timeout_s:.2f}s. No reference was published.'
+            )
+            return
+
+        try:
+            self.run_enabled()
+        except BaseException:
+            # Ceasing reference publication is the primary stop action.  If
+            # ROS is still alive, remain present long enough to check that the
+            # controller watchdog actually emitted fresh zeros.
+            self.armed = False
+            if rclpy.ok() and self.reference_timeout_s is not None:
+                if not self.verify_stopped():
+                    self.get_logger().fatal(
+                        'STOP NOT CONFIRMED: stop bringup or motor power now.'
+                    )
+            raise
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = None
+    exit_code = 0
+    try:
+        node = ClosedLoopTurnTest()
+        node.run()
+    except KeyboardInterrupt:
+        exit_code = 130
+    except Exception as exc:  # noqa: BLE001 - hardware harness must log cause
+        exit_code = 1
+        if node is not None:
+            node.get_logger().fatal(f'Closed-loop turn test aborted: {exc}')
+        else:
+            print(f'Closed-loop turn test aborted: {exc}')
+    finally:
+        if node is not None:
+            node.shutdown_callback_executor()
+            node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
+    return exit_code
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

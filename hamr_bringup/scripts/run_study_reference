@@ -1,0 +1,386 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: ros2 run hamr_bringup run_study_reference PROFILE [options]
+
+Profiles:
+  triangle, triangle_120, circle_ccw, circle_cw
+  straight_forward, straight_backward
+  lateral_left, lateral_right, forward_reverse
+  waypoint_traj_simple (legacy 13 m route, absolute Vicon coordinates)
+
+Options:
+  --speed MPS          Reference speed (default: 0.20)
+  --caster TYPE        Caster configuration label (default: unspecified)
+  --terrain NAME       Terrain label (default: flat)
+  --initial-caster DEG Initial caster orientation, integer 0..359 (default: 0)
+  --repeat N           Repetition number, 1..99 (default: 1)
+  --planned-id ID      Immutable planned-cell ID (safe characters, max 128)
+  --expected-profile-sha256 HASH
+                       Refuse a trajectory-profile revision mismatch
+  --expected-controller-config-sha256 HASH
+                       Refuse a controller-config revision mismatch
+  --video-id ID        Optional synchronized-video identifier
+  --notes TEXT         Optional quoted trial notes
+  -h, --help           Show this help
+EOF
+}
+
+if (( $# == 1 )) && [[ "$1" == "-h" || "$1" == "--help" ]]; then
+  usage
+  exit 0
+fi
+if (( $# == 0 )); then
+  usage >&2
+  exit 2
+fi
+
+PROFILE="$1"
+shift
+SPEED_M_S="0.20"
+CASTER_TYPE="unspecified"
+TERRAIN="flat"
+INITIAL_CASTER_DEG="0"
+REPETITION="1"
+VIDEO_ID=""
+NOTES=""
+PLANNED_ID=""
+EXPECTED_PROFILE_SHA256=""
+EXPECTED_CONTROLLER_CONFIG_SHA256=""
+
+case "${PROFILE}" in
+  triangle|triangle_120|circle_ccw|circle_cw|straight_forward|straight_backward|lateral_left|lateral_right|forward_reverse|waypoint_traj_simple)
+    ;;
+  *)
+    echo "PROFILE must be exactly one of: triangle, triangle_120, circle_ccw, circle_cw, straight_forward, straight_backward, lateral_left, lateral_right, forward_reverse, waypoint_traj_simple" >&2
+    exit 2
+    ;;
+esac
+
+require_value() {
+  local option="$1"
+  local count="$2"
+  if (( count < 2 )); then
+    echo "${option} requires a value" >&2
+    exit 2
+  fi
+}
+
+while (( $# > 0 )); do
+  case "$1" in
+    --speed)
+      require_value "$1" "$#"
+      SPEED_M_S="$2"
+      shift 2
+      ;;
+    --caster)
+      require_value "$1" "$#"
+      CASTER_TYPE="$2"
+      shift 2
+      ;;
+    --terrain)
+      require_value "$1" "$#"
+      TERRAIN="$2"
+      shift 2
+      ;;
+    --initial-caster)
+      require_value "$1" "$#"
+      INITIAL_CASTER_DEG="$2"
+      shift 2
+      ;;
+    --repeat|--repetition)
+      require_value "$1" "$#"
+      REPETITION="$2"
+      shift 2
+      ;;
+    --planned-id)
+      require_value "$1" "$#"
+      PLANNED_ID="$2"
+      shift 2
+      ;;
+    --expected-profile-sha256)
+      require_value "$1" "$#"
+      EXPECTED_PROFILE_SHA256="$2"
+      shift 2
+      ;;
+    --expected-controller-config-sha256)
+      require_value "$1" "$#"
+      EXPECTED_CONTROLLER_CONFIG_SHA256="$2"
+      shift 2
+      ;;
+    --video-id)
+      require_value "$1" "$#"
+      VIDEO_ID="$2"
+      shift 2
+      ;;
+    --notes)
+      require_value "$1" "$#"
+      NOTES="$2"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+done
+
+validate_slug() {
+  local label="$1"
+  local value="$2"
+  if [[ ! "${value}" =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]{0,47}$ ]]; then
+    echo "${label} must contain only letters, digits, '_' or '-' (max 48 characters)" >&2
+    exit 2
+  fi
+}
+
+validate_slug "profile" "${PROFILE}"
+validate_slug "caster" "${CASTER_TYPE}"
+validate_slug "terrain" "${TERRAIN}"
+if [[ -n "${VIDEO_ID}" ]]; then
+  validate_slug "video ID" "${VIDEO_ID}"
+fi
+if [[ -n "${PLANNED_ID}" ]] \
+    && [[ ! "${PLANNED_ID}" =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$ ]]; then
+  echo "--planned-id must contain only letters, digits, '_' or '-' (max 128 characters)" >&2
+  exit 2
+fi
+validate_expected_sha256() {
+  local option="$1"
+  local value="$2"
+  if [[ -n "${value}" && ! "${value}" =~ ^[0-9a-fA-F]{64}$ ]]; then
+    echo "${option} must be exactly 64 hexadecimal characters" >&2
+    exit 2
+  fi
+}
+validate_expected_sha256 \
+  "--expected-profile-sha256" "${EXPECTED_PROFILE_SHA256}"
+validate_expected_sha256 \
+  "--expected-controller-config-sha256" \
+  "${EXPECTED_CONTROLLER_CONFIG_SHA256}"
+if (( ${#NOTES} > 1000 )); then
+  echo "--notes must be at most 1000 characters" >&2
+  exit 2
+fi
+CASTER_TYPE="${CASTER_TYPE,,}"
+TERRAIN="${TERRAIN,,}"
+EXPECTED_PROFILE_SHA256="${EXPECTED_PROFILE_SHA256,,}"
+EXPECTED_CONTROLLER_CONFIG_SHA256="${EXPECTED_CONTROLLER_CONFIG_SHA256,,}"
+
+# Resolve and hash the exact profile and controller configuration before
+# starting ros2. Source-tree candidates support development; prefix candidates
+# support a normal installed workspace. The planner uses the same byte hashes.
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+SCRIPT_DIRECTORY="$(cd -- "$(dirname -- "${SCRIPT_PATH}")" && pwd -P)"
+LAYOUT_ROOT="$(cd -- "${SCRIPT_DIRECTORY}/../.." && pwd -P)"
+
+PROFILE_PATH=""
+CONTROLLER_CONFIG_PATH=""
+PROFILE_CANDIDATES=(
+  "${LAYOUT_ROOT}/reference_trajectory/config/trajectories/${PROFILE}.yaml"
+  "${LAYOUT_ROOT}/share/reference_trajectory/config/trajectories/${PROFILE}.yaml"
+)
+CONTROLLER_CANDIDATES=(
+  "${SCRIPT_DIRECTORY}/../config/hamr_hw_control_params.yaml"
+  "${LAYOUT_ROOT}/share/hamr_bringup/config/hamr_hw_control_params.yaml"
+)
+IFS=':' read -r -a AMENT_PREFIXES <<< "${AMENT_PREFIX_PATH:-}"
+for prefix in "${AMENT_PREFIXES[@]}"; do
+  if [[ -n "${prefix}" ]]; then
+    PROFILE_CANDIDATES+=(
+      "${prefix}/share/reference_trajectory/config/trajectories/${PROFILE}.yaml"
+    )
+    CONTROLLER_CANDIDATES+=(
+      "${prefix}/share/hamr_bringup/config/hamr_hw_control_params.yaml"
+    )
+  fi
+done
+for candidate in "${PROFILE_CANDIDATES[@]}"; do
+  if [[ -f "${candidate}" ]]; then
+    PROFILE_PATH="$(readlink -f "${candidate}")"
+    break
+  fi
+done
+for candidate in "${CONTROLLER_CANDIDATES[@]}"; do
+  if [[ -f "${candidate}" ]]; then
+    CONTROLLER_CONFIG_PATH="$(readlink -f "${candidate}")"
+    break
+  fi
+done
+if [[ -z "${PROFILE_PATH}" ]]; then
+  echo "Could not resolve authoritative profile YAML for ${PROFILE}" >&2
+  exit 2
+fi
+if [[ -z "${CONTROLLER_CONFIG_PATH}" ]]; then
+  echo "Could not resolve authoritative hamr_hw_control_params.yaml" >&2
+  exit 2
+fi
+
+PROFILE_SHA256="$(sha256sum "${PROFILE_PATH}" | awk '{print $1}')"
+CONTROLLER_CONFIG_SHA256="$(
+  sha256sum "${CONTROLLER_CONFIG_PATH}" | awk '{print $1}'
+)"
+if [[ ! "${PROFILE_SHA256}" =~ ^[0-9a-f]{64}$ ]] \
+    || [[ ! "${CONTROLLER_CONFIG_SHA256}" =~ ^[0-9a-f]{64}$ ]]; then
+  echo "Failed to compute formal SHA-256 provenance" >&2
+  exit 2
+fi
+if [[ -n "${EXPECTED_PROFILE_SHA256}" \
+    && "${EXPECTED_PROFILE_SHA256}" != "${PROFILE_SHA256}" ]]; then
+  echo "Profile SHA-256 mismatch for ${PROFILE}: expected ${EXPECTED_PROFILE_SHA256}, actual ${PROFILE_SHA256}" >&2
+  exit 2
+fi
+if [[ -n "${EXPECTED_CONTROLLER_CONFIG_SHA256}" \
+    && "${EXPECTED_CONTROLLER_CONFIG_SHA256}" != "${CONTROLLER_CONFIG_SHA256}" ]]; then
+  echo "Controller-config SHA-256 mismatch: expected ${EXPECTED_CONTROLLER_CONFIG_SHA256}, actual ${CONTROLLER_CONFIG_SHA256}" >&2
+  exit 2
+fi
+
+if ! CONTROLLER_FIELDS="$(
+  python3 -c '
+import math
+from pathlib import Path
+import sys
+import yaml
+
+path = Path(sys.argv[1])
+try:
+    document = yaml.safe_load(path.read_bytes())
+    parameters = document["/hamr_controller_node"]["ros__parameters"]
+    raw_limit = parameters["wheel_speed_limit_rad_s"]
+    turret_enabled = parameters["turret_enabled"]
+except (KeyError, TypeError, yaml.YAMLError) as error:
+    raise SystemExit(f"invalid controller config structure: {error}")
+if isinstance(raw_limit, bool):
+    raise SystemExit("wheel_speed_limit_rad_s must be a positive number")
+try:
+    wheel_limit = float(raw_limit)
+except (TypeError, ValueError):
+    raise SystemExit("wheel_speed_limit_rad_s must be a positive number")
+if not math.isfinite(wheel_limit) or wheel_limit <= 0.0:
+    raise SystemExit("wheel_speed_limit_rad_s must be a positive number")
+if not isinstance(turret_enabled, bool):
+    raise SystemExit("turret_enabled must be a YAML boolean")
+print(repr(wheel_limit), str(turret_enabled).lower(), sep="\t")
+' "${CONTROLLER_CONFIG_PATH}" 2>&1
+)"; then
+  echo "Invalid controller config ${CONTROLLER_CONFIG_PATH}: ${CONTROLLER_FIELDS}" >&2
+  exit 2
+fi
+IFS=$'\t' read -r WHEEL_SPEED_LIMIT_RAD_S TURRET_CONTROL_ENABLED \
+  <<< "${CONTROLLER_FIELDS}"
+if [[ -z "${WHEEL_SPEED_LIMIT_RAD_S}" \
+    || ! "${TURRET_CONTROL_ENABLED}" =~ ^(true|false)$ ]]; then
+  echo "Failed to parse formal controller provenance" >&2
+  exit 2
+fi
+
+NOMINAL_START_BASE_YAW_RAD="0.0"
+START_BASE_YAW_TOLERANCE_RAD="0.15"
+STUDY_STACK_CONTRACT_VERSION="1"
+CONTROLLER_ODOM_TIMEOUT_S="0.0"
+VICON_POSE_GUARD_ENABLED="false"
+REFERENCE_TIMEOUT_S="0.12"
+XY_VELOCITY_SOURCE="odom_twist_world"
+
+# Keep the vNNN label exact: the study speeds use centimetres per second, so
+# accepting more than two decimal places would silently round metadata.
+if [[ ! "${SPEED_M_S}" =~ ^[+]?([0-9]+([.][0-9]{0,2})?|[.][0-9]{1,2})$ ]]; then
+  echo "--speed must be a positive decimal with at most two fractional digits" >&2
+  exit 2
+fi
+SPEED_TOKEN="$({ awk -v speed="${SPEED_M_S}" '
+  BEGIN {
+    scaled = speed * 100.0
+    if (scaled < 1.0 || scaled > 20.0) exit 1
+    printf "v%03d", int(scaled + 0.5)
+  }
+'; } || true)"
+if [[ -z "${SPEED_TOKEN}" ]]; then
+  echo "--speed must be between 0.01 and 0.20 m/s for the hardware study" >&2
+  exit 2
+fi
+
+if [[ ! "${INITIAL_CASTER_DEG}" =~ ^[0-9]+$ ]] \
+    || (( 10#${INITIAL_CASTER_DEG} > 359 )); then
+  echo "--initial-caster must be an integer from 0 through 359 degrees" >&2
+  exit 2
+fi
+if [[ ! "${REPETITION}" =~ ^[0-9]+$ ]] \
+    || (( 10#${REPETITION} < 1 || 10#${REPETITION} > 99 )); then
+  echo "--repeat must be an integer from 1 through 99" >&2
+  exit 2
+fi
+
+PROFILE_LABEL="${PROFILE,,}"
+CASTER_LABEL="${CASTER_TYPE}"
+TERRAIN_LABEL="${TERRAIN}"
+INITIAL_LABEL="$(printf '%03d' "$((10#${INITIAL_CASTER_DEG}))")"
+REPEAT_LABEL="$(printf '%02d' "$((10#${REPETITION}))")"
+RUN_STAMP="$(date +%Y%m%d_%H%M%S)"
+BAG_ROOT="${HAMR_BAG_ROOT:-${HOME}/hamster_ws/src/hamr_control/rosbags}"
+BASE_RUN_NAME="hamr_study_${PROFILE_LABEL}_${SPEED_TOKEN}_${CASTER_LABEL}_${TERRAIN_LABEL}_init${INITIAL_LABEL}_r${REPEAT_LABEL}_${RUN_STAMP}"
+RUN_NAME="${BASE_RUN_NAME}"
+
+suffix=1
+while [[ -e "${BAG_ROOT}/${RUN_NAME}" ]]; do
+  if (( suffix > 999 )); then
+    echo "Could not find an unused bag label derived from ${BASE_RUN_NAME}" >&2
+    exit 1
+  fi
+  RUN_NAME="$(printf '%s_%03d' "${BASE_RUN_NAME}" "${suffix}")"
+  ((suffix += 1))
+done
+export HAMR_BAG_NAME="${RUN_NAME}"
+
+echo "HAMR independent-study reference"
+echo "  profile: ${PROFILE}"
+echo "  speed:   ${SPEED_M_S} m/s"
+echo "  planned: ${PLANNED_ID:-unplanned}"
+echo "  profile SHA-256:   ${PROFILE_SHA256}"
+echo "  controller SHA-256: ${CONTROLLER_CONFIG_SHA256}"
+echo "  bag:     ${BAG_ROOT}/${RUN_NAME}"
+echo "Wait for the one-shot final hold, then press Ctrl-C once to close the bag."
+
+LAUNCH_ARGUMENTS=(
+  "bag_name:=${RUN_NAME}"
+  "run_id:=${RUN_NAME}"
+)
+if [[ -n "${PLANNED_ID}" ]]; then
+  LAUNCH_ARGUMENTS+=("planned_id:=${PLANNED_ID}")
+fi
+LAUNCH_ARGUMENTS+=(
+  "profile:=${PROFILE}"
+  "profile_sha256:=${PROFILE_SHA256}"
+  "speed_m_s:=${SPEED_M_S}"
+  "controller_config_sha256:=${CONTROLLER_CONFIG_SHA256}"
+  "wheel_speed_limit_rad_s:=${WHEEL_SPEED_LIMIT_RAD_S}"
+  "turret_control_enabled:=${TURRET_CONTROL_ENABLED}"
+  "nominal_start_base_yaw_rad:=${NOMINAL_START_BASE_YAW_RAD}"
+  "start_base_yaw_tolerance_rad:=${START_BASE_YAW_TOLERANCE_RAD}"
+  "study_stack_contract_version:=${STUDY_STACK_CONTRACT_VERSION}"
+  "controller_odom_timeout_s:=${CONTROLLER_ODOM_TIMEOUT_S}"
+  "vicon_pose_guard_enabled:=${VICON_POSE_GUARD_ENABLED}"
+  "reference_timeout_s:=${REFERENCE_TIMEOUT_S}"
+  "xy_velocity_source:=${XY_VELOCITY_SOURCE}"
+  "caster_type:=${CASTER_TYPE}"
+  "terrain:=${TERRAIN}"
+  "initial_caster_orientation_deg:=${INITIAL_CASTER_DEG}"
+  "repetition:=${REPETITION}"
+)
+if [[ -n "${VIDEO_ID}" ]]; then
+  LAUNCH_ARGUMENTS+=("video_id:=${VIDEO_ID}")
+fi
+if [[ -n "${NOTES}" ]]; then
+  LAUNCH_ARGUMENTS+=("notes:=${NOTES}")
+fi
+
+exec ros2 launch hamr_bringup hamr_study_reference.launch.xml \
+  "${LAUNCH_ARGUMENTS[@]}"

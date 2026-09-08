@@ -60,8 +60,13 @@ The launch does the following:
 - starts the relay, encoder integration, BNO055 EKF, and hardware controller;
 - remaps the controller's former `/HAMR_base/odom` Vicon input to
   `/local_HAMR/odom`;
+- disables the Vicon-only height/jump guard and derives controller world
+  velocity from consecutive local-EKF poses (the EKF message twist is
+  base-frame, unlike the validated Vicon driver's twist);
 - uses the same EKF topic for the turret world-yaw helper;
 - starts the D455 and RTAB-Map in localization mode against the existing DB;
+- supplies RTAB-Map from validated `/local_HAMR/odom` covariance by default;
+  `use_odom_topic:=false` is retained only for legacy TF compatibility;
 - starts the map/route-reference to local-odom adapter;
 - does **not** start a waypoint source by default.
 

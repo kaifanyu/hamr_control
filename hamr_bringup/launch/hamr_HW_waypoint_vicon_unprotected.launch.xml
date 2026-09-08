@@ -1,0 +1,66 @@
+<launch>
+    <!-- Explicit opt-in wrapper for one complete waypoint run using raw Vicon
+         feedback while bypassing only the controller's Vicon-specific aborts.
+
+         Deliberate waypoint-only exceptions:
+           * odom_timeout_s=0 accepts the last received Vicon pose regardless
+             of local receipt age, after requiring one initial odom sample;
+           * vicon_pose_guard_enabled=false skips Vicon source-stamp ordering,
+             z/tilt/jump validation, recovery, and motion-inhibit latching.
+
+         Consequently a stale or wrong Vicon pose can remain live controller
+         feedback indefinitely. The reference watchdog protects a silent
+         trajectory publisher, not bad feedback while it stays live. A global
+         controller boundary still replaces every non-finite actuator command
+         with explicit zeros in all modes.
+
+         The 120 ms reference watchdog, paired 28 RPM controller ceiling,
+         relay 250 ms per-actuator command deadman, relay shutdown zeros, and
+         firmware command watchdog remain unchanged. Ordinary hamr_HW launch
+         defaults remain guarded; motion here is separately opt-in. -->
+    <arg name="enable_waypoint" default="false" />
+    <arg name="record_bag" default="true" />
+    <arg name="run_foxglove" default="true" />
+    <arg name="use_mag" default="true" />
+    <arg name="use_orientation" default="false" />
+
+    <arg name="v_lin" default="0.20" />
+    <arg name="w_yaw" default="0.50" />
+    <arg name="reference_timer_hz" default="50.0" />
+    <arg name="startup_hold_s" default="2.0" />
+    <arg name="final_hold_s" default="3.0" />
+    <arg name="loop" default="false" />
+    <!-- With recording enabled, wait for two matched subscriptions, expected
+         to be the controller and recorder. Counts do not identify subscribers.
+         For record_bag:=false, explicitly pass
+         required_reference_subscribers:=1. -->
+    <arg name="required_reference_subscribers" default="2" />
+    <arg name="subscriber_stable_s" default="1.0" />
+
+    <include file="$(find-pkg-share hamr_bringup)/launch/hamr_HW.launch.xml">
+        <arg name="record_bag" value="$(var record_bag)" />
+        <arg name="run_foxglove" value="$(var run_foxglove)" />
+        <arg name="use_mag" value="$(var use_mag)" />
+        <arg name="use_orientation" value="$(var use_orientation)" />
+        <arg name="controller_reference_timeout_s" value="0.12" />
+        <arg name="controller_odom_topic" value="/HAMR_base/odom" />
+        <arg name="controller_odom_timeout_s" value="0.0" />
+        <arg name="controller_xy_velocity_source" value="odom_twist_world" />
+        <arg name="controller_vicon_pose_guard_enabled" value="false" />
+    </include>
+
+    <!-- Motion remains disabled unless enable_waypoint:=true is explicit. -->
+    <node pkg="reference_trajectory" exec="waypoint_traj_simple"
+          name="waypoint_traj_simple_vicon_unprotected" output="screen"
+          if="$(var enable_waypoint)">
+        <param name="v_lin" value="$(var v_lin)" />
+        <param name="w_yaw" value="$(var w_yaw)" />
+        <param name="reference_timer_hz" value="$(var reference_timer_hz)" />
+        <param name="startup_hold_s" value="$(var startup_hold_s)" />
+        <param name="final_hold_s" value="$(var final_hold_s)" />
+        <param name="loop" value="$(var loop)" />
+        <param name="required_reference_subscribers"
+               value="$(var required_reference_subscribers)" />
+        <param name="subscriber_stable_s" value="$(var subscriber_stable_s)" />
+    </node>
+</launch>

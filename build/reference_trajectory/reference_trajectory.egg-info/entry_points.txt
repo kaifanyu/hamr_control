@@ -1,0 +1,4 @@
+[console_scripts]
+study_trajectory = reference_trajectory.study_trajectory:main
+waypoint_traj_sequence = reference_trajectory.waypoint_traj_sequence:main
+waypoint_traj_simple = reference_trajectory.waypoint_traj_simple:main

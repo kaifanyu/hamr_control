@@ -1,0 +1,7 @@
+Metadata-Version: 2.1
+Name: hamr-odometry
+Version: 0.0.0
+Summary: Holonomic wheel odometry for HAMR.
+Maintainer: cedric
+Maintainer-email: cedrich@seas.upenn.edu
+License: MIT

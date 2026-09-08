@@ -8,9 +8,16 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 
-# Install all static assets (launch files, configs, sim sensor/world, rviz).
+# Install all static assets (launch files, configs, sim sensor/world, rviz, runbooks).
 install(
-  DIRECTORY launch config urdf worlds rviz
+  DIRECTORY launch config urdf worlds rviz docs
+  DESTINATION share/${PROJECT_NAME}/
+  PATTERN "__pycache__" EXCLUDE
+  PATTERN "*.pyc" EXCLUDE
+)
+
+install(
+  FILES README.md
   DESTINATION share/${PROJECT_NAME}/
 )
 

@@ -8,9 +8,14 @@
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
-  <!-- <depend>geometry_msgs</depend> -->
+  <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>visualization_msgs</depend>
   <depend>hamr_interfaces</depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

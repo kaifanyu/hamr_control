@@ -1,0 +1,1 @@
+/home/hamr/hamster_ws/src/hamr_control/compa_slam/launch/replay_map_sim.launch.py

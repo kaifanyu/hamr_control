@@ -4,6 +4,7 @@
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/magnetic_field.hpp>
 #include <std_msgs/msg/u_int8_multi_array.hpp>
+#include <std_msgs/msg/float64_multi_array.hpp>
 
 #include <array>
 #include <atomic>
@@ -25,18 +26,17 @@ using namespace std::chrono_literals;
 namespace {
 
 constexpr uint16_t MAGIC = 0xCAFE;
-constexpr uint16_t VER   = 1;
+constexpr uint16_t VER   = 4;      // v4: adds raw quadrature encoder diagnostics
 constexpr uint16_t TYPE_CMD3 = 0x0011;
 constexpr uint16_t TYPE_ENC  = 0x0003; // ESP->PC: encoder ticks (L,R,T)
 constexpr uint16_t TYPE_IMU  = 0x0004; // ESP->PC: IMU data (roll/pitch/yaw, accel, gyro)
 constexpr uint16_t TYPE_IMU_EXT = 0x0005; // ESP->PC: IMU + magnetometer + calibration
+constexpr uint16_t TYPE_WHEEL_STATUS = 0x0006; // ESP->PC: wheel-controller internals
+constexpr uint16_t TYPE_ENCODER_DIAG = 0x0007; // ESP->PC: encoder A/B edge diagnostics
 
-// Sign corrections applied once at unpack time in rx_loop().
-// TICK_SIGN: ESP firmware negates wheel commands internally and its encoder
-// ISRs match that convention, so raw ticks arrive negated relative to robot
-// motion. The 2026-06-11 Vicon comparison showed the relay-published IMU yaw
-// rate was already inverted relative to REP-103, so leave IMU yaw/gz unchanged
-// here and handle wheel-odom yaw convention in holonomic_odom_node.
+// Sign corrections applied once at unpack time in rx_loop(). The ESP packet
+// now reports physical left/right wheel ticks with forward motion positive, so
+// wheel ticks pass through unchanged. IMU yaw convention remains independent.
 constexpr int32_t TICK_SIGN = 1;
 constexpr float ORIENTATION_YAW_SIGN = -1.0f;
 constexpr float GRYO_Z_SIGN  = 1.0f;
@@ -45,7 +45,7 @@ constexpr float GRYO_Z_SIGN  = 1.0f;
 #pragma pack(push,1)
 struct PacketCmd3 {
   uint16_t magic;     // 0xCAFE
-  uint16_t ver;       // 1
+  uint16_t ver;       // 4
   uint16_t type;      // 0x0011
   uint32_t seq;
   uint64_t t_tx_ns;   // host monotonic send time
@@ -61,7 +61,7 @@ static_assert(sizeof(PacketCmd3) == 2+2+2+4+8+4+4+4+2, "Packet size mismatch");
 #pragma pack(push,1)
 struct PacketEnc {
   uint16_t magic;     // 0xCAFE
-  uint16_t ver;       // 1
+  uint16_t ver;       // 4
   uint16_t type;      // 0x0003
   uint32_t seq;
   uint64_t t_tx_ns;   // device side send timestamp (ns)
@@ -78,7 +78,7 @@ static_assert(sizeof(PacketEnc) == 32, "PacketEnc size mismatch");
 #pragma pack(push,1)
 struct PacketIMU {
   uint16_t magic;    // 0xCAFE
-  uint16_t ver;      // 1
+  uint16_t ver;      // 4
   uint16_t type;     // 0x0004
   uint32_t seq;
   uint64_t t_tx_ns;  // device side send timestamp (ns)
@@ -97,7 +97,7 @@ static_assert(sizeof(PacketIMU) == 2+2+2+4+8+4+4+4+4+4+4+4+4+4+2, "PacketIMU siz
 #pragma pack(push,1)
 struct PacketIMUExt {
   uint16_t magic;    // 0xCAFE
-  uint16_t ver;      // 1
+  uint16_t ver;      // 4
   uint16_t type;     // 0x0005
   uint32_t seq;
   uint64_t t_tx_ns;
@@ -111,6 +111,51 @@ struct PacketIMUExt {
 #pragma pack(pop)
 
 static_assert(sizeof(PacketIMUExt) == 2+2+2+4+8+4+4+4+4+4+4+4+4+4+4+4+4+1+1+1+1+2, "PacketIMUExt size mismatch");
+
+// Wheel-control status packet — must match WheelControlStatusPacket in ESP
+// main.cpp exactly. Values are raw INTERNAL hardware-channel/electrical state.
+#pragma pack(push,1)
+struct PacketWheelControlStatus {
+  uint16_t magic, ver, type; // type = TYPE_WHEEL_STATUS (0x0006)
+  uint32_t seq;
+  uint64_t t_tx_ns;
+  float target_rpm_l, target_rpm_r;
+  float measured_rpm_l, measured_rpm_r;
+  float ff_pwm_l, ff_pwm_r;
+  float pid_pwm_l, pid_pwm_r;
+  float output_pwm_l, output_pwm_r;
+  float error_rpm_l, error_rpm_r;
+  float integral_l, integral_r; // RPM*s
+  uint8_t saturation_flags;     // bit 0: internal L, bit 1: internal R
+  uint8_t source;
+  uint16_t crc16;
+};
+#pragma pack(pop)
+
+static_assert(sizeof(PacketWheelControlStatus) == 78,
+              "PacketWheelControlStatus size mismatch");
+
+#pragma pack(push,1)
+struct EncoderDiagnosticsChannel {
+  int32_t legacy_ticks;
+  int32_t quadrature_count;
+  uint32_t a_rise, a_fall, b_rise, b_fall;
+  uint32_t valid_positive, valid_negative;
+  uint32_t invalid_transitions, duplicate_samples;
+  uint8_t ab_state;
+  uint8_t reserved[3];
+};
+struct PacketEncoderDiagnostics {
+  uint16_t magic, ver, type;
+  uint32_t seq;
+  uint64_t t_tx_ns;
+  EncoderDiagnosticsChannel internal_l;
+  EncoderDiagnosticsChannel internal_r;
+  uint16_t crc16;
+};
+#pragma pack(pop)
+static_assert(sizeof(EncoderDiagnosticsChannel) == 44, "EncoderDiagnosticsChannel size mismatch");
+static_assert(sizeof(PacketEncoderDiagnostics) == 108, "PacketEncoderDiagnostics size mismatch");
 
 // Simple CRC32 -> fold to 16 bits 
 uint16_t crc16_fold(const uint8_t* data, size_t n) {
@@ -269,6 +314,10 @@ public:
     // Raw magnetometer (distortion analysis / offline calibration) and BNO055 calib levels
     pub_mag_ = create_publisher<sensor_msgs::msg::MagneticField>("/imu/mag", 10);
     pub_calib_ = create_publisher<std_msgs::msg::UInt8MultiArray>("/imu/calib_status", 10);
+    pub_wheel_status_ = create_publisher<std_msgs::msg::Float64MultiArray>(
+      "/wheel_control/status", rclcpp::QoS(10).reliable());
+    pub_encoder_diagnostics_ = create_publisher<std_msgs::msg::Float64MultiArray>(
+      "/wheel_encoder/diagnostics", rclcpp::QoS(10).reliable());
 
     // Timer for TX
     const auto period = std::chrono::duration<double>(1.0 / std::max(1.0, tx_rate_hz_));
@@ -443,6 +492,61 @@ private:
     pub_calib_->publish(c);
   }
 
+  // Publish a stable, bag-friendly schema in PHYSICAL wheel and
+  // forward-positive convention. data layout (wheel_control_status_v1):
+  // [0 target_L_rpm, 1 measured_L_rpm, 2 ff_L_pwm, 3 pid_L_pwm,
+  //  4 output_L_pwm, 5 error_L_rpm, 6 integral_L_RPMs, 7 saturated_L,
+  //  8 target_R_rpm, 9 measured_R_rpm, 10 ff_R_pwm, 11 pid_R_pwm,
+  //  12 output_R_pwm, 13 error_R_rpm, 14 integral_R_RPMs,
+  //  15 saturated_R, 16 source].
+  // source: 0 none, 1 ROS/UART, 2 USB serial, 3 UDP, 4 web joystick,
+  // 5 fresh ROS zero/deadband, 6 ToF safety stop (reserved),
+  // 7 communications timeout (reserved).
+  // Firmware internal R is physical left and internal L is physical right;
+  // every signed controller value is negated at this hardware boundary.
+  void publish_wheel_control_status(const PacketWheelControlStatus& p) {
+    auto msg = std_msgs::msg::Float64MultiArray();
+    msg.layout.dim.resize(1);
+    msg.layout.dim[0].label = "wheel_control_status_v1";
+    msg.layout.dim[0].size = 17;
+    msg.layout.dim[0].stride = 17;
+    msg.layout.data_offset = 0;
+
+    const bool internal_l_saturated = (p.saturation_flags & 0x01u) != 0;
+    const bool internal_r_saturated = (p.saturation_flags & 0x02u) != 0;
+    msg.data = {
+      -p.target_rpm_r, -p.measured_rpm_r, -p.ff_pwm_r, -p.pid_pwm_r,
+      -p.output_pwm_r, -p.error_rpm_r, -p.integral_r,
+      internal_r_saturated ? 1.0 : 0.0,
+      -p.target_rpm_l, -p.measured_rpm_l, -p.ff_pwm_l, -p.pid_pwm_l,
+      -p.output_pwm_l, -p.error_rpm_l, -p.integral_l,
+      internal_l_saturated ? 1.0 : 0.0,
+      static_cast<double>(p.source)
+    };
+    pub_wheel_status_->publish(msg);
+  }
+
+  void publish_encoder_diagnostics(const PacketEncoderDiagnostics& p) {
+    auto msg = std_msgs::msg::Float64MultiArray();
+    msg.layout.dim.resize(1);
+    msg.layout.dim[0].label = "wheel_encoder_diag_v1";
+    msg.layout.dim[0].size = 22;
+    msg.layout.dim[0].stride = 22;
+    msg.layout.data_offset = 0;
+    const auto append = [&msg](const EncoderDiagnosticsChannel& c) {
+      msg.data.insert(msg.data.end(), {
+        static_cast<double>(c.legacy_ticks), static_cast<double>(c.quadrature_count),
+        static_cast<double>(c.a_rise), static_cast<double>(c.a_fall),
+        static_cast<double>(c.b_rise), static_cast<double>(c.b_fall),
+        static_cast<double>(c.valid_positive), static_cast<double>(c.valid_negative),
+        static_cast<double>(c.invalid_transitions), static_cast<double>(c.duplicate_samples),
+        static_cast<double>(c.ab_state)});
+    };
+    append(p.internal_r); // physical left
+    append(p.internal_l); // physical right
+    pub_encoder_diagnostics_->publish(msg);
+  }
+
   // --- RX loop: parse encoder packets from ESP and publish ---
   void rx_loop() {
     std::vector<uint8_t> buf;
@@ -481,6 +585,10 @@ private:
           need = sizeof(PacketIMU);
         } else if (type == TYPE_IMU_EXT) {
           need = sizeof(PacketIMUExt);
+        } else if (type == TYPE_WHEEL_STATUS) {
+          need = sizeof(PacketWheelControlStatus);
+        } else if (type == TYPE_ENCODER_DIAG) {
+          need = sizeof(PacketEncoderDiagnostics);
         } else {
           // Unknown type → drop 1 byte and resync
           buf.erase(buf.begin());
@@ -538,6 +646,23 @@ private:
           // ...plus the new raw-magnetometer and calibration-status topics.
           publish_imu_mag(pe);
           publish_calib_status(pe);
+        } else if (type == TYPE_WHEEL_STATUS) {
+          PacketWheelControlStatus p{};
+          std::memcpy(&p, buf.data(), need);
+
+          uint16_t calc = crc16_fold(reinterpret_cast<const uint8_t*>(&p), need - 2);
+          if (calc != p.crc16) {
+            buf.erase(buf.begin());
+            continue;
+          }
+
+          publish_wheel_control_status(p);
+        } else if (type == TYPE_ENCODER_DIAG) {
+          PacketEncoderDiagnostics p{};
+          std::memcpy(&p, buf.data(), need);
+          uint16_t calc = crc16_fold(reinterpret_cast<const uint8_t*>(&p), need - 2);
+          if (calc != p.crc16) { buf.erase(buf.begin()); continue; }
+          publish_encoder_diagnostics(p);
         }
 
         // consume this frame
@@ -571,6 +696,8 @@ private:
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr pub_imu_;
   rclcpp::Publisher<sensor_msgs::msg::MagneticField>::SharedPtr pub_mag_;
   rclcpp::Publisher<std_msgs::msg::UInt8MultiArray>::SharedPtr pub_calib_;
+  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr pub_wheel_status_;
+  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr pub_encoder_diagnostics_;
   rclcpp::TimerBase::SharedPtr timer_;
 
   // Reader thread

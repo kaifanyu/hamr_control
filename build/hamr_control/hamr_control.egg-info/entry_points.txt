@@ -1,0 +1,4 @@
+[console_scripts]
+hamr_controller = hamr_control.hamr_controller:main
+hamr_odom_graph = hamr_control.hamr_odom_graph:main
+hamr_pid_graph = hamr_control.hamr_pid_graph:main

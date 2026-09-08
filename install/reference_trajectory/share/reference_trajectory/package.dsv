@@ -1,0 +1,9 @@
+source;share/reference_trajectory/hook/pythonpath.ps1
+source;share/reference_trajectory/hook/pythonpath.dsv
+source;share/reference_trajectory/hook/pythonpath.sh
+source;share/reference_trajectory/hook/ament_prefix_path.ps1
+source;share/reference_trajectory/hook/ament_prefix_path.dsv
+source;share/reference_trajectory/hook/ament_prefix_path.sh
+source;../../build/reference_trajectory/share/reference_trajectory/hook/pythonpath_develop.ps1
+source;../../build/reference_trajectory/share/reference_trajectory/hook/pythonpath_develop.dsv
+source;../../build/reference_trajectory/share/reference_trajectory/hook/pythonpath_develop.sh

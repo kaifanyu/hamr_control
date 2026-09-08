@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Site BuildName="(empty)"
+	BuildStamp="20260825-2322-Experimental"
+	Name="hamr-desktop"
+	Generator="ctest-3.28.3"
+	CompilerName="/usr/bin/c++"
+	CompilerVersion="13.3.0"
+	OSName="Linux"
+	Hostname="hamr-desktop"
+	OSRelease="6.8.0-1061-raspi"
+	OSVersion="#65-Ubuntu SMP PREEMPT_DYNAMIC Mon Jul  6 10:33:30 UTC 2026"
+	OSPlatform="aarch64"
+	Is64Bits="1"
+	VendorString=""
+	VendorID="Unknown Manufacturer"
+	FamilyID="8"
+	ModelID="0"
+	ProcessorCacheSize="0"
+	NumberOfLogicalCPU="4"
+	NumberOfPhysicalCPU="1"
+	TotalVirtualMemory="1023"
+	TotalPhysicalMemory="7937"
+	LogicalProcessorsPerPhysical="4"
+	ProcessorClockFrequency="0"
+	>
+	<Testing>
+		<StartDateTime>Aug 25 19:22 EDT</StartDateTime>
+		<StartTestTime>1787700130</StartTestTime>
+		<TestList>
+			<Test>./closed_loop_turn_test_math</Test>
+			<Test>./vicon_delivery_config</Test>
+			<Test>./wheel_response_test_safety</Test>
+			<Test>./run_waypoint_test_wrapper</Test>
+			<Test>./split_waypoint_commands</Test>
+			<Test>./analyze_waypoint_test_wrapper</Test>
+			<Test>./study_commands</Test>
+			<Test>./study_analyzer</Test>
+			<Test>./study_plan_generator</Test>
+			<Test>./actuator_plot_contract</Test>
+		</TestList>
+		<Test Status="passed">
+			<Name>closed_loop_turn_test_math</Name>
+			<Path>.</Path>
+			<FullName>./closed_loop_turn_test_math</FullName>
+			<FullCommandLine>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/closed_loop_turn_test_math.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/closed_loop_turn_test_math.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_closed_loop_turn_test.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/closed_loop_turn_test_math/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/closed_loop_turn_test_math.xunit.xml" "--junit-prefix=hamr_bringup"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>1.57609</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/closed_loop_turn_test_math.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/closed_loop_turn_test_math.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_closed_loop_turn_test.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/closed_loop_turn_test_math/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/closed_loop_turn_test_math.xunit.xml" "--junit-prefix=hamr_bringup"</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Environment">
+					<Value>#CTEST_RESOURCE_GROUP_COUNT=</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>-- run_test.py: invoking following command in '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup':
+ - /usr/bin/python3 -u -m pytest /home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_closed_loop_turn_test.py -o cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/closed_loop_turn_test_math/.cache --junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/closed_loop_turn_test_math.xunit.xml --junit-prefix=hamr_bringup
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: build/hamr_bringup/ament_cmake_pytest/closed_loop_turn_test_math/.cache
+rootdir: /home/hamr/hamster_ws/src/hamr_control
+plugins: ament-copyright-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, ament-xmllint-0.17.5, ament-flake8-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, colcon-core-0.20.1, cov-4.1.0
+collected 53 items
+
+../../hamr_bringup/test/test_closed_loop_turn_test.py .................. [ 33%]
+...................................                                      [100%]
+
+- generated xml file: /home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/closed_loop_turn_test_math.xunit.xml -
+============================== 53 passed in 0.78s ==============================
+-- run_test.py: return code 0
+-- run_test.py: verify result file '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/closed_loop_turn_test_math.xunit.xml'
+</Value>
+				</Measurement>
+			</Results>
+			<Labels>
+				<Label>pytest</Label>
+			</Labels>
+		</Test>
+		<Test Status="passed">
+			<Name>vicon_delivery_config</Name>
+			<Path>.</Path>
+			<FullName>./vicon_delivery_config</FullName>
+			<FullCommandLine>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/vicon_delivery_config.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/vicon_delivery_config.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_vicon_delivery_config.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/vicon_delivery_config/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/vicon_delivery_config.xunit.xml" "--junit-prefix=hamr_bringup"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>0.759959</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/vicon_delivery_config.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/vicon_delivery_config.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_vicon_delivery_config.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/vicon_delivery_config/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/vicon_delivery_config.xunit.xml" "--junit-prefix=hamr_bringup"</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Environment">
+					<Value>#CTEST_RESOURCE_GROUP_COUNT=</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>-- run_test.py: invoking following command in '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup':
+ - /usr/bin/python3 -u -m pytest /home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_vicon_delivery_config.py -o cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/vicon_delivery_config/.cache --junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/vicon_delivery_config.xunit.xml --junit-prefix=hamr_bringup
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: build/hamr_bringup/ament_cmake_pytest/vicon_delivery_config/.cache
+rootdir: /home/hamr/hamster_ws/src/hamr_control
+plugins: ament-copyright-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, ament-xmllint-0.17.5, ament-flake8-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, colcon-core-0.20.1, cov-4.1.0
+collected 8 items
+
+../../hamr_bringup/test/test_vicon_delivery_config.py ........           [100%]
+
+- generated xml file: /home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/vicon_delivery_config.xunit.xml -
+============================== 8 passed in 0.06s ===============================
+-- run_test.py: return code 0
+-- run_test.py: verify result file '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/vicon_delivery_config.xunit.xml'
+</Value>
+				</Measurement>
+			</Results>
+			<Labels>
+				<Label>pytest</Label>
+			</Labels>
+		</Test>
+		<Test Status="passed">
+			<Name>wheel_response_test_safety</Name>
+			<Path>.</Path>
+			<FullName>./wheel_response_test_safety</FullName>
+			<FullCommandLine>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/wheel_response_test_safety.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/wheel_response_test_safety.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_wheel_response_test.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/wheel_response_test_safety/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/wheel_response_test_safety.xunit.xml" "--junit-prefix=hamr_bringup"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>1.34719</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/wheel_response_test_safety.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/wheel_response_test_safety.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_wheel_response_test.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/wheel_response_test_safety/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/wheel_response_test_safety.xunit.xml" "--junit-prefix=hamr_bringup"</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Environment">
+					<Value>#CTEST_RESOURCE_GROUP_COUNT=</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>-- run_test.py: invoking following command in '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup':
+ - /usr/bin/python3 -u -m pytest /home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_wheel_response_test.py -o cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/wheel_response_test_safety/.cache --junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/wheel_response_test_safety.xunit.xml --junit-prefix=hamr_bringup
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: build/hamr_bringup/ament_cmake_pytest/wheel_response_test_safety/.cache
+rootdir: /home/hamr/hamster_ws/src/hamr_control
+plugins: ament-copyright-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, ament-xmllint-0.17.5, ament-flake8-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, colcon-core-0.20.1, cov-4.1.0
+collected 38 items
+
+../../hamr_bringup/test/test_wheel_response_test.py .................... [ 52%]
+..................                                                       [100%]
+
+- generated xml file: /home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/wheel_response_test_safety.xunit.xml -
+============================== 38 passed in 0.58s ==============================
+-- run_test.py: return code 0
+-- run_test.py: verify result file '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/wheel_response_test_safety.xunit.xml'
+</Value>
+				</Measurement>
+			</Results>
+			<Labels>
+				<Label>pytest</Label>
+			</Labels>
+		</Test>
+		<Test Status="passed">
+			<Name>run_waypoint_test_wrapper</Name>
+			<Path>.</Path>
+			<FullName>./run_waypoint_test_wrapper</FullName>
+			<FullCommandLine>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/run_waypoint_test_wrapper.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/run_waypoint_test_wrapper.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_run_waypoint_test.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/run_waypoint_test_wrapper/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/run_waypoint_test_wrapper.xunit.xml" "--junit-prefix=hamr_bringup"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>0.906793</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/run_waypoint_test_wrapper.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/run_waypoint_test_wrapper.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_run_waypoint_test.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/run_waypoint_test_wrapper/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/run_waypoint_test_wrapper.xunit.xml" "--junit-prefix=hamr_bringup"</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Environment">
+					<Value>#CTEST_RESOURCE_GROUP_COUNT=</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>-- run_test.py: invoking following command in '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup':
+ - /usr/bin/python3 -u -m pytest /home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_run_waypoint_test.py -o cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/run_waypoint_test_wrapper/.cache --junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/run_waypoint_test_wrapper.xunit.xml --junit-prefix=hamr_bringup
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: build/hamr_bringup/ament_cmake_pytest/run_waypoint_test_wrapper/.cache
+rootdir: /home/hamr/hamster_ws/src/hamr_control
+plugins: ament-copyright-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, ament-xmllint-0.17.5, ament-flake8-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, colcon-core-0.20.1, cov-4.1.0
+collected 9 items
+
+../../hamr_bringup/test/test_run_waypoint_test.py .........              [100%]
+
+- generated xml file: /home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/run_waypoint_test_wrapper.xunit.xml -
+============================== 9 passed in 0.17s ===============================
+-- run_test.py: return code 0
+-- run_test.py: verify result file '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/run_waypoint_test_wrapper.xunit.xml'
+</Value>
+				</Measurement>
+			</Results>
+			<Labels>
+				<Label>pytest</Label>
+			</Labels>
+		</Test>
+		<Test Status="passed">
+			<Name>split_waypoint_commands</Name>
+			<Path>.</Path>
+			<FullName>./split_waypoint_commands</FullName>
+			<FullCommandLine>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/split_waypoint_commands.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/split_waypoint_commands.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_split_waypoint_commands.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/split_waypoint_commands/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/split_waypoint_commands.xunit.xml" "--junit-prefix=hamr_bringup"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>0.841251</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/split_waypoint_commands.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/split_waypoint_commands.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_split_waypoint_commands.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/split_waypoint_commands/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/split_waypoint_commands.xunit.xml" "--junit-prefix=hamr_bringup"</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Environment">
+					<Value>#CTEST_RESOURCE_GROUP_COUNT=</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>-- run_test.py: invoking following command in '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup':
+ - /usr/bin/python3 -u -m pytest /home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_split_waypoint_commands.py -o cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/split_waypoint_commands/.cache --junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/split_waypoint_commands.xunit.xml --junit-prefix=hamr_bringup
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: build/hamr_bringup/ament_cmake_pytest/split_waypoint_commands/.cache
+rootdir: /home/hamr/hamster_ws/src/hamr_control
+plugins: ament-copyright-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, ament-xmllint-0.17.5, ament-flake8-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, colcon-core-0.20.1, cov-4.1.0
+collected 10 items
+
+../../hamr_bringup/test/test_split_waypoint_commands.py ..........       [100%]
+
+- generated xml file: /home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/split_waypoint_commands.xunit.xml -
+============================== 10 passed in 0.12s ==============================
+-- run_test.py: return code 0
+-- run_test.py: verify result file '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/split_waypoint_commands.xunit.xml'
+</Value>
+				</Measurement>
+			</Results>
+			<Labels>
+				<Label>pytest</Label>
+			</Labels>
+		</Test>
+		<Test Status="passed">
+			<Name>analyze_waypoint_test_wrapper</Name>
+			<Path>.</Path>
+			<FullName>./analyze_waypoint_test_wrapper</FullName>
+			<FullCommandLine>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/analyze_waypoint_test_wrapper.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/analyze_waypoint_test_wrapper.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_analyze_waypoint_test.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/analyze_waypoint_test_wrapper/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/analyze_waypoint_test_wrapper.xunit.xml" "--junit-prefix=hamr_bringup"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>0.789502</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/analyze_waypoint_test_wrapper.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/analyze_waypoint_test_wrapper.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_analyze_waypoint_test.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/analyze_waypoint_test_wrapper/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/analyze_waypoint_test_wrapper.xunit.xml" "--junit-prefix=hamr_bringup"</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Environment">
+					<Value>#CTEST_RESOURCE_GROUP_COUNT=</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>-- run_test.py: invoking following command in '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup':
+ - /usr/bin/python3 -u -m pytest /home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_analyze_waypoint_test.py -o cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/analyze_waypoint_test_wrapper/.cache --junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/analyze_waypoint_test_wrapper.xunit.xml --junit-prefix=hamr_bringup
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: build/hamr_bringup/ament_cmake_pytest/analyze_waypoint_test_wrapper/.cache
+rootdir: /home/hamr/hamster_ws/src/hamr_control
+plugins: ament-copyright-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, ament-xmllint-0.17.5, ament-flake8-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, colcon-core-0.20.1, cov-4.1.0
+collected 6 items
+
+../../hamr_bringup/test/test_analyze_waypoint_test.py ......             [100%]
+
+- generated xml file: /home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/analyze_waypoint_test_wrapper.xunit.xml -
+============================== 6 passed in 0.06s ===============================
+-- run_test.py: return code 0
+-- run_test.py: verify result file '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/analyze_waypoint_test_wrapper.xunit.xml'
+</Value>
+				</Measurement>
+			</Results>
+			<Labels>
+				<Label>pytest</Label>
+			</Labels>
+		</Test>
+		<Test Status="passed">
+			<Name>study_commands</Name>
+			<Path>.</Path>
+			<FullName>./study_commands</FullName>
+			<FullCommandLine>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_commands.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/study_commands.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_study_commands.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/study_commands/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_commands.xunit.xml" "--junit-prefix=hamr_bringup"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>4.75642</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_commands.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/study_commands.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_study_commands.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/study_commands/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_commands.xunit.xml" "--junit-prefix=hamr_bringup"</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Environment">
+					<Value>#CTEST_RESOURCE_GROUP_COUNT=</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>-- run_test.py: invoking following command in '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup':
+ - /usr/bin/python3 -u -m pytest /home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_study_commands.py -o cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/study_commands/.cache --junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_commands.xunit.xml --junit-prefix=hamr_bringup
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: build/hamr_bringup/ament_cmake_pytest/study_commands/.cache
+rootdir: /home/hamr/hamster_ws/src/hamr_control
+plugins: ament-copyright-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, ament-xmllint-0.17.5, ament-flake8-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, colcon-core-0.20.1, cov-4.1.0
+collected 33 items
+
+../../hamr_bringup/test/test_study_commands.py ......................... [ 75%]
+........                                                                 [100%]
+
+- generated xml file: /home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_commands.xunit.xml -
+============================== 33 passed in 4.02s ==============================
+-- run_test.py: return code 0
+-- run_test.py: verify result file '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_commands.xunit.xml'
+</Value>
+				</Measurement>
+			</Results>
+			<Labels>
+				<Label>pytest</Label>
+			</Labels>
+		</Test>
+		<Test Status="passed">
+			<Name>study_analyzer</Name>
+			<Path>.</Path>
+			<FullName>./study_analyzer</FullName>
+			<FullCommandLine>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_analyzer.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/study_analyzer.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_analyze_study_test.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/study_analyzer/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_analyzer.xunit.xml" "--junit-prefix=hamr_bringup"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>1.04244</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_analyzer.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/study_analyzer.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_analyze_study_test.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/study_analyzer/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_analyzer.xunit.xml" "--junit-prefix=hamr_bringup"</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Environment">
+					<Value>#CTEST_RESOURCE_GROUP_COUNT=</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>-- run_test.py: invoking following command in '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup':
+ - /usr/bin/python3 -u -m pytest /home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_analyze_study_test.py -o cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/study_analyzer/.cache --junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_analyzer.xunit.xml --junit-prefix=hamr_bringup
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: build/hamr_bringup/ament_cmake_pytest/study_analyzer/.cache
+rootdir: /home/hamr/hamster_ws/src/hamr_control
+plugins: ament-copyright-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, ament-xmllint-0.17.5, ament-flake8-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, colcon-core-0.20.1, cov-4.1.0
+collected 66 items
+
+../../hamr_bringup/test/test_analyze_study_test.py ..................... [ 31%]
+.............................................                            [100%]
+
+- generated xml file: /home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_analyzer.xunit.xml -
+============================== 66 passed in 0.30s ==============================
+-- run_test.py: return code 0
+-- run_test.py: verify result file '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_analyzer.xunit.xml'
+</Value>
+				</Measurement>
+			</Results>
+			<Labels>
+				<Label>pytest</Label>
+			</Labels>
+		</Test>
+		<Test Status="passed">
+			<Name>study_plan_generator</Name>
+			<Path>.</Path>
+			<FullName>./study_plan_generator</FullName>
+			<FullCommandLine>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_plan_generator.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/study_plan_generator.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_create_study_plan.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/study_plan_generator/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_plan_generator.xunit.xml" "--junit-prefix=hamr_bringup"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>2.71494</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_plan_generator.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/study_plan_generator.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_create_study_plan.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/study_plan_generator/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_plan_generator.xunit.xml" "--junit-prefix=hamr_bringup"</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Environment">
+					<Value>#CTEST_RESOURCE_GROUP_COUNT=</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>-- run_test.py: invoking following command in '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup':
+ - /usr/bin/python3 -u -m pytest /home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_create_study_plan.py -o cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/study_plan_generator/.cache --junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_plan_generator.xunit.xml --junit-prefix=hamr_bringup
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: build/hamr_bringup/ament_cmake_pytest/study_plan_generator/.cache
+rootdir: /home/hamr/hamster_ws/src/hamr_control
+plugins: ament-copyright-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, ament-xmllint-0.17.5, ament-flake8-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, colcon-core-0.20.1, cov-4.1.0
+collected 10 items
+
+../../hamr_bringup/test/test_create_study_plan.py ..........             [100%]
+
+- generated xml file: /home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_plan_generator.xunit.xml -
+============================== 10 passed in 2.00s ==============================
+-- run_test.py: return code 0
+-- run_test.py: verify result file '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/study_plan_generator.xunit.xml'
+</Value>
+				</Measurement>
+			</Results>
+			<Labels>
+				<Label>pytest</Label>
+			</Labels>
+		</Test>
+		<Test Status="passed">
+			<Name>actuator_plot_contract</Name>
+			<Path>.</Path>
+			<FullName>./actuator_plot_contract</FullName>
+			<FullCommandLine>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/actuator_plot_contract.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/actuator_plot_contract.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_plot_hamr_actuators.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/actuator_plot_contract/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/actuator_plot_contract.xunit.xml" "--junit-prefix=hamr_bringup"</FullCommandLine>
+			<Results>
+				<NamedMeasurement type="numeric/double" name="Execution Time">
+					<Value>3.91118</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="numeric/double" name="Processors">
+					<Value>1</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Completion Status">
+					<Value>Completed</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Command Line">
+					<Value>/usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/actuator_plot_contract.xunit.xml" "--package-name" "hamr_bringup" "--output-file" "/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/actuator_plot_contract.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_plot_hamr_actuators.py" "-o" "cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/actuator_plot_contract/.cache" "--junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/actuator_plot_contract.xunit.xml" "--junit-prefix=hamr_bringup"</Value>
+				</NamedMeasurement>
+				<NamedMeasurement type="text/string" name="Environment">
+					<Value>#CTEST_RESOURCE_GROUP_COUNT=</Value>
+				</NamedMeasurement>
+				<Measurement>
+					<Value>-- run_test.py: invoking following command in '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup':
+ - /usr/bin/python3 -u -m pytest /home/hamr/hamster_ws/src/hamr_control/hamr_bringup/test/test_plot_hamr_actuators.py -o cache_dir=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/ament_cmake_pytest/actuator_plot_contract/.cache --junit-xml=/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/actuator_plot_contract.xunit.xml --junit-prefix=hamr_bringup
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: build/hamr_bringup/ament_cmake_pytest/actuator_plot_contract/.cache
+rootdir: /home/hamr/hamster_ws/src/hamr_control
+plugins: ament-copyright-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, ament-xmllint-0.17.5, ament-flake8-0.17.5, ament-lint-0.17.5, ament-pep257-0.17.5, colcon-core-0.20.1, cov-4.1.0
+collected 24 items
+
+../../hamr_bringup/test/test_plot_hamr_actuators.py .................... [ 83%]
+....                                                                     [100%]
+
+- generated xml file: /home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/actuator_plot_contract.xunit.xml -
+============================== 24 passed in 2.91s ==============================
+-- run_test.py: return code 0
+-- run_test.py: verify result file '/home/hamr/hamster_ws/src/hamr_control/build/hamr_bringup/test_results/hamr_bringup/actuator_plot_contract.xunit.xml'
+</Value>
+				</Measurement>
+			</Results>
+			<Labels>
+				<Label>pytest</Label>
+			</Labels>
+		</Test>
+		<EndDateTime>Aug 25 19:22 EDT</EndDateTime>
+		<EndTestTime>1787700149</EndTestTime>
+		<ElapsedMinutes>0</ElapsedMinutes>
+	</Testing>
+</Site>

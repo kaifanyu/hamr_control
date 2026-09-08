@@ -8,9 +8,11 @@
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
+  <depend>rcl_interfaces</depend>
   <depend>std_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>geometry_msgs</depend>
+  <depend>hamr_interfaces</depend>
   <depend>tf2_msgs</depend>
   <depend>visualization_msgs</depend>
   <test_depend>ament_copyright</test_depend>

@@ -1,0 +1,617 @@
+#!/usr/bin/env python3
+"""Create a deterministic, non-executing HAMR independent-study run sheet."""
+
+import argparse
+import csv
+import hashlib
+import math
+import os
+from pathlib import Path
+import re
+import shlex
+import sys
+
+import yaml
+
+
+GATE_ADDITIONS = {
+    1: (
+        ('straight_forward', '0.15'),
+        ('straight_backward', '0.15'),
+        ('lateral_left', '0.15'),
+        ('lateral_right', '0.15'),
+        ('forward_reverse', '0.15'),
+    ),
+    2: (
+        ('triangle', '0.15'),
+        ('circle_ccw', '0.15'),
+        ('circle_cw', '0.15'),
+    ),
+    3: (
+        ('straight_forward', '0.10'),
+        ('straight_forward', '0.20'),
+        ('forward_reverse', '0.10'),
+        ('forward_reverse', '0.20'),
+    ),
+}
+
+FIELDNAMES = (
+    'planned_id',
+    'planned_order',
+    'gate_added',
+    'matched_block_id',
+    'hardware_block_id',
+    'profile',
+    'speed_m_s',
+    'caster_type',
+    'terrain',
+    'initial_caster_orientation_deg',
+    'repetition',
+    'nominal_start_base_yaw_rad',
+    'start_base_yaw_tolerance_rad',
+    'profile_sha256',
+    'controller_config_sha256',
+    'wheel_speed_limit_rad_s',
+    'turret_control_enabled',
+    'study_stack_contract_version',
+    'run_command',
+)
+
+ATTEMPT_FIELDNAMES = (
+    'attempt_id',
+    'run_id',
+    'planned_id',
+    'start_utc',
+    'operator_id',
+    'session_id',
+    'hardware_revision',
+    'firmware_revision',
+    'workspace_revision',
+    'controller_config_sha256',
+    'video_id',
+    'closed_bag',
+    'completed_motion',
+    'kinematic_valid',
+    'video_scorable',
+    'failure_category',
+    'reason',
+    'bag_path',
+)
+
+VIDEO_SCORE_FIELDNAMES = (
+    'score_id',
+    'attempt_id',
+    'run_id',
+    'planned_id',
+    'video_id',
+    'scorer_id',
+    'rubric_revision',
+    'camera_view',
+    'frame_rate_hz',
+    'visible',
+    'sync_offset_s',
+    'sync_uncertainty_s',
+    'event',
+    'start_frame_or_s',
+    'end_frame_or_s',
+    'nominal_caster_angle_deg',
+    'first_caster_motion_s',
+    'alignment_complete_s',
+    'alignment_definition',
+    'alignment_delay_s',
+    'scrub_slip_score_0_3',
+    'contact_transition_score_0_3',
+    'chassis_disturbance_score_0_3',
+    'confidence',
+    'occluded',
+    'intervention',
+    'factual_observation',
+)
+
+SLUG_PATTERN = re.compile(r'^[A-Za-z0-9][A-Za-z0-9_-]{0,30}$')
+STUDY_STACK_CONTRACT_VERSION = '1'
+
+
+def positive_repetitions(value):
+    """Return a supported repetition count for argparse."""
+    try:
+        parsed = int(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError('must be an integer') from error
+    if not 1 <= parsed <= 99:
+        raise argparse.ArgumentTypeError('must be from 1 through 99')
+    return parsed
+
+
+def initial_angle(value):
+    """Return a supported nominal caster angle for argparse."""
+    try:
+        parsed = int(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError('must be an integer') from error
+    if not 0 <= parsed <= 359:
+        raise argparse.ArgumentTypeError('must be from 0 through 359')
+    return parsed
+
+
+def slug(value):
+    """Validate labels accepted by run_study_reference."""
+    if not SLUG_PATTERN.fullmatch(value):
+        raise argparse.ArgumentTypeError(
+            "must contain only letters, digits, '_' or '-' "
+            '(maximum 31 characters in a generated study plan)'
+        )
+    return value.lower()
+
+
+def rotate(items, amount):
+    """Rotate a non-empty sequence by a deterministic amount."""
+    offset = amount % len(items)
+    return items[offset:] + items[:offset]
+
+
+def profile_order(conditions, repetition, caster_index, block_number):
+    """Rotate and reverse maneuvers to avoid a fixed within-block order."""
+    ordered = rotate(list(conditions), repetition - 1 + caster_index)
+    if block_number % 2 == 0:
+        ordered.reverse()
+    return ordered
+
+
+def planned_id(
+    gate,
+    caster,
+    terrain,
+    angle,
+    profile,
+    speed,
+    repetition,
+    profile_hash,
+    controller_hash,
+):
+    """Build an ID stable under changes to the planned execution order."""
+    speed_token = f'v{round(float(speed) * 100):03d}'
+    return (
+        f'G{gate}_{caster}_{terrain}_init{angle:03d}_{profile}_'
+        f'{speed_token}_ph{profile_hash[:8]}_ch{controller_hash[:8]}_'
+        f'sc{STUDY_STACK_CONTRACT_VERSION}_r{repetition:02d}'
+    )
+
+
+def run_command(row):
+    """Return the exact shell-safe per-trial command for a planned row."""
+    arguments = [
+        'ros2',
+        'run',
+        'hamr_bringup',
+        'run_study_reference',
+        row['profile'],
+        '--speed',
+        row['speed_m_s'],
+        '--caster',
+        row['caster_type'],
+        '--terrain',
+        row['terrain'],
+        '--initial-caster',
+        row['initial_caster_orientation_deg'],
+        '--repeat',
+        row['repetition'],
+        '--planned-id',
+        row['planned_id'],
+        '--expected-profile-sha256',
+        row['profile_sha256'],
+        '--expected-controller-config-sha256',
+        row['controller_config_sha256'],
+    ]
+    return shlex.join(arguments)
+
+
+def build_rows(
+    casters,
+    through_gate,
+    repetitions,
+    terrain,
+    angle,
+    hashes,
+    controller_hash,
+    wheel_speed_limit,
+    turret_control_enabled,
+):
+    """Build the staged matrix in a deterministic counterbalanced order."""
+    rows = []
+    planned_order = 0
+    block_number = 0
+    caster_indices = {caster: index for index, caster in enumerate(casters)}
+
+    for gate in range(1, through_gate + 1):
+        conditions = GATE_ADDITIONS[gate]
+        for repetition in range(1, repetitions + 1):
+            offset = gate + repetition - 2
+            ordered_casters = rotate(list(casters), offset)
+            matched_block_id = (
+                f'G{gate}_{terrain}_init{angle:03d}_R{repetition:02d}'
+            )
+            for hardware_position, caster in enumerate(ordered_casters, 1):
+                block_number += 1
+                hardware_block_id = (
+                    f'{matched_block_id}_H{hardware_position:02d}_{caster}'
+                )
+                ordered_profiles = profile_order(
+                    conditions,
+                    repetition,
+                    caster_indices[caster],
+                    block_number,
+                )
+                for profile, speed in ordered_profiles:
+                    planned_order += 1
+                    row = {
+                        field: '' for field in FIELDNAMES
+                    }
+                    row.update(
+                        {
+                            'planned_id': planned_id(
+                                gate,
+                                caster,
+                                terrain,
+                                angle,
+                                profile,
+                                speed,
+                                repetition,
+                                hashes[profile],
+                                controller_hash,
+                            ),
+                            'planned_order': str(planned_order),
+                            'gate_added': str(gate),
+                            'matched_block_id': matched_block_id,
+                            'hardware_block_id': hardware_block_id,
+                            'profile': profile,
+                            'speed_m_s': speed,
+                            'caster_type': caster,
+                            'terrain': terrain,
+                            'initial_caster_orientation_deg': str(angle),
+                            'repetition': str(repetition),
+                            'nominal_start_base_yaw_rad': '0.0',
+                            'start_base_yaw_tolerance_rad': '0.15',
+                            'profile_sha256': hashes[profile],
+                            'controller_config_sha256': controller_hash,
+                            'wheel_speed_limit_rad_s': wheel_speed_limit,
+                            'turret_control_enabled': turret_control_enabled,
+                            'study_stack_contract_version': (
+                                STUDY_STACK_CONTRACT_VERSION
+                            ),
+                        }
+                    )
+                    row['run_command'] = run_command(row)
+                    rows.append(row)
+    return rows
+
+
+def default_output():
+    """Return the standard run-sheet location."""
+    configured_root = os.environ.get('HAMR_BAG_ROOT')
+    if configured_root:
+        bag_root = Path(configured_root).expanduser()
+    else:
+        bag_root = (
+            Path.home() / 'hamster_ws' / 'src' / 'hamr_control' / 'rosbags'
+        )
+    return bag_root / 'study_results' / 'planned_trials.csv'
+
+
+def find_profile_directory(explicit=None):
+    """Locate the authoritative installed or source trajectory catalog."""
+    candidates = []
+    if explicit is not None:
+        candidates.append(explicit.expanduser())
+    else:
+        source_candidate = (
+            Path(__file__).resolve().parents[2]
+            / 'reference_trajectory'
+            / 'config'
+            / 'trajectories'
+        )
+        candidates.append(source_candidate)
+
+        for prefix in os.environ.get('AMENT_PREFIX_PATH', '').split(os.pathsep):
+            if prefix:
+                candidates.append(
+                    Path(prefix)
+                    / 'share'
+                    / 'reference_trajectory'
+                    / 'config'
+                    / 'trajectories'
+                )
+
+    required_profiles = {
+        profile
+        for conditions in GATE_ADDITIONS.values()
+        for profile, _speed in conditions
+    }
+    for candidate in candidates:
+        if all((candidate / f'{name}.yaml').is_file()
+               for name in required_profiles):
+            return candidate.resolve()
+
+    searched = ', '.join(str(path) for path in candidates)
+    raise FileNotFoundError(
+        'could not locate the complete trajectory catalog; searched: '
+        f'{searched}'
+    )
+
+
+def profile_hashes(profile_directory):
+    """Hash profile bytes exactly as the trajectory publisher does."""
+    names = {
+        profile
+        for conditions in GATE_ADDITIONS.values()
+        for profile, _speed in conditions
+    }
+    return {
+        name: hashlib.sha256(
+            (profile_directory / f'{name}.yaml').read_bytes()
+        ).hexdigest()
+        for name in names
+    }
+
+
+def find_controller_config(explicit=None):
+    """Locate the exact active controller configuration."""
+    if explicit is not None:
+        candidates = [explicit.expanduser()]
+    else:
+        script_path = Path(__file__).resolve()
+        candidates = [
+            script_path.parents[1] / 'config' / 'hamr_hw_control_params.yaml',
+            script_path.parents[2]
+            / 'share'
+            / 'hamr_bringup'
+            / 'config'
+            / 'hamr_hw_control_params.yaml',
+        ]
+        for prefix in os.environ.get('AMENT_PREFIX_PATH', '').split(os.pathsep):
+            if prefix:
+                candidates.append(
+                    Path(prefix)
+                    / 'share'
+                    / 'hamr_bringup'
+                    / 'config'
+                    / 'hamr_hw_control_params.yaml'
+                )
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate.resolve()
+    searched = ', '.join(str(path) for path in candidates)
+    raise FileNotFoundError(
+        'could not locate hamr_hw_control_params.yaml; searched: '
+        f'{searched}'
+    )
+
+
+def controller_provenance(config_path):
+    """Return the exact config hash and validated positive wheel-speed limit."""
+    source = config_path.read_bytes()
+    try:
+        document = yaml.safe_load(source)
+        parameters = document['/hamr_controller_node']['ros__parameters']
+        raw_limit = parameters['wheel_speed_limit_rad_s']
+        turret_enabled = parameters['turret_enabled']
+    except (KeyError, TypeError, yaml.YAMLError) as error:
+        raise ValueError(
+            f'invalid controller config structure in {config_path}'
+        ) from error
+    if isinstance(raw_limit, bool):
+        raise ValueError('wheel_speed_limit_rad_s must be a positive number')
+    if not isinstance(turret_enabled, bool):
+        raise ValueError('turret_enabled must be a YAML boolean')
+    try:
+        limit = float(raw_limit)
+    except (TypeError, ValueError) as error:
+        raise ValueError(
+            'wheel_speed_limit_rad_s must be a positive number'
+        ) from error
+    if not math.isfinite(limit) or limit <= 0.0:
+        raise ValueError('wheel_speed_limit_rad_s must be a positive number')
+    digest = hashlib.sha256(source).hexdigest()
+    return digest, repr(limit), str(turret_enabled).lower()
+
+
+def validate_csv_template(path, fieldnames, label):
+    """Reject an existing manual table with an incompatible header."""
+    with path.open(encoding='utf-8', newline='') as stream:
+        header = next(csv.reader(stream), [])
+    if tuple(header) != fieldnames:
+        raise ValueError(
+            f'existing {label} has an incompatible header: {path}'
+        )
+
+
+def ensure_csv_template(path, fieldnames, label):
+    """Create a header-only manual table, or preserve a compatible one."""
+    if path.exists():
+        validate_csv_template(path, fieldnames, label)
+        return False
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with path.open('x', encoding='utf-8', newline='') as stream:
+            csv.writer(stream).writerow(fieldnames)
+    except FileExistsError:
+        validate_csv_template(path, fieldnames, label)
+        return False
+    return True
+
+
+def parser():
+    """Construct the command-line parser."""
+    argument_parser = argparse.ArgumentParser(
+        description=(
+            'Write the staged independent-study matrix as a CSV run sheet. '
+            'This command never starts ROS nodes or executes trial commands.'
+        )
+    )
+    argument_parser.add_argument(
+        '--caster',
+        action='append',
+        required=True,
+        type=slug,
+        metavar='LABEL',
+        help=(
+            'installed caster label; repeat for each configuration in the '
+            'comparison'
+        ),
+    )
+    argument_parser.add_argument(
+        '--through-gate',
+        type=int,
+        choices=(1, 2, 3),
+        default=1,
+        help='cumulative matrix stage to write (default: 1)',
+    )
+    argument_parser.add_argument(
+        '--repetitions',
+        type=positive_repetitions,
+        default=3,
+        help='independent repetitions per cell (default: 3)',
+    )
+    argument_parser.add_argument(
+        '--terrain',
+        type=slug,
+        default='flat',
+        help='terrain label (default: flat)',
+    )
+    argument_parser.add_argument(
+        '--initial-caster',
+        type=initial_angle,
+        default=0,
+        metavar='DEG',
+        help='nominal initial caster angle (default: 0)',
+    )
+    argument_parser.add_argument(
+        '--output',
+        type=Path,
+        help=(
+            'CSV path (default: HAMR_BAG_ROOT/study_results/'
+            'planned_trials.csv)'
+        ),
+    )
+    argument_parser.add_argument(
+        '--profile-dir',
+        type=Path,
+        help=(
+            'trajectory YAML directory; normally discovered from the sourced '
+            'workspace'
+        ),
+    )
+    argument_parser.add_argument(
+        '--controller-config',
+        type=Path,
+        help=(
+            'active hamr_hw_control_params.yaml; normally discovered from '
+            'the sourced workspace'
+        ),
+    )
+    argument_parser.add_argument(
+        '--attempt-log',
+        type=Path,
+        help='append-only attempt-log CSV (default: beside the plan)',
+    )
+    argument_parser.add_argument(
+        '--video-scores',
+        type=Path,
+        help='manual video-score CSV (default: beside the plan)',
+    )
+    return argument_parser
+
+
+def main(argv=None):
+    """Generate the CSV and return a process status."""
+    argument_parser = parser()
+    arguments = argument_parser.parse_args(argv)
+
+    if len(set(arguments.caster)) != len(arguments.caster):
+        argument_parser.error('each --caster label must be unique')
+
+    output = (arguments.output or default_output()).expanduser().resolve()
+    attempt_log = (
+        arguments.attempt_log or output.parent / 'attempt_log.csv'
+    ).expanduser().resolve()
+    video_scores = (
+        arguments.video_scores or output.parent / 'video_scores.csv'
+    ).expanduser().resolve()
+    if len({output, attempt_log, video_scores}) != 3:
+        argument_parser.error(
+            '--output, --attempt-log, and --video-scores must be different'
+        )
+    if output.exists():
+        argument_parser.error(
+            f'output already exists: {output}; planned ledgers are immutable, '
+            'so choose a new --output path'
+        )
+
+    try:
+        hashes = profile_hashes(find_profile_directory(arguments.profile_dir))
+        (
+            controller_hash,
+            wheel_speed_limit,
+            turret_control_enabled,
+        ) = controller_provenance(
+            find_controller_config(arguments.controller_config)
+        )
+    except (FileNotFoundError, OSError, ValueError) as error:
+        argument_parser.error(str(error))
+    manual_tables = (
+        (attempt_log, ATTEMPT_FIELDNAMES, 'attempt log'),
+        (video_scores, VIDEO_SCORE_FIELDNAMES, 'video-score table'),
+    )
+    for path, fieldnames, label in manual_tables:
+        if not path.exists():
+            continue
+        try:
+            validate_csv_template(path, fieldnames, label)
+        except (OSError, ValueError) as error:
+            argument_parser.error(str(error))
+
+    rows = build_rows(
+        arguments.caster,
+        arguments.through_gate,
+        arguments.repetitions,
+        arguments.terrain,
+        arguments.initial_caster,
+        hashes,
+        controller_hash,
+        wheel_speed_limit,
+        turret_control_enabled,
+    )
+    output.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with output.open('x', encoding='utf-8', newline='') as stream:
+            writer = csv.DictWriter(stream, fieldnames=FIELDNAMES)
+            writer.writeheader()
+            writer.writerows(rows)
+    except FileExistsError:
+        argument_parser.error(
+            f'output already exists: {output}; planned ledgers are immutable, '
+            'so choose a new --output path'
+        )
+
+    created_tables = []
+    for path, fieldnames, label in manual_tables:
+        try:
+            created = ensure_csv_template(path, fieldnames, label)
+        except (OSError, ValueError) as error:
+            argument_parser.error(str(error))
+        created_tables.append((path, label, created))
+
+    per_caster = len(rows) // len(arguments.caster)
+    print(f'Wrote {len(rows)} planned trials to {output}')
+    print(
+        f'Gate {arguments.through_gate}: {per_caster} rows per caster; '
+        'commands were written but not executed.'
+    )
+    for path, label, created in created_tables:
+        action = 'Created' if created else 'Preserved'
+        print(f'{action} manual {label} at {path}')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

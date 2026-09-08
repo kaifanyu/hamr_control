@@ -31,6 +31,8 @@ if [[ -n "${QOS_PROFILE_OVERRIDES_PATH}" ]]; then
 fi
 
 TOPIC_REGEX='^/(HAMR_base|HAMR_turret)/(odom|pose|individual_marker_array)$|^/(local_HAMR/odom|wheel_odom|imu/data|imu/data_raw|tf|tf_static)$|^/(reference_trajectory|waypoints_path|state_error|live_gains)$|^/(left_wheel|right_wheel|turret)/cmd_vel$|^/(left_wheel|right_wheel|turret)/encoder_ticks$|^/(robot_pose|odom|cmd_vel)$'
+TOPIC_REGEX="${TOPIC_REGEX}|^/wheel_control/status$"
+TOPIC_REGEX="${TOPIC_REGEX}|^/wheel_encoder/diagnostics$"
 
 mkdir -p "$(dirname "${BAG_DIR}")"
 

@@ -1,0 +1,314 @@
+#!/usr/bin/env python3
+"""Analyze the newest closed HAMR waypoint bag, without replaying it."""
+
+from __future__ import annotations
+
+import argparse
+from dataclasses import dataclass
+import math
+import os
+from pathlib import Path
+import subprocess
+import sys
+from typing import Callable
+
+import yaml
+
+
+DEFAULT_PATTERN = "hamr_waypoint_simple_vicon_noguard_v*_*"
+REFERENCE_TOPIC = "/reference_trajectory"
+MIN_FINAL_ZERO_S = 2.8
+REQUIRED_TOPIC_COUNTS = (
+    "/HAMR_base/odom",
+    REFERENCE_TOPIC,
+    "/left_wheel/cmd_vel",
+    "/right_wheel/cmd_vel",
+    "/turret/cmd_vel",
+    "/live_gains",
+    "/wheel_control/status",
+    "/left_wheel/encoder_ticks",
+    "/right_wheel/encoder_ticks",
+    "/turret/encoder_ticks",
+)
+
+
+@dataclass(frozen=True)
+class ReferenceCompletion:
+    count: int
+    span_s: float
+    final_zero_s: float
+    final_x_m: float
+    final_y_m: float
+    route_extent_ok: bool
+
+    @property
+    def complete(self) -> bool:
+        return (
+            self.final_zero_s >= MIN_FINAL_ZERO_S
+            and abs(self.final_x_m) <= 1e-6
+            and abs(self.final_y_m) <= 1e-6
+            and self.route_extent_ok
+        )
+
+
+def default_bag_root() -> Path:
+    configured = os.environ.get("HAMR_BAG_ROOT")
+    if configured:
+        return Path(configured).expanduser()
+    return Path.home() / "hamster_ws/src/hamr_control/rosbags"
+
+
+def storage_id(bag: Path) -> str:
+    metadata = load_metadata(bag)
+    value = metadata.get("storage_identifier")
+    if value:
+        return str(value)
+    return "mcap" if any(bag.glob("*.mcap")) else "sqlite3"
+
+
+def load_metadata(bag: Path) -> dict:
+    path = bag / "metadata.yaml"
+    if not path.is_file():
+        raise RuntimeError("metadata.yaml is missing")
+    document = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    metadata = document.get("rosbag2_bagfile_information")
+    if not isinstance(metadata, dict):
+        raise RuntimeError("metadata.yaml has no rosbag2_bagfile_information")
+    return metadata
+
+
+def topic_counts(metadata: dict) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for item in metadata.get("topics_with_message_count", ()):
+        topic = item.get("topic_metadata", {}).get("name")
+        if topic:
+            counts[str(topic)] = int(item.get("message_count", 0))
+    return counts
+
+
+def metadata_preflight(bag: Path) -> tuple[bool, str]:
+    try:
+        metadata = load_metadata(bag)
+    except (OSError, RuntimeError, yaml.YAMLError) as exc:
+        return False, str(exc)
+    files = metadata.get("relative_file_paths", ())
+    if not files:
+        files = [path.name for path in (*bag.glob("*.mcap"), *bag.glob("*.db3"))]
+    if not files or any(
+        not (bag / str(name)).is_file() or (bag / str(name)).stat().st_size == 0
+        for name in files
+    ):
+        return False, "storage file is missing or empty"
+    counts = topic_counts(metadata)
+    missing = [topic for topic in REQUIRED_TOPIC_COUNTS if counts.get(topic, 0) <= 0]
+    if missing:
+        return False, "missing recorded data on " + ", ".join(missing)
+    return True, "metadata and required topic counts are present"
+
+
+def read_reference_completion(bag: Path) -> ReferenceCompletion:
+    # Import ROS modules lazily so --help and pure unit tests remain lightweight.
+    import rosbag2_py
+    from rclpy.serialization import deserialize_message
+    from rosidl_runtime_py.utilities import get_message
+
+    reader = rosbag2_py.SequentialReader()
+    reader.open(
+        rosbag2_py.StorageOptions(uri=str(bag), storage_id=storage_id(bag)),
+        rosbag2_py.ConverterOptions("", ""),
+    )
+    types = {item.name: item.type for item in reader.get_all_topics_and_types()}
+    if REFERENCE_TOPIC not in types:
+        raise RuntimeError(f"{REFERENCE_TOPIC} is missing")
+    reader.set_filter(rosbag2_py.StorageFilter(topics=[REFERENCE_TOPIC]))
+    message_type = get_message(types[REFERENCE_TOPIC])
+    count = 0
+    first_s = last_s = last_moving_s = None
+    final_x = final_y = math.nan
+    min_x = min_y = math.inf
+    max_x = max_y = -math.inf
+    while reader.has_next():
+        topic, raw, timestamp = reader.read_next()
+        if topic != REFERENCE_TOPIC:
+            continue
+        message = deserialize_message(raw, message_type)
+        time_s = timestamp * 1e-9
+        first_s = time_s if first_s is None else first_s
+        last_s = time_s
+        final_x, final_y = float(message.x), float(message.y)
+        min_x, max_x = min(min_x, final_x), max(max_x, final_x)
+        min_y, max_y = min(min_y, final_y), max(max_y, final_y)
+        if math.hypot(float(message.x_dot), float(message.y_dot)) > 1e-9:
+            last_moving_s = time_s
+        count += 1
+    if count == 0 or first_s is None or last_s is None:
+        raise RuntimeError(f"{REFERENCE_TOPIC} is empty")
+    final_zero_s = 0.0 if last_moving_s is None else last_s - last_moving_s
+    return ReferenceCompletion(
+        count=count,
+        span_s=last_s - first_s,
+        final_zero_s=final_zero_s,
+        final_x_m=final_x,
+        final_y_m=final_y,
+        route_extent_ok=(min_x <= -1.999 and max_y >= 4.499),
+    )
+
+
+def select_latest_analyzable(
+    root: Path,
+    pattern: str = DEFAULT_PATTERN,
+    completion_reader: Callable[[Path], ReferenceCompletion] = read_reference_completion,
+) -> tuple[Path, ReferenceCompletion, list[str]]:
+    rejected: list[str] = []
+    candidates = sorted(
+        (path for path in root.glob(pattern) if path.is_dir()),
+        key=lambda path: (path / "metadata.yaml").stat().st_mtime
+        if (path / "metadata.yaml").exists()
+        else path.stat().st_mtime,
+        reverse=True,
+    )
+    for bag in candidates:
+        valid, reason = metadata_preflight(bag)
+        if not valid:
+            rejected.append(f"{bag.name}: {reason}")
+            continue
+        try:
+            completion = completion_reader(bag)
+        except Exception as exc:  # Keep searching after an unreadable bag.
+            rejected.append(f"{bag.name}: reference read failed: {exc}")
+            continue
+        # A cleanly closed partial bag is deliberately selected: aborted runs
+        # are often the ones an operator most needs to diagnose.
+        return bag.resolve(), completion, rejected
+    raise RuntimeError(
+        f"no closed analyzable bag matching {pattern!r} in {root.resolve()}"
+        + ("; skipped " + " | ".join(rejected) if rejected else "")
+    )
+
+
+def find_helper(name: str) -> Path:
+    installed = Path(__file__).resolve().parent / name
+    if installed.is_file():
+        return installed
+    source = Path(__file__).resolve().parents[2] / "rosbags" / name
+    if source.is_file():
+        return source
+    raise RuntimeError(f"installed analysis helper is missing: {name}")
+
+
+def analysis_commands(bag: Path, output: Path) -> list[list[str]]:
+    tracking = find_helper("analyze_hamr_vicon_straight.py")
+    actuators = find_helper("plot_hamr_actuators.py")
+    return [
+        [
+            sys.executable,
+            str(tracking),
+            str(bag),
+            "--plot",
+            str(output / "path_reference.png"),
+            "--turn-comparison-plot",
+            str(output / "turn_comparison.png"),
+            "--json",
+            str(output / "metrics.json"),
+            "--wheel-plot",
+            str(output / "wheel_velocity_compare.png"),
+            "--speed-plot",
+            str(output / "forward_speed.png"),
+            "--csv",
+            str(output / "base_trace.csv"),
+        ],
+        [
+            sys.executable,
+            str(actuators),
+            str(bag),
+            "--output-prefix",
+            str(output / "actuator"),
+        ],
+    ]
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "bag",
+        nargs="?",
+        type=Path,
+        help="specific bag directory (default: newest closed waypoint bag)",
+    )
+    parser.add_argument("--bag-root", type=Path, default=default_bag_root())
+    parser.add_argument("--pattern", default=DEFAULT_PATTERN)
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="select and validate the bag, but only print analysis commands",
+    )
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    if args.bag is None:
+        bag, completion, rejected = select_latest_analyzable(
+            args.bag_root.expanduser(), args.pattern
+        )
+        for reason in rejected:
+            print(f"Skipped newer bag: {reason}", file=sys.stderr)
+    else:
+        bag = args.bag.expanduser().resolve()
+        valid, reason = metadata_preflight(bag)
+        if not valid:
+            raise RuntimeError(f"bag is not analyzable: {reason}")
+        completion = read_reference_completion(bag)
+    if not completion.complete:
+        print(
+            "Warning: selected bag has an incomplete reference lifecycle; "
+            "plots will describe the partial run.",
+            file=sys.stderr,
+        )
+
+    output = bag / "analysis"
+    output.mkdir(parents=True, exist_ok=True)
+    commands = analysis_commands(bag, output)
+    print(f"Selected bag: {bag}")
+    print(
+        "Reference lifecycle: "
+        f"{completion.count} samples, {completion.span_s:.3f}s span, "
+        f"{completion.final_zero_s:.3f}s final-zero tail"
+    )
+    if args.dry_run:
+        import shlex
+
+        for command in commands:
+            print("Would run: " + shlex.join(command))
+        return 0
+    for command in commands:
+        subprocess.run(command, check=True)
+
+    artifacts = (
+        output / "path_reference.png",
+        output / "turn_comparison.png",
+        output / "metrics.json",
+        output / "wheel_velocity_compare.png",
+        output / "forward_speed.png",
+        output / "base_trace.csv",
+        output / "actuator_overview.png",
+        output / "actuator_stop_zoom.png",
+    )
+    missing = [path for path in artifacts if not path.is_file()]
+    if missing:
+        raise RuntimeError(
+            "analysis completed without expected artifacts: "
+            + ", ".join(str(path) for path in missing)
+        )
+    print("Analysis artifacts:")
+    for path in artifacts:
+        print(f"  {path}")
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except (OSError, RuntimeError, subprocess.CalledProcessError) as exc:
+        print(f"analyze_waypoint_test: {exc}", file=sys.stderr)
+        raise SystemExit(1)

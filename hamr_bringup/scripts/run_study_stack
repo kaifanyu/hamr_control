@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Start the hardware/controller stack only. Motion and recording deliberately
+# belong to run_study_reference so one command owns the reference metadata and
+# the matching bag label.
+if (( $# != 0 )); then
+  echo "run_study_stack takes no arguments" >&2
+  exit 2
+fi
+
+exec ros2 launch hamr_bringup \
+  hamr_HW_waypoint_vicon_unprotected.launch.xml \
+  enable_waypoint:=false \
+  record_bag:=false \
+  run_foxglove:=false

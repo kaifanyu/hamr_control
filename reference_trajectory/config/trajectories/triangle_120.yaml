@@ -1,0 +1,13 @@
+schema_version: 1
+name: triangle_120
+kind: polyline
+description: Isosceles 30-120-30 degree triangle starting at the long-side midpoint with fixed yaw.
+closed: true
+default_speed_m_s: 0.15
+fixed_yaw_rad: 0.0
+points_m:
+  - [0.0, 0.0]
+  - [0.0, 1.299038105676658]
+  - [-0.75, 0.0]
+  - [0.0, -1.299038105676658]
+  - [0.0, 0.0]

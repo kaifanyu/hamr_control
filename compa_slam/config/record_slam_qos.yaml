@@ -1,17 +1,18 @@
 # QoS overrides for `ros2 bag record` on the COMPA SLAM trajectory bag.
 #
 # Two problems this fixes:
-#   1) The camera and cmd_vel topics are published BEST_EFFORT. A recorder subscribing
-#      RELIABLE (the default) is QoS-incompatible and silently records nothing. A
-#      best_effort subscription is compatible with both best_effort and reliable
-#      publishers, so we force best_effort on every sensor/command topic.
+#   1) Camera and cmd_vel publisher offerings can be BEST_EFFORT, depending on
+#      the driver/source. A RELIABLE recorder would be incompatible with those
+#      offerings and silently record nothing. A best_effort subscription is
+#      compatible with both best_effort and reliable publishers, so sensor and
+#      command overrides below use best_effort.
 #   2) /tf_static is published TRANSIENT_LOCAL (latched, sent once). A volatile
 #      subscriber that starts after the publisher never sees it, so the camera
 #      extrinsics would be missing from the bag. transient_local fixes that.
 #
 # Topics not listed here keep the recorder default (reliable/volatile), which matches
 # the reliable publishers: /imu/data, /wheel_odom, /local_HAMR/odom, /HAMR_*/odom,
-# encoder ticks, etc.
+# encoder ticks, /wheel_control/status, /wheel_encoder/diagnostics, etc.
 
 /d455/color/image_raw:
   reliability: best_effort

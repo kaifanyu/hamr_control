@@ -134,8 +134,8 @@ def main():
                          "use /local_HAMR/odom or /hamr/odom otherwise)")
     ap.add_argument("--ref-topic", default="/reference_trajectory")
     ap.add_argument("--turret-topic", default="/HAMR_turret/odom")
-    ap.add_argument("--cmd-limit", type=float, default=3.28,
-                    help="wheel rad/s considered saturated (xy_limit/r_wheel)")
+    ap.add_argument("--cmd-limit", type=float, default=2.93215314335,
+                    help="wheel rad/s considered saturated (firmware 28 RPM limit)")
     ap.add_argument("--plot", metavar="OUT_DIR", default=None,
                     help="write cross-track PNG plots to this directory")
     args = ap.parse_args()

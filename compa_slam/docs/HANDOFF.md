@@ -9,8 +9,8 @@
 ## 1. Mission
 
 Add a **visual SLAM + off-road perception + planning** pipeline to the existing COMPA
-robot, as a **separate, additive package** (`compa_slam`) that does not modify any existing
-code. End state:
+robot. `compa_slam` owns the mapping assets and launch composition; matching bringup,
+odometry, controller, and relay interfaces may also need coordinated updates. End state:
 
 ```
 RealSense D455 RGBD ─► RTAB-Map (visual SLAM) ─► robot pose (map→base) + point cloud
@@ -38,9 +38,9 @@ Validate everything **in sim first** (ground truth available), then deploy to th
   (CuPy is GPU-only). Use the C++ CPU `elevation_mapping`, or a custom grid_map point-cloud
   node (see Milestone M2). Revisit CuPy only if a Jetson/NVIDIA GPU is added.
 - **Camera = Intel RealSense D455** (RGBD + IMU, wide FOV).
-- **Additive only.** New files live under `compa_slam/`. Do **not** edit existing packages
-  (`compa_description`, `hamr_*`, etc.). Match repo conventions (ament_cmake, `package.xml`
-  format 3, style of existing launch/xacro).
+- Keep cross-package changes narrowly scoped to an interface actually consumed by this
+  pipeline, and deploy coupled firmware/relay protocol changes together. Match repo
+  conventions (ament_cmake, `package.xml` format 3, existing launch/xacro style).
 - The robot/sim runs on **Linux**. (Dev editing also happens on a Windows machine; nothing
   here runs on Windows.)
 
@@ -81,8 +81,9 @@ perception** (`elevation_mapping`). The planner itself does not change.
 
 ## 4. What has been built so far — the `compa_slam` package
 
-ament_cmake package at `hamr_holonomic_robot/compa_slam/`. Status: **Phase 0 sim SLAM is
-code-complete but UNTESTED on hardware/Linux** (author had no ROS environment).
+ament_cmake package at `hamster_ws/src/hamr_control/compa_slam/`. Phase 0's TF ownership,
+Gazebo IMU bridge, and RTAB-Map processing are validated headlessly on ROS 2 Jazzy.
+Full OGRE2 RGB-D rendering still requires a host with a working OpenGL display.
 
 | File | What it is | Notes / decisions |
 |---|---|---|
@@ -93,9 +94,9 @@ code-complete but UNTESTED on hardware/Linux** (author had no ROS environment).
 | `urdf/compa_slam.urdf.xacro` | spawnable robot = `compa_back.urdf.xacro` (existing body) **+** the D455 | `name="compa"` (keeps `/model/compa/...` topics). Pulls in the stock RGB camera too (harmless, unused) |
 | `worlds/feature_world.sdf` | textured 16×16 m room: 4 colored walls + 8 distinct-colored pillars + sun | world name `'empty'` (bridge hardcodes `/world/empty/...`). **Adds the `Imu` system plugin** (stock worlds lack it). Feature-rich on purpose — visual odometry needs texture |
 | `config/gazebo_bridge_slam.yaml` | ros_gz bridge: robot control/state **+** D455, renamed to RealSense-style names | `/d455/color/image_raw`, `/d455/depth/image_rect_raw`, `/d455/color/camera_info`, `/d455/depth/color/points`, `/d455/imu` |
-| `config/rtabmap.yaml` | shared RTAB-Map params for all 3 nodes (`/**` wildcard) | `frame_id: base_link`, `approx_sync`, `qos: 1`, `Reg/Force3DoF: true`, IMU gravity. **Reused verbatim on real D455** (only `use_sim_time` flips) |
-| `launch/slam_sim.launch.py` | sim bring-up: gz + world + spawn + robot_state_publisher + bridge + optional static `map→odom` + optional RViz | sets `GZ_SIM_RESOURCE_PATH` so gz resolves `package://` meshes; `use_sim_time: true`. Args: `world, use_rviz, publish_map_odom_tf, x,y,z,yaw` |
-| `launch/rtabmap_sim.launch.py` | **mapping-mode SLAM**: includes `slam_sim` (rviz off, static map→odom off) + `rgbd_odometry` + `rtabmap` + `rtabmap_viz` | remaps canonical `rgb/image,depth/image,rgb/camera_info,imu` → `/d455/...`. Saves `maps/compa_sim.db`. Args: `database_path, use_rtabmap_viz` |
+| `config/rtabmap.yaml` | shared RTAB-Map params for all 3 nodes (`/**` wildcard) | real default `frame_id: base_link`; sim overrides `base_footprint`. Approx sync, camera-compatible QoS, `Reg/Force3DoF`, IMU gravity |
+| `launch/slam_sim.launch.py` | sim bring-up: gz + world + spawn + robot_state_publisher + bridge + optional ground-truth/static TF + RViz | sets `GZ_SIM_RESOURCE_PATH`; `use_sim_time: true`. Args include `world, use_rviz, publish_map_odom_tf, publish_ground_truth_tf, x,y,z,yaw` |
+| `launch/rtabmap_sim.launch.py` | **mapping-mode SLAM**: includes `slam_sim` with ground-truth TF off + `rgbd_odometry` + `rtabmap` + `rtabmap_viz` | uses `base_footprint` to preserve one TF parent and remaps canonical RGB-D/IMU topics. Saves `~/.ros/compa_sim.db` by default |
 
 ### Canonical SLAM topic contract (sim AND real feed these)
 | Canonical ROS topic | Meaning |
@@ -108,7 +109,8 @@ code-complete but UNTESTED on hardware/Linux** (author had no ROS environment).
 
 ### TF tree (must stay intact)
 ```
-map ─(rtabmap)→ odom ─(rgbd_odometry OR wheel odom)→ base_link ─(URDF static)→ … → yaw_plate_link → d455_link → d455_optical_link
+real: map ─(rtabmap)→ odom ─(EKF)→ base_link ─(static/driver)→ camera optical frames
+sim:  map ─(rtabmap)→ odom ─(rgbd_odometry)→ base_footprint ─(URDF)→ base_link → … → d455_link → d455_optical_link
 ```
 
 ---
@@ -125,7 +127,7 @@ map ─(rtabmap)→ odom ─(rgbd_odometry OR wheel odom)→ base_link ─(URDF 
 - **Localization mode** (`localization:=true` / `Mem/IncrementalMemory false`): loads the
   `.db`, stops growing it, publishes live `map→odom` + `/rtabmap/localization_pose`.
 - **Odometry choice:** visual (`rgbd_odometry`) is simplest but fragile on low texture / fast
-  motion. On a wheeled robot, feeding **wheel/EKF odom** (`/local_HAMR/odom` from
+  motion. On a wheeled robot, feeding **wheel/EKF odom** (the `odom→base_link` TF from
   `robot_localization`) as external odometry and letting `rtabmap` add visual loop closures
   is more robust off-road.
 - **Always also record a raw rosbag** of the camera while mapping — it's the portable artifact
@@ -193,11 +195,12 @@ just rely on `rtabmap_viz`.
   so `realsense.launch.py` also publishes a static `base_link → camera_link` (mount offsets are
   launch args — **MEASURE and set them**; defaults mirror the sim mount).
 
-**M1.2 — IMU orientation. ✔ DONE (needs the package installed)** On the real D455 the raw IMU has
+**M1.2 — IMU orientation. ✔ DONE** On the real D455 the raw IMU has
 no orientation. `realsense.launch.py` runs `imu_filter_madgwick` (`use_mag:=false`, `publish_tf:=false`)
 subscribing the raw IMU `/d455/imu_raw` and publishing **`/d455/imu`** (with orientation). In sim gz
-already gives orientation, so this node is real-only. **Install:** `apt install ros-jazzy-imu-filter-madgwick`
-(not yet installed; until then launch with `use_madgwick:=false` and the bag still captures `/d455/imu_raw`).
+already gives orientation, so this node is real-only. `ros-jazzy-imu-filter-madgwick` is installed on
+the current Pi; on another host install it or launch with `use_madgwick:=false` and record
+`/d455/imu_raw`.
 
 **M1.3 — D455 on the real robot's TF.** The hardware URDF must contain `base_link → d455_optical`
 (measure the physical mount). Either include a hardware variant of `compa_d455.urdf.xacro` in the
@@ -205,13 +208,20 @@ real robot description, or publish a measured `static_transform_publisher`. With
 gets no camera extrinsics and fails. Calibrate the mount offset.
 
 **M1.4 — Odometry on hardware. ✔ launch written** *(`launch/rtabmap_real.launch.py`)* Feeds
-**`/local_HAMR/odom`** (the robot_localization EKF output) to rtabmap as external odometry
-(`odom_topic:=/local_HAMR/odom`, default `visual_odometry:=false`) and lets rtabmap add visual loop
+the robot_localization EKF's **`odom→base_link` TF** to rtabmap as external odometry
+(default `visual_odometry:=false`, `use_odom_topic:=false`) and lets rtabmap add visual loop
 closures — more robust off-road than pure visual, and the only clean option when replaying a bag (the
 bag already carries odom + the `odom→base_link` TF, which would collide with rgbd_odometry). NOTE:
-there is no `/odom` from relay_node; use `/local_HAMR/odom`, or `/wheel_odom` for raw pre-EKF.
+there is no `/odom` *topic* from relay_node. The default reads the `odom` TF frame; diagnostic topic
+mode can instead use `/local_HAMR/odom`, or `/wheel_odom` for raw pre-EKF odometry.
 
-**⚠ First real map (2026-06-24, `loop_lab_01`): builds but 0 loop closures (18 rejected).** Map saved
+The TF default is a compatibility path for legacy bags. Their `ekf_mag.yaml` preset left body
+`vx` unobserved, so both pose and twist covariance crossed RTAB-Map's reset threshold. New COMPA
+captures default to `use_orientation:=true`, whose EKF observes both `vx` and `vy`; use topic mode
+only after the full-bag covariance check in `docs/MAPPING_CAPTURE.md` passes.
+
+**Historical first real map (2026-06-24, `loop_lab_01`): built but accepted 0 loop closures
+(18 rejected).** Map saved
 fine (59 MB, ~134 nodes) but every visual loop closure was rejected by `RGBD/OptimizeMaxError` ("wrong
 loop closure ... graph error ratio" / "transform too large"). Root causes, in priority order:
   1. **The `base_link→camera_link` mount transform is still the placeholder** from `realsense.launch.py`
@@ -223,10 +233,18 @@ loop closure ... graph error ratio" / "transform too large"). Root causes, in pr
   3. Only after 1+2: if odom drift is the remaining issue, relax `RGBD/OptimizeMaxError` (3.0→~5.0).
      Do NOT relax it first — that just accepts corrupt loop closures.
 
+**Current saved-map evidence (inspected 2026-08-26):** `maps/compa_real.db` is a valid
+RTAB-Map 0.22.1 database (227 MB, 443 nodes, 27.91 m odometry length) with 47 global and
+18 local-space closures. That proves the bag-to-map pipeline has succeeded since the first
+attempt. The database was created in July and predates the August encoder-v4 calibration;
+keep it for comparison, but record and build a new map before validating current localization.
+
 **M1.5 — Record + build the real map.** *(record tooling ✔ DONE)*
 - Record a trajectory bag while driving the space — **one command brings up camera + onboard
   odom + recorder:**
-  `ros2 launch compa_slam record_trajectory.launch.py bag_name:=loop_lab_01`
+  `ros2 launch compa_slam record_trajectory.launch.py bag_name:=map_encoder_v4_01 `
+  `run_controller:=false use_orientation:=true mount_x:=... mount_y:=... mount_z:=... `
+  `mount_roll:=... mount_pitch:=... mount_yaw:=...`
   (or just the recorder: `ros2 run compa_slam record_compa_slam_bag <name>`). It captures camera
   (`/d455/color/image_raw`, `/d455/depth/image_rect_raw`, `/d455/color/camera_info`, `/d455/imu`,
   `/d455/imu_raw`, and `/d455/depth/color/points` if `pointcloud:=true`), onboard local odom
@@ -234,8 +252,11 @@ loop closure ... graph error ratio" / "transform too large"). Root causes, in pr
   `/HAMR_turret/odom` + poses), commands, and `/tf`+`/tf_static`. QoS is handled by
   `config/record_slam_qos.yaml` (camera/cmd_vel → best_effort, `/tf_static` → transient_local so
   the latched camera extrinsics are captured). Bags land in `hamr_control/rosbags/`.
-- Build & save `maps/compa_real.db` (live, or by replaying the bag to re-tune). **Needs**
-  `apt install ros-jazzy-rtabmap-ros` (not yet installed).
+  Encoder-v4 captures also include `/wheel_control/status`, `/wheel_encoder/diagnostics`,
+  `/imu/mag`, and `/imu/calib_status`. Follow `docs/MAPPING_CAPTURE.md`; it disables the
+  competing controller/Foxglove publishers for manual mapping and uses continuous bounded teleop.
+- Build & save `maps/compa_real.db` (live, or by replaying the bag to re-tune).
+  `ros-jazzy-rtabmap-ros` is installed on the current Pi.
 - Done-when: a globally-consistent real map with loop closures exists.
 
 **M1.6 — Real localization. [~] CODE-COMPLETE, HARDWARE TEST PENDING.**

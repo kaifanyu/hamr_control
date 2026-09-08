@@ -1,0 +1,1 @@
+/home/hamr/hamster_ws/src/hamr_control/build/compa_slam/ament_cmake_core/compa_slamConfig.cmake

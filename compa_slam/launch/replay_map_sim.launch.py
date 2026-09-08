@@ -131,6 +131,21 @@ def _setup(context, *args, **kwargs):
         parameters=[{"config_file": bridge_config, "use_sim_time": True}],
     )
 
+    # Replay uses Gazebo ground truth as its local pose source. This bridge is
+    # kept separate from the shared sensor/control YAML so visual-SLAM sim can
+    # disable it and let rgbd_odometry own odom -> base_footprint.
+    ground_truth_tf_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        name="ground_truth_tf_bridge",
+        output="screen",
+        arguments=[
+            "/model/compa/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V",
+        ],
+        remappings=[("/model/compa/tf", "/tf")],
+        parameters=[{"use_sim_time": True}],
+    )
+
     # Sim ground truth: identity map->odom (Gazebo /compa/odom is already world-frame).
     static_map_to_odom = Node(
         package="tf2_ros",
@@ -182,6 +197,7 @@ def _setup(context, *args, **kwargs):
         robot_state_publisher,
         spawn,
         bridge,
+        ground_truth_tf_bridge,
         static_map_to_odom,
         cost_map_publisher,
         or_planner,
