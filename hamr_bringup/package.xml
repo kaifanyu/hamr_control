@@ -20,8 +20,22 @@
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
   <exec_depend>hamr_control</exec_depend>
+  <exec_depend>hamr_description</exec_depend>
   <exec_depend>ros2bag</exec_depend>
   <exec_depend>rosbag2_transport</exec_depend>
+  <exec_depend>rosbag2_storage_mcap</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>python3-opencv</exec_depend>
+  <exec_depend>v4l2_camera</exec_depend>
+  <exec_depend>hamr_uros_bridge</exec_depend>
+  <exec_depend>foxglove_bridge</exec_depend>
+  <test_depend>ament_cmake_pytest</test_depend>
 
 
   <export>

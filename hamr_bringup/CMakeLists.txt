@@ -14,8 +14,16 @@ install(
 )
 
 install(
-  PROGRAMS scripts/record_hamr_vicon_bag
+  PROGRAMS scripts/record_hamr_vicon_bag scripts/record_webcam.py
   DESTINATION lib/${PROJECT_NAME}
+  # Explicit permissions also make ament copy these programs during symlink
+  # installs, so Windows checkouts without Unix executable bits still work.
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 )
+
+if(BUILD_TESTING)
+  find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(record_webcam test/test_record_webcam.py)
+endif()
 
 ament_package()

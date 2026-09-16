@@ -1,0 +1,1 @@
+^/(HAMR_base|HAMR_turret)/(odom|pose|individual_marker_array)$|^/(reference_trajectory|waypoints_path|state_error|live_gains|odom|robot_pose|amcl_pose|tf|tf_static|clock|cmd_vel)$|^/(hamr/odom|odometry/filtered)$|^/(left_wheel|right_wheel|turret)/(cmd_vel|encoder_ticks)$|^/hamr_camera/(frame_stamp|recording_status|camera_info)$

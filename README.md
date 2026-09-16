@@ -163,6 +163,11 @@ echo 'export GZ_SIM_RESOURCE_PATH="$(ros2 pkg prefix hamr_bringup)/share":$GZ_SI
 
 ## Running a Trajectory
 
+For physical HAMR runs with a Logitech USB webcam, a single video clip, frame
+timestamps, and a localization rosbag, see [Recording hardware experiments](docs/recording.md).
+`hamr_HW.launch.xml` now enables both recorders by default. `bringup.launch.py`
+remains the Gazebo entrypoint, with recording available through launch arguments.
+
 **Terminal A** (Gazebo + bringup):
 
 ```bash

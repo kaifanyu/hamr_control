@@ -1,0 +1,27 @@
+# Match sensor publishers whether they offer reliable or best-effort delivery.
+# Other topics use rosbag2's discovered publisher QoS.
+/hamr_camera/image_raw:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 10
+/hamr_camera/frame_stamp:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 1000
+/hamr_camera/recording_status:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 1
+/tf_static:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 100
+/waypoints_path:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 1

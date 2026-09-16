@@ -378,11 +378,11 @@ class HamrControlNode(Node):
             # Hardware turret positive command is opposite Vicon yaw-positive.
             turret_cmd = -turret_cmd
 
-        right_wheel_omega.data = float(right_cmd)
+        right_wheel_omega.data = float(-right_cmd)
         left_wheel_omega.data = float(left_cmd)
         turret_omega.data = float(turret_cmd)
         
-        self.right_wheel_vel_.publish(-right_wheel_omega)
+        self.right_wheel_vel_.publish(right_wheel_omega)
         self.left_wheel_vel_.publish(left_wheel_omega)
         self.turret_vel_.publish(turret_omega)
 

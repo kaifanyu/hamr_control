@@ -1,5 +1,6 @@
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.substitutions import LaunchConfiguration
 from launch.substitutions import Command, PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
@@ -32,6 +33,19 @@ def generate_launch_description():
     ])
 
     return LaunchDescription([
+        # This entrypoint runs Gazebo. Opt in to recording a real USB webcam.
+        DeclareLaunchArgument("record_video", default_value="false"),
+        DeclareLaunchArgument("record_bag", default_value="false"),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(PathJoinSubstitution([
+                FindPackageShare("hamr_bringup"), "launch", "recording.launch.py"
+            ])),
+            launch_arguments={
+                "record_video": LaunchConfiguration("record_video"),
+                "record_bag": LaunchConfiguration("record_bag"),
+                "use_sim_time": "true",
+            }.items(),
+        ),
         # Launch Gazebo with world
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([

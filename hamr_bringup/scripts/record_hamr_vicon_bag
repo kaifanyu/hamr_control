@@ -6,7 +6,8 @@ RUN_NAME="${HAMR_BAG_NAME:-hamr_hw_$(date +%Y%m%d_%H%M%S)}"
 STORAGE_ID="${HAMR_BAG_STORAGE_ID:-mcap}"
 BAG_DIR="${BAG_ROOT}/${RUN_NAME}"
 
-TOPIC_REGEX='^/(HAMR_base|HAMR_turret)/(odom|pose|individual_marker_array)$|^/(reference_trajectory|waypoints_path|state_error|live_gains)$|^/(left_wheel|right_wheel|turret)/cmd_vel$'
+CONFIG_DIR="$(ros2 pkg prefix hamr_bringup)/share/hamr_bringup/config"
+TOPIC_REGEX="$(cat "${CONFIG_DIR}/recording_topics.regex")"
 
 mkdir -p "${BAG_ROOT}"
 
@@ -18,4 +19,6 @@ echo "  regex:   ${TOPIC_REGEX}"
 exec ros2 bag record \
   --storage "${STORAGE_ID}" \
   --output "${BAG_DIR}" \
+  --disable-keyboard-controls \
+  --qos-profile-overrides-path "${CONFIG_DIR}/recording_qos.yaml" \
   --regex "${TOPIC_REGEX}"
