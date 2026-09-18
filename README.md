@@ -181,6 +181,25 @@ ros2 run reference_trajectory waypoint_traj_simple # square, triangle, or circle
 
 ---
 
+## Hardware camera clips
+
+The hardware launch records the C920 to a timestamped MP4 with a JSON settings
+sidecar. Capture defaults to native 1920x1080 at 15 FPS, fixed focus 50, exposure
+7.7 ms, gain 180, and zoom 100. Autofocus and auto exposure are disabled and the
+settings are verified before recording. Match focus, resolution, zoom, and crop
+to your calibration before using its K; the calibration focus is not yet verified.
+
+```bash
+ros2 launch hamr_bringup hamr_HW.launch.xml record_camera:=true \
+  recording_root:="$HOME/hamster_ws/recordings"
+```
+
+Wait for `Recording started` and its output path before beginning the trajectory.
+Stop the launch with Ctrl+C and wait for `Saved` before opening the clip.
+For camera-only recording, run `ros2 launch hamr_bringup camera_recording.launch.xml`.
+See [camera recording instructions](hamr_bringup/CAMERA_RECORDING.md) for setup,
+verification, and how video files differ from robot-data bags.
+
 ## Example Waypoints
 
 ```python

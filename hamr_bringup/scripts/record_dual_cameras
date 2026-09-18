@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+"""Record both caster cameras with the calibration repository's capture settings."""
+
+import argparse
+from datetime import datetime
+import math
+from pathlib import Path
+import signal
+import sys
+import threading
+from uuid import uuid4
+
+
+def positive_float(value):
+    number = float(value)
+    if not math.isfinite(number) or number <= 0:
+        raise argparse.ArgumentTypeError("must be a positive finite number")
+    return number
+
+
+def parse_args(argv):
+    # launch_ros supplies this suffix to plain executables as well as ROS nodes.
+    if "--ros-args" in argv:
+        argv = argv[:argv.index("--ros-args")]
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repository", type=Path,
+                        default=Path.home() / "Caster_Vision/ball_caster_dual_cam")
+    parser.add_argument("--config", type=Path,
+                        help="Rig YAML; defaults to <repository>/config/rig.yaml")
+    parser.add_argument("--output-dir", type=Path,
+                        default=Path.home() / "hamster_ws/recordings")
+    parser.add_argument("--duration", type=positive_float,
+                        help="Optional seconds after warmup; otherwise record until launch shutdown")
+    parser.add_argument("--segment-mib", type=positive_float, default=1024,
+                        help="Maximum size of each AVI part in MiB (default: 1024)")
+    args = parser.parse_args(argv)
+    if not 1 <= args.segment_mib <= 4095:
+        parser.error("--segment-mib must be between 1 and 4095")
+    return args
+
+
+def main(argv=None):
+    args = parse_args(sys.argv[1:] if argv is None else argv)
+    repository = args.repository.expanduser().resolve()
+    config_path = (args.config or repository / "config/rig.yaml").expanduser().resolve()
+    if not (repository / "dualcam/capture.py").is_file():
+        print(f"Dual-camera recording failed: no dualcam/capture.py in {repository}. "
+              "Set camera_repository to the ball_caster_dual_cam checkout.",
+              file=sys.stderr, flush=True)
+        return 1
+    sys.path.insert(0, str(repository))
+    try:
+        from dualcam.capture import load_capture_config, record_session
+        config, config_path = load_capture_config(config_path)
+    except (ImportError, OSError, ValueError, RuntimeError) as error:
+        print(f"Dual-camera setup failed: {error}", file=sys.stderr, flush=True)
+        return 1
+
+    stop = threading.Event()
+    old_handlers = {}
+    for signum in (signal.SIGINT, signal.SIGTERM):
+        old_handlers[signum] = signal.signal(signum, lambda *_: stop.set())
+    output = args.output_dir.expanduser().resolve() / (
+        f"dual_cam_{datetime.now():%Y%m%d_%H%M%S_%f}_{uuid4().hex[:8]}"
+    )
+    try:
+        print(f"Dual-camera output: {output}", flush=True)
+        print(f"Camera settings: {config_path}", flush=True)
+        print("Opening C920 and Brio 101. Wait for 'Recording NOW' before starting "
+              "the trajectory. Ctrl+C on the hardware launch saves both recordings.", flush=True)
+        session = record_session(
+            config, config_path, output, args.duration, "motion", stop,
+            max_video_file_bytes=int(args.segment_mib * 1024**2),
+        )
+        print(f"Saved {session['status']} dual-camera session: {output}", flush=True)
+        for name, stats in session["stats"].items():
+            fps = stats["observed_fps"]
+            measured = f"{fps:.2f}" if fps is not None else "unavailable"
+            print(f"  {name}: {stats['frames']} frames, {measured} observed fps", flush=True)
+            for warning in session["cameras"][name].get("warnings", []):
+                print(f"  {name}: {warning}", flush=True)
+        return 0
+    except Exception as error:
+        print(f"Dual-camera recording failed: {error}\n"
+              f"Inspect any partial recording in {output}. The robot launch continues; "
+              "camera recording is no longer active.", file=sys.stderr, flush=True)
+        return 1
+    finally:
+        for signum, handler in old_handlers.items():
+            signal.signal(signum, handler)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

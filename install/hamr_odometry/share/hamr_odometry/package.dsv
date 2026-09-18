@@ -1,9 +1,0 @@
-source;share/hamr_odometry/hook/pythonpath.ps1
-source;share/hamr_odometry/hook/pythonpath.dsv
-source;share/hamr_odometry/hook/pythonpath.sh
-source;share/hamr_odometry/hook/ament_prefix_path.ps1
-source;share/hamr_odometry/hook/ament_prefix_path.dsv
-source;share/hamr_odometry/hook/ament_prefix_path.sh
-source;../../build/hamr_odometry/share/hamr_odometry/hook/pythonpath_develop.ps1
-source;../../build/hamr_odometry/share/hamr_odometry/hook/pythonpath_develop.dsv
-source;../../build/hamr_odometry/share/hamr_odometry/hook/pythonpath_develop.sh

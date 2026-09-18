@@ -1,2 +1,0 @@
-[console_scripts]
-holonomic_odom_node = hamr_odometry.holonomic_odom_node:main

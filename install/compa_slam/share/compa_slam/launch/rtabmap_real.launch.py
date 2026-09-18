@@ -1,1 +1,0 @@
-/home/hamr/hamster_ws/src/hamr_control/compa_slam/launch/rtabmap_real.launch.py

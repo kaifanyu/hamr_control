@@ -1,1 +1,0 @@
-/home/hamr/hamster_ws/src/hamr_control/build/compa_slam/ament_cmake_environment_hooks/local_setup.zsh

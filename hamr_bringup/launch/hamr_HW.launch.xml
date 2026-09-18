@@ -15,6 +15,12 @@
     <let name="bridge_config_path"
         value="$(find-pkg-share hamr_bringup)/config/hamr_uros_bridge.yaml" />
     <arg name="record_bag" default="true" />
+    <arg name="record_camera" default="true" description="Record both caster cameras throughout the hardware session." />
+    <arg name="camera_repository" default="$(env HOME)/Caster_Vision/ball_caster_dual_cam" />
+    <arg name="camera_config" default="$(var camera_repository)/config/rig.yaml"
+         description="Use the same rig YAML for recording and caster calibration." />
+    <arg name="recording_root" default="$(env HOME)/hamster_ws/recordings" description="Camera clip directory; robot bags still use HAMR_BAG_ROOT." />
+    <arg name="camera_segment_mib" default="1024" />
     <arg name="run_controller" default="true" />
     <!-- Bound how long a cached trajectory command can survive a publisher
          abort. Supervised hardware tests require this exact 120 ms value. -->
@@ -126,6 +132,16 @@
     <!-- Record Vicon, onboard localization, commands, and encoder ticks for offline comparison. -->
     <node pkg="hamr_bringup" exec="record_hamr_test_bag"
           output="screen" if="$(var record_bag)" />
+
+    <!-- Both cameras use the calibration rig profiles and save until launch shutdown.
+         Start the separate waypoint_traj_simple command after 'Recording NOW'. -->
+    <include file="$(find-pkg-share hamr_bringup)/launch/camera_recording.launch.xml"
+             if="$(var record_camera)">
+        <arg name="camera_repository" value="$(var camera_repository)" />
+        <arg name="camera_config" value="$(var camera_config)" />
+        <arg name="recording_root" value="$(var recording_root)" />
+        <arg name="camera_segment_mib" value="$(var camera_segment_mib)" />
+    </include>
 
     <!-- Foxglove WebSocket bridge — connect Foxglove Studio to ws://<robot-ip>:8765 -->
     <node pkg="foxglove_bridge" exec="foxglove_bridge" name="foxglove_bridge"

@@ -1,0 +1,208 @@
+#!/usr/bin/env python3
+"""Record a V4L2 camera to an MP4 clip, finalizing it on launch shutdown."""
+
+import argparse
+from datetime import datetime
+import json
+import math
+import os
+from pathlib import Path
+import signal
+import sys
+import time
+
+from c920_controls import (
+    DEFAULT_DEVICE, DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_FPS, DEFAULT_FOCUS,
+    DEFAULT_EXPOSURE, DEFAULT_GAIN, DEFAULT_ZOOM, configure_capture, verify_controls,
+)
+
+
+def positive_int(value):
+    number = int(value)
+    if number <= 0:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return number
+
+
+def positive_float(value):
+    number = float(value)
+    if not math.isfinite(number) or number <= 0:
+        raise argparse.ArgumentTypeError("must be a positive finite number")
+    return number
+
+
+def parse_args(argv):
+    # ros2 launch supplies ROS-specific arguments even for this plain executable.
+    if "--ros-args" in argv:
+        argv = argv[:argv.index("--ros-args")]
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--device", default=DEFAULT_DEVICE)
+    parser.add_argument("--output-dir", default="~/hamster_ws/recordings")
+    parser.add_argument("--width", type=positive_int, default=DEFAULT_WIDTH)
+    parser.add_argument("--height", type=positive_int, default=DEFAULT_HEIGHT)
+    parser.add_argument("--fps", type=positive_float, default=DEFAULT_FPS)
+    parser.add_argument("--focus", type=int, default=DEFAULT_FOCUS,
+                        help="fixed V4L2 lens position; must match calibration")
+    parser.add_argument("--exposure", type=positive_int, default=DEFAULT_EXPOSURE,
+                        help="manual exposure in 100-us units (77 = 7.7 ms)")
+    parser.add_argument("--gain", type=int, default=DEFAULT_GAIN)
+    parser.add_argument("--zoom", type=positive_int, default=DEFAULT_ZOOM)
+    parser.add_argument("--duration", type=positive_float,
+                        help="stop after this many seconds; otherwise record until Ctrl+C")
+    return parser.parse_args(argv)
+
+
+def reserve_clip(output_dir):
+    """Reserve an unused name without overwriting a clip from another process."""
+    stem = datetime.now().strftime("camera_%Y%m%d_%H%M%S_%f")
+    for suffix in range(1000):
+        path = output_dir / (stem + (f"_{suffix}" if suffix else "") + ".mp4")
+        try:
+            fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+        except FileExistsError:
+            continue
+        os.close(fd)
+        return path
+    raise RuntimeError(f"Could not reserve an unused clip name in {output_dir}")
+
+
+def main(argv=None):
+    args = parse_args(sys.argv[1:] if argv is None else argv)
+    try:
+        import cv2
+    except ImportError:
+        print("Camera recording failed: Python OpenCV is missing (install python3-opencv).",
+              file=sys.stderr, flush=True)
+        return 1
+
+    cv2.setNumThreads(1)
+    stopping = False
+
+    def request_stop(_signum, _frame):
+        nonlocal stopping
+        stopping = True
+
+    signal.signal(signal.SIGINT, request_stop)
+    signal.signal(signal.SIGTERM, request_stop)
+    capture = None
+    writer = None
+    clip_path = None
+    frames = 0
+    started = None
+    first_frame_time = None
+    last_frame_time = None
+    failure = None
+    metadata = None
+    metadata_path = None
+    try:
+        output_dir = Path(args.output_dir).expanduser().resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        capture = cv2.VideoCapture(args.device, cv2.CAP_V4L2)
+        if not capture.isOpened():
+            raise RuntimeError(f"Could not open {args.device}; check the device, permissions, "
+                               "and whether another process is using the camera")
+        controls = configure_capture(capture, cv2, args.device, args.width, args.height,
+                                     args.fps, args.focus, args.exposure, args.gain, args.zoom)
+        print(f"Manual camera settings verified: focus={args.focus}, "
+              f"exposure={args.exposure / 10:g} ms, gain={args.gain}, zoom={args.zoom}; "
+              "autofocus and auto exposure OFF", flush=True)
+        camera_fps = capture.get(cv2.CAP_PROP_FPS)
+        if not math.isfinite(camera_fps) or abs(camera_fps - args.fps) > 0.1:
+            raise RuntimeError("Camera frame rate changed after stream startup")
+        next_progress = 5.0
+        frame_size = None
+        while not stopping:
+            ok, frame = capture.read()
+            if not ok or frame is None:
+                if stopping:
+                    break
+                raise RuntimeError(f"Failed to read a frame from {args.device}")
+            last_frame_time = time.monotonic()
+            if first_frame_time is None:
+                first_frame_time = last_frame_time
+            height, width = frame.shape[:2]
+            if (width, height) != (args.width, args.height):
+                raise RuntimeError("Camera frame dimensions do not match the requested mode")
+            if writer is None:
+                frame_size = (width, height)
+                clip_path = reserve_clip(output_dir)
+                writer = cv2.VideoWriter(str(clip_path), cv2.VideoWriter_fourcc(*"mp4v"),
+                                         camera_fps, frame_size)
+                if not writer.isOpened():
+                    raise RuntimeError("Could not open the MP4 writer (mp4v); "
+                                       "check OpenCV codec support and output permissions")
+                metadata_path = clip_path.with_suffix(".json")
+                metadata = {
+                    "clip": str(clip_path), "device": args.device,
+                    "started_at": datetime.now().astimezone().isoformat(),
+                    "width": width, "height": height, "fps": camera_fps,
+                    "capture_fourcc": "MJPG", "output_codec": "mp4v",
+                    "controls": controls, "exposure_seconds": args.exposure * 0.0001,
+                    "calibration_match_verified": False,
+                    "calibration_note": "Use K only with matching calibration resolution, "
+                                        "focus, zoom, crop and orientation; calibration focus is unknown.",
+                    "status": "recording",
+                }
+                metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
+                started = time.monotonic()
+            elif (width, height) != frame_size:
+                raise RuntimeError("Camera frame size changed during recording")
+            if not writer.isOpened():
+                raise RuntimeError("MP4 writer closed unexpectedly")
+            writer.write(frame)
+            frames += 1
+            elapsed = time.monotonic() - started
+            if frames == 1:
+                print(f"Recording started: {clip_path} "
+                      f"({width}x{height}, {camera_fps:g} fps, device {args.device})",
+                      flush=True)
+            if elapsed >= next_progress:
+                verify_controls(args.device, controls)
+                print(f"Camera recording: {frames} frames, {elapsed:.1f}s elapsed",
+                      flush=True)
+                next_progress = elapsed + 5.0
+            if args.duration is not None and elapsed >= args.duration:
+                break
+        if frames == 0:
+            raise RuntimeError("Stopped before any camera frames were recorded")
+        verify_controls(args.device, controls)
+    except (OSError, RuntimeError, cv2.error) as exc:
+        failure = str(exc)
+    finally:
+        if capture is not None:
+            capture.release()
+        if writer is not None:
+            writer.release()
+
+    if clip_path is not None and frames == 0:
+        clip_path.unlink(missing_ok=True)
+        if metadata_path is not None:
+            metadata_path.unlink(missing_ok=True)
+    if frames:
+        if not clip_path.exists() or clip_path.stat().st_size == 0:
+            failure = "The MP4 writer did not produce a nonempty clip"
+        else:
+            elapsed = time.monotonic() - started
+            label = "Saved partial clip" if failure else "Saved"
+            print(f"{label}: {clip_path} ({frames} frames, {elapsed:.1f}s elapsed)",
+                  flush=True)
+            capture_elapsed = last_frame_time - first_frame_time
+            measured_fps = (frames - 1) / capture_elapsed if capture_elapsed > 0 else 0
+            if measured_fps < 0.95 * camera_fps:
+                print(f"Warning: captured approximately {measured_fps:.1f} FPS; "
+                      f"the MP4 plays at {camera_fps:g} FPS. See sidecar timing.", flush=True)
+            metadata.update(frames=frames, elapsed_seconds=capture_elapsed,
+                            measured_fps=measured_fps, status="failed" if failure else "complete",
+                            error=failure)
+            try:
+                metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
+            except OSError as exc:
+                failure = f"Could not save camera settings: {exc}"
+    if failure:
+        print(f"Camera recording failed: {failure}", file=sys.stderr, flush=True)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

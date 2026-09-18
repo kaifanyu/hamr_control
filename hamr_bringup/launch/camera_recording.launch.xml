@@ -1,0 +1,14 @@
+<launch>
+    <arg name="camera_repository" default="$(env HOME)/Caster_Vision/ball_caster_dual_cam"
+         description="Checkout containing the dual-camera capture and analysis pipeline." />
+    <arg name="camera_config" default="$(var camera_repository)/config/rig.yaml"
+         description="Shared camera profiles, intrinsics paths, and rig settings." />
+    <arg name="recording_root" default="$(env HOME)/hamster_ws/recordings" />
+    <arg name="camera_segment_mib" default="1024"
+         description="Rotate each camera's AVI at this size without reopening the cameras." />
+
+    <!-- Allow both AVI indexes and final control readbacks to finish on shutdown. -->
+    <node pkg="hamr_bringup" exec="record_dual_cameras" output="screen"
+          sigterm_timeout="60.0" sigkill_timeout="10.0"
+          args="--repository $(var camera_repository) --config $(var camera_config) --output-dir $(var recording_root) --segment-mib $(var camera_segment_mib)" />
+</launch>

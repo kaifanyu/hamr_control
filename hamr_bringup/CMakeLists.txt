@@ -22,6 +22,8 @@ install(
     scripts/closed_loop_turn_test
     scripts/record_hamr_vicon_bag
     scripts/record_hamr_test_bag
+    scripts/record_camera_clip
+    scripts/record_dual_cameras
     scripts/run_waypoint_test
     scripts/run_waypoint_stack
     scripts/run_waypoint_reference
@@ -32,6 +34,8 @@ install(
     scripts/create_study_plan
   DESTINATION lib/${PROJECT_NAME}
 )
+
+install(FILES scripts/c920_controls.py DESTINATION lib/${PROJECT_NAME})
 
 # Keep the generic offline analyzers beside the concise operator wrapper so
 # `ros2 run` works from an installed workspace without relying on source paths.
@@ -45,6 +49,15 @@ install(
 
 if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(c920_controls
+    test/test_c920_controls.py
+  )
+  ament_add_pytest_test(camera_recording_launch
+    test/test_camera_recording_launch.py
+  )
+  ament_add_pytest_test(record_dual_cameras
+    test/test_record_dual_cameras.py
+  )
   ament_add_pytest_test(closed_loop_turn_test_math
     test/test_closed_loop_turn_test.py
   )
