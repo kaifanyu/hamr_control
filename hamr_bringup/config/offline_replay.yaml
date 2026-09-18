@@ -1,0 +1,80 @@
+# EDIT THIS FILE for each offline experiment. Then create a fresh input bag.
+# Generated bag/ekf.yaml files are snapshots of a run; edit this source profile.
+base_ekf_config: ekf.yaml  # relative to this file; leaves the live config unchanged
+
+ekf:
+  # true = use that measurement; false = ignore it.
+  # Selection and covariance are independent: changing a variance does not
+  # enable a measurement. Smaller variance = more trust; larger = less trust.
+  # Each selection list MUST contain 15 booleans, in these five groups:
+  #   x, y, z / roll, pitch, yaw / vx, vy, vz / vroll, vpitch, vyaw / ax, ay, az
+  # In 2D mode, only x, y, yaw, vx, vy, vyaw, ax, ay can affect the estimate.
+  two_d_mode: true
+
+  odom0_config: [false, false, false,   # wheel position: x, y, z
+                 false, false, false,   # wheel orientation: roll, pitch, yaw
+                 true,  true,  false,   # wheel velocity: vx, vy, vz
+                 false, false, false,   # wheel angular velocity: vroll, vpitch, vyaw
+                 false, false, false]   # no wheel acceleration measurements
+
+  imu0_config: [false, false, false,    # IMU has no position measurements
+                false, false, false,    # IMU orientation: roll, pitch, yaw
+                false, false, false,    # IMU has no linear velocity measurements
+                false, false, true,     # IMU angular velocity: vroll, vpitch, vyaw
+                false, false, false]    # IMU acceleration: ax, ay, az
+
+  # Base config uses imu0_relative: true: if orientation is enabled, it is
+  # referenced to the first IMU orientation. This does not correct gyro bias.
+
+  # Keep process_noise_covariance (15x15 prediction uncertainty) from the
+  # base EKF initially. Matrices below are sensor measurement uncertainty.
+  # Other EKF parameters may be overridden here when needed.
+
+covariances:
+  # Full symmetric matrices, row by row. Start by editing DIAGONALS ONLY.
+  # Diagonal entries are variances (standard deviation squared).
+  # Use positive diagonals; zero off-diagonals mean no modeled correlation.
+  # Set any matrix to null (e.g. wheel_pose: null) to keep its recorded values.
+  # Defaults below match the current wheel/IMU publisher source code;
+  # an older bag may contain different values. Inspect it with --show.
+
+  # Wheel pose: x, y, z, roll, pitch, yaw. Units: m^2, rad^2.
+  # Ignored with the default wheel selection above.
+  wheel_pose:
+    - [0.01, 0,    0,      0,      0,      0]
+    - [0,    0.01, 0,      0,      0,      0]
+    - [0,    0,    1.0e-9, 0,      0,      0]
+    - [0,    0,    0,      1.0e-9, 0,      0]
+    - [0,    0,    0,      0,      1.0e-9, 0]
+    - [0,    0,    0,      0,      0,      0.01]
+
+  # Wheel twist: vx, vy, vz, vroll, vpitch, vyaw. Units: (m/s)^2, (rad/s)^2.
+  # FIRST TWO diagonal values are used by the default EKF.
+  wheel_twist:
+    - [0.01, 0,    0,      0,      0,      0]     # vx
+    - [0,    0.01, 0,      0,      0,      0]     # vy
+    - [0,    0,    1.0e-9, 0,      0,      0]     # vz
+    - [0,    0,    0,      1.0e-9, 0,      0]     # vroll
+    - [0,    0,    0,      0,      1.0e-9, 0]     # vpitch
+    - [0,    0,    0,      0,      0,      0.01]  # vyaw
+
+  # IMU orientation: roll, pitch, yaw. Units: rad^2.
+  # Ignored by default. Magnetometer heading can be distorted near motors.
+  imu_orientation:
+    - [0.0003, 0,      0]
+    - [0,      0.0003, 0]
+    - [0,      0,      0.0009]
+
+  # IMU angular velocity: wx, wy, wz. Units: (rad/s)^2.
+  # LAST diagonal value (wz = yaw rate) is used by the default EKF.
+  imu_angular_velocity:
+    - [0.0002, 0,      0]
+    - [0,      0.0002, 0]
+    - [0,      0,      0.0002]
+
+  # IMU linear acceleration: ax, ay, az. Units: (m/s^2)^2.
+  # Ignored by default. BNO055 linear acceleration already has gravity removed.
+  imu_linear_acceleration:
+    - [0.01, 0,    0]
+    - [0,    0.01, 0]
+    - [0,    0,    0.01]

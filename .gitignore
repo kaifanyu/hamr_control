@@ -10,6 +10,9 @@ __pycache__/
 !/rosbags/plot_hamr_actuators.py
 !/rosbags/analyze_hamr_firmware_pid_straight.py
 !/rosbags/test_analyze_hamr_firmware_pid_straight.py
+!/rosbags/set_replay_covariances.py
+!/rosbags/offline_replay_config.py
+!/rosbags/test_offline_replay_config.py
 
 # Saved RTAB-Map databases — large and tied to one physical space, do not commit.
 maps/*.db
