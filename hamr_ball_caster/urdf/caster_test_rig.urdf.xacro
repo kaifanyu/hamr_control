@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<robot name="caster_test_rig" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="load_mass" default="2.0"/>
+  <xacro:arg name="caster_mass_scale" default="1.0"/>
+  <xacro:arg name="carrier_phase" default="0.0"/>
+  <xacro:include filename="ball_caster.xacro"/>
+  <xacro:macro name="fixture_inertia" params="mass x y z">
+    <inertial><mass value="${mass}"/><inertia
+      ixx="${mass*(y*y+z*z)/12}" ixy="0" ixz="0"
+      iyy="${mass*(x*x+z*z)/12}" iyz="0" izz="${mass*(x*x+y*y)/12}"/></inertial>
+  </xacro:macro>
+  <link name="world"/>
+  <link name="rig_anchor"><xacro:fixture_inertia mass="1.0" x="0.1" y="0.1" z="0.1"/></link>
+  <joint name="rig_world_joint" type="fixed"><parent link="world"/><child link="rig_anchor"/></joint>
+  <link name="rig_x_link"><xacro:fixture_inertia mass="0.1" x="0.1" y="0.1" z="0.1"/></link>
+  <joint name="rig_x_joint" type="prismatic">
+    <parent link="rig_anchor"/><child link="rig_x_link"/><axis xyz="1 0 0"/>
+    <limit lower="-5" upper="5" effort="1000" velocity="0.5"/>
+  </joint>
+  <link name="rig_y_link"><xacro:fixture_inertia mass="0.1" x="0.1" y="0.1" z="0.1"/></link>
+  <joint name="rig_y_joint" type="prismatic">
+    <parent link="rig_x_link"/><child link="rig_y_link"/><axis xyz="0 1 0"/>
+    <limit lower="-5" upper="5" effort="1000" velocity="0.5"/>
+  </joint>
+  <link name="rig_yaw_link"><xacro:fixture_inertia mass="0.1" x="0.1" y="0.1" z="0.1"/></link>
+  <joint name="rig_yaw_joint" type="continuous">
+    <parent link="rig_y_link"/><child link="rig_yaw_link"/><axis xyz="0 0 1"/>
+    <limit effort="1000" velocity="1"/>
+  </joint>
+  <link name="rig_load_link">
+    <inertial><origin xyz="0 0 0.18"/><mass value="$(arg load_mass)"/>
+      <inertia ixx="${float('$(arg load_mass)')*(0.10**2+0.055**2)/12}" ixy="0" ixz="0"
+        iyy="${float('$(arg load_mass)')*(0.10**2+0.055**2)/12}" iyz="0" izz="${float('$(arg load_mass)')*2*0.10**2/12}"/>
+    </inertial>
+    <visual><origin xyz="0 0 0.18"/><geometry><box size="0.10 0.10 0.055"/></geometry>
+      <material name="load"><color rgba="0.22 0.22 0.25 0.55"/></material></visual>
+  </link>
+  <!-- The free vertical stage applies weight, not an arbitrary forced penetration. -->
+  <joint name="rig_z_joint" type="prismatic">
+    <origin xyz="0 0 0.11"/><parent link="rig_yaw_link"/><child link="rig_load_link"/>
+    <axis xyz="0 0 1"/><limit lower="-0.08" upper="0.5" effort="1000" velocity="5"/>
+    <dynamics damping="0.02" friction="0"/>
+  </joint>
+  <xacro:ball_caster prefix="caster_" parent="rig_load_link"
+    mass_scale="$(arg caster_mass_scale)" carrier_phase="$(arg carrier_phase)"/>
+  <gazebo><plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+    <topic>/ball_caster/joint_states</topic>
+  </plugin></gazebo>
+  <xacro:macro name="fixture_motor" params="joint topic">
+    <gazebo><plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>${joint}</joint_name><topic>${topic}</topic>
+    </plugin></gazebo>
+  </xacro:macro>
+  <!-- Only the external laboratory carriage is actuated. All five caster joints are passive. -->
+  <xacro:fixture_motor joint="rig_x_joint" topic="/ball_caster/rig/x/cmd_vel"/>
+  <xacro:fixture_motor joint="rig_y_joint" topic="/ball_caster/rig/y/cmd_vel"/>
+  <xacro:fixture_motor joint="rig_yaw_joint" topic="/ball_caster/rig/yaw/cmd_vel"/>
+</robot>

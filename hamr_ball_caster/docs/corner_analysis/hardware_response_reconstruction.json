@@ -1,0 +1,98 @@
+[
+  {
+    "bag": "hamr_hw_20260916_184054",
+    "wheel_command_reconstruction": {
+      "model": "r=.122m,a=.350m,b=.301m,yaw=Vicon+pi/2; reference + recorded P/D/I terms; common wheel scaling to28RPM",
+      "sample_count": 2767,
+      "absolute_component_error_median_p95_p99_rad_s": [
+        1.9660495453877047e-11,
+        0.002768284947348504,
+        0.014615722438039576
+      ],
+      "pair_scaling_rmse_rad_s": 0.08462629867583323,
+      "independent_clipping_rmse_rad_s": 0.2318646599926193,
+      "nominal_feedforward_only_cap_fraction_at_recorded_yaw": 0.1593783881460065
+    },
+    "firmware_fit": {
+      "left": {
+        "Kp_pwm_per_rpm": 60.00000020246411,
+        "Ki_pwm_per_rpm_second": 20.00000001398792,
+        "fit_rmse_pwm": 8.646787368212997e-06,
+        "positive_feedforward_pwm_per_rpm_median": 174.99999984481488,
+        "negative_feedforward_pwm_per_rpm_median": 160.0
+      },
+      "right": {
+        "Kp_pwm_per_rpm": 60.0000003392818,
+        "Ki_pwm_per_rpm_second": 19.999999981840286,
+        "fit_rmse_pwm": 7.913602301077885e-06,
+        "positive_feedforward_pwm_per_rpm_median": 175.0,
+        "negative_feedforward_pwm_per_rpm_median": 160.0
+      }
+    },
+    "D_recurrence_consistency_rmse_m_s": 0.0006621553385568004
+  },
+  {
+    "bag": "hamr_hw_20260916_190842",
+    "wheel_command_reconstruction": {
+      "model": "r=.122m,a=.350m,b=.301m,yaw=Vicon+pi/2; reference + recorded P/D/I terms; common wheel scaling to28RPM",
+      "sample_count": 4614,
+      "absolute_component_error_median_p95_p99_rad_s": [
+        2.8570701360308703e-11,
+        0.002271060794103971,
+        0.014083062771228708
+      ],
+      "pair_scaling_rmse_rad_s": 0.002767474853405948,
+      "independent_clipping_rmse_rad_s": 0.19724130026510983,
+      "nominal_feedforward_only_cap_fraction_at_recorded_yaw": 0.135457303857824
+    },
+    "firmware_fit": {
+      "left": {
+        "Kp_pwm_per_rpm": 60.000000120395406,
+        "Ki_pwm_per_rpm_second": 19.999999996269572,
+        "fit_rmse_pwm": 1.0529712278373976e-05,
+        "positive_feedforward_pwm_per_rpm_median": 175.0,
+        "negative_feedforward_pwm_per_rpm_median": 160.0
+      },
+      "right": {
+        "Kp_pwm_per_rpm": 60.000000412133815,
+        "Ki_pwm_per_rpm_second": 19.99999991564846,
+        "fit_rmse_pwm": 8.180021468086533e-06,
+        "positive_feedforward_pwm_per_rpm_median": 175.0,
+        "negative_feedforward_pwm_per_rpm_median": 160.0
+      }
+    },
+    "D_recurrence_consistency_rmse_m_s": 0.0002425320436165637
+  },
+  {
+    "bag": "hamr_hw_20260916_193228",
+    "wheel_command_reconstruction": {
+      "model": "r=.122m,a=.350m,b=.301m,yaw=Vicon+pi/2; reference + recorded P/D/I terms; common wheel scaling to28RPM",
+      "sample_count": 3858,
+      "absolute_component_error_median_p95_p99_rad_s": [
+        4.778448156050885e-06,
+        0.008387405777754106,
+        0.025555347429385488
+      ],
+      "pair_scaling_rmse_rad_s": 0.09764950645971014,
+      "independent_clipping_rmse_rad_s": 0.2433385006312321,
+      "nominal_feedforward_only_cap_fraction_at_recorded_yaw": 0.16355624675997926
+    },
+    "firmware_fit": {
+      "left": {
+        "Kp_pwm_per_rpm": 60.000000177835844,
+        "Ki_pwm_per_rpm_second": 20.000000043945988,
+        "fit_rmse_pwm": 1.1266183515241215e-05,
+        "positive_feedforward_pwm_per_rpm_median": 174.99999991908342,
+        "negative_feedforward_pwm_per_rpm_median": 160.0
+      },
+      "right": {
+        "Kp_pwm_per_rpm": 60.00000038212758,
+        "Ki_pwm_per_rpm_second": 19.999999927052023,
+        "fit_rmse_pwm": 7.66186774580005e-06,
+        "positive_feedforward_pwm_per_rpm_median": 175.00000009927015,
+        "negative_feedforward_pwm_per_rpm_median": 160.0
+      }
+    },
+    "D_recurrence_consistency_rmse_m_s": 0.000671988119288137
+  }
+]

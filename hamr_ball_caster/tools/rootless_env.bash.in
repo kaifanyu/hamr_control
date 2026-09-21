@@ -1,0 +1,29 @@
+# Rootless extracted Gazebo validation environment. No system files modified.
+source /opt/ros/jazzy/setup.bash
+HAMR_GZ_ROOT=@CACHE_ROOT@
+export PATH="$HAMR_GZ_ROOT/usr/bin:$HAMR_GZ_ROOT/opt/ros/jazzy/bin:$PATH"
+export LD_LIBRARY_PATH="$HAMR_GZ_ROOT/usr/lib/x86_64-linux-gnu:$HAMR_GZ_ROOT/opt/ros/jazzy/lib:$LD_LIBRARY_PATH"
+export PYTHONPATH="$HAMR_GZ_ROOT/opt/ros/jazzy/lib/python3.12/site-packages:$PYTHONPATH"
+export AMENT_PREFIX_PATH="$HAMR_GZ_ROOT/opt/ros/jazzy:$AMENT_PREFIX_PATH"
+export RUBYLIB="$HAMR_GZ_ROOT/usr/lib/ruby/3.2.0:$HAMR_GZ_ROOT/usr/lib/x86_64-linux-gnu/ruby/3.2.0:$HAMR_GZ_ROOT/usr/lib/ruby/vendor_ruby"
+export GEM_PATH="$HAMR_GZ_ROOT/usr/lib/ruby/gems/3.2.0"
+for HAMR_GZ_VENDOR in "$HAMR_GZ_ROOT"/opt/ros/jazzy/opt/* /opt/ros/jazzy/opt/*; do
+  export PATH="$HAMR_GZ_VENDOR/bin:$PATH"
+  export LD_LIBRARY_PATH="$HAMR_GZ_VENDOR/lib:$LD_LIBRARY_PATH"
+  export GZ_CONFIG_PATH="$HAMR_GZ_VENDOR/share/gz:${GZ_CONFIG_PATH:-}"
+  export GZ_SIM_RESOURCE_PATH="$HAMR_GZ_VENDOR/share:${GZ_SIM_RESOURCE_PATH:-}"
+  export GZ_SIM_SYSTEM_PLUGIN_PATH="$HAMR_GZ_VENDOR/lib:${GZ_SIM_SYSTEM_PLUGIN_PATH:-}"
+done
+export QML2_IMPORT_PATH="$HAMR_GZ_ROOT/usr/lib/x86_64-linux-gnu/qt5/qml:${QML2_IMPORT_PATH:-}"
+export GZ_GUI_PLUGIN_PATH="$HAMR_GZ_ROOT/opt/ros/jazzy/opt/gz_gui_vendor/lib/gz-gui-8/plugins"
+export GZ_RENDERING_PLUGIN_PATH="$HAMR_GZ_ROOT/opt/ros/jazzy/opt/gz_rendering_vendor/lib/gz-rendering-8/engine-plugins"
+export GZ_SIM_PHYSICS_ENGINE_PATH="$HAMR_GZ_ROOT/opt/ros/jazzy/opt/gz_physics_vendor/lib/gz-physics-7/engine-plugins"
+export SDF_PATH="$HAMR_GZ_ROOT/opt/ros/jazzy/opt/sdformat_vendor/share/sdformat14:${SDF_PATH:-}"
+unset HAMR_GZ_VENDOR
+export GZ_SIM_SYSTEM_PLUGIN_PATH="$HAMR_GZ_ROOT/opt/ros/jazzy/opt/gz_sim_vendor/lib/gz-sim-8/plugins:$GZ_SIM_SYSTEM_PLUGIN_PATH"
+export GZ_SIM_SERVER_CONFIG_PATH="$HAMR_GZ_ROOT/opt/ros/jazzy/opt/gz_sim_vendor/share/gz/gz-sim8/server.config"
+export OGRE2_RESOURCE_PATH="$HAMR_GZ_ROOT/opt/ros/jazzy/opt/gz_ogre_next_vendor/lib/OGRE-Next"
+export GZ_GUI_RESOURCE_PATH="$HAMR_GZ_ROOT/opt/ros/jazzy/opt/gz_gui_vendor/share/gz/gz-gui8"
+export GZ_RENDERING_RESOURCE_PATH="$HAMR_GZ_ROOT/opt/ros/jazzy/opt/gz_rendering_vendor/share/gz/gz-rendering8"
+export GZ_GUI_PLUGIN_PATH="$HAMR_GZ_ROOT/opt/ros/jazzy/opt/gz_sim_vendor/lib/gz-sim-8/plugins/gui:$GZ_GUI_PLUGIN_PATH"
+export QML2_IMPORT_PATH="$HAMR_GZ_ROOT/opt/ros/jazzy/opt/gz_sim_vendor/lib/gz-sim-8/plugins/gui:$QML2_IMPORT_PATH"

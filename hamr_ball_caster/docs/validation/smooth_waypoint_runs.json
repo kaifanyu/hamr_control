@@ -1,0 +1,167 @@
+{
+  "scope": "Nominal Gazebo full COMPA/HAMR retrofit with two passive CAD ball casters; no hardware actuation or configuration changes.",
+  "acceptance_metric_version": 2,
+  "limits_m": {
+    "max_tracking_error_m": 0.005,
+    "max_cross_track_m": 0.002,
+    "max_corner_overshoot_m": 0.001,
+    "max_final_error_m": 0.0005
+  },
+  "selected_gain_s_inv": 16,
+  "results": {
+    "original_recording": {
+      "source_report": "/home/para/Videos/hamr_sim/simple_waypoint_20260920_185228/trajectory.json",
+      "report_sha256": "7cc929455a108a0f483e2c5aa306fab3ddca01f0f63b31bdd943581f1f2f16f4",
+      "position_gain_s_inv": 1.5,
+      "acceptance_v2_passed": false,
+      "failures": [
+        "max_tracking_error_m: 0.0640127 m exceeds 0.005 m",
+        "max_cross_track_m: 0.0504989 m exceeds 0.002 m",
+        "max_corner_overshoot_m: 0.0504989 m exceeds 0.001 m"
+      ],
+      "motion_duration_s": 52.0,
+      "rms_tracking_m": 0.01268975995786147,
+      "peak_tracking_m": 0.06401266106883188,
+      "peak_route_distance_m": 0.05049885773876284,
+      "full_leg_corner_overshoot_m": 0.05049885773876284,
+      "command_statistics": null,
+      "max_pose_sample_gap_s": 0.07600000000000051
+    },
+    "p4": {
+      "source_report": "/home/para/Videos/hamr_sim/smooth_validation_20260920/p4/trajectory.json",
+      "report_sha256": "cec26d822e7bd1559b074f8bb840cc25e13c674f6439df0ad08a2835ccea9aaf",
+      "position_gain_s_inv": 4.0,
+      "acceptance_v2_passed": false,
+      "failures": [
+        "max_cross_track_m: 0.00301866 m exceeds 0.002 m",
+        "max_corner_overshoot_m: 0.00278353 m exceeds 0.001 m"
+      ],
+      "motion_duration_s": 98.739,
+      "rms_tracking_m": 0.0008070938251212192,
+      "peak_tracking_m": 0.0033674530890281714,
+      "peak_route_distance_m": 0.0030186606542227067,
+      "full_leg_corner_overshoot_m": 0.002783533035285668,
+      "command_statistics": {
+        "updates": 9867,
+        "speed_limited_updates": 0,
+        "acceleration_limited_updates": 0,
+        "max_wheel_rate_rad_s": 2.720068964278807,
+        "max_wheel_acceleration_rad_s2": 3.4111096090299315
+      },
+      "max_pose_sample_gap_s": 0.020000000000017337
+    },
+    "p8": {
+      "source_report": "/home/para/Videos/hamr_sim/smooth_validation_20260920/p8/trajectory.json",
+      "report_sha256": "a3c0ede659288447e995f5af035410241cfb696c19b535364c6525c876d647f1",
+      "position_gain_s_inv": 8.0,
+      "acceptance_v2_passed": false,
+      "failures": [
+        "max_corner_overshoot_m: 0.00155301 m exceeds 0.001 m"
+      ],
+      "motion_duration_s": 98.73,
+      "rms_tracking_m": 0.00047431679031627446,
+      "peak_tracking_m": 0.002025465285890756,
+      "peak_route_distance_m": 0.0015913720956649967,
+      "full_leg_corner_overshoot_m": 0.0015530070089004866,
+      "command_statistics": {
+        "updates": 9865,
+        "speed_limited_updates": 0,
+        "acceleration_limited_updates": 0,
+        "max_wheel_rate_rad_s": 2.7388713865273493,
+        "max_wheel_acceleration_rad_s2": 6.444105169863062
+      },
+      "max_pose_sample_gap_s": 0.03999999999999915
+    },
+    "p8_half_step": {
+      "source_report": "/home/para/Videos/hamr_sim/smooth_validation_20260920/p8_half_step/trajectory.json",
+      "report_sha256": "78ce7f6d6aee18aa5fc1058344e4f24f8e2380cc062be5b8df8324a26d91c7c6",
+      "position_gain_s_inv": 8.0,
+      "acceptance_v2_passed": false,
+      "failures": [
+        "max_corner_overshoot_m: 0.0015834 m exceeds 0.001 m"
+      ],
+      "motion_duration_s": 98.771,
+      "rms_tracking_m": 0.0004933409143183936,
+      "peak_tracking_m": 0.0020303670642333,
+      "peak_route_distance_m": 0.0015932130294190854,
+      "full_leg_corner_overshoot_m": 0.0015834028968093605,
+      "command_statistics": {
+        "updates": 10158,
+        "speed_limited_updates": 0,
+        "acceleration_limited_updates": 0,
+        "max_wheel_rate_rad_s": 2.74142317705686,
+        "max_wheel_acceleration_rad_s2": 5.5291985787323075
+      },
+      "max_pose_sample_gap_s": 0.020000000000017337
+    },
+    "p16": {
+      "source_report": "/home/para/Videos/hamr_sim/smooth_validation_20260920/p16/trajectory.json",
+      "report_sha256": "10271a90ade88394de7105e875720a8ee3f79aed17981eafd3abf7eac1f50981",
+      "position_gain_s_inv": 16.0,
+      "acceptance_v2_passed": true,
+      "failures": [],
+      "motion_duration_s": 98.73700000000001,
+      "rms_tracking_m": 0.0002645179504177292,
+      "peak_tracking_m": 0.0010532028864676933,
+      "peak_route_distance_m": 0.0008078926692407506,
+      "full_leg_corner_overshoot_m": 0.0008078926692407506,
+      "command_statistics": {
+        "updates": 9867,
+        "speed_limited_updates": 0,
+        "acceleration_limited_updates": 0,
+        "max_wheel_rate_rad_s": 2.7549191132184574,
+        "max_wheel_acceleration_rad_s2": 12.31861892643055
+      },
+      "max_pose_sample_gap_s": 0.020000000000017337
+    },
+    "p16_half_step": {
+      "source_report": "/home/para/Videos/hamr_sim/smooth_validation_20260920/p16_half_step/trajectory.json",
+      "report_sha256": "6391765e67a68144ffbf9e20a782726d236bc6675b084b79619f177ce301f8cb",
+      "position_gain_s_inv": 16.0,
+      "acceptance_v2_passed": true,
+      "failures": [],
+      "motion_duration_s": 98.769,
+      "rms_tracking_m": 0.00027325037931330445,
+      "peak_tracking_m": 0.0010865065689450127,
+      "peak_route_distance_m": 0.0008350693180281255,
+      "full_leg_corner_overshoot_m": 0.0008350693180281255,
+      "command_statistics": {
+        "updates": 10158,
+        "speed_limited_updates": 0,
+        "acceleration_limited_updates": 0,
+        "max_wheel_rate_rad_s": 2.7508269513295374,
+        "max_wheel_acceleration_rad_s2": 12.065715255552384
+      },
+      "max_pose_sample_gap_s": 0.020000000000010232
+    },
+    "final_recording": {
+      "source_report": "/home/para/Videos/hamr_sim/smooth_waypoint_20260920_final/trajectory.json",
+      "report_sha256": "fd75c343dee33025c66faeb6631ef985b72c2dddd2beb4dfd5bee17cd5106724",
+      "position_gain_s_inv": 16.0,
+      "acceptance_v2_passed": true,
+      "failures": [],
+      "motion_duration_s": 98.73100000000001,
+      "rms_tracking_m": 0.00026477490132328164,
+      "peak_tracking_m": 0.0010638575246372547,
+      "peak_route_distance_m": 0.0008340807369275893,
+      "full_leg_corner_overshoot_m": 0.0008340807369275893,
+      "command_statistics": {
+        "updates": 9866,
+        "speed_limited_updates": 0,
+        "acceleration_limited_updates": 0,
+        "max_wheel_rate_rad_s": 2.7597306468206755,
+        "max_wheel_acceleration_rad_s2": 13.641581734741738
+      },
+      "max_pose_sample_gap_s": 0.020000000000010232
+    }
+  },
+  "video": "/home/para/Videos/hamr_sim/smooth_waypoint_20260920_final/hamr_smooth_waypoint.mp4",
+  "video_sha256": "6f65efce9f26755e1e0a7899001f8692c7900e8c5460f673d37e82965967a9bf",
+  "validation_notes": [
+    "Corner overshoot covers the full outgoing leg, including delayed heading-alignment transients.",
+    "P4 and P8 raw reports predate the wider acceptance window; acceptance_v2_passed is the authoritative reanalysis here.",
+    "The original recording compares fresh reference against older pose; smooth runs use source-aligned references. Geometric path-distance comparison does not depend on that timing difference.",
+    "Reported maxima cover 50 Hz measured odometry samples, not continuous-time mathematical zero error.",
+    "Same waypoint geometry, masses, contacts and physical wheel command limits. Smooth motion takes longer because it stops at every waypoint."
+  ]
+}

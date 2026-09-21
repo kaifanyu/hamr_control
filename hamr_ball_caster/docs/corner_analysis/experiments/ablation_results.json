@@ -1,0 +1,20 @@
+{
+  "baseline": {
+    "exit_code": 0,
+    "wall_duration_s": 142.04564078600015,
+    "domain": "70",
+    "partition": "hamr_corner_94986_baseline"
+  },
+  "no_slew": {
+    "exit_code": 0,
+    "wall_duration_s": 99.36733088499932,
+    "domain": "71",
+    "partition": "hamr_corner_94986_no_slew"
+  },
+  "half_speed": {
+    "exit_code": 0,
+    "wall_duration_s": 272.7939297690009,
+    "domain": "72",
+    "partition": "hamr_corner_94986_half_speed"
+  }
+}

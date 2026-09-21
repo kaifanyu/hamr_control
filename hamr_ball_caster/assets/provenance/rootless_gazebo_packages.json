@@ -1,0 +1,1091 @@
+{
+  "method": "apt-get --print-uris; SHA-256 verified against local apt metadata; dpkg-deb -x",
+  "requested_packages": [
+    "ros-jazzy-ros-gz-sim",
+    "ros-jazzy-ros-gz-bridge",
+    "ros-jazzy-xacro",
+    "ffmpeg"
+  ],
+  "system_package_installation_performed": false,
+  "maintainer_scripts_executed": false,
+  "host_requirement": "Ubuntu 24.04 amd64, existing ROS Jazzy desktop and its already-installed dependencies",
+  "skipped": "Development-only packages, fonts, speech model data, SPIR-V build tools, zip and rake",
+  "relocations": [
+    "Gazebo command YAML library_path prefixes",
+    "env.sh search paths"
+  ],
+  "packages": [
+    {
+      "package": "ros-jazzy-actuator-msgs",
+      "version": "0.0.1-4noble.20260902.024100",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-actuator-msgs/ros-jazzy-actuator-msgs_0.0.1-4noble.20260902.024100_amd64.deb",
+      "filename": "ros-jazzy-actuator-msgs_0.0.1-4noble.20260902.024100_amd64.deb",
+      "size": 103896,
+      "sha256": "935a81de21d291c79e7995cf5d3be0b8a16ea9a18ff725e7abc43ca0f5737835"
+    },
+    {
+      "package": "ros-jazzy-gps-msgs",
+      "version": "3.1.1-1noble.20260902.030750",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-gps-msgs/ros-jazzy-gps-msgs_3.1.1-1noble.20260902.030750_amd64.deb",
+      "filename": "ros-jazzy-gps-msgs_3.1.1-1noble.20260902.030750_amd64.deb",
+      "size": 84230,
+      "sha256": "6b22967f7fc3fc1bf46b557f730b0428fb331347d096e23cb94df96ac5ddbe8b"
+    },
+    {
+      "package": "ros-jazzy-gz-common-vendor",
+      "version": "0.0.10-1noble.20260905.033536",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-gz-common-vendor/ros-jazzy-gz-common-vendor_0.0.10-1noble.20260905.033536_amd64.deb",
+      "filename": "ros-jazzy-gz-common-vendor_0.0.10-1noble.20260905.033536_amd64.deb",
+      "size": 684576,
+      "sha256": "12f186669615a23ba3b9751c4ac5f4965f2c7d16604999d258770ac9c1df36bd"
+    },
+    {
+      "package": "ros-jazzy-gz-dartsim-vendor",
+      "version": "0.0.3-1noble.20260225.232143",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-gz-dartsim-vendor/ros-jazzy-gz-dartsim-vendor_0.0.3-1noble.20260225.232143_amd64.deb",
+      "filename": "ros-jazzy-gz-dartsim-vendor_0.0.3-1noble.20260225.232143_amd64.deb",
+      "size": 12393306,
+      "sha256": "f3d4e0874783ea03d451b2fa591b536d9081e7c77524b7dba13b3596bc4d5f35"
+    },
+    {
+      "package": "ros-jazzy-gz-tools-vendor",
+      "version": "0.0.8-1noble.20260820.143431",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-gz-tools-vendor/ros-jazzy-gz-tools-vendor_0.0.8-1noble.20260820.143431_amd64.deb",
+      "filename": "ros-jazzy-gz-tools-vendor_0.0.8-1noble.20260820.143431_amd64.deb",
+      "size": 32388,
+      "sha256": "c86c1d56c1bba87132472b35c2fd4820bbec1a71db521e2493d76dd1b2a2dc82"
+    },
+    {
+      "package": "ros-jazzy-gz-msgs-vendor",
+      "version": "0.0.8-1noble.20260905.033532",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-gz-msgs-vendor/ros-jazzy-gz-msgs-vendor_0.0.8-1noble.20260905.033532_amd64.deb",
+      "filename": "ros-jazzy-gz-msgs-vendor_0.0.8-1noble.20260905.033532_amd64.deb",
+      "size": 978022,
+      "sha256": "02a4bf2fc1c16c660597e2254ccdf9cf2f6c07aebcfd54a433b54763ab7be643"
+    },
+    {
+      "package": "ros-jazzy-gz-fuel-tools-vendor",
+      "version": "0.0.6-1noble.20260905.065120",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-gz-fuel-tools-vendor/ros-jazzy-gz-fuel-tools-vendor_0.0.6-1noble.20260905.065120_amd64.deb",
+      "filename": "ros-jazzy-gz-fuel-tools-vendor_0.0.6-1noble.20260905.065120_amd64.deb",
+      "size": 226220,
+      "sha256": "3274fd194383bd1f21e842f0a35a5e72941d34cbb2998726bed6c275b00ea3e1"
+    },
+    {
+      "package": "ros-jazzy-gz-plugin-vendor",
+      "version": "0.0.5-1noble.20260820.145930",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-gz-plugin-vendor/ros-jazzy-gz-plugin-vendor_0.0.5-1noble.20260820.145930_amd64.deb",
+      "filename": "ros-jazzy-gz-plugin-vendor_0.0.5-1noble.20260820.145930_amd64.deb",
+      "size": 181782,
+      "sha256": "0ecae6bbfc79c1bea6f2795a3e226a72e1da3c3d973b562e9c8170ffd49d9a7b"
+    },
+    {
+      "package": "ros-jazzy-gz-ogre-next-vendor",
+      "version": "0.0.5-1noble.20260225.232146",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-gz-ogre-next-vendor/ros-jazzy-gz-ogre-next-vendor_0.0.5-1noble.20260225.232146_amd64.deb",
+      "filename": "ros-jazzy-gz-ogre-next-vendor_0.0.5-1noble.20260225.232146_amd64.deb",
+      "size": 3833878,
+      "sha256": "db0342d6120831b061d78e8d53f32f9a6164416d68ba6770ad69d59c17edcf33"
+    },
+    {
+      "package": "ros-jazzy-gz-rendering-vendor",
+      "version": "0.0.7-1noble.20260905.065113",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-gz-rendering-vendor/ros-jazzy-gz-rendering-vendor_0.0.7-1noble.20260905.065113_amd64.deb",
+      "filename": "ros-jazzy-gz-rendering-vendor_0.0.7-1noble.20260905.065113_amd64.deb",
+      "size": 3971442,
+      "sha256": "c3de8d364123029f480a79e7f7742135d881c841df484f7d1a4bde3b5c47985e"
+    },
+    {
+      "package": "ros-jazzy-gz-transport-vendor",
+      "version": "0.0.9-1noble.20260905.065154",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-gz-transport-vendor/ros-jazzy-gz-transport-vendor_0.0.9-1noble.20260905.065154_amd64.deb",
+      "filename": "ros-jazzy-gz-transport-vendor_0.0.9-1noble.20260905.065154_amd64.deb",
+      "size": 597162,
+      "sha256": "efc36510482c2ff7334bcd8716a80c3e5f333f21b9cad0509ad31a1d6d722132"
+    },
+    {
+      "package": "ros-jazzy-gz-gui-vendor",
+      "version": "0.0.5-1noble.20260905.071619",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-gz-gui-vendor/ros-jazzy-gz-gui-vendor_0.0.5-1noble.20260905.071619_amd64.deb",
+      "filename": "ros-jazzy-gz-gui-vendor_0.0.5-1noble.20260905.071619_amd64.deb",
+      "size": 659402,
+      "sha256": "862dba658bbb8e77295351001800ffb108d957170ccbae422b25408050d4db1d"
+    },
+    {
+      "package": "ros-jazzy-sdformat-vendor",
+      "version": "0.0.14-1noble.20260905.033543",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-sdformat-vendor/ros-jazzy-sdformat-vendor_0.0.14-1noble.20260905.033543_amd64.deb",
+      "filename": "ros-jazzy-sdformat-vendor_0.0.14-1noble.20260905.033543_amd64.deb",
+      "size": 1275442,
+      "sha256": "4ddd40dcf6dd0134ab7543ee276dfb732f3f279c30f2f3de5247546642c6f15a"
+    },
+    {
+      "package": "ros-jazzy-gz-physics-vendor",
+      "version": "0.0.9-1noble.20260905.065116",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-gz-physics-vendor/ros-jazzy-gz-physics-vendor_0.0.9-1noble.20260905.065116_amd64.deb",
+      "filename": "ros-jazzy-gz-physics-vendor_0.0.9-1noble.20260905.065116_amd64.deb",
+      "size": 730096,
+      "sha256": "5869dee78c87c535c7d8149adb591baa8d9efb7eb33634c22a27f894d7c89506"
+    },
+    {
+      "package": "ros-jazzy-gz-sensors-vendor",
+      "version": "0.0.6-1noble.20260905.071631",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-gz-sensors-vendor/ros-jazzy-gz-sensors-vendor_0.0.6-1noble.20260905.071631_amd64.deb",
+      "filename": "ros-jazzy-gz-sensors-vendor_0.0.6-1noble.20260905.071631_amd64.deb",
+      "size": 396870,
+      "sha256": "c10fb303586ef62b0f25bc5e6c7f73a2d6cf33f28bec06f6810faef97cbb8cea"
+    },
+    {
+      "package": "ros-jazzy-gz-sim-vendor",
+      "version": "0.0.13-1noble.20260905.073557",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-gz-sim-vendor/ros-jazzy-gz-sim-vendor_0.0.13-1noble.20260905.073557_amd64.deb",
+      "filename": "ros-jazzy-gz-sim-vendor_0.0.13-1noble.20260905.073557_amd64.deb",
+      "size": 11065564,
+      "sha256": "8fa5fa4a903946bd93a4dbd5baf751516e8c8aafc82f38a3b726336fea0797db"
+    },
+    {
+      "package": "ros-jazzy-marine-acoustic-msgs",
+      "version": "2.1.0-2noble.20260902.033749",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-marine-acoustic-msgs/ros-jazzy-marine-acoustic-msgs_2.1.0-2noble.20260902.033749_amd64.deb",
+      "filename": "ros-jazzy-marine-acoustic-msgs_2.1.0-2noble.20260902.033749_amd64.deb",
+      "size": 163228,
+      "sha256": "2a997c389a4648661607da6bb230362f905e25533c406c15551f409faa03a03e"
+    },
+    {
+      "package": "ros-jazzy-ros-gz-interfaces",
+      "version": "1.0.24-1noble.20260902.041547",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-ros-gz-interfaces/ros-jazzy-ros-gz-interfaces_1.0.24-1noble.20260902.041547_amd64.deb",
+      "filename": "ros-jazzy-ros-gz-interfaces_1.0.24-1noble.20260902.041547_amd64.deb",
+      "size": 402512,
+      "sha256": "f9094db235ff2a3b778896f3bf421ae02b12f9da0c277db2d9096a2bddc966ed"
+    },
+    {
+      "package": "ros-jazzy-vision-msgs",
+      "version": "4.1.1-3noble.20260902.034028",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-vision-msgs/ros-jazzy-vision-msgs_4.1.1-3noble.20260902.034028_amd64.deb",
+      "filename": "ros-jazzy-vision-msgs_4.1.1-3noble.20260902.034028_amd64.deb",
+      "size": 189638,
+      "sha256": "ddbeeeeae57654e181f4cf119b8e848b963dded443a78f6068e5272616d7cb1a"
+    },
+    {
+      "package": "ros-jazzy-ros-gz-bridge",
+      "version": "1.0.24-1noble.20260905.070149",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-ros-gz-bridge/ros-jazzy-ros-gz-bridge_1.0.24-1noble.20260905.070149_amd64.deb",
+      "filename": "ros-jazzy-ros-gz-bridge_1.0.24-1noble.20260905.070149_amd64.deb",
+      "size": 1937848,
+      "sha256": "85ba2e525644fdc9c62ab5fe96040ed47661e93c41a2299fa9fc5fd56e9f60e0"
+    },
+    {
+      "package": "ros-jazzy-simulation-interfaces",
+      "version": "1.5.1-1noble.20260902.041638",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-simulation-interfaces/ros-jazzy-simulation-interfaces_1.5.1-1noble.20260902.041638_amd64.deb",
+      "filename": "ros-jazzy-simulation-interfaces_1.5.1-1noble.20260902.041638_amd64.deb",
+      "size": 823818,
+      "sha256": "f69ea252cf6872dce7783f04575e3e33c1fe1fd4c14f0da4d1587677e1032040"
+    },
+    {
+      "package": "ros-jazzy-ros-gz-sim",
+      "version": "1.0.24-1noble.20260905.085151",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-ros-gz-sim/ros-jazzy-ros-gz-sim_1.0.24-1noble.20260905.085151_amd64.deb",
+      "filename": "ros-jazzy-ros-gz-sim_1.0.24-1noble.20260905.085151_amd64.deb",
+      "size": 703034,
+      "sha256": "6fd95340cc7c75181127e14b731bec52ffdb4e40a6c0d258ce93ac90e44c9f41"
+    },
+    {
+      "package": "ros-jazzy-xacro",
+      "version": "2.1.1-1noble.20260519.011123",
+      "uri": "http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-jazzy-xacro/ros-jazzy-xacro_2.1.1-1noble.20260519.011123_amd64.deb",
+      "filename": "ros-jazzy-xacro_2.1.1-1noble.20260519.011123_amd64.deb",
+      "size": 29406,
+      "sha256": "dea28a1fd7c8fd48dac5030f3d6e89d720867f483ebe7c6129105613048db971"
+    },
+    {
+      "package": "qml-module-qtquick-window2",
+      "version": "5.15.13+dfsg-1ubuntu0.1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtdeclarative-opensource-src/qml-module-qtquick-window2_5.15.13%2bdfsg-1ubuntu0.1_amd64.deb",
+      "filename": "qml-module-qtquick-window2_5.15.13+dfsg-1ubuntu0.1_amd64.deb",
+      "size": 26172,
+      "sha256": "1ef8117db0779096275c458c0077c24f19e63e4b1a884159cb41d9a9747aef80"
+    },
+    {
+      "package": "qml-module-qtquick2",
+      "version": "5.15.13+dfsg-1ubuntu0.1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtdeclarative-opensource-src/qml-module-qtquick2_5.15.13%2bdfsg-1ubuntu0.1_amd64.deb",
+      "filename": "qml-module-qtquick2_5.15.13+dfsg-1ubuntu0.1_amd64.deb",
+      "size": 33690,
+      "sha256": "cf5b35bf15e09510abd8581bbcdc36e8cb4dd0ca02c5591b946eac1815394753"
+    },
+    {
+      "package": "qml-module-qtgraphicaleffects",
+      "version": "5.15.13-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtgraphicaleffects-opensource-src/qml-module-qtgraphicaleffects_5.15.13-1_amd64.deb",
+      "filename": "qml-module-qtgraphicaleffects_5.15.13-1_amd64.deb",
+      "size": 74418,
+      "sha256": "dfc9e65070aea2ff37d87f9fc54f34ae2aa65ea26b2036e693d9f4e70a78b0cd"
+    },
+    {
+      "package": "qml-module-qtqml",
+      "version": "5.15.13+dfsg-1ubuntu0.1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtdeclarative-opensource-src/qml-module-qtqml_5.15.13%2bdfsg-1ubuntu0.1_amd64.deb",
+      "filename": "qml-module-qtqml_5.15.13+dfsg-1ubuntu0.1_amd64.deb",
+      "size": 17262,
+      "sha256": "8ef4797d54b154423d8ead2d8e3cb9efd193372918d3713c53ba9bd370b0a0e3"
+    },
+    {
+      "package": "qml-module-qtqml-models2",
+      "version": "5.15.13+dfsg-1ubuntu0.1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtdeclarative-opensource-src/qml-module-qtqml-models2_5.15.13%2bdfsg-1ubuntu0.1_amd64.deb",
+      "filename": "qml-module-qtqml-models2_5.15.13+dfsg-1ubuntu0.1_amd64.deb",
+      "size": 18148,
+      "sha256": "b77ea1a6aa54d33cb6b2dd6da06b864464cd3211d558517cd85d30864bbded1e"
+    },
+    {
+      "package": "qml-module-qtquick-layouts",
+      "version": "5.15.13+dfsg-1ubuntu0.1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtdeclarative-opensource-src/qml-module-qtquick-layouts_5.15.13%2bdfsg-1ubuntu0.1_amd64.deb",
+      "filename": "qml-module-qtquick-layouts_5.15.13+dfsg-1ubuntu0.1_amd64.deb",
+      "size": 54592,
+      "sha256": "e250a14ce124b5e54ee612d28c505c70a4ec65ebbb6a43434ea033c1d641b2f2"
+    },
+    {
+      "package": "qml-module-qtquick-controls",
+      "version": "5.15.13-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtquickcontrols-opensource-src/qml-module-qtquick-controls_5.15.13-1_amd64.deb",
+      "filename": "qml-module-qtquick-controls_5.15.13-1_amd64.deb",
+      "size": 573708,
+      "sha256": "3b6ed58e5dffcb06fb1fd8ccecbae5ff51e53c812f487bc6dedbafb671dffb83"
+    },
+    {
+      "package": "qml-module-qtquick-extras",
+      "version": "5.15.13-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtquickcontrols-opensource-src/qml-module-qtquick-extras_5.15.13-1_amd64.deb",
+      "filename": "qml-module-qtquick-extras_5.15.13-1_amd64.deb",
+      "size": 88022,
+      "sha256": "1aa2ac9bb6740da9011af188a6274eaccec6b260fbeeb99930a0c96696788817"
+    },
+    {
+      "package": "libgssrpc4t64",
+      "version": "1.20.1-6ubuntu2.10",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/k/krb5/libgssrpc4t64_1.20.1-6ubuntu2.10_amd64.deb",
+      "filename": "libgssrpc4t64_1.20.1-6ubuntu2.10_amd64.deb",
+      "size": 57256,
+      "sha256": "eb9003ae3127b654412e1da892854f173dab9a6aefff0edfc46e6c73a8e7e229"
+    },
+    {
+      "package": "libkadm5clnt-mit12",
+      "version": "1.20.1-6ubuntu2.10",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/k/krb5/libkadm5clnt-mit12_1.20.1-6ubuntu2.10_amd64.deb",
+      "filename": "libkadm5clnt-mit12_1.20.1-6ubuntu2.10_amd64.deb",
+      "size": 40048,
+      "sha256": "0fde87c378528ff4382a2a6d7ed7c2308fc3b1edb717e168d0b9228a0a2001e9"
+    },
+    {
+      "package": "libkdb5-10t64",
+      "version": "1.20.1-6ubuntu2.10",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/k/krb5/libkdb5-10t64_1.20.1-6ubuntu2.10_amd64.deb",
+      "filename": "libkdb5-10t64_1.20.1-6ubuntu2.10_amd64.deb",
+      "size": 40392,
+      "sha256": "f8837fa6ba3c82c3bc30321f64b17f2aa2ff80dcefe753e83df02ca35f9e9a71"
+    },
+    {
+      "package": "libkadm5srv-mit12",
+      "version": "1.20.1-6ubuntu2.10",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/k/krb5/libkadm5srv-mit12_1.20.1-6ubuntu2.10_amd64.deb",
+      "filename": "libkadm5srv-mit12_1.20.1-6ubuntu2.10_amd64.deb",
+      "size": 53024,
+      "sha256": "97baa912d3f56359077318be8391e9947926f1dbc8ea726a76d947b3a115ddd9"
+    },
+    {
+      "package": "krb5-multidev",
+      "version": "1.20.1-6ubuntu2.10",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/k/krb5/krb5-multidev_1.20.1-6ubuntu2.10_amd64.deb",
+      "filename": "krb5-multidev_1.20.1-6ubuntu2.10_amd64.deb",
+      "size": 124770,
+      "sha256": "11bbe96d6cabca1655da9a86cc39fd8338e7b0baf7384541d2640bbea89abb56"
+    },
+    {
+      "package": "libavc1394-0",
+      "version": "0.5.4-5build3",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/liba/libavc1394/libavc1394-0_0.5.4-5build3_amd64.deb",
+      "filename": "libavc1394-0_0.5.4-5build3_amd64.deb",
+      "size": 15442,
+      "sha256": "28141f0e1a2011deef364a931b4a0fb9ab053416320ed7fd0b8747f251e6e5d7"
+    },
+    {
+      "package": "libunibreak5",
+      "version": "5.1-2build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/libu/libunibreak/libunibreak5_5.1-2build1_amd64.deb",
+      "filename": "libunibreak5_5.1-2build1_amd64.deb",
+      "size": 25012,
+      "sha256": "62576c95652b6c0a02e3d0fe9e2da6d0666c375d71c43da9d884c77417956ae4"
+    },
+    {
+      "package": "libass9",
+      "version": "1:0.17.1-2build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/liba/libass/libass9_0.17.1-2build1_amd64.deb",
+      "filename": "libass9_1%3a0.17.1-2build1_amd64.deb",
+      "size": 103874,
+      "sha256": "a3dd7b4e6fa05d0d6607739b3c1f60a305f2fb78d9f6e8b8e38d10d0b4fc4052"
+    },
+    {
+      "package": "libbs2b0",
+      "version": "3.1.0+dfsg-7build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/libb/libbs2b/libbs2b0_3.1.0%2bdfsg-7build1_amd64.deb",
+      "filename": "libbs2b0_3.1.0+dfsg-7build1_amd64.deb",
+      "size": 10556,
+      "sha256": "67d8af009d520e0b6f63e39d6d04d8c02e681f89858fb301b808a6c356068e2c"
+    },
+    {
+      "package": "libflite1",
+      "version": "2.2-6build3",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/f/flite/libflite1_2.2-6build3_amd64.deb",
+      "filename": "libflite1_2.2-6build3_amd64.deb",
+      "size": 13601102,
+      "sha256": "367f1d0da5cd38759a0515eafc27aa133b2d7bf99308cac34831df0212e96b75"
+    },
+    {
+      "package": "libserd-0-0",
+      "version": "0.32.2-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/s/serd/libserd-0-0_0.32.2-1_amd64.deb",
+      "filename": "libserd-0-0_0.32.2-1_amd64.deb",
+      "size": 43568,
+      "sha256": "5ede35e66656c136b6a803aebeac92b2c061ec4d147820a730dd9c2a1315f57a"
+    },
+    {
+      "package": "libzix-0-0",
+      "version": "0.4.2-2build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/z/zix/libzix-0-0_0.4.2-2build1_amd64.deb",
+      "filename": "libzix-0-0_0.4.2-2build1_amd64.deb",
+      "size": 23570,
+      "sha256": "3bd3271411e9f25d03e16ca430da9551200b28e854ba9b606f819c23a4dc4992"
+    },
+    {
+      "package": "libsord-0-0",
+      "version": "0.16.16-2build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/s/sord/libsord-0-0_0.16.16-2build1_amd64.deb",
+      "filename": "libsord-0-0_0.16.16-2build1_amd64.deb",
+      "size": 15820,
+      "sha256": "a330fa014ee2eb48053395fb91fa39d95ca910e582d515254f50ef944240303c"
+    },
+    {
+      "package": "libsratom-0-0",
+      "version": "0.6.16-1build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/s/sratom/libsratom-0-0_0.6.16-1build1_amd64.deb",
+      "filename": "libsratom-0-0_0.6.16-1build1_amd64.deb",
+      "size": 17312,
+      "sha256": "a103c98906a7587718dabd52dfcd0af2dff6ff567781100bc8cf07de05bfc30d"
+    },
+    {
+      "package": "liblilv-0-0",
+      "version": "0.24.22-1build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/l/lilv/liblilv-0-0_0.24.22-1build1_amd64.deb",
+      "filename": "liblilv-0-0_0.24.22-1build1_amd64.deb",
+      "size": 40976,
+      "sha256": "5fd6b6861a021e8148c9086d36b70eea28a503dd4c2f2b922f56789d2967d0ad"
+    },
+    {
+      "package": "libmysofa1",
+      "version": "1.3.2+dfsg-2ubuntu2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/libm/libmysofa/libmysofa1_1.3.2%2bdfsg-2ubuntu2_amd64.deb",
+      "filename": "libmysofa1_1.3.2+dfsg-2ubuntu2_amd64.deb",
+      "size": 1157872,
+      "sha256": "a3b5bb4bcc6ce996700f0120722b1c10af08e9dd1e0d497782edcea90079d4af"
+    },
+    {
+      "package": "libplacebo338",
+      "version": "6.338.2-2build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/libp/libplacebo/libplacebo338_6.338.2-2build1_amd64.deb",
+      "filename": "libplacebo338_6.338.2-2build1_amd64.deb",
+      "size": 2654026,
+      "sha256": "9c173df229673887df3cce7d4a26de15f7477a62cd1391f9a88c346018ecad1f"
+    },
+    {
+      "package": "libsphinxbase3t64",
+      "version": "0.8+5prealpha+1-17build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/s/sphinxbase/libsphinxbase3t64_0.8%2b5prealpha%2b1-17build2_amd64.deb",
+      "filename": "libsphinxbase3t64_0.8+5prealpha+1-17build2_amd64.deb",
+      "size": 125618,
+      "sha256": "80c184d04290cd1a55d6abac7c4b9f15bbf736e43a410857f992eba16b005a4c"
+    },
+    {
+      "package": "libpocketsphinx3",
+      "version": "0.8.0+real5prealpha+1-15ubuntu5",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/pocketsphinx/libpocketsphinx3_0.8.0%2breal5prealpha%2b1-15ubuntu5_amd64.deb",
+      "filename": "libpocketsphinx3_0.8.0+real5prealpha+1-15ubuntu5_amd64.deb",
+      "size": 132898,
+      "sha256": "26987384225666ec8d065fa05e484be9cd5967e28ac3bda20d1f818617e2b930"
+    },
+    {
+      "package": "libpostproc57",
+      "version": "7:6.1.1-3ubuntu5",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/f/ffmpeg/libpostproc57_6.1.1-3ubuntu5_amd64.deb",
+      "filename": "libpostproc57_7%3a6.1.1-3ubuntu5_amd64.deb",
+      "size": 49884,
+      "sha256": "f0984bf6bff85dc29a44f650841b01a0594775f628b7a4bf5dd45d85d82cb2a7"
+    },
+    {
+      "package": "libfftw3-double3",
+      "version": "3.3.10-1ubuntu3",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/f/fftw3/libfftw3-double3_3.3.10-1ubuntu3_amd64.deb",
+      "filename": "libfftw3-double3_3.3.10-1ubuntu3_amd64.deb",
+      "size": 838254,
+      "sha256": "ff9396076103b305efe741e9acff11d52a040c6d95527c0f2dbd11e82a11bab8"
+    },
+    {
+      "package": "librubberband2",
+      "version": "3.3.0+dfsg-2build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/r/rubberband/librubberband2_3.3.0%2bdfsg-2build1_amd64.deb",
+      "filename": "librubberband2_3.3.0+dfsg-2build1_amd64.deb",
+      "size": 129894,
+      "sha256": "96ebaf773ad933a5269859cb3b09488b7b0b58387ebfbd7b7c469dd2b32d5d8b"
+    },
+    {
+      "package": "libvidstab1.1",
+      "version": "1.1.0-2build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/libv/libvidstab/libvidstab1.1_1.1.0-2build1_amd64.deb",
+      "filename": "libvidstab1.1_1.1.0-2build1_amd64.deb",
+      "size": 38550,
+      "sha256": "345caabe592ee7733c2142bdfb3fe18a97da4ee7372f57d574b698d58e3fd431"
+    },
+    {
+      "package": "libzimg2",
+      "version": "3.0.5+ds1-1build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/z/zimg/libzimg2_3.0.5%2bds1-1build1_amd64.deb",
+      "filename": "libzimg2_3.0.5+ds1-1build1_amd64.deb",
+      "size": 254226,
+      "sha256": "6c3d3e87277ff906011da1ceac5e44057df3710a53df3eab59675b02eea1ff12"
+    },
+    {
+      "package": "libavfilter9",
+      "version": "7:6.1.1-3ubuntu5",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/f/ffmpeg/libavfilter9_6.1.1-3ubuntu5_amd64.deb",
+      "filename": "libavfilter9_7%3a6.1.1-3ubuntu5_amd64.deb",
+      "size": 4235172,
+      "sha256": "083b800aaf4fd1de817fb8dc12995e6a277c3500159c4a0fa21d36a76b6208ea"
+    },
+    {
+      "package": "libcaca0",
+      "version": "0.99.beta20-4ubuntu0.2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/libc/libcaca/libcaca0_0.99.beta20-4ubuntu0.2_amd64.deb",
+      "filename": "libcaca0_0.99.beta20-4ubuntu0.2_amd64.deb",
+      "size": 208666,
+      "sha256": "f8ba81982beda87da75bef9a1035a2ff34479d613dfea757440442ae9d58c7af"
+    },
+    {
+      "package": "libcdio19t64",
+      "version": "2.1.0-4.1ubuntu1.2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/libc/libcdio/libcdio19t64_2.1.0-4.1ubuntu1.2_amd64.deb",
+      "filename": "libcdio19t64_2.1.0-4.1ubuntu1.2_amd64.deb",
+      "size": 62360,
+      "sha256": "afe010f4b8fd43751e774889347d9f271bb327f3ba4a402443e679e0a6ebe50d"
+    },
+    {
+      "package": "libcdio-cdda2t64",
+      "version": "10.2+2.0.1-1.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/libc/libcdio-paranoia/libcdio-cdda2t64_10.2%2b2.0.1-1.1build2_amd64.deb",
+      "filename": "libcdio-cdda2t64_10.2+2.0.1-1.1build2_amd64.deb",
+      "size": 16486,
+      "sha256": "9651b439c9f8134052602cf5c03c5216e826bc6782a07baf1745d4dac411b109"
+    },
+    {
+      "package": "libcdio-paranoia2t64",
+      "version": "10.2+2.0.1-1.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/libc/libcdio-paranoia/libcdio-paranoia2t64_10.2%2b2.0.1-1.1build2_amd64.deb",
+      "filename": "libcdio-paranoia2t64_10.2+2.0.1-1.1build2_amd64.deb",
+      "size": 16570,
+      "sha256": "4ca9df983c50971bf42a60ffb9072faa4b6af785bd0e3592d3511f37cc540503"
+    },
+    {
+      "package": "libiec61883-0",
+      "version": "1.2.0-6build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/libi/libiec61883/libiec61883-0_1.2.0-6build1_amd64.deb",
+      "filename": "libiec61883-0_1.2.0-6build1_amd64.deb",
+      "size": 24546,
+      "sha256": "a47c6ec10068f1fc37a334949f6174f7ecbf0889bfde9d36baea8d403d76a727"
+    },
+    {
+      "package": "libjack-jackd2-0",
+      "version": "1.9.21~dfsg-3ubuntu3",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/j/jackd2/libjack-jackd2-0_1.9.21%7edfsg-3ubuntu3_amd64.deb",
+      "filename": "libjack-jackd2-0_1.9.21~dfsg-3ubuntu3_amd64.deb",
+      "size": 288676,
+      "sha256": "4fc5f4d0fbf2602df59bbed3ea504742bdcc7f899d7b32f6b2fd446ceb1fdf7d"
+    },
+    {
+      "package": "libopenal-data",
+      "version": "1:1.23.1-4build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/o/openal-soft/libopenal-data_1.23.1-4build1_all.deb",
+      "filename": "libopenal-data_1%3a1.23.1-4build1_all.deb",
+      "size": 160710,
+      "sha256": "0de2f2b7a29fa337432fa044ce6c238bc511b83dac14d68a32673d9803cbab83"
+    },
+    {
+      "package": "libopenal1",
+      "version": "1:1.23.1-4build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/o/openal-soft/libopenal1_1.23.1-4build1_amd64.deb",
+      "filename": "libopenal1_1%3a1.23.1-4build1_amd64.deb",
+      "size": 540202,
+      "sha256": "1781774a540ab7c9baccc41b49592e3b427c5820c64e390af4868d6a861ef8c7"
+    },
+    {
+      "package": "libavdevice60",
+      "version": "7:6.1.1-3ubuntu5",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/f/ffmpeg/libavdevice60_6.1.1-3ubuntu5_amd64.deb",
+      "filename": "libavdevice60_7%3a6.1.1-3ubuntu5_amd64.deb",
+      "size": 82320,
+      "sha256": "62c55a1209332142eb01488894b3443060e59b44940189469ac7f8fbe03406ca"
+    },
+    {
+      "package": "ffmpeg",
+      "version": "7:6.1.1-3ubuntu5",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/f/ffmpeg/ffmpeg_6.1.1-3ubuntu5_amd64.deb",
+      "filename": "ffmpeg_7%3a6.1.1-3ubuntu5_amd64.deb",
+      "size": 1878920,
+      "sha256": "1a23baace5f2688a47e28119aedae6993cd638e6279a7227dfc52d9a337a1c17"
+    },
+    {
+      "package": "libshaderc1",
+      "version": "2023.8-1build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/s/shaderc/libshaderc1_2023.8-1build1_amd64.deb",
+      "filename": "libshaderc1_2023.8-1build1_amd64.deb",
+      "size": 2423388,
+      "sha256": "ebd699ab3feaf00676a7da0644dd74290f60cd1b34057256db90f60e126655b1"
+    },
+    {
+      "package": "glslc",
+      "version": "2023.8-1build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/s/shaderc/glslc_2023.8-1build1_amd64.deb",
+      "filename": "glslc_2023.8-1build1_amd64.deb",
+      "size": 76032,
+      "sha256": "ee5f737e570b4b1713b4db9c8f9ead8258726af457391af00264350e59810bd4"
+    },
+    {
+      "package": "libbenchmark1.8.3",
+      "version": "1.8.3-3",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/b/benchmark/libbenchmark1.8.3_1.8.3-3_amd64.deb",
+      "filename": "libbenchmark1.8.3_1.8.3-3_amd64.deb",
+      "size": 159816,
+      "sha256": "c55df40d662e6eecc7c1c29782b949166341fc24849492ef54477c06991fcfe3"
+    },
+    {
+      "package": "libccd2",
+      "version": "2.1-2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/libc/libccd/libccd2_2.1-2_amd64.deb",
+      "filename": "libccd2_2.1-2_amd64.deb",
+      "size": 21808,
+      "sha256": "3878235dcd395ec32990d6aaee1985d7dd274347411f50c3b469b80970a3727c"
+    },
+    {
+      "package": "liboctomap1.9t64",
+      "version": "1.9.7+dfsg-3.1build3",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/o/octomap/liboctomap1.9t64_1.9.7%2bdfsg-3.1build3_amd64.deb",
+      "filename": "liboctomap1.9t64_1.9.7+dfsg-3.1build3_amd64.deb",
+      "size": 81594,
+      "sha256": "8ea3b7e9c1b5aafeed47ecc5281ec9eed1c53a45f25a038ab6fe0ab12a1b1475"
+    },
+    {
+      "package": "libfcl0.7",
+      "version": "0.7.0-3build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/f/fcl/libfcl0.7_0.7.0-3build2_amd64.deb",
+      "filename": "libfcl0.7_0.7.0-3build2_amd64.deb",
+      "size": 846064,
+      "sha256": "ff60afdea6232c30a93a5141fa680203d9c8637d48bc80f8eabe8776dd83066e"
+    },
+    {
+      "package": "libode8t64",
+      "version": "2:0.16.2-1.1build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/o/ode/libode8t64_0.16.2-1.1build1_amd64.deb",
+      "filename": "libode8t64_2%3a0.16.2-1.1build1_amd64.deb",
+      "size": 417122,
+      "sha256": "a8c773b9ea69a0bb29c54bb3e7295919abe0f0e58eb70b31f281e978f3c29143"
+    },
+    {
+      "package": "libzzip-0-13t64",
+      "version": "0.13.72+dfsg.1-1.2build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/z/zziplib/libzzip-0-13t64_0.13.72%2bdfsg.1-1.2build1_amd64.deb",
+      "filename": "libzzip-0-13t64_0.13.72+dfsg.1-1.2build1_amd64.deb",
+      "size": 28124,
+      "sha256": "53ec9f53d96faf2c936c0e61a4ccfeaff969fbc0f4096706cf03609222ab89df"
+    },
+    {
+      "package": "libogre-1.9.0t64",
+      "version": "1.9.0+dfsg1-14.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/o/ogre-1.9/libogre-1.9.0t64_1.9.0%2bdfsg1-14.1build2_amd64.deb",
+      "filename": "libogre-1.9.0t64_1.9.0+dfsg1-14.1build2_amd64.deb",
+      "size": 2775572,
+      "sha256": "668fd59811f0ea192b42ff64ffd9d280c9a79011b39aba08e1e4831c8898b814"
+    },
+    {
+      "package": "libpcre16-3",
+      "version": "2:8.39-15build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/pcre3/libpcre16-3_8.39-15build1_amd64.deb",
+      "filename": "libpcre16-3_2%3a8.39-15build1_amd64.deb",
+      "size": 165380,
+      "sha256": "99ffc1ad3fd46e3a3ae041727a2a528b77af65235d89a1286ff9762df25bb810"
+    },
+    {
+      "package": "libpcre3",
+      "version": "2:8.39-15build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/pcre3/libpcre3_8.39-15build1_amd64.deb",
+      "filename": "libpcre3_2%3a8.39-15build1_amd64.deb",
+      "size": 248274,
+      "sha256": "62b2ea8d178a59495df00b777660377e0fb8d716be3fc552439796f77f515d43"
+    },
+    {
+      "package": "libpcre32-3",
+      "version": "2:8.39-15build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/pcre3/libpcre32-3_8.39-15build1_amd64.deb",
+      "filename": "libpcre32-3_2%3a8.39-15build1_amd64.deb",
+      "size": 154886,
+      "sha256": "247d386a3b4a6616b09194ca9827a137a03287dbe4b9acea447183a1f75ec054"
+    },
+    {
+      "package": "libpcrecpp0v5",
+      "version": "2:8.39-15build1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/pcre3/libpcrecpp0v5_8.39-15build1_amd64.deb",
+      "filename": "libpcrecpp0v5_2%3a8.39-15build1_amd64.deb",
+      "size": 16244,
+      "sha256": "fa8154676abc448cfecdb769f465a9485e220fa249336776dbc028583a7ee427"
+    },
+    {
+      "package": "libpocofoundation80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpocofoundation80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpocofoundation80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 516592,
+      "sha256": "da5aeae1b53b538a638c6c17a395aba5fd21c9303f7ddfccfb91f73231917232"
+    },
+    {
+      "package": "libpocodata80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpocodata80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpocodata80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 410712,
+      "sha256": "714ba07b53a0a1c9019e0611b2d1a1870b89e335fb20602b47720ac95f26e736"
+    },
+    {
+      "package": "libpocoactiverecord80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpocoactiverecord80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpocoactiverecord80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 12622,
+      "sha256": "d39c4528b3cab1b8e6540088ac19f634c1250be37f645019cceb557fd029b81d"
+    },
+    {
+      "package": "libpococrypto80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpococrypto80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpococrypto80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 81904,
+      "sha256": "93ef0fd950b7fa80ac54fbc2975f9a29b6e1ec9cd70f406ef90e4e1988e1c2c0"
+    },
+    {
+      "package": "libpocoencodings80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpocoencodings80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpocoencodings80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 515440,
+      "sha256": "37de6fd6c3983f06da26f3dfbb390228423a87ac92e7684987ff30911f90308b"
+    },
+    {
+      "package": "libpocojson80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpocojson80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpocojson80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 104246,
+      "sha256": "c592e00280084b0b5b1ff7939a791de1de29277c49aec370e70c861038bc45cb"
+    },
+    {
+      "package": "libpocojwt80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpocojwt80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpocojwt80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 53966,
+      "sha256": "cae519020fc721ea8e5e04432705e586ee845bab03f5d9817975d998d4da3b2d"
+    },
+    {
+      "package": "libpocodatamysql80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpocodatamysql80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpocodatamysql80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 57192,
+      "sha256": "d4117c6eab7d3875c3737588bb7d4fa6af3909ecc4cdae137277380026476c84"
+    },
+    {
+      "package": "libpocodatapostgresql80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpocodatapostgresql80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpocodatapostgresql80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 80442,
+      "sha256": "b875f0dbe0ff0ff664ae8fdfc54ca49fd885e80815b6fe516b96c08f6281b6fc"
+    },
+    {
+      "package": "libpoconet80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpoconet80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpoconet80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 384964,
+      "sha256": "6a07200e12817c4f13af9fb03bca55f4067c7e4eb30d9d5f6bd9b44dd033a627"
+    },
+    {
+      "package": "libpocomongodb80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpocomongodb80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpocomongodb80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 69806,
+      "sha256": "d8ed835363f802a3ea0d58aa3c750e81640b4fba2263ca004bd2719c0feb83c8"
+    },
+    {
+      "package": "libpocoxml80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpocoxml80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpocoxml80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 150188,
+      "sha256": "c49ac21f7d5fe71b4ae5b8be607f0fe85b8b9d6a62d59c9ba11ebef9cb01cbb5"
+    },
+    {
+      "package": "libpocoutil80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpocoutil80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpocoutil80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 128022,
+      "sha256": "7638f2d0ad0f9b0535efa20e985eeb3c18f3fa17f20ee94d8bc4309d48605322"
+    },
+    {
+      "package": "libpoconetssl80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpoconetssl80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpoconetssl80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 89954,
+      "sha256": "b5ecef997e419304dfb149ef9071cadcae112a8957214be8d14d8539032cdeb2"
+    },
+    {
+      "package": "libpocodataodbc80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpocodataodbc80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpocodataodbc80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 223078,
+      "sha256": "9b15f4c9e9cfeee08f67f3a5a2c7c90ba642c07e37b088c3679dbf05b8e78810"
+    },
+    {
+      "package": "libpocodatasqlite80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpocodatasqlite80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpocodatasqlite80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 93012,
+      "sha256": "82975914ee296aa113006c7b417600cc135f3239e93cf44256440d782d3d9031"
+    },
+    {
+      "package": "libpocoredis80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpocoredis80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpocoredis80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 46028,
+      "sha256": "304a9b2cbff207bd5dbf80ccd74a8218e11ad5b43712aa782754c2a88487fe0e"
+    },
+    {
+      "package": "libpocozip80t64",
+      "version": "1.11.0-4.1build2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/poco/libpocozip80t64_1.11.0-4.1build2_amd64.deb",
+      "filename": "libpocozip80t64_1.11.0-4.1build2_amd64.deb",
+      "size": 81980,
+      "sha256": "8520ee46113a7fa61c3a55aac0a1d14bbef39a785898f3f55e05aab77e540780"
+    },
+    {
+      "package": "libprotobuf-lite32t64",
+      "version": "3.21.12-8.2ubuntu0.3",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/p/protobuf/libprotobuf-lite32t64_3.21.12-8.2ubuntu0.3_amd64.deb",
+      "filename": "libprotobuf-lite32t64_3.21.12-8.2ubuntu0.3_amd64.deb",
+      "size": 238492,
+      "sha256": "81610486f3ecf2fba6596930c4c5381f38a7929de83d0f67780c10ff3de03d12"
+    },
+    {
+      "package": "libprotoc32t64",
+      "version": "3.21.12-8.2ubuntu0.3",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/p/protobuf/libprotoc32t64_3.21.12-8.2ubuntu0.3_amd64.deb",
+      "filename": "libprotoc32t64_3.21.12-8.2ubuntu0.3_amd64.deb",
+      "size": 682962,
+      "sha256": "a6f2417722c0a6cb2cfc59b580aa6260da7f8b7c6969c520decd3218a3e2febe"
+    },
+    {
+      "package": "libqt5charts5",
+      "version": "5.15.13-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtcharts-opensource-src/libqt5charts5_5.15.13-1_amd64.deb",
+      "filename": "libqt5charts5_5.15.13-1_amd64.deb",
+      "size": 482186,
+      "sha256": "ecbe66ccf9ad309f0874c12c0cb15a888b4de61933ea175543753a03b5209fd5"
+    },
+    {
+      "package": "libqt5positioningquick5",
+      "version": "5.15.13+dfsg-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtlocation-opensource-src/libqt5positioningquick5_5.15.13%2bdfsg-1_amd64.deb",
+      "filename": "libqt5positioningquick5_5.15.13+dfsg-1_amd64.deb",
+      "size": 43648,
+      "sha256": "2a078bd7b7b7da0180b8710f3381261e9fa18b21fa37bdb88ded027a59044f6b"
+    },
+    {
+      "package": "libqt5location5",
+      "version": "5.15.13+dfsg-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtlocation-opensource-src/libqt5location5_5.15.13%2bdfsg-1_amd64.deb",
+      "filename": "libqt5location5_5.15.13+dfsg-1_amd64.deb",
+      "size": 745284,
+      "sha256": "492e7a14aa6a3ec01e902f9785f3d6395ffc79213bb4472cd74b4435c270f57f"
+    },
+    {
+      "package": "libqt5location5-plugins",
+      "version": "5.15.13+dfsg-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtlocation-opensource-src/libqt5location5-plugins_5.15.13%2bdfsg-1_amd64.deb",
+      "filename": "libqt5location5-plugins_5.15.13+dfsg-1_amd64.deb",
+      "size": 302632,
+      "sha256": "2ea2b3d27cc81fedd3e2952975dbe752bb02147f477c208b377bfe456f86420e"
+    },
+    {
+      "package": "libqt5serialport5",
+      "version": "5.15.13-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtserialport-opensource-src/libqt5serialport5_5.15.13-1_amd64.deb",
+      "filename": "libqt5serialport5_5.15.13-1_amd64.deb",
+      "size": 34294,
+      "sha256": "981fdf4cd9cc98f126a17fc0d11e0dae0be6f34ad5bd3ab56028ebafc6f15885"
+    },
+    {
+      "package": "libqt5positioning5-plugins",
+      "version": "5.15.13+dfsg-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtlocation-opensource-src/libqt5positioning5-plugins_5.15.13%2bdfsg-1_amd64.deb",
+      "filename": "libqt5positioning5-plugins_5.15.13+dfsg-1_amd64.deb",
+      "size": 90888,
+      "sha256": "1c5f873c1843b47daeca1bff647ecaa04d2b09dff05cd4ead4ebae9487012582"
+    },
+    {
+      "package": "libqt5quicktemplates2-5",
+      "version": "5.15.13+dfsg-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtquickcontrols2-opensource-src/libqt5quicktemplates2-5_5.15.13%2bdfsg-1_amd64.deb",
+      "filename": "libqt5quicktemplates2-5_5.15.13+dfsg-1_amd64.deb",
+      "size": 435116,
+      "sha256": "7bf692ab6f0276039a4639251d0d2f9d6562e7a97de80037bcabafd6ef46f6ce"
+    },
+    {
+      "package": "libqt5quickcontrols2-5",
+      "version": "5.15.13+dfsg-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtquickcontrols2-opensource-src/libqt5quickcontrols2-5_5.15.13%2bdfsg-1_amd64.deb",
+      "filename": "libqt5quickcontrols2-5_5.15.13+dfsg-1_amd64.deb",
+      "size": 66354,
+      "sha256": "04f88feb4043cbf945b92a691064c1ca8e3972b6517389ad740c432baab53193"
+    },
+    {
+      "package": "rubygems-integration",
+      "version": "1.18",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/r/rubygems-integration/rubygems-integration_1.18_all.deb",
+      "filename": "rubygems-integration_1.18_all.deb",
+      "size": 5336,
+      "sha256": "67b466d6297adeae37786a123ad029153961c4cbdcdd6cf50a6e6964e2d37342"
+    },
+    {
+      "package": "ruby3.2",
+      "version": "3.2.3-1ubuntu0.24.04.8",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/r/ruby3.2/ruby3.2_3.2.3-1ubuntu0.24.04.8_amd64.deb",
+      "filename": "ruby3.2_3.2.3-1ubuntu0.24.04.8_amd64.deb",
+      "size": 50654,
+      "sha256": "6f11e297b3508e8db95a5a047126a16ccf1358292049a27e3dc72b88180e779a"
+    },
+    {
+      "package": "ruby-rubygems",
+      "version": "3.4.20-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/r/rubygems/ruby-rubygems_3.4.20-1_all.deb",
+      "filename": "ruby-rubygems_3.4.20-1_all.deb",
+      "size": 238488,
+      "sha256": "9cb6041d902b74fd6e9373b24922e788bc2d1ed4360705ca6b53945d67b32087"
+    },
+    {
+      "package": "ruby",
+      "version": "1:3.2~ubuntu1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/r/ruby-defaults/ruby_3.2%7eubuntu1_amd64.deb",
+      "filename": "ruby_1%3a3.2~ubuntu1_amd64.deb",
+      "size": 3466,
+      "sha256": "b4e5390889e4502ce1e88ea016c5fe1ddf2cc4886df5b0652c0dd1eb06fbbf3a"
+    },
+    {
+      "package": "ruby-net-telnet",
+      "version": "0.2.0-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/r/ruby-net-telnet/ruby-net-telnet_0.2.0-1_all.deb",
+      "filename": "ruby-net-telnet_0.2.0-1_all.deb",
+      "size": 13308,
+      "sha256": "ece1fdca00a6a9565a4e425e13cfb320b247280a71d44e11bfee28fd6a7df2b5"
+    },
+    {
+      "package": "ruby-webrick",
+      "version": "1.8.1-1ubuntu0.2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/r/ruby-webrick/ruby-webrick_1.8.1-1ubuntu0.2_all.deb",
+      "filename": "ruby-webrick_1.8.1-1ubuntu0.2_all.deb",
+      "size": 52956,
+      "sha256": "7275a9563e0cd328f6043fc0360886c522b253f280e309a1864549bea8f25d88"
+    },
+    {
+      "package": "ruby-xmlrpc",
+      "version": "0.3.2-2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/r/ruby-xmlrpc/ruby-xmlrpc_0.3.2-2_all.deb",
+      "filename": "ruby-xmlrpc_0.3.2-2_all.deb",
+      "size": 24750,
+      "sha256": "9690c5b65b147d22f2b90dbb694c5d2af81ffa68f1a58f094e2afb91f3b20c3c"
+    },
+    {
+      "package": "ruby-sdbm",
+      "version": "1.0.0-5build4",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/r/ruby-sdbm/ruby-sdbm_1.0.0-5build4_amd64.deb",
+      "filename": "ruby-sdbm_1.0.0-5build4_amd64.deb",
+      "size": 16236,
+      "sha256": "102edbeafb3cc21d00e97c55c0c1b2651ef57913e6966b45d286361f2ddd2f5c"
+    },
+    {
+      "package": "libruby3.2",
+      "version": "3.2.3-1ubuntu0.24.04.8",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/r/ruby3.2/libruby3.2_3.2.3-1ubuntu0.24.04.8_amd64.deb",
+      "filename": "libruby3.2_3.2.3-1ubuntu0.24.04.8_amd64.deb",
+      "size": 5342224,
+      "sha256": "77c2e98ccfba2c4a4e5edb48ca8c0eb041702e1579eabc40cf07064fd4f3033e"
+    },
+    {
+      "package": "libruby",
+      "version": "1:3.2~ubuntu1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/r/ruby-defaults/libruby_3.2%7eubuntu1_amd64.deb",
+      "filename": "libruby_1%3a3.2~ubuntu1_amd64.deb",
+      "size": 4694,
+      "sha256": "73aa1a6a68c054b0cb7bef6dd8730f0d569849a5f295e9d42dce5e69c1798a18"
+    },
+    {
+      "package": "liburdfdom-model-state4.0",
+      "version": "4.0.0-0ubuntu1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/u/urdfdom/liburdfdom-model-state4.0_4.0.0-0ubuntu1_amd64.deb",
+      "filename": "liburdfdom-model-state4.0_4.0.0-0ubuntu1_amd64.deb",
+      "size": 13560,
+      "sha256": "2558897edab04076ffe8423a4c57c1e120657afe00df57011f9cc5c7023fed95"
+    },
+    {
+      "package": "liburdfdom-model4.0",
+      "version": "4.0.0-0ubuntu1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/u/urdfdom/liburdfdom-model4.0_4.0.0-0ubuntu1_amd64.deb",
+      "filename": "liburdfdom-model4.0_4.0.0-0ubuntu1_amd64.deb",
+      "size": 46284,
+      "sha256": "c2771dba3fdd19091fd5bb79ad31c8b2a9f667f5216cf54c0dabeabe01fc3532"
+    },
+    {
+      "package": "liburdfdom-sensor4.0",
+      "version": "4.0.0-0ubuntu1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/u/urdfdom/liburdfdom-sensor4.0_4.0.0-0ubuntu1_amd64.deb",
+      "filename": "liburdfdom-sensor4.0_4.0.0-0ubuntu1_amd64.deb",
+      "size": 11096,
+      "sha256": "dce3ff06e2aaf4c79460f5aac549d287a2ad92812adc85e44d34cbb5e2bd0dfe"
+    },
+    {
+      "package": "liburdfdom-world4.0",
+      "version": "4.0.0-0ubuntu1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/u/urdfdom/liburdfdom-world4.0_4.0.0-0ubuntu1_amd64.deb",
+      "filename": "liburdfdom-world4.0_4.0.0-0ubuntu1_amd64.deb",
+      "size": 45328,
+      "sha256": "b1f78e216caa14120b550cb47cb7f24384d3c460e3999408eb5f8530846af920"
+    },
+    {
+      "package": "libzip4t64",
+      "version": "1.7.3-1.1ubuntu2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/libz/libzip/libzip4t64_1.7.3-1.1ubuntu2_amd64.deb",
+      "filename": "libzip4t64_1.7.3-1.1ubuntu2_amd64.deb",
+      "size": 53596,
+      "sha256": "d7484efd8d9968ecab9e488fde59980fc633e0eb2bbf7f1ea8e33bf71c9ff1fb"
+    },
+    {
+      "package": "python3-protobuf",
+      "version": "3.21.12-8.2ubuntu0.3",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/protobuf/python3-protobuf_3.21.12-8.2ubuntu0.3_amd64.deb",
+      "filename": "python3-protobuf_3.21.12-8.2ubuntu0.3_amd64.deb",
+      "size": 199644,
+      "sha256": "2fcea669713ce18898e354ca940caffa3210baece9be4e4bb1104bb85e4dfbd8"
+    },
+    {
+      "package": "qml-module-qt-labs-folderlistmodel",
+      "version": "5.15.13+dfsg-1ubuntu0.1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtdeclarative-opensource-src/qml-module-qt-labs-folderlistmodel_5.15.13%2bdfsg-1ubuntu0.1_amd64.deb",
+      "filename": "qml-module-qt-labs-folderlistmodel_5.15.13+dfsg-1ubuntu0.1_amd64.deb",
+      "size": 35862,
+      "sha256": "e2c6e8eddb2cfcde9b77887a69677392eace23df44b2a3cb56031ba186d30eda"
+    },
+    {
+      "package": "qml-module-qt-labs-platform",
+      "version": "5.15.13+dfsg-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtquickcontrols2-opensource-src/qml-module-qt-labs-platform_5.15.13%2bdfsg-1_amd64.deb",
+      "filename": "qml-module-qt-labs-platform_5.15.13+dfsg-1_amd64.deb",
+      "size": 81582,
+      "sha256": "3d621a0cac16ca546ae0ff6bf03aeaf345c8e9846cf6e48b91ec0fba9b032de6"
+    },
+    {
+      "package": "qml-module-qt-labs-settings",
+      "version": "5.15.13+dfsg-1ubuntu0.1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtdeclarative-opensource-src/qml-module-qt-labs-settings_5.15.13%2bdfsg-1ubuntu0.1_amd64.deb",
+      "filename": "qml-module-qt-labs-settings_5.15.13+dfsg-1ubuntu0.1_amd64.deb",
+      "size": 26446,
+      "sha256": "9a8b8e83ec34fee0e01987e826e3df2e249ed0d8eb473d429bce398d150e1c19"
+    },
+    {
+      "package": "qml-module-qtcharts",
+      "version": "5.15.13-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtcharts-opensource-src/qml-module-qtcharts_5.15.13-1_amd64.deb",
+      "filename": "qml-module-qtcharts_5.15.13-1_amd64.deb",
+      "size": 136946,
+      "sha256": "b1672ec9dcf9bd873f24b9773309017f3aebcd91ef2f50e410aa383b76cb59d8"
+    },
+    {
+      "package": "qml-module-qtlocation",
+      "version": "5.15.13+dfsg-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtlocation-opensource-src/qml-module-qtlocation_5.15.13%2bdfsg-1_amd64.deb",
+      "filename": "qml-module-qtlocation_5.15.13+dfsg-1_amd64.deb",
+      "size": 47050,
+      "sha256": "bcadc3bac0e83591e2c9e39c7a21c268e0b13052cf6975f5a90dfc9a541b675d"
+    },
+    {
+      "package": "qml-module-qtpositioning",
+      "version": "5.15.13+dfsg-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtlocation-opensource-src/qml-module-qtpositioning_5.15.13%2bdfsg-1_amd64.deb",
+      "filename": "qml-module-qtpositioning_5.15.13+dfsg-1_amd64.deb",
+      "size": 26874,
+      "sha256": "8ebc061fcc04d8154f56f08b5363cf508f5647144237d8afa917707bedf911d4"
+    },
+    {
+      "package": "qml-module-qtquick-templates2",
+      "version": "5.15.13+dfsg-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtquickcontrols2-opensource-src/qml-module-qtquick-templates2_5.15.13%2bdfsg-1_amd64.deb",
+      "filename": "qml-module-qtquick-templates2_5.15.13+dfsg-1_amd64.deb",
+      "size": 76492,
+      "sha256": "195a393f0b714f8689385a4fa827a2b7a370cf25e530eebeec0031b35d1a4957"
+    },
+    {
+      "package": "qml-module-qtquick-controls2",
+      "version": "5.15.13+dfsg-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtquickcontrols2-opensource-src/qml-module-qtquick-controls2_5.15.13%2bdfsg-1_amd64.deb",
+      "filename": "qml-module-qtquick-controls2_5.15.13+dfsg-1_amd64.deb",
+      "size": 932514,
+      "sha256": "c8d9a372941bc6c907d5114d1aca06ab50c311ba523aa2fb15b7331ce4888e66"
+    },
+    {
+      "package": "qml-module-qtquick-privatewidgets",
+      "version": "5.15.13-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtquickcontrols-opensource-src/qml-module-qtquick-privatewidgets_5.15.13-1_amd64.deb",
+      "filename": "qml-module-qtquick-privatewidgets_5.15.13-1_amd64.deb",
+      "size": 48088,
+      "sha256": "357ccd363260ec9b45184c16451598cf3d2ce24fdbec438c5c04d36b46269e80"
+    },
+    {
+      "package": "qml-module-qtquick-dialogs",
+      "version": "5.15.13-1",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/q/qtquickcontrols-opensource-src/qml-module-qtquick-dialogs_5.15.13-1_amd64.deb",
+      "filename": "qml-module-qtquick-dialogs_5.15.13-1_amd64.deb",
+      "size": 131612,
+      "sha256": "303074c6febd127351af59bbf49065e21abf05cf2748d41d25f0c7f23f218003"
+    },
+    {
+      "package": "protobuf-compiler",
+      "version": "3.21.12-8.2ubuntu0.3",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/p/protobuf/protobuf-compiler_3.21.12-8.2ubuntu0.3_amd64.deb",
+      "filename": "protobuf-compiler_3.21.12-8.2ubuntu0.3_amd64.deb",
+      "size": 28972,
+      "sha256": "f308788203b1fc4292783115b9a0517eb2f3d1dbbfe28916f4aea6aca702691a"
+    }
+  ]
+}

@@ -1,0 +1,1165 @@
+{
+  "baseline": {
+    "first_corner_50_to_250ms": [
+      {
+        "trajectory_time_s": 8.0655,
+        "odometry_interval_s": [
+          11.06,
+          11.08
+        ],
+        "measured_body_forward_m_s": 0.23845887845219615,
+        "measured_base_lateral_m_s": 0.05169037809818722,
+        "measured_yaw_rad_s": 0.19069038420053547,
+        "wheel_inferred_yaw_rad_s": 0.1696409302427157,
+        "measured_axle_lateral_m_s": -1.3412673945965847e-05,
+        "wheel_surface_velocity_m_s": [
+          0.19059937429297566,
+          0.30280667119271754
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          0.17539375458939505,
+          0.30152400231499726
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.015205619703580614,
+          0.0012826688777202722
+        ]
+      },
+      {
+        "trajectory_time_s": 8.085999999999999,
+        "odometry_interval_s": [
+          11.08,
+          11.1
+        ],
+        "measured_body_forward_m_s": 0.22038054720469744,
+        "measured_base_lateral_m_s": 0.06598143158004098,
+        "measured_yaw_rad_s": 0.2435258410963311,
+        "wheel_inferred_yaw_rad_s": 0.2296324090236562,
+        "measured_axle_lateral_m_s": -4.8164974818229456e-05,
+        "wheel_surface_velocity_m_s": [
+          0.1583171242976085,
+          0.31020518492221566
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          0.1398416810373188,
+          0.30091941337207606
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.018475443260289687,
+          0.009285771550139599
+        ]
+      },
+      {
+        "trajectory_time_s": 8.1065,
+        "odometry_interval_s": [
+          11.1,
+          11.12
+        ],
+        "measured_body_forward_m_s": 0.2218203579155405,
+        "measured_base_lateral_m_s": 0.07993134874528174,
+        "measured_yaw_rad_s": 0.29517923661917594,
+        "wheel_inferred_yaw_rad_s": 0.2824708797126325,
+        "measured_axle_lateral_m_s": -0.00010354947164162298,
+        "wheel_surface_velocity_m_s": [
+          0.1250335885687009,
+          0.31187112724582455
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          0.12419868078084663,
+          0.3194420350502344
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.0008349077878542638,
+          -0.007570907804409832
+        ]
+      },
+      {
+        "trajectory_time_s": 8.1275,
+        "odometry_interval_s": [
+          11.12,
+          11.14
+        ],
+        "measured_body_forward_m_s": 0.20285931611737226,
+        "measured_base_lateral_m_s": 0.09048409241664701,
+        "measured_yaw_rad_s": 0.33455223869940337,
+        "wheel_inferred_yaw_rad_s": 0.3329515363712219,
+        "measured_axle_lateral_m_s": -0.0002264015843092132,
+        "wheel_surface_velocity_m_s": [
+          0.09329459751476563,
+          0.31352206173214664
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          0.09221619973470557,
+          0.31350243250003895
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.001078397780060053,
+          1.962923210768741e-05
+        ]
+      },
+      {
+        "trajectory_time_s": 8.148499999999999,
+        "odometry_interval_s": [
+          11.14,
+          11.16
+        ],
+        "measured_body_forward_m_s": 0.17347885405531469,
+        "measured_base_lateral_m_s": 0.10567990787317347,
+        "measured_yaw_rad_s": 0.39022473300762417,
+        "wheel_inferred_yaw_rad_s": 0.3836252814808565,
+        "measured_axle_lateral_m_s": -0.00012562623451374544,
+        "wheel_surface_velocity_m_s": [
+          0.061599374301654214,
+          0.315344480484352
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          0.04442373035503322,
+          0.30253397775559615
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.017175643946620994,
+          0.012810502728755835
+        ]
+      },
+      {
+        "trajectory_time_s": 8.1695,
+        "odometry_interval_s": [
+          11.16,
+          11.2
+        ],
+        "measured_body_forward_m_s": 0.1552100012464723,
+        "measured_base_lateral_m_s": 0.12758303066874,
+        "measured_yaw_rad_s": 0.47168451892454116,
+        "wheel_inferred_yaw_rad_s": 0.46309013994335263,
+        "measured_axle_lateral_m_s": -0.00030950979246008314,
+        "wheel_surface_velocity_m_s": [
+          0.012782769187012134,
+          0.3190891113511433
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.0007855028522519569,
+          0.31120550534519653
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.013568272039264091,
+          0.007883606005946786
+        ]
+      },
+      {
+        "trajectory_time_s": 8.1905,
+        "odometry_interval_s": [
+          11.2,
+          11.22
+        ],
+        "measured_body_forward_m_s": 0.14374000465965603,
+        "measured_base_lateral_m_s": 0.14608988254934235,
+        "measured_yaw_rad_s": 0.5394967368654049,
+        "wheel_inferred_yaw_rad_s": 0.539768642226548,
+        "measured_axle_lateral_m_s": -0.0001892626843435219,
+        "wheel_surface_velocity_m_s": [
+          -0.03595687570670158,
+          0.32106769500762633
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.034682356156470695,
+          0.32216236547578275
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.0012745195502308834,
+          -0.0010946704681564223
+        ]
+      },
+      {
+        "trajectory_time_s": 8.210999999999999,
+        "odometry_interval_s": [
+          11.22,
+          11.24
+        ],
+        "measured_body_forward_m_s": 0.12716356372303664,
+        "measured_base_lateral_m_s": 0.15974561387732586,
+        "measured_yaw_rad_s": 0.5918517893680935,
+        "wheel_inferred_yaw_rad_s": 0.589671575075695,
+        "measured_axle_lateral_m_s": -0.0007290802919389938,
+        "wheel_surface_velocity_m_s": [
+          -0.06813009872436915,
+          0.3219022678936986
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.06857366005677923,
+          0.3229007875028525
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.00044356133241008067,
+          -0.000998519609153925
+        ]
+      },
+      {
+        "trajectory_time_s": 8.2315,
+        "odometry_interval_s": [
+          11.24,
+          11.26
+        ],
+        "measured_body_forward_m_s": 0.11598912341290014,
+        "measured_base_lateral_m_s": 0.17905868699828695,
+        "measured_yaw_rad_s": 0.6641201075257372,
+        "wheel_inferred_yaw_rad_s": 0.6449219180108203,
+        "measured_axle_lateral_m_s": -0.0010108389562414333,
+        "wheel_surface_velocity_m_s": [
+          -0.10056811900493585,
+          0.3260090344441412
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.1036486785480117,
+          0.335626925373812
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.003080559543075845,
+          -0.009617890929670803
+        ]
+      }
+    ],
+    "peak_abs_rolling_residual_m_s_in_window": 0.018475443260289687,
+    "steady_before_first_corner_max_abs_residual_m_s": 0.011678520179728591,
+    "limitations": "Pose differences use simulator source timestamps; wheel feedback is integrated after interpolation onto same interval. Native joint publication is sampled at controller~21ms, so interpolation near an instantaneous switch is uncertain within one controller period. Rigid nominal chassis geometry neglects small rocker/pitch motion and true contact patch. Values diagnose nonideal rolling/body response; not a direct measured contact-force or tire-slip sensor."
+  },
+  "no_slew": {
+    "first_corner_50_to_250ms": [
+      {
+        "trajectory_time_s": 8.0505,
+        "odometry_interval_s": [
+          11.24,
+          11.28
+        ],
+        "measured_body_forward_m_s": 0.24436019388733943,
+        "measured_base_lateral_m_s": 0.04511350594623628,
+        "measured_yaw_rad_s": 0.17081996606668567,
+        "wheel_inferred_yaw_rad_s": 0.7527539117796788,
+        "measured_axle_lateral_m_s": -0.001202619653084873,
+        "wheel_surface_velocity_m_s": [
+          -0.20033883902743477,
+          0.297562708380116
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          0.18786661470976512,
+          0.30085377306491373
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.3882054537371999,
+          -0.0032910646847977287
+        ]
+      },
+      {
+        "trajectory_time_s": 8.0715,
+        "odometry_interval_s": [
+          11.28,
+          11.3
+        ],
+        "measured_body_forward_m_s": 0.1798893132058964,
+        "measured_base_lateral_m_s": 0.08987392908287817,
+        "measured_yaw_rad_s": 0.34413804667198133,
+        "wheel_inferred_yaw_rad_s": 0.987396428096509,
+        "measured_axle_lateral_m_s": -0.003435660891762851,
+        "wheel_surface_velocity_m_s": [
+          -0.34534944360900155,
+          0.30775404979115334
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          0.06607597841053874,
+          0.29370264800125406
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.4114254220195403,
+          0.014051401789899276
+        ]
+      },
+      {
+        "trajectory_time_s": 8.0925,
+        "odometry_interval_s": [
+          11.3,
+          11.32
+        ],
+        "measured_body_forward_m_s": 0.15692507179164805,
+        "measured_base_lateral_m_s": 0.12602046874862316,
+        "measured_yaw_rad_s": 0.48512951731401943,
+        "wheel_inferred_yaw_rad_s": 1.0056434688406042,
+        "measured_axle_lateral_m_s": -0.005517548575900061,
+        "wheel_surface_velocity_m_s": [
+          -0.35926167699964023,
+          0.305911139030289
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.0035169621744444712,
+          0.3173671057577406
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.35574471482519576,
+          -0.011455966727451583
+        ]
+      },
+      {
+        "trajectory_time_s": 8.113499999999998,
+        "odometry_interval_s": [
+          11.32,
+          11.34
+        ],
+        "measured_body_forward_m_s": 0.12671117102922344,
+        "measured_base_lateral_m_s": 0.15811935571526015,
+        "measured_yaw_rad_s": 0.6090609242899078,
+        "wheel_inferred_yaw_rad_s": 1.0230838533165079,
+        "measured_axle_lateral_m_s": -0.007021423296705437,
+        "wheel_surface_velocity_m_s": [
+          -0.36771953519566747,
+          0.30898904874200356
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.07471745785193487,
+          0.3281397999103818
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.2930020773437326,
+          -0.01915075116837822
+        ]
+      },
+      {
+        "trajectory_time_s": 8.134,
+        "odometry_interval_s": [
+          11.34,
+          11.36
+        ],
+        "measured_body_forward_m_s": 0.07382955075578401,
+        "measured_base_lateral_m_s": 0.17761520797964203,
+        "measured_yaw_rad_s": 0.6854046657928805,
+        "wheel_inferred_yaw_rad_s": 1.0375941511107487,
+        "measured_axle_lateral_m_s": -0.008225413103439577,
+        "wheel_surface_velocity_m_s": [
+          -0.37372243860333826,
+          0.31258383670735546
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.15284748031523743,
+          0.30050658182680545
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.22087495828810083,
+          0.012077254880550004
+        ]
+      },
+      {
+        "trajectory_time_s": 8.154499999999999,
+        "odometry_interval_s": [
+          11.36,
+          11.38
+        ],
+        "measured_body_forward_m_s": 0.026719651182284716,
+        "measured_base_lateral_m_s": 0.20570148422115475,
+        "measured_yaw_rad_s": 0.7912781555610503,
+        "wheel_inferred_yaw_rad_s": 1.049134339833653,
+        "measured_axle_lateral_m_s": -0.008845674877668408,
+        "wheel_surface_velocity_m_s": [
+          -0.3769659064459989,
+          0.31697351129357254
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.2349718604248658,
+          0.28841116278943524
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.1419940460211331,
+          0.028562348504137303
+        ]
+      },
+      {
+        "trajectory_time_s": 8.1755,
+        "odometry_interval_s": [
+          11.38,
+          11.4
+        ],
+        "measured_body_forward_m_s": 0.0045432383343376286,
+        "measured_base_lateral_m_s": 0.24474729076931492,
+        "measured_yaw_rad_s": 0.9163667475993593,
+        "wheel_inferred_yaw_rad_s": 1.0578155245443985,
+        "measured_axle_lateral_m_s": -0.0037163891747753475,
+        "wheel_surface_velocity_m_s": [
+          -0.3772293305819455,
+          0.32245216997270154
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.2985175724317225,
+          0.30760404910039774
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.07871175815022302,
+          0.014848120872303805
+        ]
+      },
+      {
+        "trajectory_time_s": 8.1965,
+        "odometry_interval_s": [
+          11.4,
+          11.42
+        ],
+        "measured_body_forward_m_s": -0.040147762131283765,
+        "measured_base_lateral_m_s": 0.2693796109749071,
+        "measured_yaw_rad_s": 1.0040241359840376,
+        "wheel_inferred_yaw_rad_s": 1.0641139731060438,
+        "measured_axle_lateral_m_s": -0.00285149325580486,
+        "wheel_surface_velocity_m_s": [
+          -0.3748486729564168,
+          0.32899887341484496
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.3721986243839247,
+          0.2919031001213571
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.0026500485724920697,
+          0.037095773293487844
+        ]
+      },
+      {
+        "trajectory_time_s": 8.2175,
+        "odometry_interval_s": [
+          11.42,
+          11.44
+        ],
+        "measured_body_forward_m_s": -0.03060921953835164,
+        "measured_base_lateral_m_s": 0.28881140978414316,
+        "measured_yaw_rad_s": 1.0494452345677254,
+        "wheel_inferred_yaw_rad_s": 1.0665603668261978,
+        "measured_axle_lateral_m_s": 0.004264828883450089,
+        "wheel_surface_velocity_m_s": [
+          -0.3699426364315367,
+          0.33552305260198356
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.3776817475145898,
+          0.3164633084378865
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.007739111083053141,
+          0.01905974416409706
+        ]
+      },
+      {
+        "trajectory_time_s": 8.238499999999998,
+        "odometry_interval_s": [
+          11.44,
+          11.46
+        ],
+        "measured_body_forward_m_s": -0.0235105020044803,
+        "measured_base_lateral_m_s": 0.2852139287971539,
+        "measured_yaw_rad_s": 1.0626762201953748,
+        "wheel_inferred_yaw_rad_s": 1.0663421998621403,
+        "measured_axle_lateral_m_s": -0.0029201015466199798,
+        "wheel_surface_velocity_m_s": [
+          -0.3625750392859371,
+          0.34274634539087695
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.3749587815474947,
+          0.3279377775385341
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.012383742261557584,
+          0.014808567852342858
+        ]
+      }
+    ],
+    "peak_abs_rolling_residual_m_s_in_window": 0.4114254220195403,
+    "steady_before_first_corner_max_abs_residual_m_s": 0.010487704566804146,
+    "limitations": "Pose differences use simulator source timestamps; wheel feedback is integrated after interpolation onto same interval. Native joint publication is sampled at controller~21ms, so interpolation near an instantaneous switch is uncertain within one controller period. Rigid nominal chassis geometry neglects small rocker/pitch motion and true contact patch. Values diagnose nonideal rolling/body response; not a direct measured contact-force or tire-slip sensor."
+  },
+  "half_speed": {
+    "first_corner_50_to_250ms": [
+      {
+        "trajectory_time_s": 16.0665,
+        "odometry_interval_s": [
+          19.06,
+          19.08
+        ],
+        "measured_body_forward_m_s": 0.10524135158576414,
+        "measured_base_lateral_m_s": 0.03956576818039298,
+        "measured_yaw_rad_s": 0.14595128125461132,
+        "wheel_inferred_yaw_rad_s": 0.13489952990765308,
+        "measured_axle_lateral_m_s": -7.462218982332014e-06,
+        "wheel_surface_velocity_m_s": [
+          0.06519589953901495,
+          0.154423844601133
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          0.056972343849239084,
+          0.1535103593222892
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.008223555689775862,
+          0.0009134852788438008
+        ]
+      },
+      {
+        "trajectory_time_s": 16.0875,
+        "odometry_interval_s": [
+          19.08,
+          19.1
+        ],
+        "measured_body_forward_m_s": 0.0974407784899667,
+        "measured_base_lateral_m_s": 0.05400634206639697,
+        "measured_yaw_rad_s": 0.19923393489568392,
+        "wheel_inferred_yaw_rad_s": 0.18464806876916776,
+        "measured_axle_lateral_m_s": -1.3947041218764777e-05,
+        "wheel_surface_velocity_m_s": [
+          0.03294589953997753,
+          0.15507951814665585
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          0.03155013154126611,
+          0.1633314254386673
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.0013957679987114183,
+          -0.008251907292011446
+        ]
+      },
+      {
+        "trajectory_time_s": 16.108,
+        "odometry_interval_s": [
+          19.1,
+          19.12
+        ],
+        "measured_body_forward_m_s": 0.06752893219888771,
+        "measured_base_lateral_m_s": 0.06675908677363913,
+        "measured_yaw_rad_s": 0.24635798382771049,
+        "wheel_inferred_yaw_rad_s": 0.2343276882171877,
+        "measured_axle_lateral_m_s": -3.8416961406287364e-05,
+        "wheel_surface_velocity_m_s": [
+          0.0006777589150005492,
+          0.15567146500937717
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.013946580212612705,
+          0.14900444461038814
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.014624339127613255,
+          0.006667020398989032
+        ]
+      },
+      {
+        "trajectory_time_s": 16.128500000000003,
+        "odometry_interval_s": [
+          19.12,
+          19.14
+        ],
+        "measured_body_forward_m_s": 0.05860801921702117,
+        "measured_base_lateral_m_s": 0.07883851602154202,
+        "measured_yaw_rad_s": 0.29084299873624664,
+        "wheel_inferred_yaw_rad_s": 0.28544910365255544,
+        "measured_axle_lateral_m_s": -2.0654655803892252e-05,
+        "wheel_surface_velocity_m_s": [
+          -0.03256680803878624,
+          0.15624064708116003
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.03757957732503032,
+          0.15479561575907266
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.005012769286244077,
+          0.00144503132208737
+        ]
+      },
+      {
+        "trajectory_time_s": 16.1495,
+        "odometry_interval_s": [
+          19.14,
+          19.16
+        ],
+        "measured_body_forward_m_s": 0.04281386995174681,
+        "measured_base_lateral_m_s": 0.09453586210552521,
+        "measured_yaw_rad_s": 0.34894823385912177,
+        "wheel_inferred_yaw_rad_s": 0.3347636072752193,
+        "measured_axle_lateral_m_s": -7.796202303705924e-05,
+        "wheel_surface_velocity_m_s": [
+          -0.06442606472796732,
+          0.15699997566815377
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.07259028995014194,
+          0.15821802985363556
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.008164225222174623,
+          -0.0012180541854817928
+        ]
+      },
+      {
+        "trajectory_time_s": 16.1705,
+        "odometry_interval_s": [
+          19.16,
+          19.18
+        ],
+        "measured_body_forward_m_s": 0.0187098270022873,
+        "measured_base_lateral_m_s": 0.1069010050560295,
+        "measured_yaw_rad_s": 0.39464221261561194,
+        "wheel_inferred_yaw_rad_s": 0.3841188887401889,
+        "measured_axle_lateral_m_s": -0.00010228447256752093,
+        "wheel_surface_velocity_m_s": [
+          -0.09605611606308775,
+          0.15801548170522284
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.11180624555394789,
+          0.14922589955852247
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.015750129490860132,
+          0.008789582146700364
+        ]
+      },
+      {
+        "trajectory_time_s": 16.1915,
+        "odometry_interval_s": [
+          19.18,
+          19.22
+        ],
+        "measured_body_forward_m_s": -0.005425143552982775,
+        "measured_base_lateral_m_s": 0.1262177306029011,
+        "measured_yaw_rad_s": 0.46659674518146227,
+        "wheel_inferred_yaw_rad_s": 0.46144823985210964,
+        "measured_axle_lateral_m_s": -0.00029531088560058594,
+        "wheel_surface_velocity_m_s": [
+          -0.1452718149411415,
+          0.15994850882663791
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.15973801911939597,
+          0.14888773201343045
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.014466204178254477,
+          0.011060776813207468
+        ]
+      },
+      {
+        "trajectory_time_s": 16.2125,
+        "odometry_interval_s": [
+          19.22,
+          19.24
+        ],
+        "measured_body_forward_m_s": -0.03264546167420669,
+        "measured_base_lateral_m_s": 0.14231733992401965,
+        "measured_yaw_rad_s": 0.5242264714858448,
+        "wheel_inferred_yaw_rad_s": 0.518303971705067,
+        "measured_axle_lateral_m_s": 0.00017857444534769007,
+        "wheel_surface_velocity_m_s": [
+          -0.18168422049090774,
+          0.16114275855369187
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.20601764032400527,
+          0.14072671697559191
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.02433341983309753,
+          0.020416041578099953
+        ]
+      },
+      {
+        "trajectory_time_s": 16.233,
+        "odometry_interval_s": [
+          19.24,
+          19.26
+        ],
+        "measured_body_forward_m_s": -0.03171502120708627,
+        "measured_base_lateral_m_s": 0.1455690188391926,
+        "measured_yaw_rad_s": 0.5360722710925853,
+        "wheel_inferred_yaw_rad_s": 0.524066517821421,
+        "measured_axle_lateral_m_s": 0.00021838325514902945,
+        "wheel_surface_velocity_m_s": [
+          -0.18503941517119568,
+          0.161599142376605
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.20900484270282607,
+          0.14557480028865352
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.02396542753163039,
+          0.016024342087951476
+        ]
+      }
+    ],
+    "peak_abs_rolling_residual_m_s_in_window": 0.02433341983309753,
+    "steady_before_first_corner_max_abs_residual_m_s": 0.004612608567619622,
+    "limitations": "Pose differences use simulator source timestamps; wheel feedback is integrated after interpolation onto same interval. Native joint publication is sampled at controller~21ms, so interpolation near an instantaneous switch is uncertain within one controller period. Rigid nominal chassis geometry neglects small rocker/pitch motion and true contact patch. Values diagnose nonideal rolling/body response; not a direct measured contact-force or tire-slip sensor."
+  },
+  "quintic_stop": {
+    "first_corner_50_to_250ms": [
+      {
+        "trajectory_time_s": 15.066500000000001,
+        "odometry_interval_s": [
+          18.06,
+          18.08
+        ],
+        "measured_body_forward_m_s": -0.0003704684311970317,
+        "measured_base_lateral_m_s": 9.549075515703855e-05,
+        "measured_yaw_rad_s": 0.00035223161676257357,
+        "wheel_inferred_yaw_rad_s": 0.00031462878938568877,
+        "measured_axle_lateral_m_s": -1.3325411965644986e-08,
+        "wheel_surface_velocity_m_s": [
+          -0.00047539527935590276,
+          -0.0002672872129046328
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.00048695847149275,
+          -0.00025397839090131335
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          1.1563192136847256e-05,
+          -1.3308822003319431e-05
+        ]
+      },
+      {
+        "trajectory_time_s": 15.0875,
+        "odometry_interval_s": [
+          18.08,
+          18.1
+        ],
+        "measured_body_forward_m_s": -0.00030555345163491324,
+        "measured_base_lateral_m_s": 0.00010556403643114046,
+        "measured_yaw_rad_s": 0.00038932339940783175,
+        "wheel_inferred_yaw_rad_s": 0.0004146123929103537,
+        "measured_axle_lateral_m_s": 2.88991570096249e-09,
+        "wheel_surface_velocity_m_s": [
+          -0.0004978840683942207,
+          -0.0002236428472275964
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.00043431048628707135,
+          -0.00017679641698275513
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -6.357358210714936e-05,
+          -4.6846430244841265e-05
+        ]
+      },
+      {
+        "trajectory_time_s": 15.108,
+        "odometry_interval_s": [
+          18.1,
+          18.12
+        ],
+        "measured_body_forward_m_s": -0.0003210854264192109,
+        "measured_base_lateral_m_s": 0.00016555622655847594,
+        "measured_yaw_rad_s": 0.000610490834884749,
+        "wheel_inferred_yaw_rad_s": 0.0005681240313400887,
+        "measured_axle_lateral_m_s": 2.774158782510236e-08,
+        "wheel_surface_velocity_m_s": [
+          -0.0005380240256715868,
+          -0.00016224406638199856
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.0005229869553322951,
+          -0.00011918389750612671
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -1.5037070339291763e-05,
+          -4.306016887587185e-05
+        ]
+      },
+      {
+        "trajectory_time_s": 15.1285,
+        "odometry_interval_s": [
+          18.12,
+          18.14
+        ],
+        "measured_body_forward_m_s": -0.0003021239268222355,
+        "measured_base_lateral_m_s": 0.00023026424098937563,
+        "measured_yaw_rad_s": 0.0008490355854040747,
+        "wheel_inferred_yaw_rad_s": 0.0007838933615258583,
+        "measured_axle_lateral_m_s": 5.6732362914847356e-08,
+        "wheel_surface_velocity_m_s": [
+          -0.0005997992919024637,
+          -8.13008668547999e-05
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.000582916975627071,
+          -2.1330878017399902e-05
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -1.6882316275392668e-05,
+          -5.996998883739999e-05
+        ]
+      },
+      {
+        "trajectory_time_s": 15.1495,
+        "odometry_interval_s": [
+          18.14,
+          18.16
+        ],
+        "measured_body_forward_m_s": -0.00029510974131982193,
+        "measured_base_lateral_m_s": 0.00032115614825238537,
+        "measured_yaw_rad_s": 0.0011841130088008607,
+        "wheel_inferred_yaw_rad_s": 0.0010425509415201335,
+        "measured_axle_lateral_m_s": 9.574704611998346e-08,
+        "wheel_surface_velocity_m_s": [
+          -0.0006762850174691297,
+          1.3299877289947447e-05
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.0006867195955904425,
+          9.650011295079874e-05
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          1.0434578121312895e-05,
+          -8.32002356608513e-05
+        ]
+      },
+      {
+        "trajectory_time_s": 15.1705,
+        "odometry_interval_s": [
+          18.16,
+          18.2
+        ],
+        "measured_body_forward_m_s": -0.00025313869139267047,
+        "measured_base_lateral_m_s": 0.00046418897348685795,
+        "measured_yaw_rad_s": 0.0017113978379224377,
+        "wheel_inferred_yaw_rad_s": 0.0015487221768576383,
+        "measured_axle_lateral_m_s": 1.605637125681866e-07,
+        "wheel_surface_velocity_m_s": [
+          -0.0008304477928636025,
+          0.00019393900379711376
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.0008191321843503791,
+          0.00031285480156503814
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -1.131560851322334e-05,
+          -0.00011891579776792438
+        ]
+      },
+      {
+        "trajectory_time_s": 15.191500000000001,
+        "odometry_interval_s": [
+          18.2,
+          18.22
+        ],
+        "measured_body_forward_m_s": -0.00020195948368458027,
+        "measured_base_lateral_m_s": 0.0006147489051488085,
+        "measured_yaw_rad_s": 0.0022664388858562516,
+        "wheel_inferred_yaw_rad_s": 0.002116427623166731,
+        "measured_axle_lateral_m_s": 2.2666563774444842e-07,
+        "wheel_surface_velocity_m_s": [
+          -0.0010027100575222961,
+          0.00039717982954510665
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.0009515161520149599,
+          0.0005475971846457993
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -5.1193905507336264e-05,
+          -0.00015041735510069269
+        ]
+      },
+      {
+        "trajectory_time_s": 15.2125,
+        "odometry_interval_s": [
+          18.22,
+          18.24
+        ],
+        "measured_body_forward_m_s": -0.00017615282970556503,
+        "measured_base_lateral_m_s": 0.0007440655500523351,
+        "measured_yaw_rad_s": 0.002743172296149124,
+        "wheel_inferred_yaw_rad_s": 0.00254139034616482,
+        "measured_axle_lateral_m_s": 2.8181367446155486e-07,
+        "wheel_surface_velocity_m_s": [
+          -0.0011332379364785217,
+          0.000547739294088737
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.0010833747714880035,
+          0.0007310691120768734
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -4.9863164990518244e-05,
+          -0.0001833298179881364
+        ]
+      },
+      {
+        "trajectory_time_s": 15.233,
+        "odometry_interval_s": [
+          18.24,
+          18.26
+        ],
+        "measured_body_forward_m_s": -0.00015073570574881636,
+        "measured_base_lateral_m_s": 0.000879823208362601,
+        "measured_yaw_rad_s": 0.003243652147987878,
+        "wheel_inferred_yaw_rad_s": 0.0030625065695835487,
+        "measured_axle_lateral_m_s": 3.3936495716770185e-07,
+        "wheel_surface_velocity_m_s": [
+          -0.0013001854349302152,
+          0.0007254789104551272
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.0012234763441313673,
+          0.0009220049326337347
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -7.670909079884793e-05,
+          -0.0001965260221786075
+        ]
+      }
+    ],
+    "peak_abs_rolling_residual_m_s_in_window": 0.0001965260221786075,
+    "steady_before_first_corner_max_abs_residual_m_s": 0.000765775980641903,
+    "limitations": "Pose differences use simulator source timestamps; wheel feedback is integrated after interpolation onto same interval. Native joint publication is sampled at controller~21ms, so interpolation near an instantaneous switch is uncertain within one controller period. Rigid nominal chassis geometry neglects small rocker/pitch motion and true contact patch. Values diagnose nonideal rolling/body response; not a direct measured contact-force or tire-slip sensor."
+  },
+  "no_slew_half_step": {
+    "first_corner_50_to_250ms": [
+      {
+        "trajectory_time_s": 8.065000000000001,
+        "odometry_interval_s": [
+          11.06,
+          11.08
+        ],
+        "measured_body_forward_m_s": 0.21474248618265127,
+        "measured_base_lateral_m_s": 0.07078202089865454,
+        "measured_yaw_rad_s": 0.26782154772158634,
+        "wheel_inferred_yaw_rad_s": 0.9639604626781034,
+        "measured_axle_lateral_m_s": -0.0018351135505763755,
+        "wheel_surface_velocity_m_s": [
+          -0.3290877350550274,
+          0.3085142733787774
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          0.12616854392016824,
+          0.3033164284451343
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.45525627897519566,
+          0.005197844933643114
+        ]
+      },
+      {
+        "trajectory_time_s": 8.085250000000002,
+        "odometry_interval_s": [
+          11.08,
+          11.1
+        ],
+        "measured_body_forward_m_s": 0.17045043195973014,
+        "measured_base_lateral_m_s": 0.09998888044337262,
+        "measured_yaw_rad_s": 0.38420072803434224,
+        "wheel_inferred_yaw_rad_s": 0.9883677018179443,
+        "measured_axle_lateral_m_s": -0.0041833049558589325,
+        "wheel_surface_velocity_m_s": [
+          -0.34402544811459584,
+          0.3097204845758652
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          0.04338756718421247,
+          0.29751329673524785
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.38741301529880834,
+          0.012207187840617362
+        ]
+      },
+      {
+        "trajectory_time_s": 8.10575,
+        "odometry_interval_s": [
+          11.1,
+          11.12
+        ],
+        "measured_body_forward_m_s": 0.12617613710747108,
+        "measured_base_lateral_m_s": 0.12954520442140552,
+        "measured_yaw_rad_s": 0.5018042346683567,
+        "wheel_inferred_yaw_rad_s": 1.0090418914424888,
+        "measured_axle_lateral_m_s": -0.006513995766572717,
+        "wheel_surface_velocity_m_s": [
+          -0.3561385131013505,
+          0.3112821555743693
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.03978055938204783,
+          0.29213283359699
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.31635795371930264,
+          0.019149321977379286
+        ]
+      },
+      {
+        "trajectory_time_s": 8.126000000000001,
+        "odometry_interval_s": [
+          11.12,
+          11.14
+        ],
+        "measured_body_forward_m_s": 0.0844355225786784,
+        "measured_base_lateral_m_s": 0.15981337486291125,
+        "measured_yaw_rad_s": 0.6197573187497943,
+        "wheel_inferred_yaw_rad_s": 1.0274309236106671,
+        "measured_axle_lateral_m_s": -0.008227624542907985,
+        "wheel_surface_velocity_m_s": [
+          -0.3655973550826152,
+          0.3139865550304244
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.12053061787825359,
+          0.2894016630356104
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.24506673720436162,
+          0.024584891994814007
+        ]
+      },
+      {
+        "trajectory_time_s": 8.146250000000002,
+        "odometry_interval_s": [
+          11.14,
+          11.16
+        ],
+        "measured_body_forward_m_s": 0.045982509134254466,
+        "measured_base_lateral_m_s": 0.19354392111922183,
+        "measured_yaw_rad_s": 0.7428245144412251,
+        "wheel_inferred_yaw_rad_s": 1.0429255675946516,
+        "measured_axle_lateral_m_s": -0.007865517726371923,
+        "wheel_surface_velocity_m_s": [
+          -0.3720515456987051,
+          0.3177811417311014
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.1996844142817475,
+          0.29164943255025644
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.1723671314169576,
+          0.026131709180844953
+        ]
+      },
+      {
+        "trajectory_time_s": 8.16675,
+        "odometry_interval_s": [
+          11.16,
+          11.18
+        ],
+        "measured_body_forward_m_s": 0.03109846227888401,
+        "measured_base_lateral_m_s": 0.23510387627205048,
+        "measured_yaw_rad_s": 0.8860831869540198,
+        "wheel_inferred_yaw_rad_s": 1.0549108494943462,
+        "measured_axle_lateral_m_s": -0.00514871903866243,
+        "wheel_surface_velocity_m_s": [
+          -0.3753680285458818,
+          0.32239220374365857
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.2619469693105494,
+          0.32414389386831743
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.11342105923533241,
+          -0.0017516901246588668
+        ]
+      },
+      {
+        "trajectory_time_s": 8.187000000000001,
+        "odometry_interval_s": [
+          11.18,
+          11.2
+        ],
+        "measured_body_forward_m_s": -0.01305052302409293,
+        "measured_base_lateral_m_s": 0.2549899906679125,
+        "measured_yaw_rad_s": 0.9518714450999036,
+        "wheel_inferred_yaw_rad_s": 1.063923747543223,
+        "measured_axle_lateral_m_s": -0.003100432956475385,
+        "wheel_surface_velocity_m_s": [
+          -0.3757327735352907,
+          0.32798895003969875
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.3278534473475331,
+          0.3017524012993472
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.04787932618775764,
+          0.02623654874035153
+        ]
+      },
+      {
+        "trajectory_time_s": 8.207250000000002,
+        "odometry_interval_s": [
+          11.2,
+          11.22
+        ],
+        "measured_body_forward_m_s": -0.029927286631577597,
+        "measured_base_lateral_m_s": 0.2774483402508986,
+        "measured_yaw_rad_s": 1.0293333729598921,
+        "wheel_inferred_yaw_rad_s": 1.068926904663803,
+        "measured_axle_lateral_m_s": -0.0016451104934465666,
+        "wheel_surface_velocity_m_s": [
+          -0.3732261359329625,
+          0.3338048758878634
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.37034841973687316,
+          0.3104938464737179
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          -0.0028777161960893416,
+          0.02331102941414548
+        ]
+      },
+      {
+        "trajectory_time_s": 8.22775,
+        "odometry_interval_s": [
+          11.22,
+          11.24
+        ],
+        "measured_body_forward_m_s": -0.026322450328514463,
+        "measured_base_lateral_m_s": 0.2820370498887634,
+        "measured_yaw_rad_s": 1.0401293757614782,
+        "wheel_inferred_yaw_rad_s": 1.0703761212584448,
+        "measured_axle_lateral_m_s": 1.6370944796173514e-05,
+        "wheel_surface_velocity_m_s": [
+          -0.3679550845051424,
+          0.3400344971400433
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.3703140374803505,
+          0.31766913682332165
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.002358952975208106,
+          0.02236536031672165
+        ]
+      },
+      {
+        "trajectory_time_s": 8.248000000000001,
+        "odometry_interval_s": [
+          11.24,
+          11.26
+        ],
+        "measured_body_forward_m_s": -0.046667269389995915,
+        "measured_base_lateral_m_s": 0.2967725337164485,
+        "measured_yaw_rad_s": 1.0947880451094416,
+        "wheel_inferred_yaw_rad_s": 1.0693401088199863,
+        "measured_axle_lateral_m_s": -6.829683452547197e-05,
+        "wheel_surface_velocity_m_s": [
+          -0.3605628970184222,
+          0.34674142455946966
+        ],
+        "rigid_body_wheel_point_velocity_m_s": [
+          -0.4087355716685905,
+          0.3154010328885986
+        ],
+        "wheel_surface_minus_body_point_velocity_m_s": [
+          0.04817267465016828,
+          0.03134039167087105
+        ]
+      }
+    ],
+    "peak_abs_rolling_residual_m_s_in_window": 0.45525627897519566,
+    "steady_before_first_corner_max_abs_residual_m_s": 0.00993918027827842,
+    "limitations": "Pose differences use simulator source timestamps; wheel feedback is integrated after interpolation onto same interval. Native joint publication is sampled at controller~21ms, so interpolation near an instantaneous switch is uncertain within one controller period. Rigid nominal chassis geometry neglects small rocker/pitch motion and true contact patch. Values diagnose nonideal rolling/body response; not a direct measured contact-force or tire-slip sensor."
+  }
+}

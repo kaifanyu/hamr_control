@@ -1,0 +1,17 @@
+{
+  "half_step": {
+    "exit_code": 0,
+    "report": "rig_dt_0005.json",
+    "launch_log": "half_step.log"
+  },
+  "seam": {
+    "exit_code": 0,
+    "report": "rig_seam.json",
+    "launch_log": "seam.log"
+  },
+  "pole": {
+    "exit_code": 0,
+    "report": "rig_pole.json",
+    "launch_log": "pole.log"
+  }
+}

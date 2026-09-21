@@ -13,11 +13,6 @@ CONTROLLER_CONFIG = PACKAGE_DIR / 'config' / 'hamr_hw_control_params.yaml'
 BRIDGE_CONFIG = PACKAGE_DIR / 'config' / 'hamr_uros_bridge.yaml'
 RECORD_QOS_CONFIG = PACKAGE_DIR / 'config' / 'record_qos.yaml'
 HARDWARE_LAUNCH = PACKAGE_DIR / 'launch' / 'hamr_HW.launch.xml'
-WAYPOINT_VICON_UNPROTECTED_LAUNCH = (
-    PACKAGE_DIR
-    / 'launch'
-    / 'hamr_HW_waypoint_vicon_unprotected.launch.xml'
-)
 HARDWARE_WHEEL_SPEED_LIMIT_RAD_S = 2.93215314335
 
 
@@ -152,43 +147,9 @@ def test_normal_hardware_feedback_defaults_remain_vicon_specific():
     assert odom_remaps[0].get('to') == '$(var controller_odom_topic)'
 
 
-def test_waypoint_vicon_unprotected_wrapper_is_narrow_and_one_shot():
-    launch = ET.parse(WAYPOINT_VICON_UNPROTECTED_LAUNCH).getroot()
-    defaults = {
-        element.get('name'): element.get('default')
-        for element in launch.findall('arg')
-    }
-    assert defaults['enable_waypoint'] == 'false'
-    assert float(defaults['v_lin']) == pytest.approx(0.20)
-    assert float(defaults['reference_timer_hz']) == pytest.approx(50.0)
-    assert float(defaults['startup_hold_s']) == pytest.approx(2.0)
-    assert float(defaults['final_hold_s']) == pytest.approx(3.0)
-    assert defaults['loop'] == 'false'
-    assert int(defaults['required_reference_subscribers']) == 2
-    assert float(defaults['subscriber_stable_s']) == pytest.approx(1.0)
-
-    includes = launch.findall('include')
-    assert len(includes) == 1
-    include_args = {
-        element.get('name'): element.get('value')
-        for element in includes[0].findall('arg')
-    }
-    assert float(
-        include_args['controller_reference_timeout_s']
-    ) == pytest.approx(0.12)
-    assert include_args['controller_odom_topic'] == '/HAMR_base/odom'
-    assert float(include_args['controller_odom_timeout_s']) == pytest.approx(
-        0.0
-    )
-    assert include_args['controller_xy_velocity_source'] == (
-        'odom_twist_world'
-    )
-    assert include_args['controller_vicon_pose_guard_enabled'] == 'false'
-    assert 'controller_vicon_min_z_m' not in include_args
-    assert 'controller_vicon_max_z_m' not in include_args
-    assert 'controller_vicon_source_stamp_policy' not in include_args
-
-    # The wrapper does not weaken downstream actuator shutdown behavior.
+def test_hardware_actuator_shutdown_and_pose_guards():
+    # The retired unprotected waypoint launch is no longer part of the stack.
+    # Keep the independent actuator and localization guarantees under test.
     bridge_config = yaml.safe_load(
         BRIDGE_CONFIG.read_text(encoding='utf-8')
     )['hamr_uros_bridge']['ros__parameters']
@@ -210,32 +171,6 @@ def test_waypoint_vicon_unprotected_wrapper_is_narrow_and_one_shot():
     ] == pytest.approx(0.35)
     assert controller_config['vicon_max_tilt_rad'] == pytest.approx(0.35)
     assert controller_config['vicon_recovery_samples'] == 10
-
-    waypoint_nodes = [
-        element
-        for element in launch.findall('node')
-        if element.get('pkg') == 'reference_trajectory'
-        and element.get('exec') == 'waypoint_traj_simple'
-    ]
-    assert len(waypoint_nodes) == 1
-    waypoint = waypoint_nodes[0]
-    assert waypoint.get('if') == '$(var enable_waypoint)'
-    waypoint_params = {
-        element.get('name'): element.get('value')
-        for element in waypoint.findall('param')
-    }
-    assert waypoint_params == {
-        'v_lin': '$(var v_lin)',
-        'w_yaw': '$(var w_yaw)',
-        'reference_timer_hz': '$(var reference_timer_hz)',
-        'startup_hold_s': '$(var startup_hold_s)',
-        'final_hold_s': '$(var final_hold_s)',
-        'loop': '$(var loop)',
-        'required_reference_subscribers': (
-            '$(var required_reference_subscribers)'
-        ),
-        'subscriber_stable_s': '$(var subscriber_stable_s)',
-    }
 
 
 def test_ros_feedforward_compensation_is_bounded_but_neutral_by_default():

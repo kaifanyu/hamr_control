@@ -1,0 +1,16 @@
+{
+  "original_source": "/home/para/hamr_control/hamr_ball_caster/scripts/run_waypoint_sim.py",
+  "original_source_sha256": "50ed786806f98185b6a18c176bdbe26149974c9eab819000dd71e64d3fcc7374",
+  "instrumented_source_sha256": "4e2d566c54977cf6e1c101196f927fea517992707633e71870d75593ed65d3e6",
+  "changes": [
+    "Retain each controller update instead of 20Hz output.",
+    "Log measured joint velocity, odometry twist, source timestamps, requested and limited wheel rates.",
+    "No control-law or physics changes."
+  ],
+  "quintic_runner_sha256": "94e961d0d51cab5162222a79f62004fd94f43969c28ac836cfb718af3dcdbced",
+  "quintic_changes": [
+    "Quintic per-segment reference interpolation f=10u^3-15u^4+6u^5",
+    "Duration per segment is 1.875*length/max_reference_speed",
+    "Scope metadata states different timing; controller and actuator caps unchanged"
+  ]
+}

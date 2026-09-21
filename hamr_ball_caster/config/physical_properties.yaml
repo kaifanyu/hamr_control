@@ -1,0 +1,31 @@
+# Nominal engineering assumptions, NOT measured properties of the hardware.
+# The supplied SolidWorks shells say "Material <not specified>".
+# Mass and COM inertias are integrated from closed CAD display meshes.
+# A mass_kg override, if supplied below, overrides that part's density.
+# Regenerate with tools/generate_model.py after editing this file.
+parts:
+  semi_spherical_wheel: {density_kg_m3: 1200.0, basis: "assumed solid polymer; replace with measured printed mass"}
+  semi_spherical_wheel_2: {density_kg_m3: 1200.0, basis: "assumed solid polymer; replace with measured printed mass"}
+  roller: {density_kg_m3: 1200.0, basis: "assumed polymer; compound and compliance unknown"}
+  caster_fork: {density_kg_m3: 2700.0, basis: "assumed aluminum; material not measured"}
+  roller_mount: {density_kg_m3: 1200.0, basis: "assumed polymer"}
+  collet_block: {density_kg_m3: 2700.0, basis: "assumed aluminum"}
+  spacing: {density_kg_m3: 1200.0, basis: "assumed polymer"}
+  bearing_shaft2: {density_kg_m3: 7850.0, basis: "assumed steel"}
+  ball_caster_shaft_2: {density_kg_m3: 7850.0, basis: "assumed steel"}
+  roller_shaft: {density_kg_m3: 7850.0, basis: "assumed steel"}
+  skate_bearing: {density_kg_m3: 7850.0, basis: "homogeneous steel approximation to bearing assembly"}
+  4668k11_permanently_lubricated_stainless_steel_ball_bearing: {density_kg_m3: 7850.0, basis: "homogeneous steel approximation"}
+  5905k22_needle_roller_bearing: {density_kg_m3: 7850.0, basis: "homogeneous steel approximation"}
+  flange_bearing: {density_kg_m3: 7850.0, basis: "homogeneous steel approximation"}
+  5_16_18screw: {density_kg_m3: 7850.0, basis: "assumed steel"}
+  5_16nuts: {density_kg_m3: 7850.0, basis: "assumed steel"}
+joints:
+  carrier: {damping_Nm_s_per_rad: 0.0002, friction_Nm: 0.0}
+  positive_shell: {damping_Nm_s_per_rad: 0.0002, friction_Nm: 0.0}
+  negative_shell: {damping_Nm_s_per_rad: 0.0002, friction_Nm: 0.0}
+  positive_polar_roller: {damping_Nm_s_per_rad: 0.00005, friction_Nm: 0.0}
+  negative_polar_roller: {damping_Nm_s_per_rad: 0.00005, friction_Nm: 0.0}
+contact:
+  mesh_nominal_mu: 1.0
+  note: "For Harmonic/DART, tune plane friction in the launch; per-mesh mu is not guaranteed to propagate. Rigid faceted contacts; no measured tire compliance."

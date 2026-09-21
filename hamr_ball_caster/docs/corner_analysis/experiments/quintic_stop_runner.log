@@ -1,0 +1,94 @@
+Starting original simple waypoint route: 13.0 m / 97.5 s, speed 0.25 m/s
+Phase startup_hold at simulation elapsed 0.02 s
+Phase motion at simulation elapsed 3.01 s
+Phase final_hold at simulation elapsed 100.51 s
+{
+  "passed": true,
+  "failures": [],
+  "sample_count": 5247,
+  "route_length_m": 13.0,
+  "reference_duration_s": 97.5,
+  "motion_rmse_m": 0.0017993297666183906,
+  "motion_max_error_m": 0.008236006576502374,
+  "final_position_error_m": 1.5320071564870452e-07,
+  "final_turret_yaw_error_rad": 8.41762681780267e-09,
+  "max_base_roll_pitch_rad": 0.00463274542129992,
+  "waypoints": [
+    {
+      "index": 0,
+      "point_m": [
+        0.0,
+        0.0
+      ],
+      "scheduled_arrival_s": 0.0,
+      "minimum_distance_in_arrival_window_m": 4.054167202811026e-18
+    },
+    {
+      "index": 1,
+      "point_m": [
+        0.0,
+        2.0
+      ],
+      "scheduled_arrival_s": 15.0,
+      "minimum_distance_in_arrival_window_m": 8.459264407800952e-05
+    },
+    {
+      "index": 2,
+      "point_m": [
+        -2.0,
+        2.0
+      ],
+      "scheduled_arrival_s": 30.0,
+      "minimum_distance_in_arrival_window_m": 1.92550589878824e-05
+    },
+    {
+      "index": 3,
+      "point_m": [
+        -2.0,
+        4.5
+      ],
+      "scheduled_arrival_s": 48.75,
+      "minimum_distance_in_arrival_window_m": 3.481433225220671e-05
+    },
+    {
+      "index": 4,
+      "point_m": [
+        0.0,
+        4.5
+      ],
+      "scheduled_arrival_s": 63.75,
+      "minimum_distance_in_arrival_window_m": 2.4368827501621873e-05
+    },
+    {
+      "index": 5,
+      "point_m": [
+        0.0,
+        2.0
+      ],
+      "scheduled_arrival_s": 82.5,
+      "minimum_distance_in_arrival_window_m": 1.5356410158897772e-05
+    },
+    {
+      "index": 6,
+      "point_m": [
+        0.0,
+        0.0
+      ],
+      "scheduled_arrival_s": 97.5,
+      "minimum_distance_in_arrival_window_m": 1.2219438660166023e-05
+    }
+  ],
+  "passive_joint_spans_rad": {
+    "left_caster_carrier_joint": 125.29120818815247,
+    "left_caster_positive_hemisphere_joint": 12.055366912143638,
+    "left_caster_negative_hemisphere_joint": 20.03714795646041,
+    "left_caster_positive_polar_roller_joint": 28.251436456650776,
+    "left_caster_negative_polar_roller_joint": 31.786183575168383,
+    "right_caster_carrier_joint": 116.08478269915821,
+    "right_caster_positive_hemisphere_joint": 15.517224644619901,
+    "right_caster_negative_hemisphere_joint": 25.49265895854258,
+    "right_caster_positive_polar_roller_joint": 20.127968976720922,
+    "right_caster_negative_polar_roller_joint": 45.106502848229155
+  }
+}
+Saved simulation measurements to /home/para/hamr_control/hamr_ball_caster/docs/corner_analysis/experiments/quintic_stop.json

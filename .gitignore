@@ -4,6 +4,7 @@
 __pycache__/
 *.bag/
 /rosbags/*
+!/rosbags/COLCON_IGNORE
 !/rosbags/analyze_hamr_vicon_straight.py
 !/rosbags/analyze_hamr_study.py
 !/rosbags/analyze_latest_hamr_bag.sh
@@ -13,6 +14,24 @@ __pycache__/
 !/rosbags/set_replay_covariances.py
 !/rosbags/offline_replay_config.py
 !/rosbags/test_offline_replay_config.py
+!/rosbags/prepare_calibrated_replay.py
+!/rosbags/test_prepare_calibrated_replay.py
+!/rosbags/ekf_tuning/
+/rosbags/ekf_tuning/*
+!/rosbags/ekf_tuning/*.py
+!/rosbags/ekf_tuning/*.cpp
+!/rosbags/ekf_tuning/*.sh
+!/rosbags/ekf_tuning/*.md
+!/rosbags/ekf_tuning/engine_vendor/
+!/rosbags/ekf_tuning/sensor_audit/
+/rosbags/ekf_tuning/sensor_audit/*
+!/rosbags/ekf_tuning/sensor_audit/*.py
+!/rosbags/ekf_tuning/sensor_audit/*.md
+!/rosbags/ekf_tuning/report/
+/rosbags/ekf_tuning/report/*
+!/rosbags/ekf_tuning/report/*.md
+!/rosbags/ekf_tuning/report/*.json
+!/rosbags/ekf_tuning/report/*.png
 
 # Saved RTAB-Map databases — large and tied to one physical space, do not commit.
 maps/*.db
@@ -28,3 +47,31 @@ maps/*.yaml
 # Raw sensor recordings (RealSense bags) — large, keep out of git.
 bags/
 *.pyc
+
+# Local colcon products and Python test caches.
+/build/
+/install/
+.pytest_cache/
+
+# Native CAD and retained experiment traces are supplied as external archives.
+/CAD files/
+/hamr_ball_caster/docs/corner_analysis/experiments/baseline.json
+/hamr_ball_caster/docs/corner_analysis/experiments/no_slew.json
+/hamr_ball_caster/docs/corner_analysis/experiments/no_slew_half_step.json
+/hamr_ball_caster/docs/corner_analysis/experiments/half_speed.json
+/hamr_ball_caster/docs/corner_analysis/experiments/quintic_stop.json
+/hamr_ball_caster/docs/corner_analysis/*.npz
+
+# Generated recording/output directories; retain source meshes and curated plots.
+/artifacts/
+/recordings/
+/videos/
+*.mcap
+*.db3
+*.db3-shm
+*.db3-wal
+*.mp4
+*.webm
+*.mkv
+**/maps/*.ply
+**/maps/*.pcd

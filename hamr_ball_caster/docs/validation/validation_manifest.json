@@ -1,0 +1,40 @@
+{
+  "date": "2026-09-20",
+  "platform": "Ubuntu 24.04 WSL2 amd64; ROS Jazzy; Gazebo Sim8.15.0; DART/ODE collision; WSLg/Ogre2 llvmpipe",
+  "source_sha256": {
+    "config/bridge_compa.yaml": "9402701c3f09dcebcdd7b8f2ff7fe71eb684f4e9c0cbbf74fe92993503c60ca0",
+    "config/bridge_rig.yaml": "02a9c031717e8bec63b8bfb5128539fb907be8de2374ee082d9d506934c7670f",
+    "config/compa_gui.config": "a1da820cd50a1cc725a5414afc95051de71ad72b6f365d4625e614202dcb3e51",
+    "config/physical_properties.yaml": "a6ff203e2b771e93a69c9929180c5dc5527967fd76bb4c56205100f6e1eb2815",
+    "config/rig_gui.config": "a1d0b8a765493569bcff00b6d3d52409b7d0a864e97c7860650e76c1f21202a9",
+    "launch/ball_caster.launch.py": "21e593b44e31b1819fe526553e4c0c483d318113d8f74f27ef61d3f57e45b40f",
+    "scripts/build.sh": "899f024064c4c5dac4fb3c32e63ad0bc60f7ad911f8ab8b2dfb9dd4afd0ce457",
+    "scripts/env.sh": "517c2ec1b0b2425c112329de9e81d3a2f619c4328c3374d24907796382171eb8",
+    "scripts/run_compa_checks.py": "ac8b10d5e943286772e2bd3fc487d55cfc5032211434e3952dcd3a19229684b3",
+    "scripts/run_physics_checks.py": "bb761629bc2b328562a8d52d9a1a0cf98dcd5e72d70f284594b97ae0c62e4b39",
+    "scripts/run_physics_suite.py": "eebf660219d55cd9d5af2180a673f57f0b6fb5a26297627bf38166ba8a287f50",
+    "test/test_compa_retrofit.py": "a194c673e32176848a9a7099d12a88dac0859ef6a8b1e031cf53721c738cc807",
+    "test/test_geometry.py": "4cf3872b909566c41d2f1c5dfb258cd5df478b11e3b0642892335d768a8b194d",
+    "urdf/ball_caster.urdf": "8f8a3f9f331afc93564c2793bef319fb69462ff2cb6626e83a51ad9ff5d2a1d0",
+    "urdf/ball_caster.urdf.xacro": "e7bc8658ef91a2c3fb0d055bb46fd67f11933c6e465aab7cd03405bc62a0d234",
+    "urdf/ball_caster.xacro": "bf5f395a68d42b58aaa533b4267228bc9adf9ef0ffa3b04103f3e0776878129e",
+    "urdf/caster_test_rig.urdf.xacro": "f8dac62b12e7e6b964fc4e78130623c916838a110cf2dcca632ebd400a21b2b1",
+    "urdf/compa_ball_caster.urdf": "8930e0c153648512a0bde60d40cf0f278dc3b700777c6585b8da38fc06d373a2",
+    "urdf/compa_ball_caster.urdf.xacro": "c780bcc10ae1b989a58c49bfead1e6c20de6da7976799c216aa90da76c3498ee",
+    "urdf/compa_common.xacro": "0fca22db3727be2c5b4a45ca3092f9986ff1eb8c8e97703ae08426d86ee22da5",
+    "urdf/compa_gazebo.xacro": "098e7488ac5046636eeb26d2ad1d7455cc04c044b97f850bd7d7476347e7a51d",
+    "worlds/ball_caster_test.sdf": "0f7a6277cc298bfa66dbd4cb126d613c809c905167d171c1925dcb4b0778d262"
+  },
+  "python_test_cases_passed": 17,
+  "ctest_wrappers_passed": 2,
+  "fixture_reports": [
+    "rig_dt_001.json",
+    "rig_dt_0005.json",
+    "rig_seam.json",
+    "rig_pole.json"
+  ],
+  "compa_report": "compa_motion.json",
+  "gui_launch_verified": "source hamr_ball_caster/scripts/env.sh; ros2 launch hamr_ball_caster ball_caster.launch.py model:=rig gui:=true",
+  "gui_launch_result": "Entity spawned, GUI plugins loaded, all11 rig joint names received viaROS, terminalCtrl+C stoppedownedprocesses",
+  "accuracy_scope": "See ../VALIDATION.md; physical calibration and native SolidWorks feature-tree rebuild not performed."
+}

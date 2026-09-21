@@ -1,0 +1,261 @@
+[
+  {
+    "run": "p16",
+    "report": "/home/para/Videos/hamr_sim/continuous_validation_20260920/p16/trajectory.json",
+    "sha256": "a405d7b8e22fdbf3331c06a79c613fe204c5d1f62bbc73006949bb7f2441a087",
+    "physics_passed": true,
+    "harness_passed": true,
+    "final_implementation_validation": false,
+    "selected_replay": false,
+    "duration_s": 65.15546102780377,
+    "rms_tracking_error_mm": 0.3296105329606959,
+    "max_tracking_error_mm": 1.2546401213821925,
+    "max_curve_error_mm": 1.1210689120382884,
+    "min_interior_speed_m_s": 0.1388961184687369,
+    "max_corner_slowdown_fraction": 0.12402063915194117,
+    "command_statistics": {
+      "updates": 6677,
+      "speed_limited_updates": 0,
+      "acceleration_limited_updates": 0,
+      "max_wheel_rate_rad_s": 3.2736980089979513,
+      "max_wheel_acceleration_rad_s2": 12.313722374994956
+    },
+    "source_time_gap_s": 0.06000000000000005,
+    "configuration_sha256": "46e61c1c3a9155e52c61ada840d009dbc2ce8139632e133f5c97093a6f5efb4f",
+    "implementation_sha256": {}
+  },
+  {
+    "run": "p16_half_step",
+    "report": "/home/para/Videos/hamr_sim/continuous_validation_20260920/p16_half_step/trajectory.json",
+    "sha256": "cc3eb3e0db223fe3e8f84a7ec3f09cf782e1b89f48acbf5d25367c64fd913267",
+    "physics_passed": true,
+    "harness_passed": true,
+    "final_implementation_validation": false,
+    "selected_replay": false,
+    "duration_s": 65.15546102780377,
+    "rms_tracking_error_mm": 0.33444322556342715,
+    "max_tracking_error_mm": 1.3293197960497818,
+    "max_curve_error_mm": 1.1262150725525328,
+    "min_interior_speed_m_s": 0.13918777736020044,
+    "max_corner_slowdown_fraction": 0.12218122727962621,
+    "command_statistics": {
+      "updates": 6862,
+      "speed_limited_updates": 0,
+      "acceleration_limited_updates": 0,
+      "max_wheel_rate_rad_s": 3.2531103956183975,
+      "max_wheel_acceleration_rad_s2": 14.85209781776373
+    },
+    "source_time_gap_s": 0.040000000000000036,
+    "configuration_sha256": "46e61c1c3a9155e52c61ada840d009dbc2ce8139632e133f5c97093a6f5efb4f",
+    "implementation_sha256": {
+      "run_waypoint_sim.py": "26f8a87528d84fb497a9ae4cc43cb4c36900a2e14c3c28fc3d0d5eb26c1641c7",
+      "continuous_waypoint.py": "27895ac7cce20e4d1ec2b382cd90dba1966abd54fdc306e9a50026857e5f14b9",
+      "analyze_continuous_tracking.py": "aebb034bcf1cf92aeda280c4a9a435be368b7d83172a78d74c5ba5368053a536"
+    },
+    "infrastructure_note": "The evaluation launcher was externally terminated with status143 while its separately-sessioned Gazebo and trajectory runner remained active. The original runner completed the entire route and saved its native measurements and passing acceptance. No simulator or controller restart occurred. Cleanup was recovered for only its recorded process groups; the runner exit code was not available to the new parent."
+  },
+  {
+    "run": "first_camera",
+    "report": "/home/para/Videos/hamr_sim/continuous_waypoint_20260920_final/trajectory.json",
+    "sha256": "3d8399fb863f6e3e61a5a61c6da7d45a0747a3380937d5e91796cdbe635fa14b",
+    "physics_passed": true,
+    "harness_passed": true,
+    "final_implementation_validation": false,
+    "selected_replay": false,
+    "duration_s": 65.15546102780377,
+    "rms_tracking_error_mm": 0.3297679124805596,
+    "max_tracking_error_mm": 1.2514550133900557,
+    "max_curve_error_mm": 1.1226550300816427,
+    "min_interior_speed_m_s": 0.13466933442467516,
+    "max_corner_slowdown_fraction": 0.15067779578222806,
+    "command_statistics": {
+      "updates": 6669,
+      "speed_limited_updates": 0,
+      "acceleration_limited_updates": 0,
+      "max_wheel_rate_rad_s": 3.2472462475731834,
+      "max_wheel_acceleration_rad_s2": 14.558681885919363
+    },
+    "source_time_gap_s": 0.10000000000000142,
+    "configuration_sha256": "46e61c1c3a9155e52c61ada840d009dbc2ce8139632e133f5c97093a6f5efb4f",
+    "implementation_sha256": {
+      "run_waypoint_sim.py": "26f8a87528d84fb497a9ae4cc43cb4c36900a2e14c3c28fc3d0d5eb26c1641c7",
+      "continuous_waypoint.py": "27895ac7cce20e4d1ec2b382cd90dba1966abd54fdc306e9a50026857e5f14b9",
+      "analyze_continuous_tracking.py": "aebb034bcf1cf92aeda280c4a9a435be368b7d83172a78d74c5ba5368053a536"
+    },
+    "not_selected_reason": "Historical motion pass; later decoded-video audit found 0.56 s freeze during motion. Predates image-gap gate."
+  },
+  {
+    "run": "slow_camera_p16",
+    "report": "/home/para/Videos/hamr_sim/continuous_waypoint_20260920_replay/trajectory.json",
+    "sha256": "cbc9a2cdba19bdf4df1117c246df97c6b9b82390557315e0dc2009b3d6a5a44e",
+    "physics_passed": false,
+    "harness_passed": false,
+    "final_implementation_validation": false,
+    "selected_replay": false,
+    "duration_s": 65.15546102780377,
+    "rms_tracking_error_mm": 0.32685853668537024,
+    "max_tracking_error_mm": 1.326420409979287,
+    "max_curve_error_mm": 1.1219738829491568,
+    "min_interior_speed_m_s": 0.13479929654845946,
+    "max_corner_slowdown_fraction": 0.1498581606521603,
+    "command_statistics": {
+      "updates": 6679,
+      "speed_limited_updates": 0,
+      "acceleration_limited_updates": 3,
+      "max_wheel_rate_rad_s": 3.2683025488326765,
+      "max_wheel_acceleration_rad_s2": 15.0
+    },
+    "source_time_gap_s": 0.05999999999999517,
+    "configuration_sha256": "46e61c1c3a9155e52c61ada840d009dbc2ce8139632e133f5c97093a6f5efb4f",
+    "implementation_sha256": {
+      "run_waypoint_sim.py": "26f8a87528d84fb497a9ae4cc43cb4c36900a2e14c3c28fc3d0d5eb26c1641c7",
+      "continuous_waypoint.py": "27895ac7cce20e4d1ec2b382cd90dba1966abd54fdc306e9a50026857e5f14b9",
+      "analyze_continuous_tracking.py": "aebb034bcf1cf92aeda280c4a9a435be368b7d83172a78d74c5ba5368053a536"
+    },
+    "video_quality": {
+      "passed": true,
+      "max_allowed_motion_image_gap_s": 0.16,
+      "failure": null,
+      "motion_gaps_over_limit": [],
+      "motion_interval_sim_s": [
+        3.34,
+        68.49546102780377
+      ],
+      "encoded_source_image_count": 1583,
+      "motion_image_gap_count": 1430,
+      "max_motion_image_gap_s": 0.1600000000000037
+    },
+    "not_selected_reason": [
+      "acceleration_limited_updates must be zero; observed 3"
+    ]
+  },
+  {
+    "run": "p12",
+    "report": "/home/para/Videos/hamr_sim/continuous_validation_20260920/p12/trajectory.json",
+    "sha256": "b17d73f88d1f5675f6b687b045fe90f6f0f0f0f33bc05540ffc8c5daaaf36d69",
+    "physics_passed": true,
+    "harness_passed": true,
+    "final_implementation_validation": false,
+    "selected_replay": false,
+    "duration_s": 65.15546102780377,
+    "rms_tracking_error_mm": 0.4174770908297059,
+    "max_tracking_error_mm": 1.6520410348831602,
+    "max_curve_error_mm": 1.4836198173940192,
+    "min_interior_speed_m_s": 0.1359796195509986,
+    "max_corner_slowdown_fraction": 0.14241419028958124,
+    "command_statistics": {
+      "updates": 6678,
+      "speed_limited_updates": 0,
+      "acceleration_limited_updates": 0,
+      "max_wheel_rate_rad_s": 3.233402658070097,
+      "max_wheel_acceleration_rad_s2": 9.326549375085882
+    },
+    "source_time_gap_s": 0.06000000000000005,
+    "configuration_sha256": "744b7b9186c95de4ee72884581fb8d5137ab79bbdc0d3267dc2927fdb29f609e",
+    "implementation_sha256": {
+      "run_waypoint_sim.py": "26f8a87528d84fb497a9ae4cc43cb4c36900a2e14c3c28fc3d0d5eb26c1641c7",
+      "continuous_waypoint.py": "27895ac7cce20e4d1ec2b382cd90dba1966abd54fdc306e9a50026857e5f14b9",
+      "analyze_continuous_tracking.py": "aebb034bcf1cf92aeda280c4a9a435be368b7d83172a78d74c5ba5368053a536"
+    }
+  },
+  {
+    "run": "p12_half_step",
+    "report": "/home/para/Videos/hamr_sim/continuous_validation_20260920/p12_half_step/trajectory.json",
+    "sha256": "032233d5aed848d3959a57a51eab9d0709406f4383d0f3e30f7c573667ca1ca3",
+    "physics_passed": true,
+    "harness_passed": true,
+    "final_implementation_validation": false,
+    "selected_replay": false,
+    "duration_s": 65.15546102780377,
+    "rms_tracking_error_mm": 0.41971603393483836,
+    "max_tracking_error_mm": 1.7330386984059156,
+    "max_curve_error_mm": 1.495088191405462,
+    "min_interior_speed_m_s": 0.1389583791648394,
+    "max_corner_slowdown_fraction": 0.12362797818071247,
+    "command_statistics": {
+      "updates": 6866,
+      "speed_limited_updates": 0,
+      "acceleration_limited_updates": 0,
+      "max_wheel_rate_rad_s": 3.2369827800669033,
+      "max_wheel_acceleration_rad_s2": 11.424241610951109
+    },
+    "source_time_gap_s": 0.040000000000000036,
+    "configuration_sha256": "744b7b9186c95de4ee72884581fb8d5137ab79bbdc0d3267dc2927fdb29f609e",
+    "implementation_sha256": {
+      "run_waypoint_sim.py": "26f8a87528d84fb497a9ae4cc43cb4c36900a2e14c3c28fc3d0d5eb26c1641c7",
+      "continuous_waypoint.py": "27895ac7cce20e4d1ec2b382cd90dba1966abd54fdc306e9a50026857e5f14b9",
+      "analyze_continuous_tracking.py": "aebb034bcf1cf92aeda280c4a9a435be368b7d83172a78d74c5ba5368053a536"
+    }
+  },
+  {
+    "run": "validated_half_step",
+    "report": "/home/para/Videos/hamr_sim/continuous_validation_20260920/validated_half_step/trajectory.json",
+    "sha256": "cea3be37ad6ce8cd4574d7feb8b5bd7140e2c82aabbf7a1ba82feb7476c84f46",
+    "physics_passed": true,
+    "harness_passed": true,
+    "final_implementation_validation": true,
+    "selected_replay": false,
+    "duration_s": 65.15546102780377,
+    "rms_tracking_error_mm": 0.4157364263729972,
+    "max_tracking_error_mm": 1.7344525498564949,
+    "max_curve_error_mm": 1.4917916749786853,
+    "min_interior_speed_m_s": 0.13867399158322047,
+    "max_corner_slowdown_fraction": 0.1254215319151587,
+    "command_statistics": {
+      "updates": 6865,
+      "speed_limited_updates": 0,
+      "acceleration_limited_updates": 0,
+      "max_wheel_rate_rad_s": 3.233550811546782,
+      "max_wheel_acceleration_rad_s2": 13.75204980879873
+    },
+    "source_time_gap_s": 0.040000000000000036,
+    "configuration_sha256": "cadf3616b584102ded71dc9a64968fa692dbc1edb3fe237269a841bbad2975ca",
+    "implementation_sha256": {
+      "run_waypoint_sim.py": "b5703e6061331fb0d4aa1348097cba0e45927e842ef49ff05a3199626b910c1e",
+      "continuous_waypoint.py": "27895ac7cce20e4d1ec2b382cd90dba1966abd54fdc306e9a50026857e5f14b9",
+      "analyze_continuous_tracking.py": "aebb034bcf1cf92aeda280c4a9a435be368b7d83172a78d74c5ba5368053a536"
+    }
+  },
+  {
+    "run": "validated_camera",
+    "report": "/home/para/Videos/hamr_sim/continuous_waypoint_20260920_validated/trajectory.json",
+    "sha256": "ec83bee857a72e6310c1a61836c95b6fd6c37f94faae70f69ce1fc2348a28c22",
+    "physics_passed": true,
+    "harness_passed": true,
+    "final_implementation_validation": true,
+    "selected_replay": true,
+    "duration_s": 65.15546102780377,
+    "rms_tracking_error_mm": 0.41851263016183265,
+    "max_tracking_error_mm": 1.6561022861865597,
+    "max_curve_error_mm": 1.4920876535796515,
+    "min_interior_speed_m_s": 0.13923274464807336,
+    "max_corner_slowdown_fraction": 0.12189763104580575,
+    "command_statistics": {
+      "updates": 6679,
+      "speed_limited_updates": 0,
+      "acceleration_limited_updates": 0,
+      "max_wheel_rate_rad_s": 3.1978967203468387,
+      "max_wheel_acceleration_rad_s2": 10.256623563588144
+    },
+    "source_time_gap_s": 0.060000000000002274,
+    "configuration_sha256": "cadf3616b584102ded71dc9a64968fa692dbc1edb3fe237269a841bbad2975ca",
+    "implementation_sha256": {
+      "run_waypoint_sim.py": "b5703e6061331fb0d4aa1348097cba0e45927e842ef49ff05a3199626b910c1e",
+      "continuous_waypoint.py": "27895ac7cce20e4d1ec2b382cd90dba1966abd54fdc306e9a50026857e5f14b9",
+      "analyze_continuous_tracking.py": "aebb034bcf1cf92aeda280c4a9a435be368b7d83172a78d74c5ba5368053a536"
+    },
+    "video_quality": {
+      "passed": true,
+      "max_allowed_motion_image_gap_s": 0.16,
+      "failure": null,
+      "motion_gaps_over_limit": [],
+      "motion_interval_sim_s": [
+        3.351,
+        68.50646102780377
+      ],
+      "encoded_source_image_count": 1708,
+      "motion_image_gap_count": 1551,
+      "max_motion_image_gap_s": 0.1599999999999966
+    }
+  }
+]

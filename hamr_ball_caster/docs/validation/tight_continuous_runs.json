@@ -1,0 +1,134 @@
+[
+  {
+    "run": "nominal",
+    "report": "/home/para/Videos/hamr_sim/continuous_tight_validation_20260921/nominal/trajectory.json",
+    "sha256": "5d5cd617a80da35973b44a58655b937cfd0aa4e4156978df7ac59a26a0d9caa0",
+    "passed": true,
+    "physics_step_s": 0.001,
+    "configuration_sha256": "732c539cf814dc6665cfa583cb3517a08ac7fa506dd107f7236ae3652c4e5fd5",
+    "implementation_sha256": {
+      "run_waypoint_sim.py": "b5703e6061331fb0d4aa1348097cba0e45927e842ef49ff05a3199626b910c1e",
+      "continuous_waypoint.py": "27895ac7cce20e4d1ec2b382cd90dba1966abd54fdc306e9a50026857e5f14b9",
+      "analyze_continuous_tracking.py": "aebb034bcf1cf92aeda280c4a9a435be368b7d83172a78d74c5ba5368053a536"
+    },
+    "duration_s": 73.19374270772629,
+    "rms_tracking_error_mm": 0.3931901953654066,
+    "max_tracking_error_mm": 1.6561653582546865,
+    "conservative_max_curve_error_mm": 1.4847412203419592,
+    "min_interior_speed_m_s": 0.06209995207535731,
+    "max_corner_slowdown_fraction": 0.1242502305429164,
+    "command_statistics": {
+      "updates": 7441,
+      "speed_limited_updates": 0,
+      "acceleration_limited_updates": 0,
+      "max_wheel_rate_rad_s": 3.2540865726691193,
+      "max_wheel_acceleration_rad_s2": 10.20058875304294
+    },
+    "cleanup": {
+      "trajectory": {
+        "process_group": 152767,
+        "signals": [],
+        "leader_exit_code": 0,
+        "group_present_after_cleanup": false
+      },
+      "gazebo": {
+        "process_group": 152766,
+        "signals": [
+          "SIGINT"
+        ],
+        "leader_exit_code": 0,
+        "group_present_after_cleanup": false
+      }
+    }
+  },
+  {
+    "run": "half_step",
+    "report": "/home/para/Videos/hamr_sim/continuous_tight_validation_20260921/half_step/trajectory.json",
+    "sha256": "a5100f0081d1d4fc18ff1fdde983643283b06ae8a862fdb7b72e4eb5e5a6b283",
+    "passed": true,
+    "physics_step_s": 0.0005,
+    "configuration_sha256": "732c539cf814dc6665cfa583cb3517a08ac7fa506dd107f7236ae3652c4e5fd5",
+    "implementation_sha256": {
+      "run_waypoint_sim.py": "b5703e6061331fb0d4aa1348097cba0e45927e842ef49ff05a3199626b910c1e",
+      "continuous_waypoint.py": "27895ac7cce20e4d1ec2b382cd90dba1966abd54fdc306e9a50026857e5f14b9",
+      "analyze_continuous_tracking.py": "aebb034bcf1cf92aeda280c4a9a435be368b7d83172a78d74c5ba5368053a536"
+    },
+    "duration_s": 73.19374270772629,
+    "rms_tracking_error_mm": 0.4045632135628818,
+    "max_tracking_error_mm": 1.7297937892801494,
+    "conservative_max_curve_error_mm": 1.4941147913991772,
+    "min_interior_speed_m_s": 0.06342324329865465,
+    "max_corner_slowdown_fraction": 0.1055888315402096,
+    "command_statistics": {
+      "updates": 7653,
+      "speed_limited_updates": 0,
+      "acceleration_limited_updates": 0,
+      "max_wheel_rate_rad_s": 3.267601790296157,
+      "max_wheel_acceleration_rad_s2": 10.102839840142984
+    },
+    "cleanup": {
+      "trajectory": {
+        "process_group": 152765,
+        "signals": [],
+        "leader_exit_code": 0,
+        "group_present_after_cleanup": false
+      },
+      "gazebo": {
+        "process_group": 152764,
+        "signals": [
+          "SIGINT"
+        ],
+        "leader_exit_code": 0,
+        "group_present_after_cleanup": false
+      }
+    }
+  },
+  {
+    "run": "recording",
+    "report": "/home/para/Videos/hamr_sim/continuous_tight_waypoint_20260921_validated/trajectory.json",
+    "sha256": "14f63e43966a8b822594da27b8222960ea06b3f6fd0faa2e23427f39407798fc",
+    "passed": true,
+    "physics_step_s": 0.001,
+    "configuration_sha256": "732c539cf814dc6665cfa583cb3517a08ac7fa506dd107f7236ae3652c4e5fd5",
+    "implementation_sha256": {
+      "run_waypoint_sim.py": "b5703e6061331fb0d4aa1348097cba0e45927e842ef49ff05a3199626b910c1e",
+      "continuous_waypoint.py": "27895ac7cce20e4d1ec2b382cd90dba1966abd54fdc306e9a50026857e5f14b9",
+      "analyze_continuous_tracking.py": "aebb034bcf1cf92aeda280c4a9a435be368b7d83172a78d74c5ba5368053a536"
+    },
+    "duration_s": 73.19374270772629,
+    "rms_tracking_error_mm": 0.39693806262862164,
+    "max_tracking_error_mm": 1.6583985150972413,
+    "conservative_max_curve_error_mm": 1.4859915896734228,
+    "min_interior_speed_m_s": 0.06263530983826268,
+    "max_corner_slowdown_fraction": 0.10132722169746888,
+    "command_statistics": {
+      "updates": 7443,
+      "speed_limited_updates": 0,
+      "acceleration_limited_updates": 0,
+      "max_wheel_rate_rad_s": 3.2232954649676517,
+      "max_wheel_acceleration_rad_s2": 14.77881378487159
+    },
+    "video_quality": {
+      "passed": true,
+      "max_allowed_motion_image_gap_s": 0.16,
+      "failure": null,
+      "motion_gaps_over_limit": [],
+      "motion_interval_sim_s": [
+        3.68,
+        76.8737427077263
+      ],
+      "encoded_source_image_count": 1873,
+      "motion_image_gap_count": 1705,
+      "max_motion_image_gap_s": 0.1600000000000037
+    },
+    "verification": "/home/para/Videos/hamr_sim/continuous_tight_waypoint_20260921_validated/verification.json",
+    "comparison": "/home/para/Videos/hamr_sim/continuous_tight_waypoint_20260921_validated/profile_comparison.json",
+    "actual_max_original_polyline_distance_mm": 19.89952715087795,
+    "corner_vertex_distances_mm": [
+      28.65957159107424,
+      28.19029693554905,
+      28.01101657391734,
+      28.64723062382291
+    ]
+  }
+]

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!-- CAD assembly alone, suitable for inspection or inclusion on a robot.
+     Use caster_test_rig for the supported loaded ground-contact experiment. -->
+<robot name="ball_caster" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="caster_mass_scale" default="1.0"/>
+  <xacro:arg name="carrier_phase" default="0.0"/>
+  <xacro:include filename="ball_caster.xacro"/>
+  <link name="caster_reference"/>
+  <xacro:ball_caster prefix="caster_" parent="caster_reference"
+    mass_scale="$(arg caster_mass_scale)" carrier_phase="$(arg carrier_phase)"/>
+</robot>

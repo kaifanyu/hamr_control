@@ -1,0 +1,8 @@
+{
+  "quintic_stop": {
+    "exit_code": 0,
+    "wall_duration_s": 258.0856475069995,
+    "domain": "73",
+    "partition": "hamr_corner_96974_quintic_stop"
+  }
+}

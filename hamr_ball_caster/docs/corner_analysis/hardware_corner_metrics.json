@@ -1,0 +1,752 @@
+[
+  {
+    "bag": "hamr_hw_20260916_184054",
+    "reference_duration_s": 39.0094952583313,
+    "reference_speed_m_s": [
+      0.25
+    ],
+    "rates_from_bag_receipt": {
+      "/reference_trajectory": {
+        "n": 3903,
+        "median_interval_s": 0.009999513626098633,
+        "p99_interval_s": 0.013233923912048324,
+        "max_interval_s": 0.0173189640045166
+      },
+      "/left_wheel/cmd_vel": {
+        "n": 6108,
+        "median_interval_s": 0.009552478790283203,
+        "p99_interval_s": 0.013657002449035642,
+        "max_interval_s": 0.02319502830505371
+      },
+      "/live_gains": {
+        "n": 2767,
+        "median_interval_s": 0.00999903678894043,
+        "p99_interval_s": 0.012922906875610343,
+        "max_interval_s": 0.02314925193786621
+      },
+      "/right_wheel/cmd_vel": {
+        "n": 6107,
+        "median_interval_s": 0.009564518928527832,
+        "p99_interval_s": 0.013350296020507805,
+        "max_interval_s": 0.02318859100341797
+      },
+      "/HAMR_base/odom": {
+        "n": 5391,
+        "median_interval_s": 0.008134126663208008,
+        "p99_interval_s": 0.033706595897674524,
+        "max_interval_s": 0.1746079921722412
+      },
+      "/turret/cmd_vel": {
+        "n": 6105,
+        "median_interval_s": 0.00955510139465332,
+        "p99_interval_s": 0.013741698265075692,
+        "max_interval_s": 0.023195505142211914
+      },
+      "/wheel_control/status": {
+        "n": 3164,
+        "median_interval_s": 0.014387130737304688,
+        "p99_interval_s": 0.020755877494812017,
+        "max_interval_s": 0.025464773178100586
+      }
+    },
+    "active_firmware_status": {
+      "count": 2556,
+      "target_peak_rpm": 28.0,
+      "target_cap_fraction": 0.3501564945226917,
+      "saturated_fraction": 0.004303599374021909,
+      "mean_target_minus_measured_rpm": [
+        -0.002867133960022893,
+        -0.18698060232344343
+      ],
+      "pid_absolute_max_pwm": 2866.88818359375,
+      "ff_absolute_max_pwm": 3500.0,
+      "output_absolute_max_pwm": 4095.0,
+      "source_counts": {
+        "1.0": 1803,
+        "5.0": 753
+      }
+    },
+    "live_gain_term_absolute_max": [
+      0.16113457052733013,
+      0.10285746302688835,
+      0.0,
+      0.1365989117108905,
+      0.10375445035805748,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "turret_command_abs_max_rad_s": 0.0,
+    "corner_events": [
+      {
+        "time_from_reference_start_s": 8.00050950050354,
+        "old_velocity_m_s": [
+          0.0,
+          0.25
+        ],
+        "new_velocity_m_s": [
+          -0.25,
+          0.0
+        ],
+        "corner_xy_m": [
+          -0.002395033836364746,
+          2.0
+        ],
+        "position_error_at_switch_m": [
+          0.014822473465290706,
+          0.022625325199715274
+        ],
+        "maximum_past_corner_in_old_direction_m": 0.06626998602697753,
+        "additional_motion_in_old_direction_after_switch_m": 0.04364466082726226,
+        "maximum_xy_tracking_error_next_2s_m": 0.18498210039475405,
+        "maximum_xy_tracking_error_next_6s_m": 0.23400548018308656,
+        "peak_error_in_6s_after_s": 3.2776637077331543,
+        "peak_error_after_s": 1.998579502105713,
+        "first_old_velocity_below_10pct_after_s": 0.29180145263671875,
+        "first_new_velocity_above_90pct_after_s": 0.44145870208740234,
+        "firmware_target_cap_fraction_next_4s": 0.9923371647509579,
+        "capped_wheel_measured_abs_median_rpm_next_4s": 23.38701057434082,
+        "maximum_abs_xy_D_term_next_1s_m_s": 0.09425688207641157,
+        "firmware_any_saturation_fraction_minus_025_plus_1s": 0.036585365853658534,
+        "firmware_target_peak_rpm": 28.0,
+        "firmware_measured_minus_target_rmse_rpm": 5.828734381456464,
+        "firmware_target_measured_pre_mean_rpm": [
+          18.560704407868563,
+          19.718875814367223,
+          18.16381327311198,
+          19.539680763527198
+        ],
+        "firmware_pid_abs_peak_pwm": 2828.56201171875,
+        "firmware_ff_abs_peak_pwm": 3500.0,
+        "firmware_output_abs_peak_pwm": 4095.0
+      },
+      {
+        "time_from_reference_start_s": 15.999232769012451,
+        "old_velocity_m_s": [
+          -0.25,
+          0.0
+        ],
+        "new_velocity_m_s": [
+          0.0,
+          0.25
+        ],
+        "corner_xy_m": [
+          -2.0,
+          2.0020831823349
+        ],
+        "position_error_at_switch_m": [
+          0.04627480658032557,
+          0.02329575907066772
+        ],
+        "maximum_past_corner_in_old_direction_m": 0.004608793174261994,
+        "additional_motion_in_old_direction_after_switch_m": 0.05088359975458756,
+        "maximum_xy_tracking_error_next_2s_m": 0.14460376604741534,
+        "maximum_xy_tracking_error_next_6s_m": 0.19206694432704632,
+        "peak_error_in_6s_after_s": 3.031472682952881,
+        "peak_error_after_s": 1.9868190288543701,
+        "first_old_velocity_below_10pct_after_s": 0.30932116508483887,
+        "first_new_velocity_above_90pct_after_s": 0.4725618362426758,
+        "firmware_target_cap_fraction_next_4s": 0.9961538461538462,
+        "capped_wheel_measured_abs_median_rpm_next_4s": 23.56024932861328,
+        "maximum_abs_xy_D_term_next_1s_m_s": 0.10285746302688835,
+        "firmware_any_saturation_fraction_minus_025_plus_1s": 0.037037037037037035,
+        "firmware_target_peak_rpm": 28.0,
+        "firmware_measured_minus_target_rmse_rpm": 6.039431670335548,
+        "firmware_target_measured_pre_mean_rpm": [
+          22.531876710745003,
+          22.713385655329777,
+          20.40191599038931,
+          23.514559965867264
+        ],
+        "firmware_pid_abs_peak_pwm": 2866.88818359375,
+        "firmware_ff_abs_peak_pwm": 3500.0,
+        "firmware_output_abs_peak_pwm": 4095.0
+      },
+      {
+        "time_from_reference_start_s": 25.999390602111816,
+        "old_velocity_m_s": [
+          0.0,
+          0.25
+        ],
+        "new_velocity_m_s": [
+          0.25,
+          0.0
+        ],
+        "corner_xy_m": [
+          -1.9978821277618408,
+          4.5
+        ],
+        "position_error_at_switch_m": [
+          0.016545195213139907,
+          0.012885640876358906
+        ],
+        "maximum_past_corner_in_old_direction_m": 0.07223197840907503,
+        "additional_motion_in_old_direction_after_switch_m": 0.05934633753271612,
+        "maximum_xy_tracking_error_next_2s_m": 0.20552281113281912,
+        "maximum_xy_tracking_error_next_6s_m": 1.128694700151483,
+        "peak_error_in_6s_after_s": 5.991839408874512,
+        "peak_error_after_s": 1.9556176662445068,
+        "first_old_velocity_below_10pct_after_s": 0.3269679546356201,
+        "first_new_velocity_above_90pct_after_s": 0.4918661117553711,
+        "firmware_target_cap_fraction_next_4s": 0.4600760456273764,
+        "capped_wheel_measured_abs_median_rpm_next_4s": 24.612045288085938,
+        "maximum_abs_xy_D_term_next_1s_m_s": 0.10375445035805748,
+        "firmware_any_saturation_fraction_minus_025_plus_1s": 0.024390243902439025,
+        "firmware_target_peak_rpm": 28.0,
+        "firmware_measured_minus_target_rmse_rpm": 5.634082834166253,
+        "firmware_target_measured_pre_mean_rpm": [
+          17.64415484208327,
+          20.16618090409499,
+          19.800613476679874,
+          21.118259283212517
+        ],
+        "firmware_pid_abs_peak_pwm": 2757.64453125,
+        "firmware_ff_abs_peak_pwm": 3500.0,
+        "firmware_output_abs_peak_pwm": 4095.0
+      },
+      {
+        "time_from_reference_start_s": 33.99924039840698,
+        "old_velocity_m_s": [
+          0.25,
+          0.0
+        ],
+        "new_velocity_m_s": [
+          0.0,
+          -0.25
+        ],
+        "corner_xy_m": [
+          0.0,
+          4.4979172348976135
+        ],
+        "position_error_at_switch_m": [
+          -1.6286237738728202,
+          0.01055879247267999
+        ],
+        "maximum_past_corner_in_old_direction_m": 0.0,
+        "additional_motion_in_old_direction_after_switch_m": 2.1366939285227815e-05,
+        "maximum_xy_tracking_error_next_2s_m": 1.7057868844993351,
+        "maximum_xy_tracking_error_next_6s_m": 2.0609711527978223,
+        "peak_error_in_6s_after_s": 5.009855508804321,
+        "peak_error_after_s": 1.984473705291748,
+        "first_old_velocity_below_10pct_after_s": 0.0008819103240966797,
+        "first_new_velocity_above_90pct_after_s": null,
+        "firmware_target_cap_fraction_next_4s": 0.0,
+        "capped_wheel_measured_abs_median_rpm_next_4s": null,
+        "maximum_abs_xy_D_term_next_1s_m_s": null,
+        "firmware_any_saturation_fraction_minus_025_plus_1s": 0.0,
+        "firmware_target_peak_rpm": 0.0,
+        "firmware_measured_minus_target_rmse_rpm": 0.0,
+        "firmware_target_measured_pre_mean_rpm": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "firmware_pid_abs_peak_pwm": 0.0,
+        "firmware_ff_abs_peak_pwm": 0.0,
+        "firmware_output_abs_peak_pwm": 0.0
+      }
+    ]
+  },
+  {
+    "bag": "hamr_hw_20260916_190842",
+    "reference_duration_s": 46.354594230651855,
+    "reference_speed_m_s": [
+      0.25
+    ],
+    "rates_from_bag_receipt": {
+      "/reference_trajectory": {
+        "n": 4637,
+        "median_interval_s": 0.010006308555603027,
+        "p99_interval_s": 0.0131805419921875,
+        "max_interval_s": 0.016576766967773438
+      },
+      "/left_wheel/cmd_vel": {
+        "n": 8707,
+        "median_interval_s": 0.009984374046325684,
+        "p99_interval_s": 0.014610874652862555,
+        "max_interval_s": 0.03214526176452637
+      },
+      "/live_gains": {
+        "n": 4645,
+        "median_interval_s": 0.009987711906433105,
+        "p99_interval_s": 0.013276569843292235,
+        "max_interval_s": 0.025814294815063477
+      },
+      "/right_wheel/cmd_vel": {
+        "n": 8704,
+        "median_interval_s": 0.009987354278564453,
+        "p99_interval_s": 0.014439492225646961,
+        "max_interval_s": 0.030040502548217773
+      },
+      "/HAMR_base/odom": {
+        "n": 9317,
+        "median_interval_s": 0.008209466934204102,
+        "p99_interval_s": 0.02961469888687136,
+        "max_interval_s": 0.07699036598205566
+      },
+      "/turret/cmd_vel": {
+        "n": 8704,
+        "median_interval_s": 0.009985685348510742,
+        "p99_interval_s": 0.014772005081176744,
+        "max_interval_s": 0.03218197822570801
+      },
+      "/wheel_control/status": {
+        "n": 5624,
+        "median_interval_s": 0.014561891555786133,
+        "p99_interval_s": 0.021191639900207518,
+        "max_interval_s": 0.030521154403686523
+      }
+    },
+    "active_firmware_status": {
+      "count": 3023,
+      "target_peak_rpm": 28.0,
+      "target_cap_fraction": 0.44459146543169037,
+      "saturated_fraction": 0.032748924909030766,
+      "mean_target_minus_measured_rpm": [
+        -0.06670533751007854,
+        -0.6699379500229031
+      ],
+      "pid_absolute_max_pwm": 2952.25341796875,
+      "ff_absolute_max_pwm": 3500.0,
+      "output_absolute_max_pwm": 4095.0,
+      "source_counts": {
+        "1.0": 3021,
+        "5.0": 2
+      }
+    },
+    "live_gain_term_absolute_max": [
+      0.18279059676169718,
+      0.11250375423034203,
+      0.0,
+      0.12428112684615313,
+      0.10132491241176067,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "turret_command_abs_max_rad_s": 0.0,
+    "corner_events": [
+      {
+        "time_from_reference_start_s": 8.003942728042603,
+        "old_velocity_m_s": [
+          0.0,
+          0.25
+        ],
+        "new_velocity_m_s": [
+          -0.25,
+          0.0
+        ],
+        "corner_xy_m": [
+          -0.0019760727882385254,
+          2.0
+        ],
+        "position_error_at_switch_m": [
+          0.01589892291123276,
+          0.019763539847745815
+        ],
+        "maximum_past_corner_in_old_direction_m": 0.06703543769139841,
+        "additional_motion_in_old_direction_after_switch_m": 0.0472718978436526,
+        "maximum_xy_tracking_error_next_2s_m": 0.20039270260872152,
+        "maximum_xy_tracking_error_next_6s_m": 0.2638549607781944,
+        "peak_error_in_6s_after_s": 3.315107583999634,
+        "peak_error_after_s": 1.9920306205749512,
+        "first_old_velocity_below_10pct_after_s": 0.24862360954284668,
+        "first_new_velocity_above_90pct_after_s": 0.917384147644043,
+        "firmware_target_cap_fraction_next_4s": 0.9923371647509579,
+        "capped_wheel_measured_abs_median_rpm_next_4s": 22.971242904663086,
+        "maximum_abs_xy_D_term_next_1s_m_s": 0.08954688915450332,
+        "firmware_any_saturation_fraction_minus_025_plus_1s": 0.024691358024691357,
+        "firmware_target_peak_rpm": 28.0,
+        "firmware_measured_minus_target_rmse_rpm": 6.6348044780218585,
+        "firmware_target_measured_pre_mean_rpm": [
+          18.855605160748517,
+          19.78862868414985,
+          19.056808401037145,
+          20.14692716245298
+        ],
+        "firmware_pid_abs_peak_pwm": 2806.535888671875,
+        "firmware_ff_abs_peak_pwm": 3500.0,
+        "firmware_output_abs_peak_pwm": 4095.0
+      },
+      {
+        "time_from_reference_start_s": 16.003997802734375,
+        "old_velocity_m_s": [
+          -0.25,
+          0.0
+        ],
+        "new_velocity_m_s": [
+          0.0,
+          0.25
+        ],
+        "corner_xy_m": [
+          -2.0,
+          2.001956522464752
+        ],
+        "position_error_at_switch_m": [
+          0.06896654272978697,
+          0.025471879852958512
+        ],
+        "maximum_past_corner_in_old_direction_m": 0.0,
+        "additional_motion_in_old_direction_after_switch_m": 0.05725904108289637,
+        "maximum_xy_tracking_error_next_2s_m": 0.13050306201458026,
+        "maximum_xy_tracking_error_next_6s_m": 0.17518496870475037,
+        "peak_error_in_6s_after_s": 3.3046669960021973,
+        "peak_error_after_s": 1.986577033996582,
+        "first_old_velocity_below_10pct_after_s": 0.29159069061279297,
+        "first_new_velocity_above_90pct_after_s": 0.4737541675567627,
+        "firmware_target_cap_fraction_next_4s": 0.9885057471264368,
+        "capped_wheel_measured_abs_median_rpm_next_4s": 24.612045288085938,
+        "maximum_abs_xy_D_term_next_1s_m_s": 0.11250375423034203,
+        "firmware_any_saturation_fraction_minus_025_plus_1s": 0.024691358024691357,
+        "firmware_target_peak_rpm": 28.0,
+        "firmware_measured_minus_target_rmse_rpm": 6.054979783241037,
+        "firmware_target_measured_pre_mean_rpm": [
+          24.220665825737846,
+          23.044112099541557,
+          22.520914713541668,
+          23.87170904654044
+        ],
+        "firmware_pid_abs_peak_pwm": 2877.39306640625,
+        "firmware_ff_abs_peak_pwm": 3500.0,
+        "firmware_output_abs_peak_pwm": 4095.0
+      },
+      {
+        "time_from_reference_start_s": 26.005351781845093,
+        "old_velocity_m_s": [
+          0.0,
+          0.25
+        ],
+        "new_velocity_m_s": [
+          0.25,
+          0.0
+        ],
+        "corner_xy_m": [
+          -1.9977333545684814,
+          4.5
+        ],
+        "position_error_at_switch_m": [
+          0.020173362495876646,
+          0.016641795582794217
+        ],
+        "maximum_past_corner_in_old_direction_m": 0.06024958700208494,
+        "additional_motion_in_old_direction_after_switch_m": 0.04360779141929072,
+        "maximum_xy_tracking_error_next_2s_m": 0.1316204377779578,
+        "maximum_xy_tracking_error_next_6s_m": 0.16673973415476934,
+        "peak_error_in_6s_after_s": 3.1300671100616455,
+        "peak_error_after_s": 1.9817428588867188,
+        "first_old_velocity_below_10pct_after_s": 0.2685701847076416,
+        "first_new_velocity_above_90pct_after_s": 0.4082009792327881,
+        "firmware_target_cap_fraction_next_4s": 0.9731800766283525,
+        "capped_wheel_measured_abs_median_rpm_next_4s": 24.612045288085938,
+        "maximum_abs_xy_D_term_next_1s_m_s": 0.09629006389936588,
+        "firmware_any_saturation_fraction_minus_025_plus_1s": 0.024390243902439025,
+        "firmware_target_peak_rpm": 28.0,
+        "firmware_measured_minus_target_rmse_rpm": 5.549732441960278,
+        "firmware_target_measured_pre_mean_rpm": [
+          17.269152054419884,
+          19.949301646305965,
+          19.589998905475323,
+          20.69698120997502
+        ],
+        "firmware_pid_abs_peak_pwm": 2833.363037109375,
+        "firmware_ff_abs_peak_pwm": 3500.0,
+        "firmware_output_abs_peak_pwm": 4095.0
+      },
+      {
+        "time_from_reference_start_s": 34.00372910499573,
+        "old_velocity_m_s": [
+          0.25,
+          0.0
+        ],
+        "new_velocity_m_s": [
+          0.0,
+          -0.25
+        ],
+        "corner_xy_m": [
+          0.0,
+          4.498043417930603
+        ],
+        "position_error_at_switch_m": [
+          0.0036960479135985254,
+          -0.011243803866181068
+        ],
+        "maximum_past_corner_in_old_direction_m": 0.060223152575067315,
+        "additional_motion_in_old_direction_after_switch_m": 0.05652710466146879,
+        "maximum_xy_tracking_error_next_2s_m": 0.12019346323229635,
+        "maximum_xy_tracking_error_next_6s_m": 0.1496829060759012,
+        "peak_error_in_6s_after_s": 3.009619951248169,
+        "peak_error_after_s": 1.9979219436645508,
+        "first_old_velocity_below_10pct_after_s": 0.33275485038757324,
+        "first_new_velocity_above_90pct_after_s": 0.43219614028930664,
+        "firmware_target_cap_fraction_next_4s": 0.9923371647509579,
+        "capped_wheel_measured_abs_median_rpm_next_4s": 24.738262176513672,
+        "maximum_abs_xy_D_term_next_1s_m_s": 0.1011582555029743,
+        "firmware_any_saturation_fraction_minus_025_plus_1s": 0.037037037037037035,
+        "firmware_target_peak_rpm": 28.0,
+        "firmware_measured_minus_target_rmse_rpm": 5.784608039144623,
+        "firmware_target_measured_pre_mean_rpm": [
+          18.173433157113884,
+          21.128170380225548,
+          20.4139315531804,
+          21.731740144582893
+        ],
+        "firmware_pid_abs_peak_pwm": 2952.25341796875,
+        "firmware_ff_abs_peak_pwm": 3500.0,
+        "firmware_output_abs_peak_pwm": 4095.0
+      }
+    ]
+  },
+  {
+    "bag": "hamr_hw_20260916_193228",
+    "reference_duration_s": 39.585450410842896,
+    "reference_speed_m_s": [
+      0.25
+    ],
+    "rates_from_bag_receipt": {
+      "/live_gains": {
+        "n": 3890,
+        "median_interval_s": 0.010005950927734375,
+        "p99_interval_s": 0.019384527206420896,
+        "max_interval_s": 0.06761980056762695
+      },
+      "/left_wheel/cmd_vel": {
+        "n": 4742,
+        "median_interval_s": 0.009999513626098633,
+        "p99_interval_s": 0.02018976211547853,
+        "max_interval_s": 0.06948184967041016
+      },
+      "/wheel_control/status": {
+        "n": 3174,
+        "median_interval_s": 0.014641284942626953,
+        "p99_interval_s": 0.02289985656738279,
+        "max_interval_s": 0.33200597763061523
+      },
+      "/HAMR_base/odom": {
+        "n": 4742,
+        "median_interval_s": 0.008198976516723633,
+        "p99_interval_s": 0.038043069839477583,
+        "max_interval_s": 0.30765271186828613
+      },
+      "/turret/cmd_vel": {
+        "n": 4745,
+        "median_interval_s": 0.010005950927734375,
+        "p99_interval_s": 0.02023890972137451,
+        "max_interval_s": 0.06261682510375977
+      },
+      "/right_wheel/cmd_vel": {
+        "n": 4744,
+        "median_interval_s": 0.010011911392211914,
+        "p99_interval_s": 0.019740805625915517,
+        "max_interval_s": 0.06950759887695312
+      },
+      "/reference_trajectory": {
+        "n": 3960,
+        "median_interval_s": 0.009991645812988281,
+        "p99_interval_s": 0.014215292930603028,
+        "max_interval_s": 0.023988723754882812
+      }
+    },
+    "active_firmware_status": {
+      "count": 2582,
+      "target_peak_rpm": 28.0,
+      "target_cap_fraction": 0.5410534469403563,
+      "saturated_fraction": 0.07474825716498838,
+      "mean_target_minus_measured_rpm": [
+        0.5470959976009626,
+        -0.5013704752170075
+      ],
+      "pid_absolute_max_pwm": 2886.462158203125,
+      "ff_absolute_max_pwm": 3500.0,
+      "output_absolute_max_pwm": 4095.0,
+      "source_counts": {
+        "1.0": 2580,
+        "5.0": 2
+      }
+    },
+    "live_gain_term_absolute_max": [
+      0.1765503795030729,
+      0.10892602097510778,
+      0.0,
+      0.14573473279111968,
+      0.1025354541857809,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "turret_command_abs_max_rad_s": 0.0,
+    "corner_events": [
+      {
+        "time_from_reference_start_s": 8.005140542984009,
+        "old_velocity_m_s": [
+          0.0,
+          0.25
+        ],
+        "new_velocity_m_s": [
+          -0.25,
+          0.0
+        ],
+        "corner_xy_m": [
+          -0.0020705461502075195,
+          2.0
+        ],
+        "position_error_at_switch_m": [
+          0.016024409069069497,
+          0.018708397261879117
+        ],
+        "maximum_past_corner_in_old_direction_m": 0.06781869922056716,
+        "additional_motion_in_old_direction_after_switch_m": 0.04911030195868804,
+        "maximum_xy_tracking_error_next_2s_m": 0.19785030794626393,
+        "maximum_xy_tracking_error_next_6s_m": 0.25578399786136763,
+        "peak_error_in_6s_after_s": 3.52103853225708,
+        "peak_error_after_s": 1.9946787357330322,
+        "first_old_velocity_below_10pct_after_s": 0.30657124519348145,
+        "first_new_velocity_above_90pct_after_s": 0.4531586170196533,
+        "firmware_target_cap_fraction_next_4s": 0.9885057471264368,
+        "capped_wheel_measured_abs_median_rpm_next_4s": 22.971242904663086,
+        "maximum_abs_xy_D_term_next_1s_m_s": 0.09433657211375775,
+        "firmware_any_saturation_fraction_minus_025_plus_1s": 0.024691358024691357,
+        "firmware_target_peak_rpm": 28.0,
+        "firmware_measured_minus_target_rmse_rpm": 5.927291645487934,
+        "firmware_target_measured_pre_mean_rpm": [
+          18.750459010784443,
+          19.80214522435115,
+          18.77561114384578,
+          19.795672710125263
+        ],
+        "firmware_pid_abs_peak_pwm": 2801.58984375,
+        "firmware_ff_abs_peak_pwm": 3500.0,
+        "firmware_output_abs_peak_pwm": 4095.0
+      },
+      {
+        "time_from_reference_start_s": 16.00506281852722,
+        "old_velocity_m_s": [
+          -0.25,
+          0.0
+        ],
+        "new_velocity_m_s": [
+          0.0,
+          0.25
+        ],
+        "corner_xy_m": [
+          -2.0,
+          2.002052664756775
+        ],
+        "position_error_at_switch_m": [
+          0.06927622060558503,
+          0.026051792353778858
+        ],
+        "maximum_past_corner_in_old_direction_m": 0.0,
+        "additional_motion_in_old_direction_after_switch_m": 0.060312378598057714,
+        "maximum_xy_tracking_error_next_2s_m": 0.1506131839284129,
+        "maximum_xy_tracking_error_next_6s_m": 0.20451560658567072,
+        "peak_error_in_6s_after_s": 3.2928667068481445,
+        "peak_error_after_s": 1.9990253448486328,
+        "first_old_velocity_below_10pct_after_s": 0.32346487045288086,
+        "first_new_velocity_above_90pct_after_s": 0.5048675537109375,
+        "firmware_target_cap_fraction_next_4s": 0.9885057471264368,
+        "capped_wheel_measured_abs_median_rpm_next_4s": 23.56024932861328,
+        "maximum_abs_xy_D_term_next_1s_m_s": 0.10892602097510778,
+        "firmware_any_saturation_fraction_minus_025_plus_1s": 0.024691358024691357,
+        "firmware_target_peak_rpm": 28.0,
+        "firmware_measured_minus_target_rmse_rpm": 6.007342583073298,
+        "firmware_target_measured_pre_mean_rpm": [
+          23.769525821392353,
+          22.990470079275276,
+          21.85643819662241,
+          23.75100018427922
+        ],
+        "firmware_pid_abs_peak_pwm": 2857.599853515625,
+        "firmware_ff_abs_peak_pwm": 3500.0,
+        "firmware_output_abs_peak_pwm": 4095.0
+      },
+      {
+        "time_from_reference_start_s": 26.005796432495117,
+        "old_velocity_m_s": [
+          0.0,
+          0.25
+        ],
+        "new_velocity_m_s": [
+          0.25,
+          0.0
+        ],
+        "corner_xy_m": [
+          -1.997826337814331,
+          4.5
+        ],
+        "position_error_at_switch_m": [
+          0.019725707179545138,
+          0.005870155686987566
+        ],
+        "maximum_past_corner_in_old_direction_m": 0.06199860848599226,
+        "additional_motion_in_old_direction_after_switch_m": 0.05612845279900469,
+        "maximum_xy_tracking_error_next_2s_m": 0.1326011035594897,
+        "maximum_xy_tracking_error_next_6s_m": 0.1682889537038961,
+        "peak_error_in_6s_after_s": 3.3143861293792725,
+        "peak_error_after_s": 1.999298334121704,
+        "first_old_velocity_below_10pct_after_s": 0.3055448532104492,
+        "first_new_velocity_above_90pct_after_s": 0.46370458602905273,
+        "firmware_target_cap_fraction_next_4s": 0.9885057471264368,
+        "capped_wheel_measured_abs_median_rpm_next_4s": 24.612045288085938,
+        "maximum_abs_xy_D_term_next_1s_m_s": 0.1025354541857809,
+        "firmware_any_saturation_fraction_minus_025_plus_1s": 0.024691358024691357,
+        "firmware_target_peak_rpm": 28.0,
+        "firmware_measured_minus_target_rmse_rpm": 5.772551825394674,
+        "firmware_target_measured_pre_mean_rpm": [
+          17.845727143464266,
+          20.564804218433522,
+          20.34469879998101,
+          21.428056716918945
+        ],
+        "firmware_pid_abs_peak_pwm": 2871.895263671875,
+        "firmware_ff_abs_peak_pwm": 3500.0,
+        "firmware_output_abs_peak_pwm": 4095.0
+      },
+      {
+        "time_from_reference_start_s": 34.00730276107788,
+        "old_velocity_m_s": [
+          0.25,
+          0.0
+        ],
+        "new_velocity_m_s": [
+          0.0,
+          -0.25
+        ],
+        "corner_xy_m": [
+          0.0,
+          4.4979459047317505
+        ],
+        "position_error_at_switch_m": [
+          0.0026457986492695036,
+          -0.011245375156205384
+        ],
+        "maximum_past_corner_in_old_direction_m": 0.05222433963510534,
+        "additional_motion_in_old_direction_after_switch_m": 0.049578540985835834,
+        "maximum_xy_tracking_error_next_2s_m": 0.12335165718909172,
+        "maximum_xy_tracking_error_next_6s_m": 0.1508496906728345,
+        "peak_error_in_6s_after_s": 3.0061159133911133,
+        "peak_error_after_s": 1.9578111171722412,
+        "first_old_velocity_below_10pct_after_s": 0.29381895065307617,
+        "first_new_velocity_above_90pct_after_s": 0.3954317569732666,
+        "firmware_target_cap_fraction_next_4s": 0.9885057471264368,
+        "capped_wheel_measured_abs_median_rpm_next_4s": 24.738262176513672,
+        "maximum_abs_xy_D_term_next_1s_m_s": 0.09439988739336447,
+        "firmware_any_saturation_fraction_minus_025_plus_1s": 0.037037037037037035,
+        "firmware_target_peak_rpm": 28.0,
+        "firmware_measured_minus_target_rmse_rpm": 5.690425109004137,
+        "firmware_target_measured_pre_mean_rpm": [
+          18.35780283120962,
+          21.303977232712967,
+          20.557300714346077,
+          21.611425913297214
+        ],
+        "firmware_pid_abs_peak_pwm": 2886.462158203125,
+        "firmware_ff_abs_peak_pwm": 3500.0,
+        "firmware_output_abs_peak_pwm": 4095.0
+      }
+    ]
+  }
+]

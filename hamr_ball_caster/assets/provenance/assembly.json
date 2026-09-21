@@ -1,0 +1,6391 @@
+{
+  "schema_version": 1,
+  "length_unit": "meter",
+  "source": {
+    "file": "Ball Caster Assembly.SLDASM",
+    "sha256": "029c41e89937238b4c4f3e795d3f1f9702550e1f27ddadaeeedd641c55ce07cc",
+    "tree_stream": "swXmlContents/COMPINSTANCETREE",
+    "tree_crc32": "37c9ac50",
+    "tree_offset": 5054242,
+    "tree_size_bytes": 38488,
+    "valid_stream_count": 54
+  },
+  "transform_convention": "4x4 column-vector transform: point_assembly = transform @ point_part. Native XML's row-vector swTransform is transposed. All standalone original rotations and translations retained.",
+  "method": "Raw-DEFLATE version-4 SolidWorks streams with payload length and CRC-32 validation; native component-tree XML.",
+  "format_reference": "https://github.com/cadmpeg/cadmpeg/blob/main/docs/formats/sldprt.md",
+  "format_reference_note": "Unofficial format documentation; actual stream CRC and matrix consistency checked locally.",
+  "occurrences": [
+    {
+      "key": "semi_spherical_wheel_1",
+      "path": "Ball Caster Assembly/Semi-Spherical Wheel-1",
+      "name": "Semi-Spherical Wheel",
+      "part_key": "semi_spherical_wheel",
+      "instance_number": 1,
+      "source_file": "Semi-Spherical Wheel.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          -0.6028107479718816,
+          5.651657843098095e-15,
+          -0.7978842034591115,
+          5.548122078072091e-19
+        ],
+        [
+          0.3674471648692096,
+          0.8876457312787961,
+          -0.277610584762381,
+          -1.769417945496341e-16
+        ],
+        [
+          0.7082385072552613,
+          -0.4605269327005004,
+          -0.5350823872062208,
+          1.231653667943532e-16
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.6028107479718816,
+          5.651657843098095e-15,
+          -0.7978842034591115,
+          5.548122078072091e-19
+        ],
+        [
+          0.3674471648692096,
+          0.8876457312787961,
+          -0.277610584762381,
+          -1.769417945496341e-16
+        ],
+        [
+          0.7082385072552613,
+          -0.4605269327005004,
+          -0.5350823872062208,
+          1.231653667943532e-16
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.09926253132630262,
+          0.01,
+          -0.09926253132630262
+        ],
+        [
+          0.09926253132630262,
+          0.04,
+          0.09926253132630262
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "positive_shell",
+      "group_evidence": "Common sphere center and matching local-Y axis. Band+cap are paired by Coincident1/2/22 (positive), Coincident4/6/21 (negative), and fasteners."
+    },
+    {
+      "key": "semi_spherical_wheel_2_1",
+      "path": "Ball Caster Assembly/Semi-Spherical Wheel 2-1",
+      "name": "Semi-Spherical Wheel 2",
+      "part_key": "semi_spherical_wheel_2",
+      "instance_number": 1,
+      "source_file": "Semi-Spherical Wheel 2.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          0.7978842034591178,
+          6.771283263477239e-15,
+          -0.6028107479718732,
+          -4.423020460735863e-17
+        ],
+        [
+          0.2776105847623761,
+          0.8876457312787961,
+          0.3674471648692129,
+          -1.630640067418199e-16
+        ],
+        [
+          0.5350823872062139,
+          -0.4605269327005002,
+          0.7082385072552666,
+          1.092875789865388e-16
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          0.7978842034591178,
+          6.771283263477239e-15,
+          -0.6028107479718732,
+          -4.423020460735863e-17
+        ],
+        [
+          0.2776105847623761,
+          0.8876457312787961,
+          0.3674471648692129,
+          -1.630640067418199e-16
+        ],
+        [
+          0.5350823872062139,
+          -0.4605269327005002,
+          0.7082385072552666,
+          1.092875789865388e-16
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.0916515138991168,
+          0.03999999999999998,
+          -0.09165151389911681
+        ],
+        [
+          0.0916515138991168,
+          0.09682458365518543,
+          0.09165151389911681
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "positive_shell",
+      "group_evidence": "Common sphere center and matching local-Y axis. Band+cap are paired by Coincident1/2/22 (positive), Coincident4/6/21 (negative), and fasteners."
+    },
+    {
+      "key": "semi_spherical_wheel_2_2",
+      "path": "Ball Caster Assembly/Semi-Spherical Wheel 2-2",
+      "name": "Semi-Spherical Wheel 2",
+      "part_key": "semi_spherical_wheel_2",
+      "instance_number": 2,
+      "source_file": "Semi-Spherical Wheel 2.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          0.9396391822927426,
+          9.79821892747487e-16,
+          -0.3421669287061888,
+          -1.933636135726614e-18
+        ],
+        [
+          -0.157577086148613,
+          -0.8876457312787933,
+          -0.4327291504664887,
+          1.110223024625157e-16
+        ],
+        [
+          -0.303723013650824,
+          0.4605269327005062,
+          -0.8340667091044488,
+          2.255140518769849e-17
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          0.9396391822927426,
+          9.79821892747487e-16,
+          -0.3421669287061888,
+          -1.933636135726614e-18
+        ],
+        [
+          -0.157577086148613,
+          -0.8876457312787933,
+          -0.4327291504664887,
+          1.110223024625157e-16
+        ],
+        [
+          -0.303723013650824,
+          0.4605269327005062,
+          -0.8340667091044488,
+          2.255140518769849e-17
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.0916515138991168,
+          0.03999999999999998,
+          -0.09165151389911681
+        ],
+        [
+          0.0916515138991168,
+          0.09682458365518543,
+          0.09165151389911681
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "negative_shell",
+      "group_evidence": "Common sphere center and matching local-Y axis. Band+cap are paired by Coincident1/2/22 (positive), Coincident4/6/21 (negative), and fasteners."
+    },
+    {
+      "key": "semi_spherical_wheel_2",
+      "path": "Ball Caster Assembly/Semi-Spherical Wheel-2",
+      "name": "Semi-Spherical Wheel",
+      "part_key": "semi_spherical_wheel",
+      "instance_number": 2,
+      "source_file": "Semi-Spherical Wheel.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          -0.3421669287061789,
+          1.092700033645386e-15,
+          -0.9396391822927461,
+          -8.872530039634868e-18
+        ],
+        [
+          -0.4327291504664906,
+          -0.8876457312787931,
+          0.1575770861486084,
+          9.02056207507942e-17
+        ],
+        [
+          -0.8340667091044516,
+          0.4605269327005063,
+          0.3037230136508153,
+          1.561251128379159e-17
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.3421669287061789,
+          1.092700033645386e-15,
+          -0.9396391822927461,
+          -8.872530039634868e-18
+        ],
+        [
+          -0.4327291504664906,
+          -0.8876457312787931,
+          0.1575770861486084,
+          9.02056207507942e-17
+        ],
+        [
+          -0.8340667091044516,
+          0.4605269327005063,
+          0.3037230136508153,
+          1.561251128379159e-17
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.09926253132630262,
+          0.01,
+          -0.09926253132630262
+        ],
+        [
+          0.09926253132630262,
+          0.04,
+          0.09926253132630262
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "negative_shell",
+      "group_evidence": "Common sphere center and matching local-Y axis. Band+cap are paired by Coincident1/2/22 (positive), Coincident4/6/21 (negative), and fasteners."
+    },
+    {
+      "key": "skate_bearing_1",
+      "path": "Ball Caster Assembly/Skate Bearing-1",
+      "name": "Skate Bearing",
+      "part_key": "skate_bearing",
+      "instance_number": 1,
+      "source_file": "Skate Bearing.SLDPRT",
+      "document_type": "PART",
+      "configuration": "4668K16",
+      "transform": [
+        [
+          -0.6005969664729577,
+          0.7995519269337551,
+          -9.575673587391977e-15,
+          3.898210714522061e-16
+        ],
+        [
+          -0.3682151964455705,
+          -0.2765910787590224,
+          -0.8876457312787968,
+          0.03553119372792302
+        ],
+        [
+          -0.7097188548784868,
+          -0.533117333508712,
+          0.4605269327004988,
+          -0.01843423686512173
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.6005969664729577,
+          0.7995519269337551,
+          -9.575673587391977e-15,
+          3.898210714522061e-16
+        ],
+        [
+          -0.3682151964455705,
+          -0.2765910787590224,
+          -0.8876457312787968,
+          0.03553119372792302
+        ],
+        [
+          -0.7097188548784868,
+          -0.533117333508712,
+          0.4605269327004988,
+          -0.01843423686512173
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.0174625,
+          -0.0174625,
+          -0.00436562500000001
+        ],
+        [
+          0.0174625,
+          0.0174625,
+          0.004365625
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "positive_shell",
+      "group_evidence": "Single CAD bearing solid lumped with adjacent shell using axial position. Inner/outer race motion unresolved; bearing rolling dynamics omitted."
+    },
+    {
+      "key": "5_16_18screw_1",
+      "path": "Ball Caster Assembly/5_16_18Screw-1",
+      "name": "5_16_18Screw",
+      "part_key": "5_16_18screw",
+      "instance_number": 1,
+      "source_file": "5_16_18Screw.SLDPRT",
+      "document_type": "PART",
+      "configuration": "91255A585",
+      "transform": [
+        [
+          -0.2526462280612823,
+          0.9675587235131554,
+          9.563182104919708e-15,
+          0.04627728380062954
+        ],
+        [
+          0.4455868511471264,
+          0.1163503924674051,
+          0.8876457312787965,
+          0.04959512782370638
+        ],
+        [
+          0.8588493706880125,
+          0.2242603458622909,
+          -0.4605269327004997,
+          0.01365762360098566
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.2526462280612823,
+          0.9675587235131554,
+          9.563182104919708e-15,
+          0.04627728380062954
+        ],
+        [
+          0.4455868511471264,
+          0.1163503924674051,
+          0.8876457312787965,
+          0.04959512782370638
+        ],
+        [
+          0.8588493706880125,
+          0.2242603458622909,
+          -0.4605269327004997,
+          0.01365762360098566
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.006938112164845292,
+          -0.006938112164845292,
+          -0.01856262979397962
+        ],
+        [
+          0.006938112164845292,
+          0.006938112164845292,
+          0.01822948717908691
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "positive_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "5_16_18screw_2",
+      "path": "Ball Caster Assembly/5_16_18Screw-2",
+      "name": "5_16_18Screw",
+      "part_key": "5_16_18screw",
+      "instance_number": 2,
+      "source_file": "5_16_18Screw.SLDPRT",
+      "document_type": "PART",
+      "configuration": "91255A585",
+      "transform": [
+        [
+          -0.9958988010801668,
+          -0.09047418420238028,
+          9.367506770274758e-15,
+          -0.03496302338236832
+        ],
+        [
+          -0.04166579853929381,
+          0.4586382201415541,
+          0.8876457312787971,
+          0.0548056494699033
+        ],
+        [
+          -0.0803090233981787,
+          0.8840053195644816,
+          -0.4605269327004987,
+          0.02370067856383112
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.9958988010801668,
+          -0.09047418420238028,
+          9.367506770274758e-15,
+          -0.03496302338236832
+        ],
+        [
+          -0.04166579853929381,
+          0.4586382201415541,
+          0.8876457312787971,
+          0.0548056494699033
+        ],
+        [
+          -0.0803090233981787,
+          0.8840053195644816,
+          -0.4605269327004987,
+          0.02370067856383112
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.006938112164845292,
+          -0.006938112164845292,
+          -0.01856262979397962
+        ],
+        [
+          0.006938112164845292,
+          0.006938112164845292,
+          0.01822948717908691
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "positive_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "5_16_18screw_3",
+      "path": "Ball Caster Assembly/5_16_18Screw-3",
+      "name": "5_16_18Screw",
+      "part_key": "5_16_18screw",
+      "instance_number": 3,
+      "source_file": "5_16_18Screw.SLDPRT",
+      "document_type": "PART",
+      "configuration": "91255A585",
+      "transform": [
+        [
+          -0.7332575812245421,
+          0.6799509685092993,
+          9.550850466766446e-15,
+          0.03496302338236897
+        ],
+        [
+          0.3131357339143275,
+          0.3376848647607196,
+          0.8876457312787968,
+          0.01218177834507454
+        ],
+        [
+          0.60355557467616,
+          0.6508729619017835,
+          -0.460526932700499,
+          -0.05845498827777981
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.7332575812245421,
+          0.6799509685092993,
+          9.550850466766446e-15,
+          0.03496302338236897
+        ],
+        [
+          0.3131357339143275,
+          0.3376848647607196,
+          0.8876457312787968,
+          0.01218177834507454
+        ],
+        [
+          0.60355557467616,
+          0.6508729619017835,
+          -0.460526932700499,
+          -0.05845498827777981
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.006938112164845292,
+          -0.006938112164845292,
+          -0.01856262979397962
+        ],
+        [
+          0.006938112164845292,
+          0.006938112164845292,
+          0.01822948717908691
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "positive_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "5_16_18screw_4",
+      "path": "Ball Caster Assembly/5_16_18Screw-4",
+      "name": "5_16_18Screw",
+      "part_key": "5_16_18screw",
+      "instance_number": 4,
+      "source_file": "5_16_18Screw.SLDPRT",
+      "document_type": "PART",
+      "configuration": "91255A585",
+      "transform": [
+        [
+          0.909094558112038,
+          -0.4165898275415259,
+          9.381384558082573e-15,
+          -0.04627728380062864
+        ],
+        [
+          -0.191850835471936,
+          -0.4186625283820483,
+          0.8876457312787973,
+          0.01739229999127137
+        ],
+        [
+          -0.3697841821114018,
+          -0.8069539038369369,
+          -0.4605269327004982,
+          -0.04841193331493469
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          0.909094558112038,
+          -0.4165898275415259,
+          9.381384558082573e-15,
+          -0.04627728380062864
+        ],
+        [
+          -0.191850835471936,
+          -0.4186625283820483,
+          0.8876457312787973,
+          0.01739229999127137
+        ],
+        [
+          -0.3697841821114018,
+          -0.8069539038369369,
+          -0.4605269327004982,
+          -0.04841193331493469
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.006938112164845292,
+          -0.006938112164845292,
+          -0.01856262979397962
+        ],
+        [
+          0.006938112164845292,
+          0.006938112164845292,
+          0.01822948717908691
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "positive_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "5_16nuts_1",
+      "path": "Ball Caster Assembly/5_16Nuts-1",
+      "name": "5_16Nuts",
+      "part_key": "5_16nuts",
+      "instance_number": 1,
+      "source_file": "5_16Nuts.SLDPRT",
+      "document_type": "PART",
+      "configuration": "94612A102",
+      "transform": [
+        [
+          -0.809789870449073,
+          -0.5867200062364274,
+          -8.715250743307479e-15,
+          -0.04627728380062826
+        ],
+        [
+          0.2702003648260855,
+          -0.372930045169841,
+          -0.8876457312787971,
+          0.004724530231045057
+        ],
+        [
+          0.5207995089916309,
+          -0.7188065217369322,
+          0.4605269327004984,
+          -0.04183966135297988
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.809789870449073,
+          -0.5867200062364274,
+          -8.715250743307479e-15,
+          -0.04627728380062826
+        ],
+        [
+          0.2702003648260855,
+          -0.372930045169841,
+          -0.8876457312787971,
+          0.004724530231045057
+        ],
+        [
+          0.5207995089916309,
+          -0.7188065217369322,
+          0.4605269327004984,
+          -0.04183966135297988
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.00873125,
+          -0.00873125,
+          -0.001880163042737587
+        ],
+        [
+          0.00873125,
+          0.00873125,
+          0.005885792055624095
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "positive_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "5_16nuts_2",
+      "path": "Ball Caster Assembly/5_16Nuts-2",
+      "name": "5_16Nuts",
+      "part_key": "5_16nuts",
+      "instance_number": 2,
+      "source_file": "5_16Nuts.SLDPRT",
+      "document_type": "PART",
+      "configuration": "94612A102",
+      "transform": [
+        [
+          -0.8170925610615519,
+          -0.5765065018348657,
+          -8.271161533457416e-15,
+          -0.03496302338236876
+        ],
+        [
+          0.2654967709719114,
+          -0.3762931308780676,
+          -0.8876457312787969,
+          0.04213787970967722
+        ],
+        [
+          0.5117335354081873,
+          -0.7252887238859483,
+          0.4605269327004992,
+          0.03027295052578626
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.8170925610615519,
+          -0.5765065018348657,
+          -8.271161533457416e-15,
+          -0.03496302338236876
+        ],
+        [
+          0.2654967709719114,
+          -0.3762931308780676,
+          -0.8876457312787969,
+          0.04213787970967722
+        ],
+        [
+          0.5117335354081873,
+          -0.7252887238859483,
+          0.4605269327004992,
+          0.03027295052578626
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.00873125,
+          -0.00873125,
+          -0.001880163042737587
+        ],
+        [
+          0.00873125,
+          0.00873125,
+          0.005885792055624095
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "positive_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "5_16nuts_3",
+      "path": "Ball Caster Assembly/5_16Nuts-3",
+      "name": "5_16Nuts",
+      "part_key": "5_16nuts",
+      "instance_number": 3,
+      "source_file": "5_16Nuts.SLDPRT",
+      "document_type": "PART",
+      "configuration": "94612A102",
+      "transform": [
+        [
+          -0.8379666314191242,
+          -0.545721471657553,
+          -8.2101398662603e-15,
+          0.03496302338236884
+        ],
+        [
+          0.2513194354512615,
+          -0.3859062024728151,
+          -0.8876457312787969,
+          -0.0004859914151514003
+        ],
+        [
+          0.4844073347840068,
+          -0.7438175033332606,
+          0.4605269327004992,
+          -0.05188271631582445
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.8379666314191242,
+          -0.545721471657553,
+          -8.2101398662603e-15,
+          0.03496302338236884
+        ],
+        [
+          0.2513194354512615,
+          -0.3859062024728151,
+          -0.8876457312787969,
+          -0.0004859914151514003
+        ],
+        [
+          0.4844073347840068,
+          -0.7438175033332606,
+          0.4605269327004992,
+          -0.05188271631582445
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.00873125,
+          -0.00873125,
+          -0.001880163042737587
+        ],
+        [
+          0.00873125,
+          0.00873125,
+          0.005885792055624095
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "positive_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "5_16nuts_4",
+      "path": "Ball Caster Assembly/5_16Nuts-4",
+      "name": "5_16Nuts",
+      "part_key": "5_16nuts",
+      "instance_number": 4,
+      "source_file": "5_16Nuts.SLDPRT",
+      "document_type": "PART",
+      "configuration": "94612A102",
+      "transform": [
+        [
+          -0.7122095167205128,
+          -0.7019669538466421,
+          -8.45994004680096e-15,
+          0.04627728380062867
+        ],
+        [
+          0.323274688112112,
+          -0.327991664175397,
+          -0.8876457312787973,
+          0.03692735806348087
+        ],
+        [
+          0.6230979700807495,
+          -0.632189737293101,
+          0.4605269327004987,
+          0.02022989556294191
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.7122095167205128,
+          -0.7019669538466421,
+          -8.45994004680096e-15,
+          0.04627728380062867
+        ],
+        [
+          0.323274688112112,
+          -0.327991664175397,
+          -0.8876457312787973,
+          0.03692735806348087
+        ],
+        [
+          0.6230979700807495,
+          -0.632189737293101,
+          0.4605269327004987,
+          0.02022989556294191
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.00873125,
+          -0.00873125,
+          -0.001880163042737587
+        ],
+        [
+          0.00873125,
+          0.00873125,
+          0.005885792055624095
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "positive_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "4668k11_permanently_lubricated_stainless_steel_ball_bearing_1",
+      "path": "Ball Caster Assembly/4668K11_Permanently Lubricated Stainless Steel Ball Bearing-1",
+      "name": "4668K11_Permanently Lubricated Stainless Steel Ball Bearing",
+      "part_key": "4668k11_permanently_lubricated_stainless_steel_ball_bearing",
+      "instance_number": 1,
+      "source_file": "4668K11_Permanently Lubricated Stainless Steel Ball Bearing.SLDPRT",
+      "document_type": "PART",
+      "configuration": "4668K11",
+      "transform": [
+        [
+          -0.9383915280692519,
+          -0.345573928483985,
+          -2.775627420391847e-17,
+          -6.858841316542317e-16
+        ],
+        [
+          -0.3067472224600541,
+          0.8329592341588604,
+          -0.4605269327004961,
+          0.08897045922341416
+        ],
+        [
+          0.1591461013059902,
+          -0.432154572093864,
+          -0.8876457312787985,
+          -0.02476674185707136
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.9383915280692519,
+          -0.345573928483985,
+          -2.775627420391847e-17,
+          -6.858841316542317e-16
+        ],
+        [
+          -0.3067472224600541,
+          0.8329592341588604,
+          -0.4605269327004961,
+          0.08897045922341416
+        ],
+        [
+          0.1591461013059902,
+          -0.432154572093864,
+          -0.8876457312787985,
+          -0.02476674185707136
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.006349999999999999,
+          -0.006349999999999998,
+          -0.002489200000000008
+        ],
+        [
+          0.006349999999999999,
+          0.00635,
+          0.002489200000000004
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Bearing mass/visual lumped with carrier-supported housing. Individual races and balls are not articulated; bearing drag is a simulation parameter."
+    },
+    {
+      "key": "skate_bearing_2",
+      "path": "Ball Caster Assembly/Skate Bearing-2",
+      "name": "Skate Bearing",
+      "part_key": "skate_bearing",
+      "instance_number": 2,
+      "source_file": "Skate Bearing.SLDPRT",
+      "document_type": "PART",
+      "configuration": "4668K16",
+      "transform": [
+        [
+          -0.8060985240661162,
+          -0.5917813527802553,
+          7.494005416219807e-16,
+          -3.90361276459228e-17
+        ],
+        [
+          -0.272531251225245,
+          0.3712300807425717,
+          0.8876457312787945,
+          -0.03550301097595394
+        ],
+        [
+          -0.5252921916457844,
+          0.7155299138774245,
+          -0.4605269327005033,
+          0.01841961513500828
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.8060985240661162,
+          -0.5917813527802553,
+          7.494005416219807e-16,
+          -3.90361276459228e-17
+        ],
+        [
+          -0.272531251225245,
+          0.3712300807425717,
+          0.8876457312787945,
+          -0.03550301097595394
+        ],
+        [
+          -0.5252921916457844,
+          0.7155299138774245,
+          -0.4605269327005033,
+          0.01841961513500828
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.0174625,
+          -0.0174625,
+          -0.00436562500000001
+        ],
+        [
+          0.0174625,
+          0.0174625,
+          0.004365625
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "negative_shell",
+      "group_evidence": "Single CAD bearing solid lumped with adjacent shell using axial position. Inner/outer race motion unresolved; bearing rolling dynamics omitted."
+    },
+    {
+      "key": "5_16_18screw_5",
+      "path": "Ball Caster Assembly/5_16_18Screw-5",
+      "name": "5_16_18Screw",
+      "part_key": "5_16_18screw",
+      "instance_number": 5,
+      "source_file": "5_16_18Screw.SLDPRT",
+      "document_type": "PART",
+      "configuration": "91255A585",
+      "transform": [
+        [
+          -0.4437957161912028,
+          0.8961279832090601,
+          -6.106226635438361e-16,
+          0.05449907257297799
+        ],
+        [
+          -0.4126910714143575,
+          -0.2043798799231589,
+          -0.887645731278794,
+          -0.04263318490410979
+        ],
+        [
+          -0.7954441789749969,
+          -0.3939333730369362,
+          0.4605269327005047,
+          -0.0002387799347756975
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.4437957161912028,
+          0.8961279832090601,
+          -6.106226635438361e-16,
+          0.05449907257297799
+        ],
+        [
+          -0.4126910714143575,
+          -0.2043798799231589,
+          -0.887645731278794,
+          -0.04263318490410979
+        ],
+        [
+          -0.7954441789749969,
+          -0.3939333730369362,
+          0.4605269327005047,
+          -0.0002387799347756975
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.006938112164845292,
+          -0.006938112164845292,
+          -0.01856262979397962
+        ],
+        [
+          0.006938112164845292,
+          0.006938112164845292,
+          0.01822948717908691
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "negative_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "5_16_18screw_6",
+      "path": "Ball Caster Assembly/5_16_18Screw-6",
+      "name": "5_16_18Screw",
+      "part_key": "5_16_18screw",
+      "instance_number": 6,
+      "source_file": "5_16_18Screw.SLDPRT",
+      "document_type": "PART",
+      "configuration": "91255A585",
+      "transform": [
+        [
+          -0.3318774643185903,
+          0.9433225051261434,
+          -9.71445146547012e-16,
+          -0.05449907257297789
+        ],
+        [
+          -0.4344254198330983,
+          -0.1528385106750622,
+          -0.887645731278794,
+          -0.02435424291086781
+        ],
+        [
+          -0.8373361948944397,
+          -0.2945896145100265,
+          0.4605269327005043,
+          0.03499308964872538
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.3318774643185903,
+          0.9433225051261434,
+          -9.71445146547012e-16,
+          -0.05449907257297789
+        ],
+        [
+          -0.4344254198330983,
+          -0.1528385106750622,
+          -0.887645731278794,
+          -0.02435424291086781
+        ],
+        [
+          -0.8373361948944397,
+          -0.2945896145100265,
+          0.4605269327005043,
+          0.03499308964872538
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.006938112164845292,
+          -0.006938112164845292,
+          -0.01856262979397962
+        ],
+        [
+          0.006938112164845292,
+          0.006938112164845292,
+          0.01822948717908691
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "negative_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "5_16_18screw_7",
+      "path": "Ball Caster Assembly/5_16_18Screw-7",
+      "name": "5_16_18Screw",
+      "part_key": "5_16_18screw",
+      "instance_number": 7,
+      "source_file": "5_16_18Screw.SLDPRT",
+      "document_type": "PART",
+      "configuration": "91255A585",
+      "transform": [
+        [
+          0.9364619193156705,
+          0.3507692598726556,
+          -8.604228440844909e-16,
+          -0.01984568186496246
+        ],
+        [
+          -0.161538691334781,
+          0.4312659352932732,
+          -0.8876457312787941,
+          -0.05859200463454448
+        ],
+        [
+          -0.3113588361897843,
+          0.8312464251857015,
+          0.4605269327005047,
+          -0.03099871427108231
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          0.9364619193156705,
+          0.3507692598726556,
+          -8.604228440844909e-16,
+          -0.01984568186496246
+        ],
+        [
+          -0.161538691334781,
+          0.4312659352932732,
+          -0.8876457312787941,
+          -0.05859200463454448
+        ],
+        [
+          -0.3113588361897843,
+          0.8312464251857015,
+          0.4605269327005047,
+          -0.03099871427108231
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.006938112164845292,
+          -0.006938112164845292,
+          -0.01856262979397962
+        ],
+        [
+          0.006938112164845292,
+          0.006938112164845292,
+          0.01822948717908691
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "negative_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "5_16_18screw_8",
+      "path": "Ball Caster Assembly/5_16_18Screw-8",
+      "name": "5_16_18Screw",
+      "part_key": "5_16_18screw",
+      "instance_number": 8,
+      "source_file": "5_16_18Screw.SLDPRT",
+      "document_type": "PART",
+      "configuration": "91255A585",
+      "transform": [
+        [
+          -0.7762773365717257,
+          0.6303915423965549,
+          -6.938893903907228e-16,
+          0.01984568186496241
+        ],
+        [
+          -0.2903122834202251,
+          -0.3574966207362945,
+          -0.8876457312787939,
+          -0.008395423180433305
+        ],
+        [
+          -0.5595643616425571,
+          -0.6890592640963638,
+          0.4605269327005046,
+          0.06575302398503168
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.7762773365717257,
+          0.6303915423965549,
+          -6.938893903907228e-16,
+          0.01984568186496241
+        ],
+        [
+          -0.2903122834202251,
+          -0.3574966207362945,
+          -0.8876457312787939,
+          -0.008395423180433305
+        ],
+        [
+          -0.5595643616425571,
+          -0.6890592640963638,
+          0.4605269327005046,
+          0.06575302398503168
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.006938112164845292,
+          -0.006938112164845292,
+          -0.01856262979397962
+        ],
+        [
+          0.006938112164845292,
+          0.006938112164845292,
+          0.01822948717908691
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "negative_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "5_16nuts_5",
+      "path": "Ball Caster Assembly/5_16Nuts-5",
+      "name": "5_16Nuts",
+      "part_key": "5_16nuts",
+      "instance_number": 5,
+      "source_file": "5_16Nuts.SLDPRT",
+      "document_type": "PART",
+      "configuration": "94612A102",
+      "transform": [
+        [
+          -0.2893653309146589,
+          -0.9572187342842022,
+          6.38378239159465e-16,
+          0.01984568186496242
+        ],
+        [
+          -0.440825007623363,
+          0.133260528275995,
+          0.8876457312787938,
+          0.004272346579792632
+        ],
+        [
+          -0.849671123387462,
+          0.2568539007664723,
+          -0.4605269327005049,
+          0.05918075202307622
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.2893653309146589,
+          -0.9572187342842022,
+          6.38378239159465e-16,
+          0.01984568186496242
+        ],
+        [
+          -0.440825007623363,
+          0.133260528275995,
+          0.8876457312787938,
+          0.004272346579792632
+        ],
+        [
+          -0.849671123387462,
+          0.2568539007664723,
+          -0.4605269327005049,
+          0.05918075202307622
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.00873125,
+          -0.00873125,
+          -0.001880163042737587
+        ],
+        [
+          0.00873125,
+          0.00873125,
+          0.005885792055624095
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "negative_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "5_16nuts_6",
+      "path": "Ball Caster Assembly/5_16Nuts-6",
+      "name": "5_16Nuts",
+      "part_key": "5_16nuts",
+      "instance_number": 6,
+      "source_file": "5_16Nuts.SLDPRT",
+      "document_type": "PART",
+      "configuration": "94612A102",
+      "transform": [
+        [
+          0.8268225207196536,
+          -0.5624629047597699,
+          1.193489751472038e-15,
+          -0.05449907257297802
+        ],
+        [
+          -0.2590293162868333,
+          -0.3807740393547203,
+          0.8876457312787944,
+          -0.01168647315064208
+        ],
+        [
+          -0.4992677964126805,
+          -0.7339254810419735,
+          -0.4605269327005037,
+          0.0284208176867696
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          0.8268225207196536,
+          -0.5624629047597699,
+          1.193489751472038e-15,
+          -0.05449907257297802
+        ],
+        [
+          -0.2590293162868333,
+          -0.3807740393547203,
+          0.8876457312787944,
+          -0.01168647315064208
+        ],
+        [
+          -0.4992677964126805,
+          -0.7339254810419735,
+          -0.4605269327005037,
+          0.0284208176867696
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.00873125,
+          -0.00873125,
+          -0.001880163042737587
+        ],
+        [
+          0.00873125,
+          0.00873125,
+          0.005885792055624095
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "negative_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "5_16nuts_7",
+      "path": "Ball Caster Assembly/5_16Nuts-7",
+      "name": "5_16Nuts",
+      "part_key": "5_16nuts",
+      "instance_number": 7,
+      "source_file": "5_16Nuts.SLDPRT",
+      "document_type": "PART",
+      "configuration": "94612A102",
+      "transform": [
+        [
+          -0.07478265337895348,
+          -0.9971998569763251,
+          1.172673069760322e-15,
+          0.05449907257297799
+        ],
+        [
+          -0.4592373914226883,
+          0.03443942597981548,
+          0.8876457312787941,
+          -0.02996541514388388
+        ],
+        [
+          -0.8851601962768592,
+          0.06638050304552923,
+          -0.4605269327005041,
+          -0.006811051896731136
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.07478265337895348,
+          -0.9971998569763251,
+          1.172673069760322e-15,
+          0.05449907257297799
+        ],
+        [
+          -0.4592373914226883,
+          0.03443942597981548,
+          0.8876457312787941,
+          -0.02996541514388388
+        ],
+        [
+          -0.8851601962768592,
+          0.06638050304552923,
+          -0.4605269327005041,
+          -0.006811051896731136
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.00873125,
+          -0.00873125,
+          -0.001880163042737587
+        ],
+        [
+          0.00873125,
+          0.00873125,
+          0.005885792055624095
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "negative_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "5_16nuts_8",
+      "path": "Ball Caster Assembly/5_16Nuts-8",
+      "name": "5_16Nuts",
+      "part_key": "5_16nuts",
+      "instance_number": 8,
+      "source_file": "5_16Nuts.SLDPRT",
+      "document_type": "PART",
+      "configuration": "94612A102",
+      "transform": [
+        [
+          0.5013261978221841,
+          0.8652583679902508,
+          1.103284130721249e-15,
+          -0.01984568186496168
+        ],
+        [
+          0.3984747822039935,
+          -0.2308742161654573,
+          0.8876457312787943,
+          -0.04592423487431872
+        ],
+        [
+          0.7680428967998025,
+          -0.4450000594750897,
+          -0.4605269327005038,
+          -0.037570986233038
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          0.5013261978221841,
+          0.8652583679902508,
+          1.103284130721249e-15,
+          -0.01984568186496168
+        ],
+        [
+          0.3984747822039935,
+          -0.2308742161654573,
+          0.8876457312787943,
+          -0.04592423487431872
+        ],
+        [
+          0.7680428967998025,
+          -0.4450000594750897,
+          -0.4605269327005038,
+          -0.037570986233038
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.00873125,
+          -0.00873125,
+          -0.001880163042737587
+        ],
+        [
+          0.00873125,
+          0.00873125,
+          0.005885792055624095
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "negative_shell",
+      "group_evidence": "Fastener center lies on this side of the split and native mates connect corresponding shell holes; rigidly lumped."
+    },
+    {
+      "key": "bearing_shaft2_1",
+      "path": "Ball Caster Assembly/Bearing Shaft2-1",
+      "name": "Bearing Shaft2",
+      "part_key": "bearing_shaft2",
+      "instance_number": 1,
+      "source_file": "Bearing Shaft2.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          -1.335186781106586e-16,
+          -8.545156606106565e-18,
+          -1.0,
+          0.0
+        ],
+        [
+          0.4605269327005033,
+          0.8876457312787948,
+          -6.907394638576165e-17,
+          0.0
+        ],
+        [
+          0.8876457312787946,
+          -0.4605269327005035,
+          -1.145821707199149e-16,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -1.335186781106586e-16,
+          -8.545156606106565e-18,
+          -1.0,
+          0.0
+        ],
+        [
+          0.4605269327005033,
+          0.8876457312787948,
+          -6.907394638576165e-17,
+          0.0
+        ],
+        [
+          0.8876457312787946,
+          -0.4605269327005035,
+          -1.145821707199149e-16,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.007937499999999998,
+          -0.07,
+          -0.007937499999999998
+        ],
+        [
+          0.007937499999999998,
+          0.07,
+          0.007937499999999998
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Cross-shaft carrier hardware; mount/shaft native mate references (including Coincident171/172) and orthogonal axes support grouping."
+    },
+    {
+      "key": "ball_caster_shaft_2_1",
+      "path": "Ball Caster Assembly/Ball Caster Shaft 2-1",
+      "name": "Ball Caster Shaft 2",
+      "part_key": "ball_caster_shaft_2",
+      "instance_number": 1,
+      "source_file": "Ball Caster Shaft 2.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          -1.726108987090458e-17,
+          -1.0,
+          2.708305942653104e-16,
+          0.0
+        ],
+        [
+          -0.9910192333395903,
+          -1.910923374638663e-17,
+          -0.1337194045417893,
+          0.0
+        ],
+        [
+          0.1337194045417893,
+          -2.707064705529932e-16,
+          -0.9910192333395903,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -1.726108987090458e-17,
+          -1.0,
+          2.708305942653104e-16,
+          0.0
+        ],
+        [
+          -0.9910192333395903,
+          -1.910923374638663e-17,
+          -0.1337194045417893,
+          0.0
+        ],
+        [
+          0.1337194045417893,
+          -2.707064705529932e-16,
+          -0.9910192333395903,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.0047625,
+          -0.105,
+          -0.0047625
+        ],
+        [
+          0.0047625,
+          0.105,
+          0.0047625
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "fork",
+      "group_evidence": "Main axle on assembly X; fork/shaft Coincident137 and Coincident138. Assumed fixed to fork; carrier needle bearings roll around it."
+    },
+    {
+      "key": "5905k22_needle_roller_bearing_1",
+      "path": "Ball Caster Assembly/5905K22_Needle-Roller Bearing-1",
+      "name": "5905K22_Needle-Roller Bearing",
+      "part_key": "5905k22_needle_roller_bearing",
+      "instance_number": 1,
+      "source_file": "5905K22_Needle-Roller Bearing.SLDPRT",
+      "document_type": "PART",
+      "configuration": "5905K22",
+      "transform": [
+        [
+          6.638089670085136e-15,
+          1.790968830094438e-15,
+          -1.0,
+          -0.01905
+        ],
+        [
+          0.8203815003785447,
+          0.5718165735938825,
+          6.685553093566372e-15,
+          1.318449209081328e-16
+        ],
+        [
+          0.5718165735938825,
+          -0.8203815003785445,
+          2.28454643358078e-15,
+          1.042718811454975e-16
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          6.638089670085136e-15,
+          1.790968830094438e-15,
+          -1.0,
+          -0.01905
+        ],
+        [
+          0.8203815003785447,
+          0.5718165735938825,
+          6.685553093566372e-15,
+          1.318449209081328e-16
+        ],
+        [
+          0.5718165735938825,
+          -0.8203815003785445,
+          2.28454643358078e-15,
+          1.042718811454975e-16
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.007143750000000001,
+          -0.007143750000000001,
+          -0.00635
+        ],
+        [
+          0.007143750000000001,
+          0.007143750000000001,
+          0.00635
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Bearing mass/visual lumped with carrier-supported housing. Individual races and balls are not articulated; bearing drag is a simulation parameter."
+    },
+    {
+      "key": "5905k22_needle_roller_bearing_2",
+      "path": "Ball Caster Assembly/5905K22_Needle-Roller Bearing-2",
+      "name": "5905K22_Needle-Roller Bearing",
+      "part_key": "5905k22_needle_roller_bearing",
+      "instance_number": 2,
+      "source_file": "5905K22_Needle-Roller Bearing.SLDPRT",
+      "document_type": "PART",
+      "configuration": "5905K22",
+      "transform": [
+        [
+          -6.245004513516507e-17,
+          2.220446049250314e-16,
+          -1.0,
+          0.01905
+        ],
+        [
+          -0.9912209891263813,
+          -0.1322155464206773,
+          3.254404673993904e-17,
+          -3.180298188082284e-18
+        ],
+        [
+          -0.1322155464206773,
+          0.9912209891263813,
+          2.28352139765508e-16,
+          1.200106860184454e-16
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -6.245004513516507e-17,
+          2.220446049250314e-16,
+          -1.0,
+          0.01905
+        ],
+        [
+          -0.9912209891263813,
+          -0.1322155464206773,
+          3.254404673993904e-17,
+          -3.180298188082284e-18
+        ],
+        [
+          -0.1322155464206773,
+          0.9912209891263813,
+          2.28352139765508e-16,
+          1.200106860184454e-16
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.007143750000000001,
+          -0.007143750000000001,
+          -0.00635
+        ],
+        [
+          0.007143750000000001,
+          0.007143750000000001,
+          0.00635
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Bearing mass/visual lumped with carrier-supported housing. Individual races and balls are not articulated; bearing drag is a simulation parameter."
+    },
+    {
+      "key": "collet_block_2",
+      "path": "Ball Caster Assembly/Collet Block-2",
+      "name": "Collet Block",
+      "part_key": "collet_block",
+      "instance_number": 2,
+      "source_file": "Collet Block.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          1.0,
+          -8.112138580438838e-25,
+          1.328771418524158e-18,
+          0.0
+        ],
+        [
+          1.179478651084068e-18,
+          0.4605269327005026,
+          -0.8876457312787949,
+          0.0
+        ],
+        [
+          -6.119343055625083e-19,
+          0.8876457312787949,
+          0.4605269327005026,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          1.0,
+          -8.112138580438838e-25,
+          1.328771418524158e-18,
+          0.0
+        ],
+        [
+          1.179478651084068e-18,
+          0.4605269327005026,
+          -0.8876457312787949,
+          0.0
+        ],
+        [
+          -6.119343055625083e-19,
+          0.8876457312787949,
+          0.4605269327005026,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.0254,
+          0.00151372149649248,
+          -0.01776131552515119
+        ],
+        [
+          0.0254,
+          0.0155575,
+          0.01776131552515121
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Cross-shaft carrier hardware; mount/shaft native mate references (including Coincident171/172) and orthogonal axes support grouping."
+    },
+    {
+      "key": "collet_block_3",
+      "path": "Ball Caster Assembly/Collet Block-3",
+      "name": "Collet Block",
+      "part_key": "collet_block",
+      "instance_number": 3,
+      "source_file": "Collet Block.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          -1.0,
+          1.46735051531813e-17,
+          2.021672528095697e-16,
+          0.0
+        ],
+        [
+          -1.862104432809353e-16,
+          -0.4605269327005027,
+          -0.887645731278795,
+          0.0
+        ],
+        [
+          8.007859061675954e-17,
+          -0.887645731278795,
+          0.4605269327005027,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -1.0,
+          1.46735051531813e-17,
+          2.021672528095697e-16,
+          0.0
+        ],
+        [
+          -1.862104432809353e-16,
+          -0.4605269327005027,
+          -0.887645731278795,
+          0.0
+        ],
+        [
+          8.007859061675954e-17,
+          -0.887645731278795,
+          0.4605269327005027,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.0254,
+          0.00151372149649248,
+          -0.01776131552515119
+        ],
+        [
+          0.0254,
+          0.0155575,
+          0.01776131552515121
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Cross-shaft carrier hardware; mount/shaft native mate references (including Coincident171/172) and orthogonal axes support grouping."
+    },
+    {
+      "key": "roller_mount_1",
+      "path": "Ball Caster Assembly/Roller Mount-1",
+      "name": "Roller Mount",
+      "part_key": "roller_mount",
+      "instance_number": 1,
+      "source_file": "Roller Mount.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          3.491481338843098e-15,
+          1.178270215564127e-30,
+          0.9999999999999999,
+          -1.928793224135136e-16
+        ],
+        [
+          -0.4605269327005028,
+          0.887645731278795,
+          1.607921191558456e-15,
+          0.06035990972695807
+        ],
+        [
+          -0.887645731278795,
+          -0.4605269327005028,
+          3.099198506263649e-15,
+          -0.0313158314236342
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          3.491481338843098e-15,
+          1.178270215564127e-30,
+          0.9999999999999999,
+          -1.928793224135136e-16
+        ],
+        [
+          -0.4605269327005028,
+          0.887645731278795,
+          1.607921191558456e-15,
+          0.06035990972695807
+        ],
+        [
+          -0.887645731278795,
+          -0.4605269327005028,
+          3.099198506263649e-15,
+          -0.0313158314236342
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.0225,
+          0.0,
+          -0.0225
+        ],
+        [
+          0.0225,
+          0.03121478876868106,
+          0.0225
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Cross-shaft carrier hardware; mount/shaft native mate references (including Coincident171/172) and orthogonal axes support grouping."
+    },
+    {
+      "key": "roller_mount_2",
+      "path": "Ball Caster Assembly/Roller Mount-2",
+      "name": "Roller Mount",
+      "part_key": "roller_mount",
+      "instance_number": 2,
+      "source_file": "Roller Mount.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          3.274627166118691e-15,
+          2.089868565592524e-15,
+          1.0,
+          1.381134306696481e-16
+        ],
+        [
+          0.460526932700502,
+          -0.8876457312787953,
+          3.47008906631565e-16,
+          -0.06035990972695807
+        ],
+        [
+          0.8876457312787953,
+          0.460526932700502,
+          -3.869149585794357e-15,
+          0.0313158314236342
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          3.274627166118691e-15,
+          2.089868565592524e-15,
+          1.0,
+          1.381134306696481e-16
+        ],
+        [
+          0.460526932700502,
+          -0.8876457312787953,
+          3.47008906631565e-16,
+          -0.06035990972695807
+        ],
+        [
+          0.8876457312787953,
+          0.460526932700502,
+          -3.869149585794357e-15,
+          0.0313158314236342
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.0225,
+          0.0,
+          -0.0225
+        ],
+        [
+          0.0225,
+          0.03121478876868106,
+          0.0225
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Cross-shaft carrier hardware; mount/shaft native mate references (including Coincident171/172) and orthogonal axes support grouping."
+    },
+    {
+      "key": "4668k11_permanently_lubricated_stainless_steel_ball_bearing_2",
+      "path": "Ball Caster Assembly/4668K11_Permanently Lubricated Stainless Steel Ball Bearing-2",
+      "name": "4668K11_Permanently Lubricated Stainless Steel Ball Bearing",
+      "part_key": "4668k11_permanently_lubricated_stainless_steel_ball_bearing",
+      "instance_number": 2,
+      "source_file": "4668K11_Permanently Lubricated Stainless Steel Ball Bearing.SLDPRT",
+      "document_type": "PART",
+      "configuration": "4668K11",
+      "transform": [
+        [
+          -0.962520900712294,
+          -0.2712075140773096,
+          8.326593856159306e-17,
+          -5.494511529825315e-16
+        ],
+        [
+          -0.2407361921614585,
+          0.8543775687838918,
+          -0.4605269327004963,
+          0.07148038316254152
+        ],
+        [
+          0.12489836458335,
+          -0.4432667980651518,
+          -0.8876457312787983,
+          -0.05847810649787025
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.962520900712294,
+          -0.2712075140773096,
+          8.326593856159306e-17,
+          -5.494511529825315e-16
+        ],
+        [
+          -0.2407361921614585,
+          0.8543775687838918,
+          -0.4605269327004963,
+          0.07148038316254152
+        ],
+        [
+          0.12489836458335,
+          -0.4432667980651518,
+          -0.8876457312787983,
+          -0.05847810649787025
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.006349999999999999,
+          -0.006349999999999998,
+          -0.002489200000000008
+        ],
+        [
+          0.006349999999999999,
+          0.00635,
+          0.002489200000000004
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Bearing mass/visual lumped with carrier-supported housing. Individual races and balls are not articulated; bearing drag is a simulation parameter."
+    },
+    {
+      "key": "4668k11_permanently_lubricated_stainless_steel_ball_bearing_3",
+      "path": "Ball Caster Assembly/4668K11_Permanently Lubricated Stainless Steel Ball Bearing-3",
+      "name": "4668K11_Permanently Lubricated Stainless Steel Ball Bearing",
+      "part_key": "4668k11_permanently_lubricated_stainless_steel_ball_bearing",
+      "instance_number": 3,
+      "source_file": "4668K11_Permanently Lubricated Stainless Steel Ball Bearing.SLDPRT",
+      "document_type": "PART",
+      "configuration": "4668K11",
+      "transform": [
+        [
+          0.9958729279694826,
+          -0.0907585331387064,
+          -1.526549953845147e-16,
+          2.901295650949371e-16
+        ],
+        [
+          0.08056142451769817,
+          0.8839823534082296,
+          0.460526932700496,
+          -0.07148038316254152
+        ],
+        [
+          -0.04179674888276464,
+          -0.4586263048772478,
+          0.8876457312787985,
+          0.05847810649787032
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          0.9958729279694826,
+          -0.0907585331387064,
+          -1.526549953845147e-16,
+          2.901295650949371e-16
+        ],
+        [
+          0.08056142451769817,
+          0.8839823534082296,
+          0.460526932700496,
+          -0.07148038316254152
+        ],
+        [
+          -0.04179674888276464,
+          -0.4586263048772478,
+          0.8876457312787985,
+          0.05847810649787032
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.006349999999999999,
+          -0.006349999999999998,
+          -0.002489200000000008
+        ],
+        [
+          0.006349999999999999,
+          0.00635,
+          0.002489200000000004
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Bearing mass/visual lumped with carrier-supported housing. Individual races and balls are not articulated; bearing drag is a simulation parameter."
+    },
+    {
+      "key": "4668k11_permanently_lubricated_stainless_steel_ball_bearing_4",
+      "path": "Ball Caster Assembly/4668K11_Permanently Lubricated Stainless Steel Ball Bearing-4",
+      "name": "4668K11_Permanently Lubricated Stainless Steel Ball Bearing",
+      "part_key": "4668k11_permanently_lubricated_stainless_steel_ball_bearing",
+      "instance_number": 4,
+      "source_file": "4668K11_Permanently Lubricated Stainless Steel Ball Bearing.SLDPRT",
+      "document_type": "PART",
+      "configuration": "4668K11",
+      "transform": [
+        [
+          0.9958729279694872,
+          -0.09075853313865548,
+          -1.665320840625593e-16,
+          1.681281231893519e-16
+        ],
+        [
+          0.08056142451765295,
+          0.8839823534082336,
+          0.4605269327004966,
+          -0.08897045922341411
+        ],
+        [
+          -0.04179674888274122,
+          -0.4586263048772504,
+          0.8876457312787984,
+          0.02476674185707153
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          0.9958729279694872,
+          -0.09075853313865548,
+          -1.665320840625593e-16,
+          1.681281231893519e-16
+        ],
+        [
+          0.08056142451765295,
+          0.8839823534082336,
+          0.4605269327004966,
+          -0.08897045922341411
+        ],
+        [
+          -0.04179674888274122,
+          -0.4586263048772504,
+          0.8876457312787984,
+          0.02476674185707153
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.006349999999999999,
+          -0.006349999999999998,
+          -0.002489200000000008
+        ],
+        [
+          0.006349999999999999,
+          0.00635,
+          0.002489200000000004
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Bearing mass/visual lumped with carrier-supported housing. Individual races and balls are not articulated; bearing drag is a simulation parameter."
+    },
+    {
+      "key": "roller_shaft_1",
+      "path": "Ball Caster Assembly/Roller Shaft-1",
+      "name": "Roller Shaft",
+      "part_key": "roller_shaft",
+      "instance_number": 1,
+      "source_file": "Roller Shaft.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          -0.2550609873869444,
+          -1.29978995849646e-16,
+          -0.9669249674681055,
+          2.841519690236359e-16
+        ],
+        [
+          -0.858286819839955,
+          0.4605269327004959,
+          0.2264037966697766,
+          -0.08022542119297775
+        ],
+        [
+          0.4452949894196134,
+          0.8876457312787985,
+          -0.1174624541728695,
+          0.04162242417747095
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.2550609873869444,
+          -1.29978995849646e-16,
+          -0.9669249674681055,
+          2.841519690236359e-16
+        ],
+        [
+          -0.858286819839955,
+          0.4605269327004959,
+          0.2264037966697766,
+          -0.08022542119297775
+        ],
+        [
+          0.4452949894196134,
+          0.8876457312787985,
+          -0.1174624541728695,
+          0.04162242417747095
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.00238125,
+          -0.022,
+          -0.00238125
+        ],
+        [
+          0.00238125,
+          0.022,
+          0.00238125
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Cross-shaft carrier hardware; mount/shaft native mate references (including Coincident171/172) and orthogonal axes support grouping."
+    },
+    {
+      "key": "roller_shaft_2",
+      "path": "Ball Caster Assembly/Roller Shaft-2",
+      "name": "Roller Shaft",
+      "part_key": "roller_shaft",
+      "instance_number": 2,
+      "source_file": "Roller Shaft.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          0.9911956117840376,
+          1.558715319722594e-16,
+          -0.1324056614351047,
+          -7.01512067399087e-16
+        ],
+        [
+          0.1175293201700166,
+          -0.4605269327004956,
+          0.8798305536623782,
+          0.08022542119297782
+        ],
+        [
+          -0.06097637313288894,
+          -0.8876457312787985,
+          -0.456472274801094,
+          -0.04162242417747085
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          0.9911956117840376,
+          1.558715319722594e-16,
+          -0.1324056614351047,
+          -7.01512067399087e-16
+        ],
+        [
+          0.1175293201700166,
+          -0.4605269327004956,
+          0.8798305536623782,
+          0.08022542119297782
+        ],
+        [
+          -0.06097637313288894,
+          -0.8876457312787985,
+          -0.456472274801094,
+          -0.04162242417747085
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.00238125,
+          -0.022,
+          -0.00238125
+        ],
+        [
+          0.00238125,
+          0.022,
+          0.00238125
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Cross-shaft carrier hardware; mount/shaft native mate references (including Coincident171/172) and orthogonal axes support grouping."
+    },
+    {
+      "key": "roller_1",
+      "path": "Ball Caster Assembly/Roller-1",
+      "name": "Roller",
+      "part_key": "roller",
+      "instance_number": 1,
+      "source_file": "Roller.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          0.9556856533965257,
+          4.418788410904715e-16,
+          -0.2943890824946739,
+          2.804316725914424e-16
+        ],
+        [
+          0.2613132124114796,
+          -0.4605269327004958,
+          0.8483102906818154,
+          -0.08022542119297775
+        ],
+        [
+          -0.135574101181785,
+          -0.8876457312787985,
+          -0.4401189825845713,
+          0.04162242417747097
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          0.9556856533965257,
+          4.418788410904715e-16,
+          -0.2943890824946739,
+          2.804316725914424e-16
+        ],
+        [
+          0.2613132124114796,
+          -0.4605269327004958,
+          0.8483102906818154,
+          -0.08022542119297775
+        ],
+        [
+          -0.135574101181785,
+          -0.8876457312787985,
+          -0.4401189825845713,
+          0.04162242417747097
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.01301164597300566,
+          -0.01524,
+          -0.01295576085918615
+        ],
+        [
+          0.01301164597300564,
+          0.01524,
+          0.01303440562188782
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "negative_polar_roller",
+      "group_evidence": "Polar roller spins on its own small transverse shaft; center sign along split axis determines side."
+    },
+    {
+      "key": "roller_2",
+      "path": "Ball Caster Assembly/Roller-2",
+      "name": "Roller",
+      "part_key": "roller",
+      "instance_number": 2,
+      "source_file": "Roller.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          -0.2641383538558526,
+          4.976412322519252e-17,
+          -0.9644848003065265,
+          -6.804091157908437e-16
+        ],
+        [
+          -0.8561208158753725,
+          0.4605269327004962,
+          0.2344612822671563,
+          0.08022542119297778
+        ],
+        [
+          0.4441712267214152,
+          0.8876457312787984,
+          -0.1216428259097941,
+          -0.0416224241774709
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -0.2641383538558526,
+          4.976412322519252e-17,
+          -0.9644848003065265,
+          -6.804091157908437e-16
+        ],
+        [
+          -0.8561208158753725,
+          0.4605269327004962,
+          0.2344612822671563,
+          0.08022542119297778
+        ],
+        [
+          0.4441712267214152,
+          0.8876457312787984,
+          -0.1216428259097941,
+          -0.0416224241774709
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.01301164597300566,
+          -0.01524,
+          -0.01295576085918615
+        ],
+        [
+          0.01301164597300564,
+          0.01524,
+          0.01303440562188782
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "positive_polar_roller",
+      "group_evidence": "Polar roller spins on its own small transverse shaft; center sign along split axis determines side."
+    },
+    {
+      "key": "caster_fork_1",
+      "path": "Ball Caster Assembly/Caster Fork-1",
+      "name": "Caster Fork",
+      "part_key": "caster_fork",
+      "instance_number": 1,
+      "source_file": "Caster Fork.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.1177113899118469,
+          -0.0508,
+          -0.15642
+        ],
+        [
+          0.1206374746838664,
+          0.0508,
+          0.02499088920149706
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "fork",
+      "group_evidence": "Native fixed assembly reference (identity pose); root support."
+    },
+    {
+      "key": "flange_bearing_2",
+      "path": "Ball Caster Assembly/Flange Bearing-2",
+      "name": "Flange Bearing",
+      "part_key": "flange_bearing",
+      "instance_number": 2,
+      "source_file": "Flange Bearing.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          0.9067969295524938,
+          -7.564721121271294e-17,
+          -0.4215677034050042,
+          1.06124323773345e-19
+        ],
+        [
+          0.1941432813747015,
+          0.8876457312787953,
+          0.417604408549043,
+          0.01743833303699472
+        ],
+        [
+          0.3742027723724572,
+          -0.4605269327005018,
+          0.8049144236539896,
+          -0.009047327939455488
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          0.9067969295524938,
+          -7.564721121271294e-17,
+          -0.4215677034050042,
+          1.06124323773345e-19
+        ],
+        [
+          0.1941432813747015,
+          0.8876457312787953,
+          0.417604408549043,
+          0.01743833303699472
+        ],
+        [
+          0.3742027723724572,
+          -0.4605269327005018,
+          0.8049144236539896,
+          -0.009047327939455488
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.0127,
+          0.0,
+          -0.0127
+        ],
+        [
+          0.0127,
+          0.01591,
+          0.0127
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "positive_shell",
+      "group_evidence": "Single CAD bearing solid lumped with adjacent shell using axial position. Inner/outer race motion unresolved; bearing rolling dynamics omitted."
+    },
+    {
+      "key": "flange_bearing_3",
+      "path": "Ball Caster Assembly/Flange Bearing-3",
+      "name": "Flange Bearing",
+      "part_key": "flange_bearing",
+      "instance_number": 3,
+      "source_file": "Flange Bearing.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          0.7104400902014176,
+          1.493124252262541e-15,
+          -0.703757684316556,
+          -9.62793402183042e-17
+        ],
+        [
+          -0.3240993677227085,
+          -0.8876457312787971,
+          -0.3271767956079253,
+          0.05725314966748227
+        ],
+        [
+          -0.6246875043382429,
+          0.4605269327004986,
+          -0.6306191133966113,
+          -0.02970398715918201
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          0.7104400902014176,
+          1.493124252262541e-15,
+          -0.703757684316556,
+          -9.62793402183042e-17
+        ],
+        [
+          -0.3240993677227085,
+          -0.8876457312787971,
+          -0.3271767956079253,
+          0.05725314966748227
+        ],
+        [
+          -0.6246875043382429,
+          0.4605269327004986,
+          -0.6306191133966113,
+          -0.02970398715918201
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.0127,
+          0.0,
+          -0.0127
+        ],
+        [
+          0.0127,
+          0.01591,
+          0.0127
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "positive_shell",
+      "group_evidence": "Single CAD bearing solid lumped with adjacent shell using axial position. Inner/outer race motion unresolved; bearing rolling dynamics omitted."
+    },
+    {
+      "key": "spacing_5",
+      "path": "Ball Caster Assembly/Spacing-5",
+      "name": "Spacing",
+      "part_key": "spacing",
+      "instance_number": 5,
+      "source_file": "Spacing.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          -1.635501987611072e-15,
+          1.0,
+          -9.48773877880131e-16,
+          0.02539999999999896
+        ],
+        [
+          -1.0,
+          -1.635501987611072e-15,
+          -9.487738778801297e-16,
+          2.895279413549591e-17
+        ],
+        [
+          -9.487738778801309e-16,
+          9.487738778801295e-16,
+          1.0,
+          2.57170063992384e-16
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -1.635501987611072e-15,
+          1.0,
+          -9.48773877880131e-16,
+          0.02539999999999896
+        ],
+        [
+          -1.0,
+          -1.635501987611072e-15,
+          -9.487738778801297e-16,
+          2.895279413549591e-17
+        ],
+        [
+          -9.487738778801309e-16,
+          9.487738778801295e-16,
+          1.0,
+          2.57170063992384e-16
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.009797958971132713,
+          0.0,
+          -0.01
+        ],
+        [
+          0.009797958971132713,
+          0.007,
+          -0.002
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Spacer halves mate to main shaft and collet (Coincident154\u2013169); carrier lumping is a model reduction, not a decoded mate-lock flag."
+    },
+    {
+      "key": "spacing_6",
+      "path": "Ball Caster Assembly/Spacing-6",
+      "name": "Spacing",
+      "part_key": "spacing",
+      "instance_number": 6,
+      "source_file": "Spacing.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          1.748666252612356e-15,
+          1.0,
+          8.814568279229889e-16,
+          0.02539999999999896
+        ],
+        [
+          0.9999999999999999,
+          -1.748666252612357e-15,
+          7.771561172376096e-16,
+          -2.269694897448343e-16
+        ],
+        [
+          7.771561172376096e-16,
+          8.814568279229873e-16,
+          -0.9999999999999999,
+          1.480387810718908e-16
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          1.748666252612356e-15,
+          1.0,
+          8.814568279229889e-16,
+          0.02539999999999896
+        ],
+        [
+          0.9999999999999999,
+          -1.748666252612357e-15,
+          7.771561172376096e-16,
+          -2.269694897448343e-16
+        ],
+        [
+          7.771561172376096e-16,
+          8.814568279229873e-16,
+          -0.9999999999999999,
+          1.480387810718908e-16
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.009797958971132713,
+          0.0,
+          -0.01
+        ],
+        [
+          0.009797958971132713,
+          0.007,
+          -0.002
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Spacer halves mate to main shaft and collet (Coincident154\u2013169); carrier lumping is a model reduction, not a decoded mate-lock flag."
+    },
+    {
+      "key": "spacing_7",
+      "path": "Ball Caster Assembly/Spacing-7",
+      "name": "Spacing",
+      "part_key": "spacing",
+      "instance_number": 7,
+      "source_file": "Spacing.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          1.300184130974117e-15,
+          1.0,
+          1.374460416430359e-15,
+          -0.03239999999999996
+        ],
+        [
+          0.863134956278534,
+          -1.816300203669649e-15,
+          0.5049733134038403,
+          1.442835558367137e-15
+        ],
+        [
+          0.5049733134038403,
+          5.297865427891009e-16,
+          -0.863134956278534,
+          1.030602002505159e-15
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          1.300184130974117e-15,
+          1.0,
+          1.374460416430359e-15,
+          -0.03239999999999996
+        ],
+        [
+          0.863134956278534,
+          -1.816300203669649e-15,
+          0.5049733134038403,
+          1.442835558367137e-15
+        ],
+        [
+          0.5049733134038403,
+          5.297865427891009e-16,
+          -0.863134956278534,
+          1.030602002505159e-15
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.009797958971132713,
+          0.0,
+          -0.01
+        ],
+        [
+          0.009797958971132713,
+          0.007,
+          -0.002
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Spacer halves mate to main shaft and collet (Coincident154\u2013169); carrier lumping is a model reduction, not a decoded mate-lock flag."
+    },
+    {
+      "key": "spacing_8",
+      "path": "Ball Caster Assembly/Spacing-8",
+      "name": "Spacing",
+      "part_key": "spacing",
+      "instance_number": 8,
+      "source_file": "Spacing.SLDPRT",
+      "document_type": "PART",
+      "configuration": "Default",
+      "transform": [
+        [
+          -1.471823627450428e-15,
+          1.0,
+          -1.31296830276425e-15,
+          -0.03239999999999996
+        ],
+        [
+          -0.8631349562785341,
+          -1.933396376570218e-15,
+          -0.5049733134038402,
+          1.52395978695265e-15
+        ],
+        [
+          -0.5049733134038402,
+          3.900371847018205e-16,
+          0.8631349562785341,
+          1.127420357788027e-15
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "local_transform": [
+        [
+          -1.471823627450428e-15,
+          1.0,
+          -1.31296830276425e-15,
+          -0.03239999999999996
+        ],
+        [
+          -0.8631349562785341,
+          -1.933396376570218e-15,
+          -0.5049733134038402,
+          1.52395978695265e-15
+        ],
+        [
+          -0.5049733134038402,
+          3.900371847018205e-16,
+          0.8631349562785341,
+          1.127420357788027e-15
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cached_bounds_m": [
+        [
+          -0.009797958971132713,
+          0.0,
+          -0.01
+        ],
+        [
+          0.009797958971132713,
+          0.007,
+          -0.002
+        ]
+      ],
+      "visibility": "visible",
+      "suppressed": false,
+      "group": "carrier",
+      "group_evidence": "Spacer halves mate to main shaft and collet (Coincident154\u2013169); carrier lumping is a model reduction, not a decoded mate-lock flag."
+    }
+  ],
+  "joint_axes": {
+    "carrier": {
+      "parent": "fork",
+      "child": "carrier",
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "type": "continuous"
+    },
+    "positive_shell": {
+      "parent": "carrier",
+      "child": "positive_shell",
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        5.651657843098095e-15,
+        0.8876457312787961,
+        -0.4605269327005004
+      ],
+      "type": "continuous"
+    },
+    "positive_polar_roller": {
+      "parent": "carrier",
+      "child": "positive_polar_roller",
+      "origin": [
+        -6.804091157908437e-16,
+        0.08022542119297778,
+        -0.0416224241774709
+      ],
+      "axis": [
+        4.976412322519252e-17,
+        0.4605269327004962,
+        0.8876457312787984
+      ],
+      "type": "continuous"
+    },
+    "negative_shell": {
+      "parent": "carrier",
+      "child": "negative_shell",
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": [
+        -5.651657843098095e-15,
+        -0.8876457312787961,
+        0.4605269327005004
+      ],
+      "type": "continuous"
+    },
+    "negative_polar_roller": {
+      "parent": "carrier",
+      "child": "negative_polar_roller",
+      "origin": [
+        2.804316725914424e-16,
+        -0.08022542119297775,
+        0.04162242417747097
+      ],
+      "axis": [
+        4.418788410904715e-16,
+        -0.4605269327004958,
+        -0.8876457312787985
+      ],
+      "type": "continuous"
+    }
+  },
+  "whole_robot": {
+    "HAMR3-3": {
+      "source": {
+        "file": "HAMR3-3.SLDASM",
+        "sha256": "077a85dec5563b19edc933e9c44de5f03ff476cbbc7521850c51d9444ea7bd14",
+        "tree_stream": "swXmlContents/COMPINSTANCETREE",
+        "tree_crc32": "f0600e77",
+        "tree_offset": 14249651,
+        "tree_size_bytes": 153796,
+        "valid_stream_count": 51
+      },
+      "frame_center_from_long_rail_origins_m": [
+        0.7474831500875192,
+        1.0029553190620824,
+        1.4994443890825884
+      ],
+      "global_up": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "occurrences": [
+        {
+          "key": "rail_long_1",
+          "path": "HAMR3-3/HAMRFrame-1/Rail long-1",
+          "name": "Rail long",
+          "part_key": "rail_long",
+          "instance_number": 1,
+          "source_file": "Rail long.SLDPRT",
+          "document_type": "PART",
+          "configuration": "47065T121",
+          "transform": [
+            [
+              -3.491481338843133e-15,
+              0.0,
+              1.0,
+              0.7474831500875223
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              1.0029553190620824
+            ],
+            [
+              -1.0,
+              0.0,
+              -3.491481338843133e-15,
+              1.719992589082587
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              -3.491481338843133e-15,
+              0.0,
+              1.0,
+              0.9154494381874255
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              1.025661275549504
+            ],
+            [
+              -1.0,
+              0.0,
+              -3.491481338843133e-15,
+              1.693765575960164
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.0127,
+              -0.0127,
+              -0.2078482
+            ],
+            [
+              0.0127,
+              0.0127,
+              0.2078482
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "rail_long_2",
+          "path": "HAMR3-3/HAMRFrame-1/Rail long-2",
+          "name": "Rail long",
+          "part_key": "rail_long",
+          "instance_number": 2,
+          "source_file": "Rail long.SLDPRT",
+          "document_type": "PART",
+          "configuration": "47065T121",
+          "transform": [
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.7474831500875162
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              1.0029553190620824
+            ],
+            [
+              -1.0,
+              0.0,
+              0.0,
+              1.2788961890825898
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.9154494381874194
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              1.025661275549504
+            ],
+            [
+              -1.0,
+              0.0,
+              0.0,
+              1.252669175960167
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.0127,
+              -0.0127,
+              -0.2078482
+            ],
+            [
+              0.0127,
+              0.0127,
+              0.2078482
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "ball_caster_assembly_1",
+          "path": "HAMR3-3/SideAssemb-1/Ball Caster Assembly-1",
+          "name": "Ball Caster Assembly",
+          "part_key": "ball_caster_assembly",
+          "instance_number": 1,
+          "source_file": "Ball Caster Assembly.SLDASM",
+          "document_type": "ASSEMBLY",
+          "configuration": "Default",
+          "transform": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              1.0079089286859173
+            ],
+            [
+              0.0,
+              -3.491481338843133e-15,
+              -1.0,
+              0.8765723065712134
+            ],
+            [
+              0.0,
+              1.0,
+              -3.491481338843133e-15,
+              1.2048043891443874
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.8183227964405064
+            ],
+            [
+              0.0,
+              -3.491481338843133e-15,
+              -1.0,
+              0.9072293632006164
+            ],
+            [
+              0.0,
+              1.0,
+              -3.491481338843133e-15,
+              1.135586505826685
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.1176537395562384,
+              -0.1417519999072269,
+              -0.15642
+            ],
+            [
+              0.1176537395562375,
+              0.1405540294277401,
+              0.1414415876439355
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "semi_spherical_wheel_1",
+          "path": "HAMR3-3/SideAssemb-1/Ball Caster Assembly-1/Semi-Spherical Wheel-1",
+          "name": "Semi-Spherical Wheel",
+          "part_key": "semi_spherical_wheel",
+          "instance_number": 1,
+          "source_file": "Semi-Spherical Wheel.SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              0.9903458335220919,
+              2.595034994759446e-15,
+              0.1386186496306787,
+              1.007908928685918
+            ],
+            [
+              0.10683536497014899,
+              -0.6371809672740414,
+              -0.763273620489672,
+              0.8765723065712131
+            ],
+            [
+              0.08832516525389532,
+              0.7707142239142319,
+              -0.6310295161394236,
+              1.2048043891443867
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              0.9903458335220919,
+              2.595034994759446e-15,
+              0.1386186496306787,
+              7.110741526366281e-16
+            ],
+            [
+              0.08832516525389494,
+              0.7707142239142342,
+              -0.6310295161394209,
+              -7.147060721024444e-16
+            ],
+            [
+              -0.1068353649701493,
+              0.6371809672740387,
+              0.7632736204896742,
+              3.313321839115703e-16
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.09926253132630262,
+              0.01,
+              -0.09926253132630262
+            ],
+            [
+              0.09926253132630262,
+              0.04,
+              0.09926253132630262
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "semi_spherical_wheel_2",
+          "path": "HAMR3-3/SideAssemb-1/Ball Caster Assembly-1/Semi-Spherical Wheel-2",
+          "name": "Semi-Spherical Wheel",
+          "part_key": "semi_spherical_wheel",
+          "instance_number": 2,
+          "source_file": "Semi-Spherical Wheel.SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              -0.9866553198159893,
+              -6.120104423246175e-15,
+              -0.1628228481473281,
+              1.007908928685918
+            ],
+            [
+              0.12548988504536684,
+              0.6371809672740567,
+              -0.7604292890828168,
+              0.8765723065712131
+            ],
+            [
+              0.10374761987683605,
+              -0.7707142239142192,
+              -0.6286779910464452,
+              1.2048043891443867
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              -0.9866553198159893,
+              -6.120104423246175e-15,
+              -0.1628228481473281,
+              7.167291875316678e-16
+            ],
+            [
+              0.1037476198768356,
+              -0.7707142239142214,
+              -0.6286779910464425,
+              -7.285838599102589e-16
+            ],
+            [
+              -0.1254898850453672,
+              -0.637180967274054,
+              0.760429289082819,
+              3.365363543395005e-16
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.09926253132630262,
+              0.01,
+              -0.09926253132630262
+            ],
+            [
+              0.09926253132630262,
+              0.04,
+              0.09926253132630262
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "caster_fork_1",
+          "path": "HAMR3-3/SideAssemb-1/Ball Caster Assembly-1/Caster Fork-1",
+          "name": "Caster Fork",
+          "part_key": "caster_fork",
+          "instance_number": 1,
+          "source_file": "Caster Fork.SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              1.0079089286859173
+            ],
+            [
+              0.0,
+              -3.491481338843133e-15,
+              -1.0,
+              0.8765723065712134
+            ],
+            [
+              0.0,
+              1.0,
+              -3.491481338843133e-15,
+              1.2048043891443874
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.1176537395562384,
+              -0.0508,
+              -0.15642
+            ],
+            [
+              0.1176537395562375,
+              0.0508,
+              0.02499088920149706
+            ]
+          ],
+          "visibility": "hidden",
+          "suppressed": false
+        },
+        {
+          "key": "drivewheels_1_2",
+          "path": "HAMR3-3/SideAssemb-1/DriveWheels (1)-2",
+          "name": "DriveWheels (1)",
+          "part_key": "drivewheels_1",
+          "instance_number": 2,
+          "source_file": "DriveWheels (1).SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              -1.904005946086214e-15,
+              -9.364387750393227e-17,
+              -1.0,
+              1.0514710918870345
+            ],
+            [
+              -0.01785948719801145,
+              -0.9998405066394462,
+              1.276335117462783e-16,
+              1.0388398969010149
+            ],
+            [
+              -0.9998405066394462,
+              0.01785948719801145,
+              1.902029838147905e-15,
+              1.8043556059579244
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              -1.904005946086214e-15,
+              -9.364387750393227e-17,
+              -1.0,
+              0.8618849596416236
+            ],
+            [
+              -0.01785948719801145,
+              -0.9998405066394462,
+              1.276335117462783e-16,
+              1.069496953530418
+            ],
+            [
+              -0.9998405066394462,
+              0.01785948719801145,
+              1.902029838147905e-15,
+              1.735137722640222
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.1299856960377909,
+              2.860792441825022e-05,
+              -0.08894607892516691
+            ],
+            [
+              0.1299856960377909,
+              0.26,
+              0.003946078925166907
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "ball_caster_assembly_1",
+          "path": "HAMR3-3/SideAssemb2-1/Ball Caster Assembly-1",
+          "name": "Ball Caster Assembly",
+          "part_key": "ball_caster_assembly",
+          "instance_number": 1,
+          "source_file": "Ball Caster Assembly.SLDASM",
+          "document_type": "ASSEMBLY",
+          "configuration": "Default",
+          "transform": [
+            [
+              1.0,
+              3.41125673968115e-16,
+              5.085009540067729e-16,
+              0.4870573714862932
+            ],
+            [
+              5.089747088348905e-16,
+              -0.0013902390552072495,
+              -0.999999033617218,
+              0.8769820861138392
+            ],
+            [
+              -3.404184064242668e-16,
+              0.999999033617218,
+              -0.0013902390552072495,
+              1.204575204644292
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.8180827964405065
+            ],
+            [
+              0.0,
+              -3.491481338843133e-15,
+              -1.0,
+              0.9072293632006413
+            ],
+            [
+              0.0,
+              1.0,
+              -3.491481338843133e-15,
+              1.135586505826666
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.1176537395562384,
+              -0.1417519999072269,
+              -0.15642
+            ],
+            [
+              0.1176537395562375,
+              0.1405540294277401,
+              0.1414415876439355
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "semi_spherical_wheel_1",
+          "path": "HAMR3-3/SideAssemb2-1/Ball Caster Assembly-1/Semi-Spherical Wheel-1",
+          "name": "Semi-Spherical Wheel",
+          "part_key": "semi_spherical_wheel",
+          "instance_number": 1,
+          "source_file": "Semi-Spherical Wheel.SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              0.9903458335220919,
+              3.181952533562809e-15,
+              0.13861864963067885,
+              0.4870573714862939
+            ],
+            [
+              0.10671246863199899,
+              -0.6382518285278123,
+              -0.7623956009968638,
+              0.8769820861138389
+            ],
+            [
+              0.08847360659483451,
+              0.7698276452433392,
+              -0.6320900391203759,
+              1.2045752046442912
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              0.9903458335220919,
+              2.595034994759446e-15,
+              0.1386186496306787,
+              7.110741526366281e-16
+            ],
+            [
+              0.08832516525389494,
+              0.7707142239142342,
+              -0.6310295161394209,
+              -7.147060721024444e-16
+            ],
+            [
+              -0.1068353649701493,
+              0.6371809672740387,
+              0.7632736204896742,
+              3.313321839115703e-16
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.09926253132630262,
+              0.01,
+              -0.09926253132630262
+            ],
+            [
+              0.09926253132630262,
+              0.04,
+              0.09926253132630262
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "semi_spherical_wheel_2",
+          "path": "HAMR3-3/SideAssemb2-1/Ball Caster Assembly-1/Semi-Spherical Wheel-2",
+          "name": "Semi-Spherical Wheel",
+          "part_key": "semi_spherical_wheel",
+          "instance_number": 2,
+          "source_file": "Semi-Spherical Wheel.SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              -0.9866553198159893,
+              -6.707021962049541e-15,
+              -0.16282284814732792,
+              0.4870573714862939
+            ],
+            [
+              0.12534552978106492,
+              0.6382518285278276,
+              -0.7595545415207452,
+              0.8769820861138389
+            ],
+            [
+              0.10392198055614595,
+              -0.7698276452433265,
+              -0.6297345619992629,
+              1.2045752046442912
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              -0.9866553198159893,
+              -6.120104423246175e-15,
+              -0.1628228481473281,
+              7.167291875316678e-16
+            ],
+            [
+              0.1037476198768356,
+              -0.7707142239142214,
+              -0.6286779910464425,
+              -7.285838599102589e-16
+            ],
+            [
+              -0.1254898850453672,
+              -0.637180967274054,
+              0.760429289082819,
+              3.365363543395005e-16
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.09926253132630262,
+              0.01,
+              -0.09926253132630262
+            ],
+            [
+              0.09926253132630262,
+              0.04,
+              0.09926253132630262
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "caster_fork_1",
+          "path": "HAMR3-3/SideAssemb2-1/Ball Caster Assembly-1/Caster Fork-1",
+          "name": "Caster Fork",
+          "part_key": "caster_fork",
+          "instance_number": 1,
+          "source_file": "Caster Fork.SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              1.0,
+              3.41125673968115e-16,
+              5.085009540067729e-16,
+              0.4870573714862932
+            ],
+            [
+              5.089747088348905e-16,
+              -0.0013902390552072495,
+              -0.999999033617218,
+              0.8769820861138392
+            ],
+            [
+              -3.404184064242668e-16,
+              0.999999033617218,
+              -0.0013902390552072495,
+              1.204575204644292
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.1176537395562384,
+              -0.0508,
+              -0.15642
+            ],
+            [
+              0.1176537395562375,
+              0.0508,
+              0.02499088920149706
+            ]
+          ],
+          "visibility": "hidden",
+          "suppressed": false
+        },
+        {
+          "key": "drivewheels_1_1",
+          "path": "HAMR3-3/SideAssemb2-1/DriveWheels (1)-1",
+          "name": "DriveWheels (1)",
+          "part_key": "drivewheels_1",
+          "instance_number": 1,
+          "source_file": "DriveWheels (1).SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              3.1211454410700664e-15,
+              -1.2403137751055146e-15,
+              0.9999999999999999,
+              0.44387621031727525
+            ],
+            [
+              0.32421800267501166,
+              0.9459823924056021,
+              1.6138345134598324e-16,
+              0.7854280801233087
+            ],
+            [
+              -0.9459823924056021,
+              0.32421800267501166,
+              3.3546806862443123e-15,
+              1.764339718312894
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              3.608194023108741e-15,
+              -8.692024381726264e-16,
+              0.9999999999999999,
+              0.7749016352714884
+            ],
+            [
+              0.3229025476888588,
+              0.9464322187542245,
+              -3.424538505112248e-16,
+              0.8164536521749451
+            ],
+            [
+              -0.9464322187542245,
+              0.3229025476888588,
+              3.695578756729845e-15,
+              1.695477760503268
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.1299856960377909,
+              2.860792441825022e-05,
+              -0.08894607892516691
+            ],
+            [
+              0.1299856960377909,
+              0.26,
+              0.003946078925166907
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        }
+      ],
+      "note": "Cached whole-robot snapshot; geometry and some visibility differ from current parts and standalone assembly. Drive wheel nominal radius 0.130m differs from COMPA collision radius 0.1075m."
+    },
+    "HAMR3-2": {
+      "source": {
+        "file": "HAMR3-2.SLDASM",
+        "sha256": "2d8d6c940600aa3e01ef35867b39f72ba862783f13bb611e3e192f10af7aaa89",
+        "tree_stream": "swXmlContents/COMPINSTANCETREE",
+        "tree_crc32": "8b76d5b3",
+        "tree_offset": 14145121,
+        "tree_size_bytes": 154018,
+        "valid_stream_count": 51
+      },
+      "frame_center_from_long_rail_origins_m": [
+        0.7474831500875192,
+        1.0029553190620824,
+        1.4994443890825884
+      ],
+      "global_up": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "occurrences": [
+        {
+          "key": "rail_long_1",
+          "path": "HAMR3-2/HAMRFrame-1/Rail long-1",
+          "name": "Rail long",
+          "part_key": "rail_long",
+          "instance_number": 1,
+          "source_file": "Rail long.SLDPRT",
+          "document_type": "PART",
+          "configuration": "47065T121",
+          "transform": [
+            [
+              -3.491481338843133e-15,
+              0.0,
+              1.0,
+              0.7474831500875223
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              1.0029553190620824
+            ],
+            [
+              -1.0,
+              0.0,
+              -3.491481338843133e-15,
+              1.719992589082587
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              -3.491481338843133e-15,
+              0.0,
+              1.0,
+              0.9154494381874255
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              1.025661275549504
+            ],
+            [
+              -1.0,
+              0.0,
+              -3.491481338843133e-15,
+              1.693765575960164
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.0127,
+              -0.0127,
+              -0.2078482
+            ],
+            [
+              0.0127,
+              0.0127,
+              0.2078482
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "rail_long_2",
+          "path": "HAMR3-2/HAMRFrame-1/Rail long-2",
+          "name": "Rail long",
+          "part_key": "rail_long",
+          "instance_number": 2,
+          "source_file": "Rail long.SLDPRT",
+          "document_type": "PART",
+          "configuration": "47065T121",
+          "transform": [
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.7474831500875162
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              1.0029553190620824
+            ],
+            [
+              -1.0,
+              0.0,
+              0.0,
+              1.2788961890825898
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.9154494381874194
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              1.025661275549504
+            ],
+            [
+              -1.0,
+              0.0,
+              0.0,
+              1.252669175960167
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.0127,
+              -0.0127,
+              -0.2078482
+            ],
+            [
+              0.0127,
+              0.0127,
+              0.2078482
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "ball_caster_assembly_1",
+          "path": "HAMR3-2/SideAssemb-1/Ball Caster Assembly-1",
+          "name": "Ball Caster Assembly",
+          "part_key": "ball_caster_assembly",
+          "instance_number": 1,
+          "source_file": "Ball Caster Assembly.SLDASM",
+          "document_type": "ASSEMBLY",
+          "configuration": "Default",
+          "transform": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              1.0079089286859173
+            ],
+            [
+              0.0,
+              -3.491481338843133e-15,
+              -1.0,
+              0.8765723065712134
+            ],
+            [
+              0.0,
+              1.0,
+              -3.491481338843133e-15,
+              1.2048043891443874
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.8183227964405064
+            ],
+            [
+              0.0,
+              -3.491481338843133e-15,
+              -1.0,
+              0.9072293632006164
+            ],
+            [
+              0.0,
+              1.0,
+              -3.491481338843133e-15,
+              1.135586505826685
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.1177113899118469,
+              -0.1441993384510253,
+              -0.15642
+            ],
+            [
+              0.1206374746838664,
+              0.1482695091162755,
+              0.1434649025020223
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "semi_spherical_wheel_1",
+          "path": "HAMR3-2/SideAssemb-1/Ball Caster Assembly-1/Semi-Spherical Wheel-1",
+          "name": "Semi-Spherical Wheel",
+          "part_key": "semi_spherical_wheel",
+          "instance_number": 1,
+          "source_file": "Semi-Spherical Wheel.SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              0.9903458335220919,
+              2.595034994759446e-15,
+              0.1386186496306787,
+              1.007908928685918
+            ],
+            [
+              0.10683536497014899,
+              -0.6371809672740414,
+              -0.763273620489672,
+              0.8765723065712131
+            ],
+            [
+              0.08832516525389532,
+              0.7707142239142319,
+              -0.6310295161394236,
+              1.2048043891443867
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              0.9903458335220919,
+              2.595034994759446e-15,
+              0.1386186496306787,
+              7.110741526366281e-16
+            ],
+            [
+              0.08832516525389494,
+              0.7707142239142342,
+              -0.6310295161394209,
+              -7.147060721024444e-16
+            ],
+            [
+              -0.1068353649701493,
+              0.6371809672740387,
+              0.7632736204896742,
+              3.313321839115703e-16
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.09926253132630262,
+              0.01,
+              -0.09926253132630262
+            ],
+            [
+              0.09926253132630262,
+              0.04,
+              0.09926253132630262
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "semi_spherical_wheel_2",
+          "path": "HAMR3-2/SideAssemb-1/Ball Caster Assembly-1/Semi-Spherical Wheel-2",
+          "name": "Semi-Spherical Wheel",
+          "part_key": "semi_spherical_wheel",
+          "instance_number": 2,
+          "source_file": "Semi-Spherical Wheel.SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              -0.9866553198159893,
+              -6.120104423246175e-15,
+              -0.1628228481473281,
+              1.007908928685918
+            ],
+            [
+              0.12548988504536684,
+              0.6371809672740567,
+              -0.7604292890828168,
+              0.8765723065712131
+            ],
+            [
+              0.10374761987683605,
+              -0.7707142239142192,
+              -0.6286779910464452,
+              1.2048043891443867
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              -0.9866553198159893,
+              -6.120104423246175e-15,
+              -0.1628228481473281,
+              7.167291875316678e-16
+            ],
+            [
+              0.1037476198768356,
+              -0.7707142239142214,
+              -0.6286779910464425,
+              -7.285838599102589e-16
+            ],
+            [
+              -0.1254898850453672,
+              -0.637180967274054,
+              0.760429289082819,
+              3.365363543395005e-16
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.09926253132630262,
+              0.01,
+              -0.09926253132630262
+            ],
+            [
+              0.09926253132630262,
+              0.04,
+              0.09926253132630262
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "caster_fork_1",
+          "path": "HAMR3-2/SideAssemb-1/Ball Caster Assembly-1/Caster Fork-1",
+          "name": "Caster Fork",
+          "part_key": "caster_fork",
+          "instance_number": 1,
+          "source_file": "Caster Fork.SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              1.0079089286859173
+            ],
+            [
+              0.0,
+              -3.491481338843133e-15,
+              -1.0,
+              0.8765723065712134
+            ],
+            [
+              0.0,
+              1.0,
+              -3.491481338843133e-15,
+              1.2048043891443874
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.1177113899118469,
+              -0.0508,
+              -0.15642
+            ],
+            [
+              0.1206374746838664,
+              0.0508,
+              0.02499088920149706
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "drivewheels_1_2",
+          "path": "HAMR3-2/SideAssemb-1/DriveWheels (1)-2",
+          "name": "DriveWheels (1)",
+          "part_key": "drivewheels_1",
+          "instance_number": 2,
+          "source_file": "DriveWheels (1).SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              -1.904005946086214e-15,
+              -9.364387750393227e-17,
+              -1.0,
+              1.0514710918870345
+            ],
+            [
+              -0.01785948719801145,
+              -0.9998405066394462,
+              1.276335117462783e-16,
+              1.0388398969010149
+            ],
+            [
+              -0.9998405066394462,
+              0.01785948719801145,
+              1.902029838147905e-15,
+              1.8043556059579244
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              -1.904005946086214e-15,
+              -9.364387750393227e-17,
+              -1.0,
+              0.8618849596416236
+            ],
+            [
+              -0.01785948719801145,
+              -0.9998405066394462,
+              1.276335117462783e-16,
+              1.069496953530418
+            ],
+            [
+              -0.9998405066394462,
+              0.01785948719801145,
+              1.902029838147905e-15,
+              1.735137722640222
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.1299856960377909,
+              2.860792441825022e-05,
+              -0.08894607892516691
+            ],
+            [
+              0.1299856960377909,
+              0.26,
+              0.003946078925166907
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "ball_caster_assembly_1",
+          "path": "HAMR3-2/SideAssemb2-1/Ball Caster Assembly-1",
+          "name": "Ball Caster Assembly",
+          "part_key": "ball_caster_assembly",
+          "instance_number": 1,
+          "source_file": "Ball Caster Assembly.SLDASM",
+          "document_type": "ASSEMBLY",
+          "configuration": "Default",
+          "transform": [
+            [
+              1.0,
+              3.41125673968115e-16,
+              5.085009540067729e-16,
+              0.4870573714862932
+            ],
+            [
+              5.089747088348905e-16,
+              -0.0013902390552072495,
+              -0.999999033617218,
+              0.8769820861138392
+            ],
+            [
+              -3.404184064242668e-16,
+              0.999999033617218,
+              -0.0013902390552072495,
+              1.204575204644292
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.8180827964405065
+            ],
+            [
+              0.0,
+              -3.491481338843133e-15,
+              -1.0,
+              0.9072293632006413
+            ],
+            [
+              0.0,
+              1.0,
+              -3.491481338843133e-15,
+              1.135586505826666
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.1177113899118469,
+              -0.1441993384510253,
+              -0.15642
+            ],
+            [
+              0.1206374746838664,
+              0.1482695091162755,
+              0.1434649025020223
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "semi_spherical_wheel_1",
+          "path": "HAMR3-2/SideAssemb2-1/Ball Caster Assembly-1/Semi-Spherical Wheel-1",
+          "name": "Semi-Spherical Wheel",
+          "part_key": "semi_spherical_wheel",
+          "instance_number": 1,
+          "source_file": "Semi-Spherical Wheel.SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              0.9903458335220919,
+              3.181952533562809e-15,
+              0.13861864963067885,
+              0.4870573714862939
+            ],
+            [
+              0.10671246863199899,
+              -0.6382518285278123,
+              -0.7623956009968638,
+              0.8769820861138389
+            ],
+            [
+              0.08847360659483451,
+              0.7698276452433392,
+              -0.6320900391203759,
+              1.2045752046442912
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              0.9903458335220919,
+              2.595034994759446e-15,
+              0.1386186496306787,
+              7.110741526366281e-16
+            ],
+            [
+              0.08832516525389494,
+              0.7707142239142342,
+              -0.6310295161394209,
+              -7.147060721024444e-16
+            ],
+            [
+              -0.1068353649701493,
+              0.6371809672740387,
+              0.7632736204896742,
+              3.313321839115703e-16
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.09926253132630262,
+              0.01,
+              -0.09926253132630262
+            ],
+            [
+              0.09926253132630262,
+              0.04,
+              0.09926253132630262
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "semi_spherical_wheel_2",
+          "path": "HAMR3-2/SideAssemb2-1/Ball Caster Assembly-1/Semi-Spherical Wheel-2",
+          "name": "Semi-Spherical Wheel",
+          "part_key": "semi_spherical_wheel",
+          "instance_number": 2,
+          "source_file": "Semi-Spherical Wheel.SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              -0.9866553198159893,
+              -6.707021962049541e-15,
+              -0.16282284814732792,
+              0.4870573714862939
+            ],
+            [
+              0.12534552978106492,
+              0.6382518285278276,
+              -0.7595545415207452,
+              0.8769820861138389
+            ],
+            [
+              0.10392198055614595,
+              -0.7698276452433265,
+              -0.6297345619992629,
+              1.2045752046442912
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              -0.9866553198159893,
+              -6.120104423246175e-15,
+              -0.1628228481473281,
+              7.167291875316678e-16
+            ],
+            [
+              0.1037476198768356,
+              -0.7707142239142214,
+              -0.6286779910464425,
+              -7.285838599102589e-16
+            ],
+            [
+              -0.1254898850453672,
+              -0.637180967274054,
+              0.760429289082819,
+              3.365363543395005e-16
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.09926253132630262,
+              0.01,
+              -0.09926253132630262
+            ],
+            [
+              0.09926253132630262,
+              0.04,
+              0.09926253132630262
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "caster_fork_1",
+          "path": "HAMR3-2/SideAssemb2-1/Ball Caster Assembly-1/Caster Fork-1",
+          "name": "Caster Fork",
+          "part_key": "caster_fork",
+          "instance_number": 1,
+          "source_file": "Caster Fork.SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              1.0,
+              3.41125673968115e-16,
+              5.085009540067729e-16,
+              0.4870573714862932
+            ],
+            [
+              5.089747088348905e-16,
+              -0.0013902390552072495,
+              -0.999999033617218,
+              0.8769820861138392
+            ],
+            [
+              -3.404184064242668e-16,
+              0.999999033617218,
+              -0.0013902390552072495,
+              1.204575204644292
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.1177113899118469,
+              -0.0508,
+              -0.15642
+            ],
+            [
+              0.1206374746838664,
+              0.0508,
+              0.02499088920149706
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        },
+        {
+          "key": "drivewheels_1_1",
+          "path": "HAMR3-2/SideAssemb2-1/DriveWheels (1)-1",
+          "name": "DriveWheels (1)",
+          "part_key": "drivewheels_1",
+          "instance_number": 1,
+          "source_file": "DriveWheels (1).SLDPRT",
+          "document_type": "PART",
+          "configuration": "Default",
+          "transform": [
+            [
+              3.1211454410700664e-15,
+              -1.2403137751055146e-15,
+              0.9999999999999999,
+              0.44387621031727525
+            ],
+            [
+              0.32421800267501166,
+              0.9459823924056021,
+              1.6138345134598324e-16,
+              0.7854280801233087
+            ],
+            [
+              -0.9459823924056021,
+              0.32421800267501166,
+              3.3546806862443123e-15,
+              1.764339718312894
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "local_transform": [
+            [
+              3.608194023108741e-15,
+              -8.692024381726264e-16,
+              0.9999999999999999,
+              0.7749016352714884
+            ],
+            [
+              0.3229025476888588,
+              0.9464322187542245,
+              -3.424538505112248e-16,
+              0.8164536521749451
+            ],
+            [
+              -0.9464322187542245,
+              0.3229025476888588,
+              3.695578756729845e-15,
+              1.695477760503268
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "cached_bounds_m": [
+            [
+              -0.1299856960377909,
+              2.860792441825022e-05,
+              -0.08894607892516691
+            ],
+            [
+              0.1299856960377909,
+              0.26,
+              0.003946078925166907
+            ]
+          ],
+          "visibility": "visible",
+          "suppressed": false
+        }
+      ],
+      "note": "Cached whole-robot snapshot; geometry and some visibility differ from current parts and standalone assembly. Drive wheel nominal radius 0.130m differs from COMPA collision radius 0.1075m."
+    }
+  },
+  "mate_reference_evidence": [
+    {
+      "name": "Coincident1",
+      "offset": 34,
+      "references": [
+        "Semi-Spherical Wheel-1@Ball Caster Assembly",
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident2",
+      "offset": 3875,
+      "references": [
+        "Semi-Spherical Wheel-1@Ball Caster Assembly",
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident4",
+      "offset": 7835,
+      "references": [
+        "Semi-Spherical Wheel 2-2@Ball Caster Assembly",
+        "Semi-Spherical Wheel-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident6",
+      "offset": 11231,
+      "references": [
+        "Semi-Spherical Wheel 2-2@Ball Caster Assembly",
+        "Semi-Spherical Wheel-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Distance1",
+      "offset": 15214,
+      "references": [
+        "Semi-Spherical Wheel-1@Ball Caster Assembly",
+        "Semi-Spherical Wheel-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident21",
+      "offset": 21048,
+      "references": [
+        "Semi-Spherical Wheel 2-2@Ball Caster Assembly",
+        "Semi-Spherical Wheel-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident22",
+      "offset": 24539,
+      "references": [
+        "Semi-Spherical Wheel-1@Ball Caster Assembly",
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident45",
+      "offset": 28067,
+      "references": [
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident46",
+      "offset": 30679,
+      "references": [
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident47",
+      "offset": 33096,
+      "references": [
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly",
+        "Skate Bearing-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident48",
+      "offset": 37014,
+      "references": [
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly",
+        "5_16_18Screw-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident49",
+      "offset": 40695,
+      "references": [
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly",
+        "5_16_18Screw-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident50",
+      "offset": 44877,
+      "references": [
+        "Semi-Spherical Wheel-1@Ball Caster Assembly",
+        "5_16Nuts-4@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident51",
+      "offset": 49130,
+      "references": [
+        "Semi-Spherical Wheel-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident52",
+      "offset": 51637,
+      "references": [
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly",
+        "5_16_18Screw-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident53",
+      "offset": 55093,
+      "references": [
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly",
+        "5_16_18Screw-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident54",
+      "offset": 59251,
+      "references": [
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly",
+        "5_16_18Screw-3@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident55",
+      "offset": 62589,
+      "references": [
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly",
+        "5_16_18Screw-3@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident56",
+      "offset": 66653,
+      "references": [
+        "Semi-Spherical Wheel-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident57",
+      "offset": 69182,
+      "references": [
+        "Semi-Spherical Wheel-1@Ball Caster Assembly",
+        "5_16Nuts-3@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident58",
+      "offset": 73230,
+      "references": [
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly",
+        "5_16_18Screw-4@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident59",
+      "offset": 76686,
+      "references": [
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly",
+        "5_16_18Screw-4@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident60",
+      "offset": 80868,
+      "references": [
+        "Semi-Spherical Wheel-1@Ball Caster Assembly",
+        "5_16Nuts-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident61",
+      "offset": 84534,
+      "references": [
+        "Semi-Spherical Wheel-1@Ball Caster Assembly",
+        "5_16Nuts-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident62",
+      "offset": 88582,
+      "references": [
+        "Semi-Spherical Wheel-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident63",
+      "offset": 90993,
+      "references": [
+        "Semi-Spherical Wheel-1@Ball Caster Assembly",
+        "5_16Nuts-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident66",
+      "offset": 94899,
+      "references": [
+        "Semi-Spherical Wheel-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident67",
+      "offset": 97312,
+      "references": [
+        "Semi-Spherical Wheel-2@Ball Caster Assembly",
+        "Skate Bearing-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident68",
+      "offset": 101226,
+      "references": [
+        "Semi-Spherical Wheel 2-2@Ball Caster Assembly",
+        "5_16_18Screw-5@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident69",
+      "offset": 104682,
+      "references": [
+        "Semi-Spherical Wheel 2-2@Ball Caster Assembly",
+        "5_16_18Screw-5@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident70",
+      "offset": 108864,
+      "references": [
+        "Semi-Spherical Wheel 2-2@Ball Caster Assembly",
+        "5_16_18Screw-8@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident71",
+      "offset": 112202,
+      "references": [
+        "Semi-Spherical Wheel 2-2@Ball Caster Assembly",
+        "5_16_18Screw-8@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident72",
+      "offset": 116266,
+      "references": [
+        "Semi-Spherical Wheel 2-2@Ball Caster Assembly",
+        "5_16_18Screw-6@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident73",
+      "offset": 119722,
+      "references": [
+        "Semi-Spherical Wheel 2-2@Ball Caster Assembly",
+        "5_16_18Screw-6@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident74",
+      "offset": 123904,
+      "references": [
+        "Semi-Spherical Wheel 2-2@Ball Caster Assembly",
+        "5_16_18Screw-7@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident75",
+      "offset": 127360,
+      "references": [
+        "Semi-Spherical Wheel 2-2@Ball Caster Assembly",
+        "5_16_18Screw-7@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident76",
+      "offset": 131518,
+      "references": [
+        "Semi-Spherical Wheel-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident77",
+      "offset": 134047,
+      "references": [
+        "Semi-Spherical Wheel-2@Ball Caster Assembly",
+        "5_16Nuts-8@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident78",
+      "offset": 138095,
+      "references": [
+        "Semi-Spherical Wheel-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident79",
+      "offset": 140506,
+      "references": [
+        "Semi-Spherical Wheel-2@Ball Caster Assembly",
+        "5_16Nuts-6@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident80",
+      "offset": 144412,
+      "references": [
+        "Semi-Spherical Wheel 2-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident81",
+      "offset": 146937,
+      "references": [
+        "Semi-Spherical Wheel-2@Ball Caster Assembly",
+        "5_16Nuts-7@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident82",
+      "offset": 150985,
+      "references": [
+        "Semi-Spherical Wheel 2-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident83",
+      "offset": 153392,
+      "references": [
+        "Semi-Spherical Wheel-2@Ball Caster Assembly",
+        "5_16Nuts-5@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident84",
+      "offset": 157440,
+      "references": [
+        "Semi-Spherical Wheel-1@Ball Caster Assembly",
+        "Bearing Shaft2-1@Ball Caster Assembly",
+        "Semi-Spherical Wheel-1@Ball Caster Assembly",
+        "Bearing Shaft2-1@Ball Caster Assembly",
+        "Top Plane@Bearing Shaft2-1@Ball Caster Assembly",
+        "Semi-Spherical Wheel-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident85",
+      "offset": 167091,
+      "references": [
+        "Bearing Shaft2-1@Ball Caster Assembly",
+        "Ball Caster Shaft 2-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident87",
+      "offset": 170618,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "5905K22_Needle-Roller Bearing-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident88",
+      "offset": 174215,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "5905K22_Needle-Roller Bearing-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident92",
+      "offset": 177501,
+      "references": [
+        "Bearing Shaft2-1@Ball Caster Assembly",
+        "Collet Block-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident93",
+      "offset": 181168,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Collet Block-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident94",
+      "offset": 184698,
+      "references": [
+        "Bearing Shaft2-1@Ball Caster Assembly",
+        "Collet Block-3@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident95",
+      "offset": 188232,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Collet Block-3@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident96",
+      "offset": 191628,
+      "references": [
+        "Semi-Spherical Wheel 2-2@Ball Caster Assembly",
+        "Roller Mount-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident102",
+      "offset": 195697,
+      "references": [
+        "Roller Mount-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Tangent1",
+      "offset": 198486,
+      "references": [
+        "4668K11_Permanently Lubricated Stainless Steel Ball Bearing-1@Ball Caster Assembly",
+        "Roller Mount-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident103",
+      "offset": 202354,
+      "references": [
+        "Roller Mount-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Tangent2",
+      "offset": 204886,
+      "references": [
+        "Roller Mount-2@Ball Caster Assembly",
+        "4668K11_Permanently Lubricated Stainless Steel Ball Bearing-3@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident104",
+      "offset": 208959,
+      "references": [
+        "Roller Mount-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Tangent3",
+      "offset": 211356,
+      "references": [
+        "Roller Mount-2@Ball Caster Assembly",
+        "4668K11_Permanently Lubricated Stainless Steel Ball Bearing-4@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident105",
+      "offset": 215271,
+      "references": [
+        "Roller Mount-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Tangent4",
+      "offset": 217754,
+      "references": [
+        "Roller Mount-1@Ball Caster Assembly",
+        "4668K11_Permanently Lubricated Stainless Steel Ball Bearing-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident106",
+      "offset": 221827,
+      "references": [
+        "Roller Shaft-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident108",
+      "offset": 224361,
+      "references": [
+        "Roller Shaft-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident109",
+      "offset": 226722,
+      "references": [
+        "Roller Mount-2@Ball Caster Assembly",
+        "Right Plane@Roller Mount-2@Ball Caster Assembly",
+        "Roller Shaft-1@Ball Caster Assembly",
+        "Top Plane@Roller Shaft-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident111",
+      "offset": 230336,
+      "references": [
+        "Roller Mount-1@Ball Caster Assembly",
+        "Right Plane@Roller Mount-1@Ball Caster Assembly",
+        "Roller Shaft-2@Ball Caster Assembly",
+        "Top Plane@Roller Shaft-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident112",
+      "offset": 233950,
+      "references": [
+        "Semi-Spherical Wheel 2-2@Ball Caster Assembly",
+        "Bearing Shaft2-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident114",
+      "offset": 237256,
+      "references": [
+        "Bearing Shaft2-1@Ball Caster Assembly",
+        "Roller Mount-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident115",
+      "offset": 241256,
+      "references": [
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly",
+        "Roller Mount-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident117",
+      "offset": 245372,
+      "references": [
+        "Bearing Shaft2-1@Ball Caster Assembly",
+        "Roller Mount-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident119",
+      "offset": 249340,
+      "references": [
+        "Roller Shaft-1@Ball Caster Assembly",
+        "Top Plane@Roller Shaft-1@Ball Caster Assembly",
+        "Roller-1@Ball Caster Assembly",
+        "Top Plane@Roller-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident122",
+      "offset": 252948,
+      "references": [
+        "Roller Shaft-2@Ball Caster Assembly",
+        "Roller-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident123",
+      "offset": 256351,
+      "references": [
+        "Roller Shaft-2@Ball Caster Assembly",
+        "Top Plane@Roller Shaft-2@Ball Caster Assembly",
+        "Roller-2@Ball Caster Assembly",
+        "Top Plane@Roller-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident124",
+      "offset": 259937,
+      "references": [
+        "Roller Shaft-1@Ball Caster Assembly",
+        "Roller-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident127",
+      "offset": 263147,
+      "references": [
+        "Bearing Shaft2-1@Ball Caster Assembly",
+        "Front Plane@Bearing Shaft2-1@Ball Caster Assembly",
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Top Plane@Ball Caster Shaft 2-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident134",
+      "offset": 266797,
+      "references": [
+        "5905K22_Needle-Roller Bearing-2@Ball Caster Assembly",
+        "Collet Block-3@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident135",
+      "offset": 270767,
+      "references": [
+        "5905K22_Needle-Roller Bearing-1@Ball Caster Assembly",
+        "Collet Block-3@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident137",
+      "offset": 274841,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Caster Fork-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident138",
+      "offset": 278178,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Top Plane@Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Caster Fork-1@Ball Caster Assembly",
+        "Right Plane@Caster Fork-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident139",
+      "offset": 281528,
+      "references": [
+        "Caster Fork-1@Ball Caster Assembly",
+        "Top Plane@Caster Fork-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident140",
+      "offset": 283532,
+      "references": [
+        "Caster Fork-1@Ball Caster Assembly",
+        "Front Plane@Caster Fork-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident141",
+      "offset": 285396,
+      "references": [
+        "Caster Fork-1@Ball Caster Assembly",
+        "Right Plane@Caster Fork-1@Ball Caster Assembly",
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Semi-Spherical Wheel-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident144",
+      "offset": 293780,
+      "references": [
+        "Semi-Spherical Wheel-2@Ball Caster Assembly",
+        "Flange Bearing-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident145",
+      "offset": 297351,
+      "references": [
+        "Semi-Spherical Wheel-1@Ball Caster Assembly",
+        "Flange Bearing-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident146",
+      "offset": 301562,
+      "references": [
+        "Semi-Spherical Wheel-1@Ball Caster Assembly",
+        "Flange Bearing-3@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident148",
+      "offset": 304882,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Spacing-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident149",
+      "offset": 308630,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Spacing-1@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident151",
+      "offset": 312386,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Spacing-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Parallel1",
+      "offset": 315773,
+      "references": [
+        "Spacing-1@Ball Caster Assembly",
+        "Spacing-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident153",
+      "offset": 319533,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Spacing-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident154",
+      "offset": 323289,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Spacing-5@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident155",
+      "offset": 326591,
+      "references": [
+        "Collet Block-2@Ball Caster Assembly",
+        "Spacing-5@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident156",
+      "offset": 330677,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Spacing-6@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Parallel2",
+      "offset": 333979,
+      "references": [
+        "Spacing-5@Ball Caster Assembly",
+        "Spacing-6@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident159",
+      "offset": 337739,
+      "references": [
+        "Spacing-5@Ball Caster Assembly",
+        "Spacing-6@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident160",
+      "offset": 341547,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Spacing-4@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident161",
+      "offset": 344916,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Spacing-4@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident162",
+      "offset": 348672,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Spacing-3@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Parallel4",
+      "offset": 352041,
+      "references": [
+        "Spacing-3@Ball Caster Assembly",
+        "Spacing-4@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident164",
+      "offset": 355873,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Spacing-3@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident165",
+      "offset": 359629,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Spacing-7@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident166",
+      "offset": 362931,
+      "references": [
+        "Collet Block-2@Ball Caster Assembly",
+        "Spacing-7@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident167",
+      "offset": 366913,
+      "references": [
+        "Ball Caster Shaft 2-1@Ball Caster Assembly",
+        "Spacing-8@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Parallel5",
+      "offset": 370215,
+      "references": [
+        "Spacing-7@Ball Caster Assembly",
+        "Spacing-8@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident169",
+      "offset": 374047,
+      "references": [
+        "Spacing-7@Ball Caster Assembly",
+        "Spacing-8@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident170",
+      "offset": 377855,
+      "references": [
+        "Semi-Spherical Wheel 2-1@Ball Caster Assembly",
+        "Flange Bearing-3@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident171",
+      "offset": 381799,
+      "references": [
+        "Bearing Shaft2-1@Ball Caster Assembly",
+        "Roller Mount-2@Ball Caster Assembly"
+      ]
+    },
+    {
+      "name": "Coincident172",
+      "offset": 385253,
+      "references": [
+        "Bearing Shaft2-1@Ball Caster Assembly",
+        "Roller Mount-1@Ball Caster Assembly"
+      ]
+    }
+  ],
+  "geometry": {
+    "nominal_sphere_radius_m": 0.1,
+    "equatorial_gap_m": 0.02,
+    "band_local_y_m": [
+      0.01,
+      0.04
+    ],
+    "cap_local_y_m": [
+      0.04,
+      0.09682458365518543
+    ],
+    "polar_roller_center_radius_m": 0.09038,
+    "split_axis_native": [
+      5.651657843098095e-15,
+      0.8876457312787961,
+      -0.4605269327005004
+    ],
+    "fork_socket_center_native_m": [
+      0.0,
+      0.0,
+      -0.13162
+    ],
+    "fork_socket_direction_native": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "fork_socket_inner_width_m": 0.02564,
+    "fork_socket_inner_height_m": 0.02564,
+    "fork_socket_planes_m": {
+      "x": [
+        -0.01282,
+        0.01282
+      ],
+      "z": [
+        -0.14444,
+        -0.1188
+      ]
+    },
+    "fork_socket_evidence": "Recovered Caster Fork analytic plane records surf3550,3553,3554,3558 in extraction.json; checked against current saved tessellation. Center is a useful attachment reference, not a native named coordinate system.",
+    "fork_highest_surface_native_z_m": -0.15642
+  },
+  "caveats": [
+    "Kinematic grouping is a documented engineering interpretation of axes, bearings, component poses and mate reference names. Native binary mate lock flags and a complete constraint solve were not decoded.",
+    "Shell-part model history says Material <not specified>. Generic Steel/defaultplastic appearance strings do not establish physical density; masses and contact parameters require physical calibration.",
+    "Bearing CAD solids are lumped into shell or carrier; rolling elements and separate races are not resolved.",
+    "Current part geometry can differ from cached assembly bounds. Shaft2 cached length 0.210m versus recovered current mesh length 0.230m, and fork bounds differ. See extraction.json for per-part comparisons.",
+    "Standalone and whole-robot snapshots have different saved carrier roll angles. The hemisphere tilt is an articulation state, not fixed camber.",
+    "Wheel1 preview shows tread detail that may differ from saved display tessellation. Recovery is based on saved geometry caches; native SolidWorks rebuild/export remains the strongest fidelity check.",
+    "Existing COMPA simulation has different chassis, wheel sizes and mount positions. A new COMPA variant is a retrofit, not an exact full HAMR3-3 export."
+  ]
+}

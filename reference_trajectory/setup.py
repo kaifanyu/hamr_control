@@ -14,6 +14,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name + '/config', glob('config/*.yaml')),
         (
             'share/' + package_name + '/config/trajectories',
             glob('config/trajectories/*.yaml'),
@@ -32,6 +33,8 @@ setup(
             'reference_trajectory.waypoint_traj_sequence:main',
             'waypoint_traj_simple = '
             'reference_trajectory.waypoint_traj_simple:main',
+            'continuous_waypoint = '
+            'reference_trajectory.continuous_waypoint_node:main',
             'study_trajectory = '
             'reference_trajectory.study_trajectory:main',
         ],

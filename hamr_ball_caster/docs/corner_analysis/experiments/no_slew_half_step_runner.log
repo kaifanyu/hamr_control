@@ -1,0 +1,94 @@
+Starting original simple waypoint route: 13.0 m / 52.0 s, speed 0.25 m/s
+Phase startup_hold at simulation elapsed 0.02 s
+Phase motion at simulation elapsed 3.01 s
+Phase final_hold at simulation elapsed 55.01 s
+{
+  "passed": true,
+  "failures": [],
+  "sample_count": 3100,
+  "route_length_m": 13.0,
+  "reference_duration_s": 52.0,
+  "motion_rmse_m": 0.006754635985185856,
+  "motion_max_error_m": 0.03609298278528993,
+  "final_position_error_m": 2.1554115903786595e-07,
+  "final_turret_yaw_error_rad": 1.1242071940031906e-08,
+  "max_base_roll_pitch_rad": 0.004630123353486478,
+  "waypoints": [
+    {
+      "index": 0,
+      "point_m": [
+        0.0,
+        0.0
+      ],
+      "scheduled_arrival_s": 0.0,
+      "minimum_distance_in_arrival_window_m": 3.9272192915648604e-18
+    },
+    {
+      "index": 1,
+      "point_m": [
+        0.0,
+        2.0
+      ],
+      "scheduled_arrival_s": 8.0,
+      "minimum_distance_in_arrival_window_m": 0.0024699124975767713
+    },
+    {
+      "index": 2,
+      "point_m": [
+        -2.0,
+        2.0
+      ],
+      "scheduled_arrival_s": 16.0,
+      "minimum_distance_in_arrival_window_m": 0.002469806667433716
+    },
+    {
+      "index": 3,
+      "point_m": [
+        -2.0,
+        4.5
+      ],
+      "scheduled_arrival_s": 26.0,
+      "minimum_distance_in_arrival_window_m": 0.0023667433387790783
+    },
+    {
+      "index": 4,
+      "point_m": [
+        0.0,
+        4.5
+      ],
+      "scheduled_arrival_s": 34.0,
+      "minimum_distance_in_arrival_window_m": 0.0019503765113012418
+    },
+    {
+      "index": 5,
+      "point_m": [
+        0.0,
+        2.0
+      ],
+      "scheduled_arrival_s": 44.0,
+      "minimum_distance_in_arrival_window_m": 0.002024953515762839
+    },
+    {
+      "index": 6,
+      "point_m": [
+        0.0,
+        0.0
+      ],
+      "scheduled_arrival_s": 52.0,
+      "minimum_distance_in_arrival_window_m": 0.0006259201942312014
+    }
+  ],
+  "passive_joint_spans_rad": {
+    "left_caster_carrier_joint": 125.60953725127051,
+    "left_caster_positive_hemisphere_joint": 13.385699508912714,
+    "left_caster_negative_hemisphere_joint": 18.162595532068813,
+    "left_caster_positive_polar_roller_joint": 29.377621341906483,
+    "left_caster_negative_polar_roller_joint": 29.54005487934123,
+    "right_caster_carrier_joint": 116.36255832933028,
+    "right_caster_positive_hemisphere_joint": 18.662014229207255,
+    "right_caster_negative_hemisphere_joint": 28.18809867964123,
+    "right_caster_positive_polar_roller_joint": 21.958653010737073,
+    "right_caster_negative_polar_roller_joint": 49.26351220778163
+  }
+}
+Saved simulation measurements to /home/para/hamr_control/hamr_ball_caster/docs/corner_analysis/experiments/no_slew_half_step.json

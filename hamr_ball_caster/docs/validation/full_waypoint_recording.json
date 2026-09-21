@@ -1,0 +1,163 @@
+{
+  "passed": true,
+  "failure": null,
+  "trajectory_exit_code": 0,
+  "video": "/home/para/Videos/hamr_sim/simple_waypoint_20260920_185228/hamr_simple_waypoint.mp4",
+  "trajectory_report": "/home/para/Videos/hamr_sim/simple_waypoint_20260920_185228/trajectory.json",
+  "wall_duration_s": 224.9857997299987,
+  "reference_speed_m_s": 0.25,
+  "target_real_time_factor": 0.5,
+  "scope": "Gazebo-rendered camera, simulation-time MP4, complete COMPA/HAMR retrofit with two passive CAD casters",
+  "trajectory_summary": {
+    "passed": true,
+    "failures": [],
+    "sample_count": 1020,
+    "route_length_m": 13.0,
+    "reference_duration_s": 52.0,
+    "motion_rmse_m": 0.012689759957861469,
+    "motion_max_error_m": 0.06401266106883187,
+    "final_position_error_m": 4.031644992982025e-07,
+    "final_turret_yaw_error_rad": 1.4338635390132026e-08,
+    "max_base_roll_pitch_rad": 0.00462857575627041,
+    "waypoints": [
+      {
+        "index": 0,
+        "point_m": [
+          0.0,
+          0.0
+        ],
+        "scheduled_arrival_s": 0.0,
+        "minimum_distance_in_arrival_window_m": 2.6471440009110915e-06
+      },
+      {
+        "index": 1,
+        "point_m": [
+          0.0,
+          2.0
+        ],
+        "scheduled_arrival_s": 8.0,
+        "minimum_distance_in_arrival_window_m": 0.006832078106312021
+      },
+      {
+        "index": 2,
+        "point_m": [
+          -2.0,
+          2.0
+        ],
+        "scheduled_arrival_s": 16.0,
+        "minimum_distance_in_arrival_window_m": 0.006977616347560581
+      },
+      {
+        "index": 3,
+        "point_m": [
+          -2.0,
+          4.5
+        ],
+        "scheduled_arrival_s": 26.0,
+        "minimum_distance_in_arrival_window_m": 0.007061194379972196
+      },
+      {
+        "index": 4,
+        "point_m": [
+          0.0,
+          4.5
+        ],
+        "scheduled_arrival_s": 34.0,
+        "minimum_distance_in_arrival_window_m": 0.0031917588079470377
+      },
+      {
+        "index": 5,
+        "point_m": [
+          0.0,
+          2.0
+        ],
+        "scheduled_arrival_s": 44.0,
+        "minimum_distance_in_arrival_window_m": 0.00317485327684351
+      },
+      {
+        "index": 6,
+        "point_m": [
+          0.0,
+          0.0
+        ],
+        "scheduled_arrival_s": 52.0,
+        "minimum_distance_in_arrival_window_m": 0.0012230810265728596
+      }
+    ],
+    "passive_joint_spans_rad": {
+      "left_caster_carrier_joint": 125.94684232845869,
+      "left_caster_positive_hemisphere_joint": 11.648361947031585,
+      "left_caster_negative_hemisphere_joint": 12.83151325018811,
+      "left_caster_positive_polar_roller_joint": 31.497133496777053,
+      "left_caster_negative_polar_roller_joint": 27.32949908467137,
+      "right_caster_carrier_joint": 116.95210742101472,
+      "right_caster_positive_hemisphere_joint": 7.662139025288992,
+      "right_caster_negative_hemisphere_joint": 27.33963396372897,
+      "right_caster_positive_polar_roller_joint": 22.223471504229135,
+      "right_caster_negative_polar_roller_joint": 38.00267200025948
+    }
+  },
+  "recording": {
+    "output": "/home/para/Videos/hamr_sim/simple_waypoint_20260920_185228/hamr_simple_waypoint.mp4",
+    "topic": "/hamr/recording_camera/image",
+    "fps": 25,
+    "timing": "camera message simulation timestamps, constant frame rate",
+    "frames_received": 1241,
+    "frames_encoded": 1589,
+    "frames_duplicated": 348,
+    "frames_same_timestamp_bin": 0,
+    "frames_queue_dropped": 0,
+    "max_image_gap_s": 0.4399999999999995,
+    "width": 1280,
+    "height": 720,
+    "encoding": "rgb8",
+    "first_sim_time_s": 0.12000000000000001,
+    "last_sim_time_s": 63.64,
+    "simulation_span_s": 63.52,
+    "wall_duration_s": 223.8361255969994,
+    "expected_video_duration_s": 63.56,
+    "ffprobe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "25/1",
+          "duration": "63.560000",
+          "nb_frames": "1589"
+        }
+      ],
+      "format": {
+        "duration": "63.560000",
+        "size": "663391"
+      }
+    },
+    "errors": [],
+    "success": true
+  },
+  "video_probe": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "avg_frame_rate": "25/1",
+        "nb_frames": "1589"
+      }
+    ],
+    "format": {
+      "duration": "63.560000",
+      "size": "663391"
+    }
+  },
+  "video_sha256": "1b204fd54a5beb9a152924af598fc09381f3f5befb367cf2c6ccc911cb383ad6",
+  "full_video_decode": "ffmpeg -v error -i video.mp4 -f null - exited0; all frames decoded",
+  "visual_inspection": "Six frames across the route verified vehicle motion and route framing",
+  "unit_test_cases_passed": 25,
+  "rendering": "Internal dense fastener/bearing visuals hidden, shadows disabled; all physics preserved",
+  "camera_covers_entire_run": true
+}

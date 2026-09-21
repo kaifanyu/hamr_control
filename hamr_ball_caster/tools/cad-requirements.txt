@@ -1,0 +1,6 @@
+# Optional offline-CAD regeneration dependencies; not required to run Gazebo.
+sldkit==0.2.0
+trimesh==5.1.0
+numpy==2.5.3
+# Trimesh connected-component winding repair requires a graph engine.
+scipy==1.18.1

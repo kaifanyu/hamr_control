@@ -1,0 +1,62 @@
+[INFO] [launch]: All log files can be found below /home/para/.ros/log/2026-09-20-18-17-12-596247-Para-77154
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [launch.user]: Caster compa: DART step=0.001s, ground friction=0.8; /tmp/hamr_ball_caster_n2ojgi_l/world.sdf
+[INFO] [gazebo-1]: process started with pid [77189]
+[INFO] [robot_state_publisher-2]: process started with pid [77190]
+[INFO] [create-3]: process started with pid [77191]
+[INFO] [parameter_bridge-4]: process started with pid [77193]
+[create-3] [INFO] [1789942633.232477086] [ros_gz_sim]: Waiting messages on topic [/robot_description].
+[robot_state_publisher-2] [INFO] [1789942633.242431310] [robot_state_publisher]: Robot initialized
+[gazebo-1] [Msg] Gazebo Sim Server v8.15.0
+[gazebo-1] [Msg] Loading SDF world file[/tmp/hamr_ball_caster_n2ojgi_l/world.sdf].
+[gazebo-1] [Msg] Serving entity system service on [/entity/system/add]
+[gazebo-1] [Msg] Create service on [/world/ball_caster_test/create_multiple] (async)
+[gazebo-1] [Msg] Create service on [/world/ball_caster_test/create_multiple/blocking] (blocking)
+[gazebo-1] [Msg] Remove service on [/world/ball_caster_test/remove] (async)
+[gazebo-1] [Msg] Remove service on [/world/ball_caster_test/remove/blocking] (blocking)
+[gazebo-1] [Msg] Pose service on [/world/ball_caster_test/set_pose] (async)
+[gazebo-1] [Msg] Pose service on [/world/ball_caster_test/set_pose/blocking] (blocking)
+[gazebo-1] [Msg] Pose service on [/world/ball_caster_test/set_pose_vector] (async)
+[gazebo-1] [Msg] Pose service on [/world/ball_caster_test/set_pose_vector/blocking] (blocking)
+[gazebo-1] [Msg] Light configuration service on [/world/ball_caster_test/light_config] (async)
+[gazebo-1] [Msg] Light configuration service on [/world/ball_caster_test/light_config/blocking] (blocking)
+[gazebo-1] [Msg] Physics service on [/world/ball_caster_test/set_physics] (async)
+[gazebo-1] [Msg] Physics service on [/world/ball_caster_test/set_physics/blocking] (blocking)
+[gazebo-1] [Msg] SphericalCoordinates service on [/world/ball_caster_test/set_spherical_coordinates] (async)
+[gazebo-1] [Msg] SphericalCoordinates service on [/world/ball_caster_test/set_spherical_coordinates/blocking] (blocking)
+[gazebo-1] [Msg] Enable collision service on [/world/ball_caster_test/enable_collision] (async)
+[gazebo-1] [Msg] Enable collision service on [/world/ball_caster_test/enable_collision/blocking] (blocking)
+[gazebo-1] [Msg] Disable collision service on [/world/ball_caster_test/disable_collision] (async)
+[gazebo-1] [Msg] Disable collision service on [/world/ball_caster_test/disable_collision/blocking] (blocking)
+[gazebo-1] [Msg] Material service on [/world/ball_caster_test/visual_config] (async)
+[gazebo-1] [Msg] Material service on [/world/ball_caster_test/visual_config/blocking] (blocking)
+[gazebo-1] [Msg] Material service on [/world/ball_caster_test/wheel_slip] (async)
+[gazebo-1] [Msg] Material service on [/world/ball_caster_test/wheel_slip/blocking] (blocking)
+[gazebo-1] [Msg] Loaded level [default]
+[gazebo-1] [Msg] Serving world controls on [/world/ball_caster_test/control], [/world/ball_caster_test/control/state] and [/world/ball_caster_test/playback/control]
+[gazebo-1] [Msg] Serving GUI information on [/world/ball_caster_test/gui/info]
+[create-3] [INFO] [1789942633.839449057] [ros_gz_sim]: Entity creation successful.
+[INFO] [create-3]: process has finished cleanly [pid 77191]
+[parameter_bridge-4] [INFO] [1789942634.265752984] [ros_gz_bridge]: Creating GZ->ROS Bridge: [/clock (gz.msgs.Clock) -> /clock (rosgraph_msgs/msg/Clock)] (Lazy 0)
+[parameter_bridge-4] [INFO] [1789942634.268209590] [ros_gz_bridge]: Creating GZ->ROS Bridge: [/ball_caster/joint_states (gz.msgs.Model) -> /joint_states (sensor_msgs/msg/JointState)] (Lazy 0)
+[parameter_bridge-4] [INFO] [1789942634.273934574] [ros_gz_bridge]: Creating GZ->ROS Bridge: [/model/compa/odometry (gz.msgs.Odometry) -> /compa/odom (nav_msgs/msg/Odometry)] (Lazy 0)
+[parameter_bridge-4] [INFO] [1789942634.278144545] [ros_gz_bridge]: Creating GZ->ROS Bridge: [/model/compa/tf (gz.msgs.Pose_V) -> /tf (tf2_msgs/msg/TFMessage)] (Lazy 0)
+[parameter_bridge-4] [INFO] [1789942634.281449127] [ros_gz_bridge]: Creating ROS->GZ Bridge: [/left_wheel/cmd_vel (std_msgs/msg/Float64) -> /model/compa/joint/left_rocker_left_wheel_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-4] [INFO] [1789942634.283964883] [ros_gz_bridge]: Creating ROS->GZ Bridge: [/right_wheel/cmd_vel (std_msgs/msg/Float64) -> /model/compa/joint/right_rocker_right_wheel_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-4] [INFO] [1789942634.285306807] [ros_gz_bridge]: Creating ROS->GZ Bridge: [/roll/cmd_vel (std_msgs/msg/Float64) -> /model/compa/joint/base_roll_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-4] [INFO] [1789942634.286644144] [ros_gz_bridge]: Creating ROS->GZ Bridge: [/pitch/cmd_vel (std_msgs/msg/Float64) -> /model/compa/joint/roll_pitch_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-4] [INFO] [1789942634.287808547] [ros_gz_bridge]: Creating ROS->GZ Bridge: [/yaw/cmd_vel (std_msgs/msg/Float64) -> /model/compa/joint/pitch_yaw_plate_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-4] [INFO] [1789942781.452429325] [ros_gz_bridge]: Passing message from ROS std_msgs/msg/Float64 to Gazebo gz.msgs.Double (showing msg only once per type)
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [parameter_bridge-4]: sending signal 'SIGINT' to process[parameter_bridge-4]
+[INFO] [robot_state_publisher-2]: sending signal 'SIGINT' to process[robot_state_publisher-2]
+[INFO] [gazebo-1]: sending signal 'SIGINT' to process[gazebo-1]
+[parameter_bridge-4] [INFO] [1789942934.371361310] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_state_publisher-2] [INFO] [1789942934.371984969] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [parameter_bridge-4]: process has finished cleanly [pid 77193]
+[INFO] [robot_state_publisher-2]: process has finished cleanly [pid 77190]
+[ERROR] [gazebo-1]: process[gazebo-1] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'
+[INFO] [gazebo-1]: sending signal 'SIGTERM' to process[gazebo-1]
+[ERROR] [gazebo-1]: process has died [pid 77189, exit code -15, cmd 'ruby /home/para/.cache/hamr-gazebo-root/opt/ros/jazzy/opt/gz_tools_vendor/bin/gz sim -r -v 3 -s /tmp/hamr_ball_caster_n2ojgi_l/world.sdf --force-version 8'].
+[gazebo-1] [Msg] [1
+[INFO] [launch]: process[gazebo-1] was required: shutting down launched system

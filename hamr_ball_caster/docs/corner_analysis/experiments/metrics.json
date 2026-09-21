@@ -1,0 +1,502 @@
+{
+  "baseline": {
+    "case": "baseline",
+    "speed_m_s": 0.25,
+    "max_wheel_acceleration_rad_s2": 15.0,
+    "passed": true,
+    "wall_duration_s": 140.39773013200102,
+    "sample_count": 3062,
+    "reference_duration_s": 52.0,
+    "maximum_wheel_command_acceleration_rad_s2": 15.00000000000001,
+    "maximum_raw_minus_published_wheel_rate_rad_s": 4.944907406029394,
+    "maximum_published_wheel_rate_rad_s": 4.160974025921124,
+    "motion_rmse_m": 0.013642833112667212,
+    "motion_max_error_m": 0.06649933316842432,
+    "max_route_cross_track_m": 0.05367412376988856,
+    "max_requested_wheel_rate_rad_s": 4.160974025921124,
+    "wheel_feedback_minus_previous_command_rmse_rad_s": 7.081162116306496e-06,
+    "wheel_feedback_minus_current_command_rmse_rad_s": 0.049116393385375094,
+    "controller_dt_s": {
+      "median": 0.02099999999999369,
+      "min": 0.02,
+      "max": 0.027000000000001023,
+      "p99": 0.021000000000000796
+    },
+    "odometry_age_s": {
+      "median": 0.00999999999999801,
+      "max": 0.03300000000000125
+    },
+    "joint_state_age_s": {
+      "median": 0.001000000000000334,
+      "max": 0.027000000000001023
+    },
+    "measured_velocity_vs_feedback_rolling_model_residual_m_s": {
+      "median": 0.001723629656873133,
+      "p95": 0.020105957784871807,
+      "max": 0.048244259295613136
+    },
+    "corners": [
+      {
+        "index": 1,
+        "scheduled_s": 8.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.06639644666987082,
+        "peak_nearest_polyline_distance_m": 0.05349175913604842,
+        "peak_incoming_direction_overshoot_m": 0.05349175913604842,
+        "peak_outgoing_direction_lag_m": 0.04001811872407831,
+        "peak_rate_limiter_discrepancy_rad_s": 4.943235777975589,
+        "peak_actual_minus_previous_command_rad_s": 4.794351582404488e-10,
+        "peak_error_time_after_corner_s": 0.3669999999999991
+      },
+      {
+        "index": 2,
+        "scheduled_s": 16.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.06649933316842432,
+        "peak_nearest_polyline_distance_m": 0.05367412376988856,
+        "peak_incoming_direction_overshoot_m": 0.05367412376988856,
+        "peak_outgoing_direction_lag_m": 0.03985026950844306,
+        "peak_rate_limiter_discrepancy_rad_s": 4.9448796576196905,
+        "peak_actual_minus_previous_command_rad_s": 5.102531730472037e-10,
+        "peak_error_time_after_corner_s": 0.3670000000000009
+      },
+      {
+        "index": 3,
+        "scheduled_s": 26.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.061363156780916084,
+        "peak_nearest_polyline_distance_m": 0.046934054436022166,
+        "peak_incoming_direction_overshoot_m": 0.046934054436022166,
+        "peak_outgoing_direction_lag_m": 0.03977166600028159,
+        "peak_rate_limiter_discrepancy_rad_s": 4.944907406029394,
+        "peak_actual_minus_previous_command_rad_s": 5.430627059155313e-10,
+        "peak_error_time_after_corner_s": 0.3260000000000005
+      },
+      {
+        "index": 4,
+        "scheduled_s": 34.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.06522653832015951,
+        "peak_nearest_polyline_distance_m": 0.05119213397228939,
+        "peak_incoming_direction_overshoot_m": 0.05119213397228939,
+        "peak_outgoing_direction_lag_m": 0.041909170849263155,
+        "peak_rate_limiter_discrepancy_rad_s": 4.9362660852929885,
+        "peak_actual_minus_previous_command_rad_s": 4.735003500400126e-10,
+        "peak_error_time_after_corner_s": 0.3190000000000026
+      },
+      {
+        "index": 5,
+        "scheduled_s": 44.0,
+        "direction_change_deg": 0.0,
+        "peak_time_tracking_error_m": 0.0031454035435382654,
+        "peak_nearest_polyline_distance_m": 0.0005053249761255388,
+        "peak_incoming_direction_overshoot_m": null,
+        "peak_outgoing_direction_lag_m": 0.0020807671348828105,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 3.151465755024674e-10,
+        "peak_error_time_after_corner_s": 0.3399999999999963
+      }
+    ],
+    "limitations": "Global route cross-track uses nearest geometric segment; timed tracking includes along-path lag. Wheel feedback is asynchronous with odometry/commands; rolling-model residual is diagnostic, not a calibrated slip measurement."
+  },
+  "no_slew": {
+    "case": "no_slew",
+    "speed_m_s": 0.25,
+    "max_wheel_acceleration_rad_s2": 10000.0,
+    "passed": true,
+    "wall_duration_s": 97.78393174200028,
+    "sample_count": 3061,
+    "reference_duration_s": 52.0,
+    "maximum_wheel_command_acceleration_rad_s2": 265.45611517316223,
+    "maximum_raw_minus_published_wheel_rate_rad_s": 0.0,
+    "maximum_published_wheel_rate_rad_s": 4.013148042150969,
+    "motion_rmse_m": 0.007274766892803644,
+    "motion_max_error_m": 0.03735601357243603,
+    "max_route_cross_track_m": 0.02886034861261333,
+    "max_requested_wheel_rate_rad_s": 4.013148042150969,
+    "wheel_feedback_minus_previous_command_rmse_rad_s": 9.27674919257788e-11,
+    "wheel_feedback_minus_current_command_rmse_rad_s": 0.15374640149038607,
+    "controller_dt_s": {
+      "median": 0.02099999999999369,
+      "min": 0.020000000000000018,
+      "max": 0.03700000000000614,
+      "p99": 0.021000000000000796
+    },
+    "odometry_age_s": {
+      "median": 0.00999999999999801,
+      "max": 0.026000000000003354
+    },
+    "joint_state_age_s": {
+      "median": 0.001000000000000334,
+      "max": 0.027000000000001023
+    },
+    "measured_velocity_vs_feedback_rolling_model_residual_m_s": {
+      "median": 0.0017102023812623516,
+      "p95": 0.024052603360994684,
+      "max": 0.27912675289865974
+    },
+    "corners": [
+      {
+        "index": 1,
+        "scheduled_s": 8.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.03735601357243603,
+        "peak_nearest_polyline_distance_m": 0.026928825485461605,
+        "peak_incoming_direction_overshoot_m": 0.02848657437763924,
+        "peak_outgoing_direction_lag_m": 0.024474028495456688,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 4.409481668687931e-10,
+        "peak_error_time_after_corner_s": 0.18599999999999994
+      },
+      {
+        "index": 2,
+        "scheduled_s": 16.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.03706567276495687,
+        "peak_nearest_polyline_distance_m": 0.02886034861261333,
+        "peak_incoming_direction_overshoot_m": 0.02886034861261333,
+        "peak_outgoing_direction_lag_m": 0.02334486664388047,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 5.555551296776429e-10,
+        "peak_error_time_after_corner_s": 0.1650000000000027
+      },
+      {
+        "index": 3,
+        "scheduled_s": 26.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.03728193635169712,
+        "peak_nearest_polyline_distance_m": 0.02802667965555994,
+        "peak_incoming_direction_overshoot_m": 0.02802667965555994,
+        "peak_outgoing_direction_lag_m": 0.024781342204694523,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 4.554294719127938e-10,
+        "peak_error_time_after_corner_s": 0.1650000000000027
+      },
+      {
+        "index": 4,
+        "scheduled_s": 34.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.036372234457976466,
+        "peak_nearest_polyline_distance_m": 0.028367722516874364,
+        "peak_incoming_direction_overshoot_m": 0.028367722516874364,
+        "peak_outgoing_direction_lag_m": 0.023738266751412773,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 4.306925927011207e-10,
+        "peak_error_time_after_corner_s": 0.16100000000000136
+      },
+      {
+        "index": 5,
+        "scheduled_s": 44.0,
+        "direction_change_deg": 0.0,
+        "peak_time_tracking_error_m": 0.0029702141423052935,
+        "peak_nearest_polyline_distance_m": 0.00041036055650325805,
+        "peak_incoming_direction_overshoot_m": null,
+        "peak_outgoing_direction_lag_m": 0.002132641764000409,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 2.2052182302445544e-10,
+        "peak_error_time_after_corner_s": 0.14099999999999824
+      }
+    ],
+    "limitations": "Global route cross-track uses nearest geometric segment; timed tracking includes along-path lag. Wheel feedback is asynchronous with odometry/commands; rolling-model residual is diagnostic, not a calibrated slip measurement."
+  },
+  "half_speed": {
+    "case": "half_speed",
+    "speed_m_s": 0.125,
+    "max_wheel_acceleration_rad_s2": 15.0,
+    "passed": true,
+    "wall_duration_s": 270.40646230400125,
+    "sample_count": 5559,
+    "reference_duration_s": 104.0,
+    "maximum_wheel_command_acceleration_rad_s2": 15.000000000000004,
+    "maximum_raw_minus_published_wheel_rate_rad_s": 2.318326418618164,
+    "maximum_published_wheel_rate_rad_s": 1.965434231605974,
+    "motion_rmse_m": 0.002768524351572333,
+    "motion_max_error_m": 0.019202633997632335,
+    "max_route_cross_track_m": 0.014933995221544155,
+    "max_requested_wheel_rate_rad_s": 1.965434231605974,
+    "wheel_feedback_minus_previous_command_rmse_rad_s": 6.646204257555558e-11,
+    "wheel_feedback_minus_current_command_rmse_rad_s": 0.023832314599175026,
+    "controller_dt_s": {
+      "median": 0.020999999999997243,
+      "min": 0.02,
+      "max": 0.02100000000000435,
+      "p99": 0.021000000000000796
+    },
+    "odometry_age_s": {
+      "median": 0.010000000000005116,
+      "max": 0.021000000000000796
+    },
+    "joint_state_age_s": {
+      "median": 0.0010000000000047748,
+      "max": 0.0030000000000001137
+    },
+    "measured_velocity_vs_feedback_rolling_model_residual_m_s": {
+      "median": 0.0007754016522489986,
+      "p95": 0.010548632554081252,
+      "max": 0.021812503705979334
+    },
+    "corners": [
+      {
+        "index": 1,
+        "scheduled_s": 16.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.019202633997632335,
+        "peak_nearest_polyline_distance_m": 0.013411784120800796,
+        "peak_incoming_direction_overshoot_m": 0.013840827812655832,
+        "peak_outgoing_direction_lag_m": 0.013310621244233416,
+        "peak_rate_limiter_discrepancy_rad_s": 2.31806187227687,
+        "peak_actual_minus_previous_command_rad_s": 4.264439357193339e-10,
+        "peak_error_time_after_corner_s": 0.18100000000000094
+      },
+      {
+        "index": 2,
+        "scheduled_s": 32.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.019189333623889016,
+        "peak_nearest_polyline_distance_m": 0.014480967853043314,
+        "peak_incoming_direction_overshoot_m": 0.014480967853043314,
+        "peak_outgoing_direction_lag_m": 0.012611024949327643,
+        "peak_rate_limiter_discrepancy_rad_s": 2.314990691483909,
+        "peak_actual_minus_previous_command_rad_s": 3.558429106931271e-10,
+        "peak_error_time_after_corner_s": 0.1980000000000004
+      },
+      {
+        "index": 3,
+        "scheduled_s": 52.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.018877685817210794,
+        "peak_nearest_polyline_distance_m": 0.014180129361386129,
+        "peak_incoming_direction_overshoot_m": 0.014180129361386129,
+        "peak_outgoing_direction_lag_m": 0.012669736678788013,
+        "peak_rate_limiter_discrepancy_rad_s": 2.314863113052607,
+        "peak_actual_minus_previous_command_rad_s": 5.559361859752698e-10,
+        "peak_error_time_after_corner_s": 0.1980000000000004
+      },
+      {
+        "index": 4,
+        "scheduled_s": 68.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.019045571111881193,
+        "peak_nearest_polyline_distance_m": 0.014933995221544155,
+        "peak_incoming_direction_overshoot_m": 0.014933995221544155,
+        "peak_outgoing_direction_lag_m": 0.012660815884510512,
+        "peak_rate_limiter_discrepancy_rad_s": 2.318326418618164,
+        "peak_actual_minus_previous_command_rad_s": 4.2550452050704735e-10,
+        "peak_error_time_after_corner_s": 0.1600000000000108
+      },
+      {
+        "index": 5,
+        "scheduled_s": 88.0,
+        "direction_change_deg": 0.0,
+        "peak_time_tracking_error_m": 0.0013890620825623605,
+        "peak_nearest_polyline_distance_m": 0.0004035665660898978,
+        "peak_incoming_direction_overshoot_m": null,
+        "peak_outgoing_direction_lag_m": 0.0011601967211753994,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 2.8822544351214674e-10,
+        "peak_error_time_after_corner_s": 0.6809999999999974
+      }
+    ],
+    "limitations": "Global route cross-track uses nearest geometric segment; timed tracking includes along-path lag. Wheel feedback is asynchronous with odometry/commands; rolling-model residual is diagnostic, not a calibrated slip measurement."
+  },
+  "quintic_stop": {
+    "case": "quintic_stop",
+    "speed_m_s": 0.25,
+    "max_wheel_acceleration_rad_s2": 15.0,
+    "passed": true,
+    "wall_duration_s": 255.461185442,
+    "sample_count": 5247,
+    "reference_duration_s": 97.5,
+    "maximum_wheel_command_acceleration_rad_s2": 4.439992605764481,
+    "maximum_raw_minus_published_wheel_rate_rad_s": 0.0,
+    "maximum_published_wheel_rate_rad_s": 2.699634879247732,
+    "motion_rmse_m": 0.0017993297666183906,
+    "motion_max_error_m": 0.008236006576502374,
+    "max_route_cross_track_m": 0.006859028987789703,
+    "max_requested_wheel_rate_rad_s": 2.699634879247732,
+    "wheel_feedback_minus_previous_command_rmse_rad_s": 0.00011268595170249594,
+    "wheel_feedback_minus_current_command_rmse_rad_s": 0.011983736214425417,
+    "controller_dt_s": {
+      "median": 0.020999999999997243,
+      "min": 0.02,
+      "max": 0.02300000000000324,
+      "p99": 0.021000000000000796
+    },
+    "odometry_age_s": {
+      "median": 0.010000000000005116,
+      "max": 0.029000000000003467
+    },
+    "joint_state_age_s": {
+      "median": 0.0010000000000047748,
+      "max": 0.02300000000000324
+    },
+    "measured_velocity_vs_feedback_rolling_model_residual_m_s": {
+      "median": 0.0007725041789701447,
+      "p95": 0.012045526411828295,
+      "max": 0.01704492375352704
+    },
+    "corners": [
+      {
+        "index": 1,
+        "scheduled_s": 15.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.0031725392104848156,
+        "peak_nearest_polyline_distance_m": 0.0030775743098807595,
+        "peak_incoming_direction_overshoot_m": 0.00025267868497058643,
+        "peak_outgoing_direction_lag_m": 0.000770416386913976,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 2.99627656019652e-10,
+        "peak_error_time_after_corner_s": 1.993000000000002
+      },
+      {
+        "index": 2,
+        "scheduled_s": 30.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.0005401376148218652,
+        "peak_nearest_polyline_distance_m": 0.00043520411062680786,
+        "peak_incoming_direction_overshoot_m": 0.00029616421649247826,
+        "peak_outgoing_direction_lag_m": 0.00041532488419626645,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 2.6639385142246397e-10,
+        "peak_error_time_after_corner_s": 1.9919999999999973
+      },
+      {
+        "index": 3,
+        "scheduled_s": 48.75,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.001453493330222782,
+        "peak_nearest_polyline_distance_m": 0.0013345682330081488,
+        "peak_incoming_direction_overshoot_m": 0.0013345682330081488,
+        "peak_outgoing_direction_lag_m": 0.0005805422531106608,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 2.2235602248343866e-10,
+        "peak_error_time_after_corner_s": 1.5700000000000003
+      },
+      {
+        "index": 4,
+        "scheduled_s": 63.75,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.0007921479648845033,
+        "peak_nearest_polyline_distance_m": 0.0007752858518844531,
+        "peak_incoming_direction_overshoot_m": 0.0007752858518844531,
+        "peak_outgoing_direction_lag_m": 0.0006114322807935224,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 2.5402707715116435e-10,
+        "peak_error_time_after_corner_s": 1.6600000000000108
+      },
+      {
+        "index": 5,
+        "scheduled_s": 82.5,
+        "direction_change_deg": 0.0,
+        "peak_time_tracking_error_m": 0.0007526766173634193,
+        "peak_nearest_polyline_distance_m": 0.0002609609223070781,
+        "peak_incoming_direction_overshoot_m": null,
+        "peak_outgoing_direction_lag_m": 0.0007355687866137384,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 2.3973645291164303e-10,
+        "peak_error_time_after_corner_s": 1.6600000000000108
+      }
+    ],
+    "limitations": "Global route cross-track uses nearest geometric segment; timed tracking includes along-path lag. Wheel feedback is asynchronous with odometry/commands; rolling-model residual is diagnostic, not a calibrated slip measurement."
+  },
+  "no_slew_half_step": {
+    "case": "no_slew_half_step",
+    "speed_m_s": 0.25,
+    "max_wheel_acceleration_rad_s2": 10000.0,
+    "passed": true,
+    "wall_duration_s": 265.26636526900074,
+    "sample_count": 3100,
+    "reference_duration_s": 52.0,
+    "maximum_wheel_command_acceleration_rad_s2": 263.49163190295366,
+    "maximum_raw_minus_published_wheel_rate_rad_s": 0.0,
+    "maximum_published_wheel_rate_rad_s": 4.020734861945862,
+    "motion_rmse_m": 0.006754635985185856,
+    "motion_max_error_m": 0.03609298278528993,
+    "max_route_cross_track_m": 0.027702837694960278,
+    "max_requested_wheel_rate_rad_s": 4.020734861945862,
+    "wheel_feedback_minus_previous_command_rmse_rad_s": 4.617402803551325e-11,
+    "wheel_feedback_minus_current_command_rmse_rad_s": 0.15159055079495784,
+    "controller_dt_s": {
+      "median": 0.02049999999999841,
+      "min": 0.02,
+      "max": 0.021499999999996078,
+      "p99": 0.02050000000000196
+    },
+    "odometry_age_s": {
+      "median": 0.010499999999999954,
+      "max": 0.020500000000005514
+    },
+    "joint_state_age_s": {
+      "median": 0.0005000000000023874,
+      "max": 0.013500000000000512
+    },
+    "measured_velocity_vs_feedback_rolling_model_residual_m_s": {
+      "median": 0.0016689204469261484,
+      "p95": 0.02564801925764794,
+      "max": 0.2553710691161347
+    },
+    "corners": [
+      {
+        "index": 1,
+        "scheduled_s": 8.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.03609298278528993,
+        "peak_nearest_polyline_distance_m": 0.023857305396477135,
+        "peak_incoming_direction_overshoot_m": 0.025587076542880727,
+        "peak_outgoing_direction_lag_m": 0.02545594076690151,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 2.0218449137132666e-10,
+        "peak_error_time_after_corner_s": 0.1769999999999996
+      },
+      {
+        "index": 2,
+        "scheduled_s": 16.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.035687227785171416,
+        "peak_nearest_polyline_distance_m": 0.02596557138982103,
+        "peak_incoming_direction_overshoot_m": 0.02596557138982103,
+        "peak_outgoing_direction_lag_m": 0.024481979686921118,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 2.326085990489446e-10,
+        "peak_error_time_after_corner_s": 0.17600000000000193
+      },
+      {
+        "index": 3,
+        "scheduled_s": 26.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.031744965814251916,
+        "peak_nearest_polyline_distance_m": 0.02358019823049773,
+        "peak_incoming_direction_overshoot_m": 0.02358019823049773,
+        "peak_outgoing_direction_lag_m": 0.02147082645933107,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 2.834101842097425e-10,
+        "peak_error_time_after_corner_s": 0.14850000000000207
+      },
+      {
+        "index": 4,
+        "scheduled_s": 34.0,
+        "direction_change_deg": 90.0,
+        "peak_time_tracking_error_m": 0.035557526670202864,
+        "peak_nearest_polyline_distance_m": 0.027702837694960278,
+        "peak_incoming_direction_overshoot_m": 0.027702837694960278,
+        "peak_outgoing_direction_lag_m": 0.02366448660426901,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 2.375770691287471e-10,
+        "peak_error_time_after_corner_s": 0.16149999999999665
+      },
+      {
+        "index": 5,
+        "scheduled_s": 44.0,
+        "direction_change_deg": 0.0,
+        "peak_time_tracking_error_m": 0.003284158081349851,
+        "peak_nearest_polyline_distance_m": 0.00041149360923705623,
+        "peak_incoming_direction_overshoot_m": null,
+        "peak_outgoing_direction_lag_m": 0.0016936843842700888,
+        "peak_rate_limiter_discrepancy_rad_s": 0.0,
+        "peak_actual_minus_previous_command_rad_s": 1.3805800946897762e-10,
+        "peak_error_time_after_corner_s": 1.1004999999999967
+      }
+    ],
+    "limitations": "Global route cross-track uses nearest geometric segment; timed tracking includes along-path lag. Wheel feedback is asynchronous with odometry/commands; rolling-model residual is diagnostic, not a calibrated slip measurement."
+  }
+}
