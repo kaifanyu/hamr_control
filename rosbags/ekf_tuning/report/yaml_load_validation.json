@@ -1,0 +1,22 @@
+[
+  {
+    "file": "hamr_bringup/config/ekf_calibrated.yaml",
+    "native_node_covariance_types": "double[225]",
+    "initial_diagonal_correct": true
+  },
+  {
+    "file": "rosbags/ekf_tuning/prepared/hamr_hw_20260916_193228/ekf.yaml",
+    "native_node_covariance_types": "double[225]",
+    "initial_diagonal_correct": true
+  },
+  {
+    "file": "rosbags/ekf_tuning/prepared/hamr_hw_20260916_184054/ekf.yaml",
+    "native_node_covariance_types": "double[225]",
+    "initial_diagonal_correct": true
+  },
+  {
+    "file": "rosbags/ekf_tuning/prepared/hamr_hw_20260916_190842/ekf.yaml",
+    "native_node_covariance_types": "double[225]",
+    "initial_diagonal_correct": true
+  }
+]

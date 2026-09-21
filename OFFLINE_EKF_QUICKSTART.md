@@ -1,7 +1,57 @@
-﻿# Offline EKF replay: edit one file
+﻿# Offline EKF replay
+
+The calibrated configuration tested on all three September recordings is now the
+default in `hamr_HW.launch.xml`. Its position RMSE is **4.9 / 10.2 / 6.7 cm**,
+versus **41.2 / 48.7 / 61.2 cm** for the recorded EKF. See the
+[full report and plots](rosbags/ekf_tuning/report/REPORT.md).
+
+## Replay the tuned configuration on the three original bags
+
+These recordings need a wheel-twist correction and calibration as well as new
+covariances. The covariance-only helper below cannot apply that correction.
+Prepared copies already exist under `rosbags/ekf_tuning/prepared/` in this workspace.
+To create another copy, choose an output path that does not yet exist:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+cd /home/para/hamr_control
+/usr/bin/python3 rosbags/prepare_calibrated_replay.py \
+  rosbags/hamr_hw_20260916_193228 \
+  rosbags/calibrated_193228_new \
+  --profile hamr_bringup/config/offline_calibrated_replay.yaml \
+  --odometry-config hamr_bringup/config/wheel_odometry_calibration.yaml
+```
+
+The output contains `ekf.yaml`, reusable covariance and calibration snapshots,
+and `calibrated_replay_manifest.json`. Original bags and timestamps are preserved.
+Wheel pose is retained only for diagnostics and is not fused. Use that copied
+bag as `$BAG` and its `ekf.yaml` with steps 3–6 below. Restart the filter for each
+bag. The IMU/Vicon topics are unchanged; Vicon remains evaluation-only.
+
+For **future recordings made with the new live calibration**, do not apply the
+legacy correction again. Use `set_replay_covariances.py --config
+hamr_bringup/config/offline_calibrated_replay.yaml` to make covariance-only trials.
+
+To rerun numerical evaluation in seconds without ROS playback terminals:
+
+```bash
+bash rosbags/ekf_tuning/engine_build.sh
+/usr/bin/python3 rosbags/ekf_tuning/extract.py \
+  rosbags/hamr_hw_20260916_184054 \
+  rosbags/hamr_hw_20260916_190842 \
+  rosbags/hamr_hw_20260916_193228
+OPENBLAS_NUM_THREADS=1 /usr/bin/python3 rosbags/ekf_tuning/generate_report.py
+```
+
+This uses the actual upstream numerical EKF core. The winning result has also
+been validated with the ROS node on all three recordings. See
+[engine instructions](rosbags/ekf_tuning/engine_README.md) for node verification.
+
+## Manual covariance-only experiments (original gyro baseline)
 
 Edit **`hamr_bringup/config/offline_replay.yaml`** for each trial.
-It starts with the current source defaults: wheel vx/vy + IMU gyro z.
+It retains the original baseline: wheel vx/vy + IMU gyro z. The separately named
+`offline_calibrated_replay.yaml` selects the tuned wheel vx/vy/yaw-rate + gyro setup.
 
 - `ekf.odom0_config`: which wheel measurements to use (`true` = use).
 - `ekf.imu0_config`: which IMU measurements to use.
@@ -130,11 +180,14 @@ python3 rosbags/set_replay_covariances.py "$BAG" --show
 This shows the first input sensor covariance and checks whether it changes during
 the recording. The EKF calculates its own output covariance separately.
 
-**Apply a winning setup to future live recordings:** wheel measurement covariance
-is in `hamr_odometry/hamr_odometry/holonomic_odom_node.py`; IMU covariance is in
-`hamr_uros_bridge/src/relay_node.cpp`; EKF selections are in
-`hamr_bringup/config/ekf.yaml`. Transfer the chosen settings, rebuild affected
-packages, and restart the live stack. The offline profile is used only by the helper.
+**Apply changes to future live recordings:** the tested hardware launch loads
+wheel calibration and twist variances from
+`hamr_bringup/config/wheel_odometry_calibration.yaml`, gyro-z variance from
+`hamr_bringup/config/hamr_uros_bridge.yaml`, and EKF selections/Q/P0 from
+`hamr_bringup/config/ekf_calibrated.yaml`. Rebuild `hamr_odometry`,
+`hamr_uros_bridge`, and `hamr_bringup`, then restart the live stack. The offline
+profiles configure copied bags only.
 
-Validation: profile and synthetic-message checks run locally. A real ROS replay
-still needs your ROS computer; this checkout has no bags and local WSL lacks rosbag2.
+Validation now includes all three source recordings, parameter searches,
+leave-one-bag-out refits, actual ROS EKF-node replay, and original/copy integrity
+checks. Complete evidence is in `rosbags/ekf_tuning/report/`.

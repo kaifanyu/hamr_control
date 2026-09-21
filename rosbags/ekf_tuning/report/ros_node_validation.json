@@ -1,0 +1,344 @@
+{
+  "184054": {
+    "baseline_node": {
+      "xy_rmse_m": 0.3408796521657247,
+      "yaw_rmse_deg": 4.0839109895509695,
+      "final_xy_m": 0.3354857823941033,
+      "p95_xy_m": 0.5338911861168234,
+      "max_xy_m": 0.571515257656036,
+      "final_yaw_deg": -0.20597368631170965,
+      "duration_s": 47.880000000000045,
+      "sample_count": 2386,
+      "reference_gap_samples_excluded": 9
+    },
+    "final_node": {
+      "xy_rmse_m": 0.04885967390151116,
+      "yaw_rmse_deg": 3.2258965915540876,
+      "final_xy_m": 0.048207970478025226,
+      "p95_xy_m": 0.08679593961246529,
+      "max_xy_m": 0.12655707797888957,
+      "final_yaw_deg": -2.583481572255516,
+      "duration_s": 47.880000000000045,
+      "sample_count": 2386,
+      "final_valid_time_s": 49.74083659100005,
+      "reference_gap_samples_excluded": 9
+    },
+    "final_core": {
+      "xy_rmse_m": 0.048800572538655156,
+      "yaw_rmse_deg": 3.225897958960943,
+      "final_xy_m": 0.04798615327273224,
+      "p95_xy_m": 0.08650888249893514,
+      "max_xy_m": 0.12663828307325803,
+      "final_yaw_deg": -2.584682146211861,
+      "duration_s": 47.880000000000045,
+      "sample_count": 2386,
+      "final_valid_time_s": 49.74083659100005,
+      "reference_gap_samples_excluded": 9
+    },
+    "node_core_rms_position_difference_m": 0.00014236487394196173,
+    "input_acceptance": {
+      "expected_filter_measurements": {
+        "odom0_twist": 2486,
+        "imu0_twist": 3165
+      },
+      "actual_filter_measurements": {
+        "odom0_twist": 2486,
+        "imu0_twist": 3165
+      },
+      "all_measurements_processed": true,
+      "negative_time_deltas": 2,
+      "minimum_time_delta_ns": -10289873,
+      "debug_log": "/home/para/hamr_control/rosbags/ekf_tuning/engine_results/node_final_184054.debug.log",
+      "out_of_order_sensor_measurements": 0,
+      "negative_deltas_after_exact_clock_tick_prediction": 2,
+      "negative_delta_note": "Sensors remain timestamp ordered. Negative deltas occur after timeout-only predictions to an exact simulation-clock tick; each measurement is still fused by correction.",
+      "maximum_combined_measurement_queue_size": 5
+    },
+    "node_output_rate_hz": 50.01755144852684,
+    "effective_config": "engine_results/node_final_184054.yaml",
+    "parameters": {
+      "q_diag": [
+        0.05,
+        0.05,
+        0.06,
+        0.03,
+        0.03,
+        0.06,
+        0.025,
+        0.025,
+        0.04,
+        0.01,
+        0.01,
+        0.02,
+        0.01,
+        0.01,
+        0.015
+      ],
+      "p_diag": [
+        1e-09,
+        1e-09,
+        1e-09,
+        1e-09,
+        1e-09,
+        1e-09,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "r_diag": [
+        0.0002,
+        0.0002,
+        0.01,
+        0.004,
+        0.0009,
+        0.04,
+        0.01,
+        0.01
+      ],
+      "mask": [
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0
+      ]
+    }
+  },
+  "190842": {
+    "baseline_node": {
+      "xy_rmse_m": 0.31633252336392204,
+      "yaw_rmse_deg": 4.768085289111473,
+      "final_xy_m": 0.7494800539813098,
+      "p95_xy_m": 0.6586609394794475,
+      "max_xy_m": 0.7537161617408908,
+      "final_yaw_deg": -6.720471718859422,
+      "duration_s": 85.36000000000007,
+      "sample_count": 4269,
+      "reference_gap_samples_excluded": 0
+    },
+    "final_node": {
+      "xy_rmse_m": 0.10194037183557794,
+      "yaw_rmse_deg": 1.5853760230715979,
+      "final_xy_m": 0.11781142474672392,
+      "p95_xy_m": 0.20515823894917762,
+      "max_xy_m": 0.23179364711782136,
+      "final_yaw_deg": 3.1163238660520625,
+      "duration_s": 85.36000000000007,
+      "sample_count": 4269,
+      "final_valid_time_s": 87.13663176000007,
+      "reference_gap_samples_excluded": 0
+    },
+    "final_core": {
+      "xy_rmse_m": 0.1019242066321503,
+      "yaw_rmse_deg": 1.5844232259091873,
+      "final_xy_m": 0.11747577534727811,
+      "p95_xy_m": 0.20518274336366626,
+      "max_xy_m": 0.23188682491261925,
+      "final_yaw_deg": 3.1123907092180416,
+      "duration_s": 85.36000000000007,
+      "sample_count": 4269,
+      "final_valid_time_s": 87.13663176000007,
+      "reference_gap_samples_excluded": 0
+    },
+    "node_core_rms_position_difference_m": 0.00048569105813953096,
+    "input_acceptance": {
+      "expected_filter_measurements": {
+        "odom0_twist": 4280,
+        "imu0_twist": 5625
+      },
+      "actual_filter_measurements": {
+        "imu0_twist": 5625,
+        "odom0_twist": 4280
+      },
+      "all_measurements_processed": true,
+      "negative_time_deltas": 23,
+      "minimum_time_delta_ns": -28346440,
+      "debug_log": "/home/para/hamr_control/rosbags/ekf_tuning/engine_results/node_final_190842.debug.log",
+      "out_of_order_sensor_measurements": 0,
+      "negative_deltas_after_exact_clock_tick_prediction": 23,
+      "negative_delta_note": "Sensors remain timestamp ordered. Negative deltas occur after timeout-only predictions to an exact simulation-clock tick; each measurement is still fused by correction.",
+      "maximum_combined_measurement_queue_size": 9
+    },
+    "node_output_rate_hz": 49.97014220795577,
+    "effective_config": "engine_results/node_final_190842.yaml",
+    "parameters": {
+      "q_diag": [
+        0.05,
+        0.05,
+        0.06,
+        0.03,
+        0.03,
+        0.06,
+        0.025,
+        0.025,
+        0.04,
+        0.01,
+        0.01,
+        0.02,
+        0.01,
+        0.01,
+        0.015
+      ],
+      "p_diag": [
+        1e-09,
+        1e-09,
+        1e-09,
+        1e-09,
+        1e-09,
+        1e-09,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "r_diag": [
+        0.0002,
+        0.0002,
+        0.01,
+        0.004,
+        0.0009,
+        0.04,
+        0.01,
+        0.01
+      ],
+      "mask": [
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0
+      ]
+    }
+  },
+  "193228": {
+    "baseline_node": {
+      "xy_rmse_m": 0.39599376212751647,
+      "yaw_rmse_deg": 5.947755106521462,
+      "final_xy_m": 0.13629832425456764,
+      "p95_xy_m": 0.6311257508224495,
+      "max_xy_m": 0.6491396854806063,
+      "final_yaw_deg": -7.53249883379047,
+      "duration_s": 48.04000000000004,
+      "sample_count": 2314,
+      "reference_gap_samples_excluded": 89
+    },
+    "final_node": {
+      "xy_rmse_m": 0.06698172993736451,
+      "yaw_rmse_deg": 2.4680530932949196,
+      "final_xy_m": 0.10497504308687045,
+      "p95_xy_m": 0.10165893973705363,
+      "max_xy_m": 0.11627253348537363,
+      "final_yaw_deg": 0.5964044027344217,
+      "duration_s": 48.04000000000004,
+      "sample_count": 2314,
+      "final_valid_time_s": 48.38792402800004,
+      "reference_gap_samples_excluded": 89
+    },
+    "final_core": {
+      "xy_rmse_m": 0.06712685664698627,
+      "yaw_rmse_deg": 2.4578544118194277,
+      "final_xy_m": 0.10578717216472969,
+      "p95_xy_m": 0.10156868241294859,
+      "max_xy_m": 0.11645611276832388,
+      "final_yaw_deg": 0.6141346985353249,
+      "duration_s": 48.04000000000004,
+      "sample_count": 2314,
+      "final_valid_time_s": 48.38792402800004,
+      "reference_gap_samples_excluded": 89
+    },
+    "node_core_rms_position_difference_m": 0.0004119110866678974,
+    "input_acceptance": {
+      "expected_filter_measurements": {
+        "odom0_twist": 2411,
+        "imu0_twist": 3173
+      },
+      "actual_filter_measurements": {
+        "imu0_twist": 3173,
+        "odom0_twist": 2411
+      },
+      "all_measurements_processed": true,
+      "negative_time_deltas": 10,
+      "minimum_time_delta_ns": -18902162,
+      "debug_log": "/home/para/hamr_control/rosbags/ekf_tuning/engine_results/node_final_193228.debug.log",
+      "out_of_order_sensor_measurements": 0,
+      "negative_deltas_after_exact_clock_tick_prediction": 10,
+      "negative_delta_note": "Sensors remain timestamp ordered. Negative deltas occur after timeout-only predictions to an exact simulation-clock tick; each measurement is still fused by correction.",
+      "maximum_combined_measurement_queue_size": 12
+    },
+    "node_output_rate_hz": 49.97606921078813,
+    "effective_config": "engine_results/node_final_193228.yaml",
+    "parameters": {
+      "q_diag": [
+        0.05,
+        0.05,
+        0.06,
+        0.03,
+        0.03,
+        0.06,
+        0.025,
+        0.025,
+        0.04,
+        0.01,
+        0.01,
+        0.02,
+        0.01,
+        0.01,
+        0.015
+      ],
+      "p_diag": [
+        1e-09,
+        1e-09,
+        1e-09,
+        1e-09,
+        1e-09,
+        1e-09,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "r_diag": [
+        0.0002,
+        0.0002,
+        0.01,
+        0.004,
+        0.0009,
+        0.04,
+        0.01,
+        0.01
+      ],
+      "mask": [
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0
+      ]
+    }
+  }
+}

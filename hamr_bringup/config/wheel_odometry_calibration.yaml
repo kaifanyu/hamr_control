@@ -1,0 +1,19 @@
+# Effective odometry calibration for the 2026-09-16 hardware setup.
+# b_wheel is the fitted tracked-point lever arm, not a CAD measurement.
+# Scaling parameters account for the recorded wheel/ground motion relationship.
+# Keep controller kinematics separate; this file only configures wheel odometry.
+/**:
+  ros__parameters:
+    r_wheel: 0.125
+    a_wheel: 0.35
+    b_wheel: 0.28
+    base_yaw_offset: 1.57079632679
+    yaw_sign: 1.0
+    left_tick_scale: 1.00146
+    right_tick_scale: 1.000044
+    ticks_per_rev: 2263.7
+    linear_velocity_scale: 0.95
+    yaw_rate_scale: 0.813
+    twist_variance_vx: 0.0002
+    twist_variance_vy: 0.0002
+    twist_variance_wz: 0.004

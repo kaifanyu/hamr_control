@@ -33,11 +33,47 @@ def quat_to_yaw(q):
     )
 
 
+def positive_finite_parameter(name, value):
+    """Validate a calibration multiplier or measurement variance at startup."""
+    if isinstance(value, bool):
+        raise ValueError(f'{name} must be finite and strictly positive')
+    try:
+        result = float(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError(f'{name} must be finite and strictly positive') from exc
+    if not math.isfinite(result) or result <= 0.0:
+        raise ValueError(f'{name} must be finite and strictly positive')
+    return result
+
+
+def wheel_body_twist(
+    omega_left, omega_right, r_wheel, a_wheel, b_wheel, yaw_offset,
+    yaw_sign=1.0, linear_velocity_scale=1.0, yaw_rate_scale=1.0,
+):
+    """Return the tracked point's (vx, vy, wz), expressed in base_link.
+
+    The linear multiplier calibrates axle forward speed. The yaw multiplier
+    calibrates base rotation and therefore also the offset-point velocity.
+    Heading and integration interval do not belong in this body-frame mapping.
+    For yaw_offset=pi/2 the result is (-b_wheel*wz, forward_speed, wz).
+    """
+    forward_speed = linear_velocity_scale * r_wheel * 0.5 * (
+        omega_right + omega_left)
+    yaw_rate = yaw_rate_scale * yaw_sign * r_wheel / (2.0 * a_wheel) * (
+        omega_right - omega_left)
+    c, s = math.cos(yaw_offset), math.sin(yaw_offset)
+    return (
+        forward_speed * c - b_wheel * yaw_rate * s,
+        forward_speed * s + b_wheel * yaw_rate * c,
+        yaw_rate,
+    )
+
+
 class HolonomicOdomNode(Node):
     def __init__(self):
         super().__init__('holonomic_odom_node')
 
-        # Robot geometry — defaults match hamr_hw_control_params.yaml
+        # Robot geometry; hardware launches supply their calibrated overrides.
         self.declare_parameter('r_wheel', 0.1250)
         self.declare_parameter('a_wheel', 0.345)
         self.declare_parameter('b_wheel', 0.301)
@@ -46,6 +82,11 @@ class HolonomicOdomNode(Node):
         self.declare_parameter('left_tick_scale', 1.0)
         self.declare_parameter('right_tick_scale', 1.0)
         self.declare_parameter('yaw_sign', 1.0)
+        self.declare_parameter('linear_velocity_scale', 1.0)
+        self.declare_parameter('yaw_rate_scale', 1.0)
+        self.declare_parameter('twist_variance_vx', 0.01)
+        self.declare_parameter('twist_variance_vy', 0.01)
+        self.declare_parameter('twist_variance_wz', 0.01)
         self.declare_parameter('ticks_per_turret_rev', 2704)  # 13 PPR × 2 quadrature × 104 gear ratio
         self.declare_parameter('odom_frame', 'odom')
         self.declare_parameter('base_frame', 'base_link')
@@ -62,6 +103,12 @@ class HolonomicOdomNode(Node):
         self.left_tick_scale = float(self.get_parameter('left_tick_scale').value)
         self.right_tick_scale = float(self.get_parameter('right_tick_scale').value)
         self.yaw_sign = float(self.get_parameter('yaw_sign').value)
+        for name in (
+            'linear_velocity_scale', 'yaw_rate_scale',
+            'twist_variance_vx', 'twist_variance_vy', 'twist_variance_wz',
+        ):
+            setattr(self, name, positive_finite_parameter(
+                name, self.get_parameter(name).value))
         self.ticks_per_turret_rev = float(self.get_parameter('ticks_per_turret_rev').value)
         self.odom_frame = self.get_parameter('odom_frame').value
         self.base_frame = self.get_parameter('base_frame').value
@@ -108,6 +155,8 @@ class HolonomicOdomNode(Node):
             f'HolonomicOdomNode ready  r={self.r} a={self.a} b={self.b} '
             f'ticks_per_rev={self.ticks_per_rev:.1f} '
             f'tick_scale=({self.left_tick_scale:.3f},{self.right_tick_scale:.3f}) '
+            f'velocity_scale=({self.linear_velocity_scale:.6f},'
+            f'{self.yaw_rate_scale:.6f}) '
             f'yaw_sign={self.yaw_sign:+.1f} publish_tf={self.publish_tf}'
         )
 
@@ -156,13 +205,13 @@ class HolonomicOdomNode(Node):
 
         # Holonomic forward kinematics. yaw_sign maps encoder-positive wheel
         # rotation into REP-103 positive yaw (CCW in the odom frame).
-        r, a, b = self.r, self.a, self.b
-        kin_yaw = self.theta + self.yaw_offset
-        v       = r * 0.5 * (omega_R + omega_L)
-        yaw_dot = self.yaw_sign * r / (2.0 * a) * (omega_R - omega_L)
-
-        x_dot = v * math.cos(kin_yaw) - self.b * yaw_dot * math.sin(kin_yaw)
-        y_dot = v * math.sin(kin_yaw) + self.b * yaw_dot * math.cos(kin_yaw)
+        vx_body, vy_body, yaw_dot = wheel_body_twist(
+            omega_L, omega_R, self.r, self.a, self.b, self.yaw_offset,
+            self.yaw_sign, self.linear_velocity_scale, self.yaw_rate_scale,
+        )
+        ct, st = math.cos(self.theta), math.sin(self.theta)
+        x_dot = ct * vx_body - st * vy_body
+        y_dot = st * vx_body + ct * vy_body
 
         # Euler integration of pose
         self.theta = wrap_angle(self.theta + yaw_dot * dt)
@@ -173,13 +222,6 @@ class HolonomicOdomNode(Node):
         half = self.theta * 0.5
         qz = math.sin(half)
         qw = math.cos(half)
-
-        # Twist in base_link frame (rotate world-frame velocity by -theta)
-        ct = math.cos(self.theta)
-        st = math.sin(self.theta)
-        vx_body = ct * x_dot + st * y_dot
-        vy_body = -st * x_dot + ct * y_dot
-
 
         # This callback runs at 50 Hz; keep per-cycle telemetry available for
         # targeted debugging without flooding normal hardware-run logs.
@@ -220,12 +262,12 @@ class HolonomicOdomNode(Node):
         odom.twist.twist.angular.z = yaw_dot
 
         # Twist covariance
-        odom.twist.covariance[0]  = 0.01   # vx
-        odom.twist.covariance[7]  = 0.01   # vy
+        odom.twist.covariance[0]  = self.twist_variance_vx
+        odom.twist.covariance[7]  = self.twist_variance_vy
         odom.twist.covariance[14] = 1e-9
         odom.twist.covariance[21] = 1e-9
         odom.twist.covariance[28] = 1e-9
-        odom.twist.covariance[35] = 0.01   # vyaw
+        odom.twist.covariance[35] = self.twist_variance_wz
 
         self.pub_odom.publish(odom)
 

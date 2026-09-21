@@ -121,10 +121,23 @@ class OfflineReplayTests(unittest.TestCase):
             assignments = re.findall(r"odom\." + field + r"\.covariance\[(\d+)\]\s*=\s*([\deE.+-]+)", wheel_code)
             for index, value in assignments:
                 self.assertEqual(self.matrices["wheel_" + field][int(index)], float(value))
+        for name, index in (("vx", 0), ("vy", 7), ("wz", 35)):
+            default = re.search(
+                r"declare_parameter\('twist_variance_" + name + r"',\s*([\deE.+-]+)\)",
+                wheel_code,
+            )[1]
+            self.assertEqual(self.matrices["wheel_twist"][index], float(default))
         imu_code = (ROOT / "hamr_uros_bridge/src/relay_node.cpp").read_text()
+        imu_defaults = {
+            member: float(default) for member, default in re.findall(
+                r'(imu_\w+_)\s*=\s*this->declare_parameter<double>\("[^"]+",\s*([\deE.+-]+)\)',
+                imu_code,
+            )
+        }
         for field in ("orientation", "angular_velocity", "linear_acceleration"):
             body = re.search(r"msg\." + field + r"_covariance\s*=\s*\{([^}]+)\}", imu_code)[1]
-            values = [float(value.strip()) for value in body.split(",") if value.strip()]
+            values = [imu_defaults[value.strip()] if value.strip() in imu_defaults
+                      else float(value.strip()) for value in body.split(",") if value.strip()]
             self.assertEqual(self.matrices["imu_" + field], values)
         parameters["odom0_config"][0] = True
         self.assertFalse(profile.load_profile(CONFIG)[1]["/**"]["ros__parameters"]["odom0_config"][0])
