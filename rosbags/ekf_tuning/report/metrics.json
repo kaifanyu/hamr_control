@@ -1,0 +1,297 @@
+{
+  "selected_parameters": {
+    "mode": "wheel_gyro",
+    "linear_velocity_scale": 0.95,
+    "yaw_rate_scale": 0.813,
+    "lever_arm": 0.28,
+    "r_vx": 0.0002,
+    "r_vy": 0.0002,
+    "r_wheel_wz": 0.004,
+    "r_gyro": 0.04
+  },
+  "bags": {
+    "hamr_hw_20260916_184054": {
+      "Recorded EKF": {
+        "xy_rmse_m": 0.4119893710179746,
+        "yaw_rmse_deg": 5.542818093340624,
+        "final_xy_m": 0.6872841556823123,
+        "p95_xy_m": 0.6873324190354683,
+        "max_xy_m": 0.6954781853477672,
+        "final_yaw_deg": 1.5185963713040629,
+        "duration_s": 47.880000000000045,
+        "sample_count": 2386,
+        "final_valid_time_s": 49.74083659100005,
+        "reference_gap_samples_excluded": 9,
+        "moving_xy_rmse_m": 0.31718434797432465,
+        "moving_yaw_rmse_deg": 7.175928145393092,
+        "moving_sample_count": 1396
+      },
+      "Original gyro profile": {
+        "xy_rmse_m": 0.3397735455812162,
+        "yaw_rmse_deg": 4.062617656468541,
+        "final_xy_m": 0.332784224371378,
+        "p95_xy_m": 0.5318538062591238,
+        "max_xy_m": 0.5693418498532491,
+        "final_yaw_deg": -0.3195610763013541,
+        "duration_s": 47.880000000000045,
+        "sample_count": 2386,
+        "final_valid_time_s": 49.74083659100005,
+        "reference_gap_samples_excluded": 9,
+        "moving_xy_rmse_m": 0.3910062382436089,
+        "moving_yaw_rmse_deg": 5.302709488978149,
+        "moving_sample_count": 1396
+      },
+      "Tuned EKF": {
+        "xy_rmse_m": 0.048800572538655156,
+        "yaw_rmse_deg": 3.225897958960943,
+        "final_xy_m": 0.04798615327273224,
+        "p95_xy_m": 0.08650888249893514,
+        "max_xy_m": 0.12663828307325803,
+        "final_yaw_deg": -2.584682146211861,
+        "duration_s": 47.880000000000045,
+        "sample_count": 2386,
+        "final_valid_time_s": 49.74083659100005,
+        "reference_gap_samples_excluded": 9,
+        "moving_xy_rmse_m": 0.05608377780429865,
+        "moving_yaw_rmse_deg": 3.8843002375630076,
+        "moving_sample_count": 1396
+      },
+      "Covariance only": {
+        "xy_rmse_m": 0.14564998978739938,
+        "yaw_rmse_deg": 2.5253572071739936,
+        "final_xy_m": 0.1085068646299881,
+        "p95_xy_m": 0.27807406771662385,
+        "max_xy_m": 0.32049566057805273,
+        "final_yaw_deg": 1.32899261367294,
+        "duration_s": 47.880000000000045,
+        "sample_count": 2386,
+        "final_valid_time_s": 49.74083659100005,
+        "reference_gap_samples_excluded": 9,
+        "moving_xy_rmse_m": 0.17763595129811252,
+        "moving_yaw_rmse_deg": 3.2129629610482566,
+        "moving_sample_count": 1396
+      },
+      "xy_rmse_reduction_percent": 88.15489525419673
+    },
+    "hamr_hw_20260916_190842": {
+      "Recorded EKF": {
+        "xy_rmse_m": 0.48717035039784656,
+        "yaw_rmse_deg": 5.50066365471176,
+        "final_xy_m": 0.931652947661667,
+        "p95_xy_m": 1.0283758898983568,
+        "max_xy_m": 1.082449083518312,
+        "final_yaw_deg": 3.3806824533258,
+        "duration_s": 85.36000000000007,
+        "sample_count": 4269,
+        "final_valid_time_s": 87.13663176000007,
+        "reference_gap_samples_excluded": 0,
+        "moving_xy_rmse_m": 0.6530539610965986,
+        "moving_yaw_rmse_deg": 7.416886866332143,
+        "moving_sample_count": 2345
+      },
+      "Original gyro profile": {
+        "xy_rmse_m": 0.3097715499864184,
+        "yaw_rmse_deg": 4.505101553979541,
+        "final_xy_m": 0.709254671592548,
+        "p95_xy_m": 0.6293794093281522,
+        "max_xy_m": 0.7139029048701707,
+        "final_yaw_deg": -5.8277678496302165,
+        "duration_s": 85.36000000000007,
+        "sample_count": 4269,
+        "final_valid_time_s": 87.13663176000007,
+        "reference_gap_samples_excluded": 0,
+        "moving_xy_rmse_m": 0.4141107105370078,
+        "moving_yaw_rmse_deg": 6.057780333660175,
+        "moving_sample_count": 2345
+      },
+      "Tuned EKF": {
+        "xy_rmse_m": 0.1019242066321503,
+        "yaw_rmse_deg": 1.5844232259091873,
+        "final_xy_m": 0.11747577534727811,
+        "p95_xy_m": 0.20518274336366626,
+        "max_xy_m": 0.23188682491261925,
+        "final_yaw_deg": 3.1123907092180416,
+        "duration_s": 85.36000000000007,
+        "sample_count": 4269,
+        "final_valid_time_s": 87.13663176000007,
+        "reference_gap_samples_excluded": 0,
+        "moving_xy_rmse_m": 0.1371938978792625,
+        "moving_yaw_rmse_deg": 2.1231039407914,
+        "moving_sample_count": 2345
+      },
+      "Covariance only": {
+        "xy_rmse_m": 0.14419432197463788,
+        "yaw_rmse_deg": 2.171747112972906,
+        "final_xy_m": 0.25837838171164396,
+        "p95_xy_m": 0.28309112883815096,
+        "max_xy_m": 0.35511464446771834,
+        "final_yaw_deg": 2.7479833399188514,
+        "duration_s": 85.36000000000007,
+        "sample_count": 4269,
+        "final_valid_time_s": 87.13663176000007,
+        "reference_gap_samples_excluded": 0,
+        "moving_xy_rmse_m": 0.19347221909423928,
+        "moving_yaw_rmse_deg": 2.9219546542124677,
+        "moving_sample_count": 2345
+      },
+      "xy_rmse_reduction_percent": 79.07832310629863
+    },
+    "hamr_hw_20260916_193228": {
+      "Recorded EKF": {
+        "xy_rmse_m": 0.6118006524176366,
+        "yaw_rmse_deg": 6.657485335056383,
+        "final_xy_m": 1.1120740931220243,
+        "p95_xy_m": 1.1246921676254749,
+        "max_xy_m": 1.141643876605609,
+        "final_yaw_deg": 1.061466566991102,
+        "duration_s": 48.04000000000004,
+        "sample_count": 2314,
+        "final_valid_time_s": 48.38792402800004,
+        "reference_gap_samples_excluded": 89,
+        "moving_xy_rmse_m": 0.6398259290349937,
+        "moving_yaw_rmse_deg": 7.16265087544194,
+        "moving_sample_count": 1998
+      },
+      "Original gyro profile": {
+        "xy_rmse_m": 0.39474440049108556,
+        "yaw_rmse_deg": 5.917017980427478,
+        "final_xy_m": 0.13282576671261648,
+        "p95_xy_m": 0.6304792501677348,
+        "max_xy_m": 0.6496986213389777,
+        "final_yaw_deg": -7.411045653063783,
+        "duration_s": 48.04000000000004,
+        "sample_count": 2314,
+        "final_valid_time_s": 48.38792402800004,
+        "reference_gap_samples_excluded": 89,
+        "moving_xy_rmse_m": 0.4244113721355752,
+        "moving_yaw_rmse_deg": 6.290057381447576,
+        "moving_sample_count": 1998
+      },
+      "Tuned EKF": {
+        "xy_rmse_m": 0.06712685664698627,
+        "yaw_rmse_deg": 2.4578544118194277,
+        "final_xy_m": 0.10578717216472969,
+        "p95_xy_m": 0.10156868241294859,
+        "max_xy_m": 0.11645611276832388,
+        "final_yaw_deg": 0.6141346985353249,
+        "duration_s": 48.04000000000004,
+        "sample_count": 2314,
+        "final_valid_time_s": 48.38792402800004,
+        "reference_gap_samples_excluded": 89,
+        "moving_xy_rmse_m": 0.07072342088562802,
+        "moving_yaw_rmse_deg": 2.643547546001814,
+        "moving_sample_count": 1998
+      },
+      "Covariance only": {
+        "xy_rmse_m": 0.14212779216375274,
+        "yaw_rmse_deg": 3.1111003821185603,
+        "final_xy_m": 0.09660817285687998,
+        "p95_xy_m": 0.25502183726040084,
+        "max_xy_m": 0.2833393790713273,
+        "final_yaw_deg": 0.5329761434634268,
+        "duration_s": 48.04000000000004,
+        "sample_count": 2314,
+        "final_valid_time_s": 48.38792402800004,
+        "reference_gap_samples_excluded": 89,
+        "moving_xy_rmse_m": 0.15234619229732424,
+        "moving_yaw_rmse_deg": 3.347510695620652,
+        "moving_sample_count": 1998
+      },
+      "xy_rmse_reduction_percent": 89.02798544236218
+    }
+  },
+  "cross_validation": [
+    {
+      "heldout_bag": "hamr_hw_20260916_193228",
+      "parameters": {
+        "mode": "wheel_gyro",
+        "linear_velocity_scale": 0.9477690473656003,
+        "yaw_rate_scale": 0.800181235721875,
+        "lever_arm": 0.28971507468037666,
+        "r_vx": 0.007425417028629754,
+        "r_vy": 0.007425417028629754,
+        "r_wheel_wz": 0.004656046131360524,
+        "r_gyro": 0.020627858202586176
+      },
+      "score": {
+        "xy_rmse_m": 0.1168884404899625,
+        "yaw_rmse_deg": 2.6109348367030054,
+        "final_xy_m": 0.2094321019075139,
+        "p95_xy_m": 0.1793701722306168,
+        "max_xy_m": 0.2166030226015865,
+        "final_yaw_deg": 1.7018416662893097,
+        "duration_s": 48.04000000000004,
+        "sample_count": 2314,
+        "reference_gap_samples_excluded": 89,
+        "objective": 0.16788874276256285
+      }
+    },
+    {
+      "heldout_bag": "hamr_hw_20260916_184054",
+      "parameters": {
+        "mode": "wheel_gyro",
+        "linear_velocity_scale": 0.9449794455320238,
+        "yaw_rate_scale": 0.8097911636017868,
+        "lever_arm": 0.29084130584634454,
+        "r_vx": 0.0001680593505206924,
+        "r_vy": 0.0001680593505206924,
+        "r_wheel_wz": 0.0045883107133329395,
+        "r_gyro": 0.04508025055392802
+      },
+      "score": {
+        "xy_rmse_m": 0.05971247002345122,
+        "yaw_rmse_deg": 3.2258843233878896,
+        "final_xy_m": 0.07295974095840957,
+        "p95_xy_m": 0.10455172714148975,
+        "max_xy_m": 0.1420442085252626,
+        "final_yaw_deg": -2.360413265819397,
+        "duration_s": 47.880000000000045,
+        "sample_count": 2386,
+        "reference_gap_samples_excluded": 9,
+        "objective": 0.08556487876145077
+      }
+    },
+    {
+      "heldout_bag": "hamr_hw_20260916_190842",
+      "parameters": {
+        "mode": "wheel_gyro",
+        "linear_velocity_scale": 0.9492312939558687,
+        "yaw_rate_scale": 0.8151025516055506,
+        "lever_arm": 0.2711656014546605,
+        "r_vx": 0.00015479151982681518,
+        "r_vy": 0.00015479151982681518,
+        "r_wheel_wz": 1.0000163671422387e-05,
+        "r_gyro": 0.00035927360030215587
+      },
+      "score": {
+        "xy_rmse_m": 0.11468616714789093,
+        "yaw_rmse_deg": 1.3785413655631291,
+        "final_xy_m": 0.06199127704941034,
+        "p95_xy_m": 0.23679043725957172,
+        "max_xy_m": 0.2647650869423388,
+        "final_yaw_deg": 2.451255569746501,
+        "duration_s": 85.36000000000007,
+        "sample_count": 4269,
+        "reference_gap_samples_excluded": 0,
+        "objective": 0.13189643969857606
+      }
+    }
+  ],
+  "method": {
+    "sample_period_s": 0.02,
+    "reference": "Vicon receipt timestamps",
+    "alignment": "common overlap; initial SE(2) only; no trajectory fitting",
+    "reference_gap_limit_s": 0.1,
+    "moving_mask": "smoothed Vicon speed > 0.03 m/s OR |yaw rate| > 0.06 rad/s; 0.42 s Savitzky-Golay window",
+    "fusion_inputs": "wheel body vx/vy/yaw rate + IMU gyro z; Vicon scoring only"
+  },
+  "experiment_counts": {
+    "baseline": 13,
+    "calibrated": 6144,
+    "covariance": 3072,
+    "refined": 6,
+    "refined_objective_calls": 650,
+    "variants": 3,
+    "variants_objective_calls": 874
+  }
+}

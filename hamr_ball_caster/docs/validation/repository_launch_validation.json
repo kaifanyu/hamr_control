@@ -1,0 +1,415 @@
+{
+  "schema_version": 1,
+  "description": "Full-vehicle run through the new continuous_sim.launch.py after shared planner migration",
+  "run_directory_name": "repository_launch_validation_20260921",
+  "command": "ros2 launch hamr_ball_caster continuous_sim.launch.py gui:=false output_dir:=<new-directory>",
+  "passed": true,
+  "scope": "Fresh Gazebo full COMPA/HAMR retrofit, two passive CAD casters, isolated local ROS domain",
+  "hardware_motion_tested": false,
+  "configuration_sha256": "732c539cf814dc6665cfa583cb3517a08ac7fa506dd107f7236ae3652c4e5fd5",
+  "implementation_sha256": {
+    "run_waypoint_sim.py": "fd6e8fd647551651c67eb47f12af2beeb76e5492992549a1b14bbe0146021445",
+    "continuous_waypoint.py": "27895ac7cce20e4d1ec2b382cd90dba1966abd54fdc306e9a50026857e5f14b9",
+    "analyze_continuous_tracking.py": "aebb034bcf1cf92aeda280c4a9a435be368b7d83172a78d74c5ba5368053a536"
+  },
+  "artifacts_sha256": {
+    "trajectory.json": "ce92b2fd5eb19d96cca14ff81dd0f22e527742989c62c838d5576e2b40ee80ca",
+    "run_summary.json": "3426b867d221ad0297efa7819abb696d2f5516ab5086aed53913e3b1595e254a",
+    "configuration.yaml": "732c539cf814dc6665cfa583cb3517a08ac7fa506dd107f7236ae3652c4e5fd5",
+    "commands.json": "8214328b9c6413b64d9e5cba8c55f7e99379042e967ed1493d99e77448378f93"
+  },
+  "trajectory_summary": {
+    "passed": true,
+    "failures": [],
+    "sample_count": 3959,
+    "route_length_m": 12.876880986977213,
+    "reference_duration_s": 73.19374270772629,
+    "motion_rmse_m": 0.00039384847840181266,
+    "motion_max_error_m": 0.0016464315612734488,
+    "final_position_error_m": 2.7831090711644455e-07,
+    "final_turret_yaw_error_rad": 1.8261827650079e-07,
+    "max_base_roll_pitch_rad": 0.004627858098386126,
+    "waypoints": [
+      {
+        "index": 0,
+        "point_m": [
+          0.0,
+          0.0
+        ],
+        "scheduled_arrival_s": 0.0,
+        "minimum_distance_in_arrival_window_m": 2.2617601238327923e-08,
+        "planned_pass_position_m": [
+          0.0,
+          0.0
+        ],
+        "event": "closest planned pass; original corner need not be visited"
+      },
+      {
+        "index": 1,
+        "point_m": [
+          0.0,
+          2.0
+        ],
+        "scheduled_arrival_s": 12.407030338465782,
+        "minimum_distance_in_arrival_window_m": 0.028661315951704493,
+        "planned_pass_position_m": [
+          -0.019999999999999973,
+          1.98
+        ],
+        "event": "closest planned pass; original corner need not be visited"
+      },
+      {
+        "index": 2,
+        "point_m": [
+          -2.0,
+          2.0
+        ],
+        "scheduled_arrival_s": 24.53359101539735,
+        "minimum_distance_in_arrival_window_m": 0.02810556369102351,
+        "planned_pass_position_m": [
+          -1.98,
+          2.02
+        ],
+        "event": "closest planned pass; original corner need not be visited"
+      },
+      {
+        "index": 3,
+        "point_m": [
+          -2.0,
+          4.5
+        ],
+        "scheduled_arrival_s": 38.660151692328924,
+        "minimum_distance_in_arrival_window_m": 0.027964465955742805,
+        "planned_pass_position_m": [
+          -1.9799999999999998,
+          4.48
+        ],
+        "event": "closest planned pass; original corner need not be visited"
+      },
+      {
+        "index": 4,
+        "point_m": [
+          0.0,
+          4.5
+        ],
+        "scheduled_arrival_s": 50.7867123692605,
+        "minimum_distance_in_arrival_window_m": 0.028640790641965997,
+        "planned_pass_position_m": [
+          -0.019999999999999782,
+          4.4799999999999995
+        ],
+        "event": "closest planned pass; original corner need not be visited"
+      },
+      {
+        "index": 5,
+        "point_m": [
+          0.0,
+          2.0
+        ],
+        "scheduled_arrival_s": 62.84999270772629,
+        "minimum_distance_in_arrival_window_m": 0.002496112077859781,
+        "planned_pass_position_m": [
+          0.0,
+          1.9999999999999996
+        ],
+        "event": "closest planned pass; original corner need not be visited"
+      },
+      {
+        "index": 6,
+        "point_m": [
+          0.0,
+          0.0
+        ],
+        "scheduled_arrival_s": 73.19374270772629,
+        "minimum_distance_in_arrival_window_m": 2.558380781860461e-07,
+        "planned_pass_position_m": [
+          0.0,
+          0.0
+        ],
+        "event": "closest planned pass; original corner need not be visited"
+      }
+    ],
+    "passive_joint_spans_rad": {
+      "left_caster_carrier_joint": 125.17978242422726,
+      "left_caster_positive_hemisphere_joint": 12.767578369206701,
+      "left_caster_negative_hemisphere_joint": 22.622728100706844,
+      "left_caster_positive_polar_roller_joint": 31.385403534607164,
+      "left_caster_negative_polar_roller_joint": 31.30449524190304,
+      "right_caster_carrier_joint": 115.97734230605583,
+      "right_caster_positive_hemisphere_joint": 19.007636047066242,
+      "right_caster_negative_hemisphere_joint": 31.332278662129923,
+      "right_caster_positive_polar_roller_joint": 20.785285320786006,
+      "right_caster_negative_polar_roller_joint": 47.88307692840439
+    }
+  },
+  "continuous_acceptance": {
+    "schema_version": 1,
+    "profile": "continuous",
+    "passed": true,
+    "failures": [],
+    "sample_count": 3959,
+    "motion_sample_count": 3660,
+    "motion_duration_s": 73.19374270772629,
+    "max_sample_gap_s": 0.040000000000000036,
+    "motion_time_aligned_error": {
+      "min_m": 2.2617601238327923e-08,
+      "max_m": 0.0016464315612734488,
+      "rms_m": 0.00039384847840181266,
+      "p50_m": 0.00011832949908596986,
+      "p95_m": 0.0008641570876188973,
+      "p99_m": 0.0012669044864206125
+    },
+    "motion_local_curve_error": {
+      "min_m": 3.3118382484357658e-09,
+      "max_m": 0.0014838437419775286,
+      "rms_m": 0.0002941922137285126,
+      "p50_m": 7.29132932325262e-05,
+      "p95_m": 0.0007579844335293851,
+      "p99_m": 0.0008691074439198187
+    },
+    "curve_approximation_bound_m": 1.2497863037974028e-06,
+    "curve_approximation_bound_method": "declared Cartesian acceleration bound * max plan dt squared / 8",
+    "source_time_reference_consistency": {
+      "min_m": 0.0,
+      "max_m": 1.2415716428293422e-06,
+      "rms_m": 4.4014426097037033e-07,
+      "p50_m": 4.3837244056987856e-08,
+      "p95_m": 1.070465585883279e-06,
+      "p99_m": 1.199530591927678e-06
+    },
+    "source_time_reference_consistency_tolerance_m": 1.349786303797403e-06,
+    "intended_rounding": {
+      "description": "Intentional reference design changes, not measured tracking errors",
+      "sampled_max_deviation_from_original_polyline_m": 0.020000000000000018,
+      "corners": [
+        {
+          "waypoint_index": 1,
+          "planned_waypoint_miss_m": 0.028284271247461905,
+          "max_intended_deviation_m": 0.02,
+          "sampled_min_distance_to_original_waypoint_m": 0.028284271247461894,
+          "sampled_max_deviation_from_original_polyline_m": 0.019999999999999973
+        },
+        {
+          "waypoint_index": 2,
+          "planned_waypoint_miss_m": 0.028284271247461905,
+          "max_intended_deviation_m": 0.02,
+          "sampled_min_distance_to_original_waypoint_m": 0.028284271247461926,
+          "sampled_max_deviation_from_original_polyline_m": 0.020000000000000018
+        },
+        {
+          "waypoint_index": 3,
+          "planned_waypoint_miss_m": 0.028284271247461905,
+          "max_intended_deviation_m": 0.02,
+          "sampled_min_distance_to_original_waypoint_m": 0.02828427124746177,
+          "sampled_max_deviation_from_original_polyline_m": 0.019999999999999574
+        },
+        {
+          "waypoint_index": 4,
+          "planned_waypoint_miss_m": 0.028284271247461905,
+          "max_intended_deviation_m": 0.02,
+          "sampled_min_distance_to_original_waypoint_m": 0.02828427124746207,
+          "sampled_max_deviation_from_original_polyline_m": 0.019999999999999782
+        }
+      ]
+    },
+    "conservative_max_curve_error_m": 0.001485093528281326,
+    "local_curve_search_window_s": 0.5,
+    "final_position_error_m": 2.7831090711644455e-07,
+    "corners": [
+      {
+        "waypoint_index": 1,
+        "interval_s": [
+          11.119821167413974,
+          13.69423950951759
+        ],
+        "sample_count": 129,
+        "actual_speed": {
+          "min_m_s": 0.06890624025073348,
+          "max_m_s": 0.0773906991723945,
+          "rms_m_s": 0.0708479794329075,
+          "p50_m_s": 0.07063524093754135,
+          "p95_m_s": 0.0726675337561433,
+          "p99_m_s": 0.07639294393526924
+        },
+        "planned_speed": {
+          "min_m_s": 0.07091061195923105,
+          "max_m_s": 0.07091061195923108,
+          "rms_m_s": 0.07091061195923107,
+          "p50_m_s": 0.07091061195923107,
+          "p95_m_s": 0.07091061195923108,
+          "p99_m_s": 0.07091061195923108
+        },
+        "max_slowdown_fraction": 0.02826617417503008,
+        "tracking_error": {
+          "min_m": 1.4779517643712488e-06,
+          "max_m": 0.0008489707898915849,
+          "rms_m": 0.0005449315566705584,
+          "p50_m": 0.00044065045657056304,
+          "p95_m": 0.0008402236420109308,
+          "p99_m": 0.0008476980801207461
+        }
+      },
+      {
+        "waypoint_index": 2,
+        "interval_s": [
+          23.24638184434554,
+          25.820800186449155
+        ],
+        "sample_count": 129,
+        "actual_speed": {
+          "min_m_s": 0.06358872911758172,
+          "max_m_s": 0.07809807302626108,
+          "rms_m_s": 0.07114857540967125,
+          "p50_m_s": 0.07098093777323682,
+          "p95_m_s": 0.07655295082990561,
+          "p99_m_s": 0.07754997978235131
+        },
+        "planned_speed": {
+          "min_m_s": 0.07091061195923105,
+          "max_m_s": 0.07091061195923108,
+          "rms_m_s": 0.07091061195923107,
+          "p50_m_s": 0.07091061195923107,
+          "p95_m_s": 0.07091061195923108,
+          "p99_m_s": 0.07091061195923108
+        },
+        "max_slowdown_fraction": 0.10325510723076192,
+        "tracking_error": {
+          "min_m": 1.582568615587707e-06,
+          "max_m": 0.0008491326730632181,
+          "rms_m": 0.0003727304898469931,
+          "p50_m": 0.00013550089571124531,
+          "p95_m": 0.0008376956376673178,
+          "p99_m": 0.0008482911641625178
+        }
+      },
+      {
+        "waypoint_index": 3,
+        "interval_s": [
+          37.37294252127711,
+          39.94736086338073
+        ],
+        "sample_count": 129,
+        "actual_speed": {
+          "min_m_s": 0.06286485373099818,
+          "max_m_s": 0.07758896751005416,
+          "rms_m_s": 0.07125866370798092,
+          "p50_m_s": 0.07121224645498779,
+          "p95_m_s": 0.07553849244637098,
+          "p99_m_s": 0.07630392371461414
+        },
+        "planned_speed": {
+          "min_m_s": 0.07091061195923105,
+          "max_m_s": 0.07091061195923108,
+          "rms_m_s": 0.07091061195923107,
+          "p50_m_s": 0.07091061195923107,
+          "p95_m_s": 0.07091061195923107,
+          "p99_m_s": 0.07091061195923108
+        },
+        "max_slowdown_fraction": 0.11346338729749894,
+        "tracking_error": {
+          "min_m": 1.247869163593577e-06,
+          "max_m": 0.0006039301846977309,
+          "rms_m": 0.0002832508782755337,
+          "p50_m": 0.0001878802770203253,
+          "p95_m": 0.000557045537561496,
+          "p99_m": 0.000602307348312928
+        }
+      },
+      {
+        "waypoint_index": 4,
+        "interval_s": [
+          49.499503198208686,
+          52.073921540312305
+        ],
+        "sample_count": 129,
+        "actual_speed": {
+          "min_m_s": 0.06786118527108367,
+          "max_m_s": 0.07190482250006801,
+          "rms_m_s": 0.07055262560993115,
+          "p50_m_s": 0.07059674439924148,
+          "p95_m_s": 0.07141624282277181,
+          "p99_m_s": 0.07180732239341417
+        },
+        "planned_speed": {
+          "min_m_s": 0.07091061195923105,
+          "max_m_s": 0.07091061195923108,
+          "rms_m_s": 0.07091061195923107,
+          "p50_m_s": 0.07091061195923107,
+          "p95_m_s": 0.07091061195923108,
+          "p99_m_s": 0.07091061195923108
+        },
+        "max_slowdown_fraction": 0.04300381288347388,
+        "tracking_error": {
+          "min_m": 5.768456181427365e-07,
+          "max_m": 0.0008720515985028831,
+          "rms_m": 0.0005820557650836332,
+          "p50_m": 0.0005182865183109353,
+          "p95_m": 0.0008585801896153185,
+          "p99_m": 0.0008688682438790421
+        }
+      }
+    ],
+    "interior_motion_interval_s": [
+      4.6875,
+      68.50624270772629
+    ],
+    "interior_interval_source": "planner-declared interval excluding initial/final ramps",
+    "interior_actual_speed": {
+      "min_m_s": 0.06286485373099818,
+      "max_m_s": 0.26133930782277015,
+      "rms_m_s": 0.19919998228904054,
+      "p50_m_s": 0.23904124570614582,
+      "p95_m_s": 0.25155419151100566,
+      "p99_m_s": 0.25497053719428614
+    },
+    "reference_acceleration": {
+      "min_m_s2": 0.0,
+      "max_m_s2": 0.09999999999990006,
+      "rms_m_s2": 0.04914497129605492,
+      "p50_m_s2": 0.013744464498779696,
+      "p95_m_s2": 0.09850232194179459,
+      "p99_m_s2": 0.09994504469057063
+    },
+    "reference_numerical_jerk": {
+      "min_m_s3": 0.0,
+      "max_m_s3": 0.1579534100823577,
+      "rms_m_s3": 0.05832591766012673,
+      "p50_m_s3": 0.03637256536397171,
+      "p95_m_s3": 0.1226380704582885,
+      "p99_m_s3": 0.15621249465231915
+    },
+    "command_statistics": {
+      "updates": 7442,
+      "speed_limited_updates": 0,
+      "acceleration_limited_updates": 0,
+      "max_wheel_rate_rad_s": 3.245623412359153,
+      "max_wheel_acceleration_rad_s2": 14.912571614685376
+    },
+    "acceptance": {
+      "passed": true,
+      "limits": {
+        "max_tracking_error_m": 0.005,
+        "max_cross_track_m": 0.002,
+        "max_final_error_m": 0.0005,
+        "min_corner_speed_m_s": 0.03,
+        "max_corner_slowdown_fraction": 0.3
+      },
+      "observed_m": {
+        "max_tracking_error_m": 0.0016464315612734488,
+        "max_cross_track_m": 0.001485093528281326,
+        "max_final_error_m": 2.7831090711644455e-07
+      },
+      "runner_completed": true,
+      "failures": []
+    },
+    "interpretation": [
+      "The rounded planned curve intentionally differs from the original sharp waypoint polyline; this design difference is not a tracking error.",
+      "Time-aligned errors are recomputed from raw measured positions and source-time references; measured positions are never snapped to the reference.",
+      "Geometric errors project onto finite planned-curve chords within a local time window, preventing distant route crossings from hiding local error.",
+      "Cross-track acceptance adds the planner-bound chord approximation error to the largest measured chord distance.",
+      "Speed is measured from the recorded odometry-derived velocity; no-interior-stop validation excludes only the initial and final ramps.",
+      "All observed maxima and minima describe recorded samples; they do not prove exact or continuous-time perfect tracking."
+    ]
+  },
+  "owned_processes_cleaned": true
+}

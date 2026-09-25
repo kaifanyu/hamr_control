@@ -1,0 +1,51 @@
+{
+  "parameters": {
+    "mode": "wheel_gyro",
+    "linear_velocity_scale": 0.95,
+    "yaw_rate_scale": 0.813,
+    "lever_arm": 0.28,
+    "r_vx": 0.0002,
+    "r_vy": 0.0002,
+    "r_wheel_wz": 0.004,
+    "r_gyro": 0.04
+  },
+  "scores": [
+    {
+      "xy_rmse_m": 0.048800572538655156,
+      "yaw_rmse_deg": 3.225897958960943,
+      "final_xy_m": 0.04798615327273224,
+      "p95_xy_m": 0.08650888249893514,
+      "max_xy_m": 0.12663828307325803,
+      "final_yaw_deg": -2.584682146211861,
+      "duration_s": 47.880000000000045,
+      "sample_count": 2386,
+      "reference_gap_samples_excluded": 9,
+      "objective": 0.06965831133664828
+    },
+    {
+      "xy_rmse_m": 0.1019242066321503,
+      "yaw_rmse_deg": 1.5844232259091873,
+      "final_xy_m": 0.11747577534727811,
+      "p95_xy_m": 0.20518274336366626,
+      "max_xy_m": 0.23188682491261925,
+      "final_yaw_deg": 3.1123907092180416,
+      "duration_s": 85.36000000000007,
+      "sample_count": 4269,
+      "reference_gap_samples_excluded": 0,
+      "objective": 0.13095004210904296
+    },
+    {
+      "xy_rmse_m": 0.06712685664698627,
+      "yaw_rmse_deg": 2.4578544118194277,
+      "final_xy_m": 0.10578717216472969,
+      "p95_xy_m": 0.10156868241294859,
+      "max_xy_m": 0.11645611276832388,
+      "final_yaw_deg": 0.6141346985353249,
+      "duration_s": 48.04000000000004,
+      "sample_count": 2314,
+      "reference_gap_samples_excluded": 89,
+      "objective": 0.09686382148411574
+    }
+  ],
+  "objective": 0.09915739164326898
+}

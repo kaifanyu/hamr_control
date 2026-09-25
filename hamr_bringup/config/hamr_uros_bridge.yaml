@@ -6,3 +6,8 @@ hamr_uros_bridge:
     command_timeout_s: 0.25        # zero any actuator whose ROS command goes stale
     shutdown_zero_packets: 10      # repeated stop packets before closing serial
     turret_command_sign: -1.0      # hardware motor direction is opposite ROS yaw convention
+    # Measurement variances; changing them changes fusion trust, not sensor bias.
+    # Effective fusion variance includes the measured ~3 Hz payload refresh,
+    # repeated messages and lag. This is not the stationary sensor noise floor.
+    imu_gyro_z_variance: 0.04      # (rad/s)^2; calibrated wheel/gyro profile
+    imu_yaw_variance: 0.0009       # rad^2, orientation_covariance[8]

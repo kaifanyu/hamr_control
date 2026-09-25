@@ -3,7 +3,7 @@
 <package format="3">
   <name>hamr_bringup</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Simulation and calibrated hardware launch pipelines for HAMR.</description>
   <maintainer email="cedrich@seas.upenn.edu">cedric</maintainer>
   <maintainer email="kartik8virmani@gmail.com">cedric</maintainer>
   <license>TODO: License declaration</license>
@@ -23,6 +23,11 @@
   <test_depend>launch_ros</test_depend>
   <test_depend>launch_xml</test_depend>
   <exec_depend>hamr_control</exec_depend>
+  <exec_depend>hamr_description</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>launch_xml</exec_depend>
   <exec_depend>hamr_interfaces</exec_depend>
   <exec_depend>hamr_odometry</exec_depend>
   <exec_depend>hamr_uros_bridge</exec_depend>
@@ -30,6 +35,7 @@
   <exec_depend>reference_trajectory</exec_depend>
   <exec_depend>ros2bag</exec_depend>
   <exec_depend>rosbag2_transport</exec_depend>
+  <exec_depend>rosbag2_storage_mcap</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>nav_msgs</exec_depend>

@@ -1,0 +1,629 @@
+{
+  "hamr_hw_20260916_184054": {
+    "gyro_baseline": {
+      "primary": {
+        "n": 2386,
+        "xy_rmse_m": 0.3397735455812162,
+        "yaw_rmse_deg": 4.062617656468541,
+        "final_xy_m": 0.332784224371378
+      },
+      "strict_mask": {
+        "n": 2237,
+        "xy_rmse_m": 0.33893135824328596,
+        "yaw_rmse_deg": 4.013480620107412,
+        "final_xy_m": 0.3327989631015569
+      },
+      "moving": {
+        "n": 1296,
+        "xy_rmse_m": 0.38960917949970775,
+        "yaw_rmse_deg": 5.265967821442611,
+        "final_xy_m": 0.3784775002465935
+      },
+      "stationary": {
+        "n": 847,
+        "xy_rmse_m": 0.2592390051779584,
+        "yaw_rmse_deg": 0.3132565433665715,
+        "final_xy_m": 0.3327875663348521
+      },
+      "stationary_velocity_rms_m_s": 0.0015834469780064999,
+      "stationary_wz_rms_rad_s": 0.00503945842687393,
+      "stationary_intervals": [
+        {
+          "start": 2.2608365910000003,
+          "duration": 6.640000000000006,
+          "estimator_position_drift_m": 0.0,
+          "reference_position_change_m": 8.706730641399006e-06,
+          "estimator_yaw_drift_deg": 0.18112004098688214
+        },
+        {
+          "start": 39.080836591000036,
+          "duration": 10.260000000000005,
+          "estimator_position_drift_m": 6.672526056043789e-05,
+          "reference_position_change_m": 0.00044192290724530923,
+          "estimator_yaw_drift_deg": 0.15585900987684637
+        }
+      ],
+      "alignment_sensitivity": {
+        "0.0": {
+          "n": 2386,
+          "xy_rmse_m": 0.3397735455812162,
+          "yaw_rmse_deg": 4.062617656468541,
+          "final_xy_m": 0.332784224371378
+        },
+        "0.25": {
+          "n": 2373,
+          "xy_rmse_m": 0.3407252522495438,
+          "yaw_rmse_deg": 4.0738798315599,
+          "final_xy_m": 0.3328143832099276
+        },
+        "0.5": {
+          "n": 2361,
+          "xy_rmse_m": 0.3411680347108697,
+          "yaw_rmse_deg": 4.081182980288567,
+          "final_xy_m": 0.33222513694523487
+        },
+        "1.0": {
+          "n": 2336,
+          "xy_rmse_m": 0.3442285379965185,
+          "yaw_rmse_deg": 4.112035188179062,
+          "final_xy_m": 0.3339510828383469
+        }
+      }
+    },
+    "live_config_baseline": {
+      "primary": {
+        "n": 2386,
+        "xy_rmse_m": 0.41277493217184547,
+        "yaw_rmse_deg": 5.531139194638877,
+        "final_xy_m": 0.6886721121429219
+      },
+      "strict_mask": {
+        "n": 2237,
+        "xy_rmse_m": 0.40819133338355623,
+        "yaw_rmse_deg": 5.316114590241883,
+        "final_xy_m": 0.688687008378568
+      },
+      "moving": {
+        "n": 1296,
+        "xy_rmse_m": 0.2975193591692145,
+        "yaw_rmse_deg": 6.928906538909229,
+        "final_xy_m": 0.5282473957694909
+      },
+      "stationary": {
+        "n": 847,
+        "xy_rmse_m": 0.5364815074849449,
+        "yaw_rmse_deg": 1.0502161527724796,
+        "final_xy_m": 0.6886749116337321
+      },
+      "stationary_velocity_rms_m_s": 0.0009498093521157445,
+      "stationary_wz_rms_rad_s": 0.0049949463461814924,
+      "stationary_intervals": [
+        {
+          "start": 2.2608365910000003,
+          "duration": 6.640000000000006,
+          "estimator_position_drift_m": 0.0,
+          "reference_position_change_m": 8.706730641399006e-06,
+          "estimator_yaw_drift_deg": 0.00340115946086219
+        },
+        {
+          "start": 39.080836591000036,
+          "duration": 10.260000000000005,
+          "estimator_position_drift_m": 4.167576286227202e-05,
+          "reference_position_change_m": 0.00044192290724530923,
+          "estimator_yaw_drift_deg": -0.10142569536182525
+        }
+      ],
+      "alignment_sensitivity": {
+        "0.0": {
+          "n": 2386,
+          "xy_rmse_m": 0.41277493217184547,
+          "yaw_rmse_deg": 5.531139194638877,
+          "final_xy_m": 0.6886721121429219
+        },
+        "0.25": {
+          "n": 2373,
+          "xy_rmse_m": 0.4139731748777721,
+          "yaw_rmse_deg": 5.5466447760365964,
+          "final_xy_m": 0.688844013252421
+        },
+        "0.5": {
+          "n": 2361,
+          "xy_rmse_m": 0.41497618244938,
+          "yaw_rmse_deg": 5.560467946164566,
+          "final_xy_m": 0.6887268476270801
+        },
+        "1.0": {
+          "n": 2336,
+          "xy_rmse_m": 0.41738125321689695,
+          "yaw_rmse_deg": 5.591212335617728,
+          "final_xy_m": 0.689196852112341
+        }
+      }
+    },
+    "candidate": {
+      "primary": {
+        "n": 2386,
+        "xy_rmse_m": 0.050147908843507324,
+        "yaw_rmse_deg": 3.225897958960943,
+        "final_xy_m": 0.05091795708164523
+      },
+      "strict_mask": {
+        "n": 2237,
+        "xy_rmse_m": 0.0498491033150862,
+        "yaw_rmse_deg": 3.083268645476348,
+        "final_xy_m": 0.050913022390472226
+      },
+      "moving": {
+        "n": 1296,
+        "xy_rmse_m": 0.05656505218436168,
+        "yaw_rmse_deg": 3.686259734818384,
+        "final_xy_m": 0.07974072058499461
+      },
+      "stationary": {
+        "n": 847,
+        "xy_rmse_m": 0.03967642483347125,
+        "yaw_rmse_deg": 2.018245812733639,
+        "final_xy_m": 0.05090104792349045
+      },
+      "stationary_velocity_rms_m_s": 0.00010090138640756198,
+      "stationary_wz_rms_rad_s": 0.0005294354527850969,
+      "stationary_intervals": [
+        {
+          "start": 2.2608365910000003,
+          "duration": 6.640000000000006,
+          "estimator_position_drift_m": 0.0,
+          "reference_position_change_m": 8.706730641399006e-06,
+          "estimator_yaw_drift_deg": 0.021467693434198486
+        },
+        {
+          "start": 39.080836591000036,
+          "duration": 10.260000000000005,
+          "estimator_position_drift_m": 8.16597656736842e-05,
+          "reference_position_change_m": 0.00044192290724530923,
+          "estimator_yaw_drift_deg": 0.018381009655231793
+        }
+      ],
+      "alignment_sensitivity": {
+        "0.0": {
+          "n": 2386,
+          "xy_rmse_m": 0.050147908843507324,
+          "yaw_rmse_deg": 3.225897958960943,
+          "final_xy_m": 0.05091795708164523
+        },
+        "0.25": {
+          "n": 2373,
+          "xy_rmse_m": 0.05029255812863718,
+          "yaw_rmse_deg": 3.234348481002359,
+          "final_xy_m": 0.05092789896959384
+        },
+        "0.5": {
+          "n": 2361,
+          "xy_rmse_m": 0.05041156630005572,
+          "yaw_rmse_deg": 3.2430581728109273,
+          "final_xy_m": 0.05091743699342119
+        },
+        "1.0": {
+          "n": 2336,
+          "xy_rmse_m": 0.05073135005401152,
+          "yaw_rmse_deg": 3.2571228663807616,
+          "final_xy_m": 0.05099276815008231
+        }
+      }
+    },
+    "recorded_ekf": {
+      "xy_rmse_m": 0.4119893710179746,
+      "yaw_rmse_deg": 5.542818093340624,
+      "final_xy_m": 0.6872841556823123,
+      "p95_xy_m": 0.6873324190354683,
+      "max_xy_m": 0.6954781853477672,
+      "final_yaw_deg": 1.5185963713040629,
+      "duration_s": 47.880000000000045,
+      "sample_count": 2386,
+      "reference_gap_samples_excluded": 9
+    }
+  },
+  "hamr_hw_20260916_190842": {
+    "gyro_baseline": {
+      "primary": {
+        "n": 4269,
+        "xy_rmse_m": 0.3097715499864185,
+        "yaw_rmse_deg": 4.505101553979541,
+        "final_xy_m": 0.709254671592548
+      },
+      "strict_mask": {
+        "n": 4174,
+        "xy_rmse_m": 0.30854518434437384,
+        "yaw_rmse_deg": 4.457541363836951,
+        "final_xy_m": 0.7092902618231474
+      },
+      "moving": {
+        "n": 2272,
+        "xy_rmse_m": 0.4150404690518828,
+        "yaw_rmse_deg": 6.023874070939731,
+        "final_xy_m": 0.7070281370536622
+      },
+      "stationary": {
+        "n": 1850,
+        "xy_rmse_m": 1.7861130431389936e-05,
+        "yaw_rmse_deg": 0.138080139770036,
+        "final_xy_m": 1.1969142219748954e-05
+      },
+      "stationary_velocity_rms_m_s": 0.0,
+      "stationary_wz_rms_rad_s": 0.001278584489792962,
+      "stationary_intervals": [
+        {
+          "start": 2.1766317600000002,
+          "duration": 36.98000000000003,
+          "estimator_position_drift_m": 0.0,
+          "reference_position_change_m": 1.3438781610214928e-05,
+          "estimator_yaw_drift_deg": -0.2677457466420285
+        }
+      ],
+      "alignment_sensitivity": {
+        "0.0": {
+          "n": 4269,
+          "xy_rmse_m": 0.3097715499864185,
+          "yaw_rmse_deg": 4.505101553979541,
+          "final_xy_m": 0.709254671592548
+        },
+        "0.25": {
+          "n": 4256,
+          "xy_rmse_m": 0.3104693996287103,
+          "yaw_rmse_deg": 4.508860252305275,
+          "final_xy_m": 0.7094223814294061
+        },
+        "0.5": {
+          "n": 4244,
+          "xy_rmse_m": 0.31092736149636635,
+          "yaw_rmse_deg": 4.514991696410199,
+          "final_xy_m": 0.7094317788509675
+        },
+        "1.0": {
+          "n": 4219,
+          "xy_rmse_m": 0.3118079171773955,
+          "yaw_rmse_deg": 4.528779663429666,
+          "final_xy_m": 0.7094028327557551
+        }
+      }
+    },
+    "live_config_baseline": {
+      "primary": {
+        "n": 4269,
+        "xy_rmse_m": 0.48614239792691966,
+        "yaw_rmse_deg": 5.49799725155258,
+        "final_xy_m": 0.9286803345398655
+      },
+      "strict_mask": {
+        "n": 4174,
+        "xy_rmse_m": 0.48367191196524784,
+        "yaw_rmse_deg": 5.376032465495804,
+        "final_xy_m": 0.9283494713470385
+      },
+      "moving": {
+        "n": 2272,
+        "xy_rmse_m": 0.6520662506020137,
+        "yaw_rmse_deg": 7.28224776770659,
+        "final_xy_m": 0.9318349598779417
+      },
+      "stationary": {
+        "n": 1850,
+        "xy_rmse_m": 1.7861130431389936e-05,
+        "yaw_rmse_deg": 0.006322826051414145,
+        "final_xy_m": 1.1969142219748954e-05
+      },
+      "stationary_velocity_rms_m_s": 0.0,
+      "stationary_wz_rms_rad_s": 0.001267991924837633,
+      "stationary_intervals": [
+        {
+          "start": 2.1766317600000002,
+          "duration": 36.98000000000003,
+          "estimator_position_drift_m": 0.0,
+          "reference_position_change_m": 1.3438781610214928e-05,
+          "estimator_yaw_drift_deg": 0.003090925859726759
+        }
+      ],
+      "alignment_sensitivity": {
+        "0.0": {
+          "n": 4269,
+          "xy_rmse_m": 0.48614239792691966,
+          "yaw_rmse_deg": 5.49799725155258,
+          "final_xy_m": 0.9286803345398655
+        },
+        "0.25": {
+          "n": 4256,
+          "xy_rmse_m": 0.48682383850760974,
+          "yaw_rmse_deg": 5.504758249793072,
+          "final_xy_m": 0.9286895754069505
+        },
+        "0.5": {
+          "n": 4244,
+          "xy_rmse_m": 0.4875257354909538,
+          "yaw_rmse_deg": 5.512664945969403,
+          "final_xy_m": 0.9287036279739668
+        },
+        "1.0": {
+          "n": 4219,
+          "xy_rmse_m": 0.48894117040764806,
+          "yaw_rmse_deg": 5.528569078649181,
+          "final_xy_m": 0.9286916018599986
+        }
+      }
+    },
+    "candidate": {
+      "primary": {
+        "n": 4269,
+        "xy_rmse_m": 0.10221348601465523,
+        "yaw_rmse_deg": 1.5844232259091873,
+        "final_xy_m": 0.1165266785137847
+      },
+      "strict_mask": {
+        "n": 4174,
+        "xy_rmse_m": 0.10077891315150833,
+        "yaw_rmse_deg": 1.5804269495263896,
+        "final_xy_m": 0.11670277135275824
+      },
+      "moving": {
+        "n": 2272,
+        "xy_rmse_m": 0.13632836526904266,
+        "yaw_rmse_deg": 2.1299297704688356,
+        "final_xy_m": 0.11745301875980702
+      },
+      "stationary": {
+        "n": 1850,
+        "xy_rmse_m": 1.7861130431389936e-05,
+        "yaw_rmse_deg": 0.016259389303755114,
+        "final_xy_m": 1.1969142219748954e-05
+      },
+      "stationary_velocity_rms_m_s": 0.0,
+      "stationary_wz_rms_rad_s": 0.00012625027419642786,
+      "stationary_intervals": [
+        {
+          "start": 2.1766317600000002,
+          "duration": 36.98000000000003,
+          "estimator_position_drift_m": 0.0,
+          "reference_position_change_m": 1.3438781610214928e-05,
+          "estimator_yaw_drift_deg": -0.03188307295560248
+        }
+      ],
+      "alignment_sensitivity": {
+        "0.0": {
+          "n": 4269,
+          "xy_rmse_m": 0.10221348601465523,
+          "yaw_rmse_deg": 1.5844232259091873,
+          "final_xy_m": 0.1165266785137847
+        },
+        "0.25": {
+          "n": 4256,
+          "xy_rmse_m": 0.10238887937485748,
+          "yaw_rmse_deg": 1.5869939912491393,
+          "final_xy_m": 0.11650922082273499
+        },
+        "0.5": {
+          "n": 4244,
+          "xy_rmse_m": 0.10255866403749092,
+          "yaw_rmse_deg": 1.5894563980753917,
+          "final_xy_m": 0.11648762488919098
+        },
+        "1.0": {
+          "n": 4219,
+          "xy_rmse_m": 0.10281086487106306,
+          "yaw_rmse_deg": 1.5937652483204665,
+          "final_xy_m": 0.11653362874624333
+        }
+      }
+    },
+    "recorded_ekf": {
+      "xy_rmse_m": 0.48717035039784656,
+      "yaw_rmse_deg": 5.50066365471176,
+      "final_xy_m": 0.931652947661667,
+      "p95_xy_m": 1.0283758898983568,
+      "max_xy_m": 1.082449083518312,
+      "final_yaw_deg": 3.3806824533258,
+      "duration_s": 85.36000000000007,
+      "sample_count": 4269,
+      "reference_gap_samples_excluded": 0
+    }
+  },
+  "hamr_hw_20260916_193228": {
+    "gyro_baseline": {
+      "primary": {
+        "n": 2314,
+        "xy_rmse_m": 0.39474440049108556,
+        "yaw_rmse_deg": 5.917017980427478,
+        "final_xy_m": 0.13282576671261648
+      },
+      "strict_mask": {
+        "n": 2142,
+        "xy_rmse_m": 0.4053006924634292,
+        "yaw_rmse_deg": 6.052791407305826,
+        "final_xy_m": 0.13264522665850847
+      },
+      "moving": {
+        "n": 1943,
+        "xy_rmse_m": 0.4251665012566986,
+        "yaw_rmse_deg": 6.282726682022002,
+        "final_xy_m": 0.13324864688618998
+      },
+      "stationary": {
+        "n": 78,
+        "xy_rmse_m": 3.11110073304303e-05,
+        "yaw_rmse_deg": 0.016457079568250498,
+        "final_xy_m": 3.437579381779506e-05
+      },
+      "stationary_velocity_rms_m_s": 0.0,
+      "stationary_wz_rms_rad_s": 0.0009465255594710649,
+      "stationary_intervals": [
+        {
+          "start": 4.9479240280000045,
+          "duration": 1.5200000000000014,
+          "estimator_position_drift_m": 0.0,
+          "reference_position_change_m": 1.2148354723409444e-05,
+          "estimator_yaw_drift_deg": -0.031369037805871
+        }
+      ],
+      "alignment_sensitivity": {
+        "0.0": {
+          "n": 2314,
+          "xy_rmse_m": 0.39474440049108556,
+          "yaw_rmse_deg": 5.917017980427478,
+          "final_xy_m": 0.13282576671261648
+        },
+        "0.25": {
+          "n": 2314,
+          "xy_rmse_m": 0.3946069814476938,
+          "yaw_rmse_deg": 5.9106469682507194,
+          "final_xy_m": 0.1325897188555043
+        },
+        "0.5": {
+          "n": 2302,
+          "xy_rmse_m": 0.39522841229008143,
+          "yaw_rmse_deg": 5.9122553588075615,
+          "final_xy_m": 0.13196126438934122
+        },
+        "1.0": {
+          "n": 2277,
+          "xy_rmse_m": 0.3978391988475976,
+          "yaw_rmse_deg": 5.960821079402352,
+          "final_xy_m": 0.13265856631924666
+        }
+      }
+    },
+    "live_config_baseline": {
+      "primary": {
+        "n": 2314,
+        "xy_rmse_m": 0.6126455904874076,
+        "yaw_rmse_deg": 6.648930594353438,
+        "final_xy_m": 1.1106299271647952
+      },
+      "strict_mask": {
+        "n": 2142,
+        "xy_rmse_m": 0.6257635166342064,
+        "yaw_rmse_deg": 6.603095254541703,
+        "final_xy_m": 1.1104588133219053
+      },
+      "moving": {
+        "n": 1943,
+        "xy_rmse_m": 0.6394061744831757,
+        "yaw_rmse_deg": 6.930291880729032,
+        "final_xy_m": 1.1110127814414084
+      },
+      "stationary": {
+        "n": 78,
+        "xy_rmse_m": 3.11110073304303e-05,
+        "yaw_rmse_deg": 0.002846434815785688,
+        "final_xy_m": 3.437579381779506e-05
+      },
+      "stationary_velocity_rms_m_s": 0.0,
+      "stationary_wz_rms_rad_s": 0.0009395993572081113,
+      "stationary_intervals": [
+        {
+          "start": 4.9479240280000045,
+          "duration": 1.5200000000000014,
+          "estimator_position_drift_m": 0.0,
+          "reference_position_change_m": 1.2148354723409444e-05,
+          "estimator_yaw_drift_deg": 0.00018744839918050142
+        }
+      ],
+      "alignment_sensitivity": {
+        "0.0": {
+          "n": 2314,
+          "xy_rmse_m": 0.6126455904874076,
+          "yaw_rmse_deg": 6.648930594353438,
+          "final_xy_m": 1.1106299271647952
+        },
+        "0.25": {
+          "n": 2314,
+          "xy_rmse_m": 0.6127242868185192,
+          "yaw_rmse_deg": 6.649841193312843,
+          "final_xy_m": 1.1107009324652883
+        },
+        "0.5": {
+          "n": 2302,
+          "xy_rmse_m": 0.6142711362462115,
+          "yaw_rmse_deg": 6.667074575899243,
+          "final_xy_m": 1.1106367536308503
+        },
+        "1.0": {
+          "n": 2277,
+          "xy_rmse_m": 0.6173756412387644,
+          "yaw_rmse_deg": 6.6983011566533,
+          "final_xy_m": 1.1105022710788124
+        }
+      }
+    },
+    "candidate": {
+      "primary": {
+        "n": 2314,
+        "xy_rmse_m": 0.06550427377094789,
+        "yaw_rmse_deg": 2.4578544118194277,
+        "final_xy_m": 0.10005465662237113
+      },
+      "strict_mask": {
+        "n": 2142,
+        "xy_rmse_m": 0.06711968479335148,
+        "yaw_rmse_deg": 2.505039701925658,
+        "final_xy_m": 0.09989793997838396
+      },
+      "moving": {
+        "n": 1943,
+        "xy_rmse_m": 0.06914952969420855,
+        "yaw_rmse_deg": 2.6286594448999763,
+        "final_xy_m": 0.10040742846592646
+      },
+      "stationary": {
+        "n": 78,
+        "xy_rmse_m": 3.11110073304303e-05,
+        "yaw_rmse_deg": 0.0020158964326907297,
+        "final_xy_m": 3.437579381779506e-05
+      },
+      "stationary_velocity_rms_m_s": 0.0,
+      "stationary_wz_rms_rad_s": 0.00011489132766186262,
+      "stationary_intervals": [
+        {
+          "start": 4.9479240280000045,
+          "duration": 1.5200000000000014,
+          "estimator_position_drift_m": 0.0,
+          "reference_position_change_m": 1.2148354723409444e-05,
+          "estimator_yaw_drift_deg": -0.004307296757540119
+        }
+      ],
+      "alignment_sensitivity": {
+        "0.0": {
+          "n": 2314,
+          "xy_rmse_m": 0.06550427377094789,
+          "yaw_rmse_deg": 2.4578544118194277,
+          "final_xy_m": 0.10005465662237113
+        },
+        "0.25": {
+          "n": 2314,
+          "xy_rmse_m": 0.06553539754609035,
+          "yaw_rmse_deg": 2.457745938507536,
+          "final_xy_m": 0.10009394686595713
+        },
+        "0.5": {
+          "n": 2302,
+          "xy_rmse_m": 0.06574835765232806,
+          "yaw_rmse_deg": 2.461023459791586,
+          "final_xy_m": 0.10000383009988889
+        },
+        "1.0": {
+          "n": 2277,
+          "xy_rmse_m": 0.06608075904628381,
+          "yaw_rmse_deg": 2.4764034742415038,
+          "final_xy_m": 0.10004974280473711
+        }
+      }
+    },
+    "recorded_ekf": {
+      "xy_rmse_m": 0.6118006524176366,
+      "yaw_rmse_deg": 6.657485335056383,
+      "final_xy_m": 1.1120740931220243,
+      "p95_xy_m": 1.1246921676254749,
+      "max_xy_m": 1.141643876605609,
+      "final_yaw_deg": 1.061466566991102,
+      "duration_s": 48.04000000000004,
+      "sample_count": 2314,
+      "reference_gap_samples_excluded": 89
+    }
+  }
+}

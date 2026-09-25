@@ -3,7 +3,7 @@
 <package format="3">
   <name>reference_trajectory</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Reference trajectories and shared continuous waypoint planning for HAMR.</description>
   <maintainer email="cedrich@seas.upenn.edu">cedric</maintainer>
   <license>TODO: License declaration</license>
 
@@ -11,6 +11,8 @@
   <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>rcl_interfaces</depend>
   <depend>visualization_msgs</depend>
   <depend>hamr_interfaces</depend>
   <exec_depend>ament_index_python</exec_depend>

@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="hamr">
+  <gazebo reference="right_wheel_link">
+    <mu1 value="1.0" />
+    <mu2 value="1.0" />
+  </gazebo>
+  <gazebo reference="left_wheel_link">
+    <mu1 value="1.0" />
+    <mu2 value="1.0" />
+  </gazebo>
+  <gazebo>
+    <plugin filename="libgz-sim-detachable-joint-system.so" name="gz::sim::systems::DetachableJoint">
+      <parent_link>left_rocker_link</parent_link>
+      <child_model>compa</child_model>
+      <child_link>tmp_left_rod_sphere2_t3</child_link>
+      <attach_topic>close_left_loop</attach_topic>
+      <detach_topic>open_left_loop</detach_topic>
+    </plugin>
+  </gazebo>
+  <gazebo>
+    <plugin filename="libgz-sim-detachable-joint-system.so" name="gz::sim::systems::DetachableJoint">
+      <parent_link>right_rocker_link</parent_link>
+      <child_model>compa</child_model>
+      <child_link>tmp_right_rod_sphere2_t3</child_link>
+      <attach_topic>close_right_loop</attach_topic>
+      <detach_topic>open_right_loop</detach_topic>
+    </plugin>
+  </gazebo>
+  <gazebo>
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <topic>/ball_caster/joint_states</topic>
+    </plugin>
+  </gazebo>
+  <gazebo>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>left_rocker_left_wheel_joint</joint_name>
+    </plugin>
+  </gazebo>
+  <gazebo>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>right_rocker_right_wheel_joint</joint_name>
+    </plugin>
+  </gazebo>
+  <gazebo>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>base_roll_joint</joint_name>
+    </plugin>
+  </gazebo>
+  <gazebo>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>roll_pitch_joint</joint_name>
+    </plugin>
+  </gazebo>
+  <gazebo>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>pitch_yaw_plate_joint</joint_name>
+    </plugin>
+  </gazebo>
+  <gazebo>
+        </gazebo>
+  <gazebo>
+    <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+      <odom_frame>odom</odom_frame>
+      <robot_base_frame>base_footprint</robot_base_frame>
+      <odom_publish_frequency>50</odom_publish_frequency>
+      <odom_topic>/model/compa/odometry</odom_topic>
+      <tf_topic>/model/compa/tf</tf_topic>
+      <dimensions>3</dimensions>
+    </plugin>
+  </gazebo>
+</robot>

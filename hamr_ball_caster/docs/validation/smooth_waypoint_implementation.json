@@ -1,0 +1,26 @@
+{
+  "sha256": {
+    "scripts/run_waypoint_sim.py": "e32e75551858f1e582ed60cbc322e136ca485d8bc3f159666da01b009be561e2",
+    "scripts/feasible_waypoint.py": "14ea1ce0612ee15bc91f6fc362cb9d6ca6fcb97995d5477f97c959f32a9e5ea2",
+    "tools/analyze_corner_tracking.py": "6b1fdd76fe3ede84c718a2a827c0b73fbfea6997767ebef01febb721a26e68af",
+    "scripts/record_waypoint_run.py": "40cfd3191aed0f75eda4945832033113f4ed336fe1d871146771f66f2a0a8b1f",
+    "config/smooth_waypoint_sim.yaml": "85316ce38bb6b8fe2c2e12b49295b4fe6da911bb7bfdf2374267e20700044358",
+    "config/simple_waypoint_sim.yaml": "466d67e82be01ccb91b6846b7b814997545804d02d6cade7c9845d18f6edf365",
+    "urdf/compa_ball_caster.urdf.xacro": "c780bcc10ae1b989a58c49bfead1e6c20de6da7976799c216aa90da76c3498ee",
+    "urdf/compa_gazebo.xacro": "098e7488ac5046636eeb26d2ad1d7455cc04c044b97f850bd7d7476347e7a51d",
+    "urdf/ball_caster.xacro": "bf5f395a68d42b58aaa533b4267228bc9adf9ef0ffa3b04103f3e0776878129e"
+  },
+  "pytest_counts": {
+    "corner_tracking.xunit": 14,
+    "caster_geometry.xunit": 11,
+    "waypoint_sim.xunit": 7,
+    "recording_model.xunit": 1,
+    "compa_retrofit.xunit": 6,
+    "waypoint_settling.xunit": 3,
+    "feasible_waypoint.xunit": 52
+  },
+  "pytest_total": 94,
+  "ctest_groups": 7,
+  "errors": 0,
+  "failures": 0
+}

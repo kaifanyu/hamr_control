@@ -1,0 +1,724 @@
+{
+  "schema_version": 1,
+  "archive_name": "github_cleanup_20260920_234441",
+  "manifest_sha256": "8e03443ab428d781ce8a1e55cdee91f10f6f87babfee22933345ce62e50b3d1c",
+  "file_count": 119,
+  "total_bytes": 288457574,
+  "archive_layout": "Original repository-relative paths are preserved beneath the external archive directory. Set HAMR_ARCHIVE to that directory.",
+  "entries": [
+    {
+      "source": "CAD files/HAMR3-2/3136N157_T-Slotted Framing.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/3136N157_T-Slotted Framing.SLDPRT",
+      "bytes": 83667,
+      "sha256": "d294a3808384e299be16ccaa7c66d3547ec1c262866c81c14751eafa1af9abe7"
+    },
+    {
+      "source": "CAD files/HAMR3-2/37d-gearmotor-100-131-150-encoder.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/37d-gearmotor-100-131-150-encoder.SLDPRT",
+      "bytes": 1236959,
+      "sha256": "09b1a4aeffafba60d2517d7d281049addafe0476983651981adaac092119c70f"
+    },
+    {
+      "source": "CAD files/HAMR3-2/37d-gearmotor-100-131-150-encoder.step",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/37d-gearmotor-100-131-150-encoder.step",
+      "bytes": 3621349,
+      "sha256": "a2450812d02c82cf362dfab5a6d0c4fbe801a90bee45602c5e8390ccb8cb8aef"
+    },
+    {
+      "source": "CAD files/HAMR3-2/4668K11_Permanently Lubricated Stainless Steel Ball Bearing.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/4668K11_Permanently Lubricated Stainless Steel Ball Bearing.SLDPRT",
+      "bytes": 1187185,
+      "sha256": "0f3ff4a455c43e0af87732c3a08e0f2aafe7478c19a767184ade8acfae22141f"
+    },
+    {
+      "source": "CAD files/HAMR3-2/57155K516_Flanged Ball Bearing.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/57155K516_Flanged Ball Bearing.SLDPRT",
+      "bytes": 1556651,
+      "sha256": "a6b7d762284d3b1fa1435194110e0dd341b958cb5f7175a449f1fdcadc48bbcb"
+    },
+    {
+      "source": "CAD files/HAMR3-2/5905K22_Needle-Roller Bearing.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/5905K22_Needle-Roller Bearing.SLDPRT",
+      "bytes": 606018,
+      "sha256": "ec0cbac05313e1ec3bbed3cdcf087d88231e6f52b2a67ddb6fa91850abe7c025"
+    },
+    {
+      "source": "CAD files/HAMR3-2/5972K321_Ball Bearing.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/5972K321_Ball Bearing.SLDPRT",
+      "bytes": 1299929,
+      "sha256": "a8d19cbffda71be32c566d2e08db249dddf4417eff266aa5dfb21366980858b5"
+    },
+    {
+      "source": "CAD files/HAMR3-2/5_16Nuts.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/5_16Nuts.SLDPRT",
+      "bytes": 534763,
+      "sha256": "45042bfdf4ccb09b18186b458f25904bb705b254ff58645fcdf059d63cf027a1"
+    },
+    {
+      "source": "CAD files/HAMR3-2/5_16_18Screw.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/5_16_18Screw.SLDPRT",
+      "bytes": 900070,
+      "sha256": "d2eb08cf6f176c177523c77d32dd31dce04ad89f6600894f53e25a958b1c9653"
+    },
+    {
+      "source": "CAD files/HAMR3-2/60645K111ActualDimentions.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/60645K111ActualDimentions.SLDPRT",
+      "bytes": 207250,
+      "sha256": "61fcafea38cb42c235c7215df0279e06038b56b2b3fcbb02fabaca9820421bb7"
+    },
+    {
+      "source": "CAD files/HAMR3-2/60645K111ActualDimentions2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/60645K111ActualDimentions2.SLDPRT",
+      "bytes": 1001800,
+      "sha256": "43106d2afd4e5e2f7dd6485154cd101b5607d4205216eda17dd7fac09af47d6b"
+    },
+    {
+      "source": "CAD files/HAMR3-2/91780A254_Female Threaded Hex Standoff.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/91780A254_Female Threaded Hex Standoff.SLDPRT",
+      "bytes": 885905,
+      "sha256": "eff4faf5304476a8631decca592a19510cee100efb7a77414ca1a196433c6f61"
+    },
+    {
+      "source": "CAD files/HAMR3-2/94842A101_Medium-Strength Steel Flange Nut.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/94842A101_Medium-Strength Steel Flange Nut.SLDPRT",
+      "bytes": 299561,
+      "sha256": "4d655f8ff13157060d18455017375d52c947d2e3b46a63e362f658f64ab842fc"
+    },
+    {
+      "source": "CAD files/HAMR3-2/98689A257_General Purpose 18-8 Stainless Steel Washer.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/98689A257_General Purpose 18-8 Stainless Steel Washer.SLDPRT",
+      "bytes": 153842,
+      "sha256": "c6574a376a64347d483431b1de6f5607860a1fcbdac8a3b86e774a482471356b"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Acrylic Bottom.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Acrylic Bottom.SLDPRT",
+      "bytes": 87299,
+      "sha256": "9fbfa190ba0c3909152a70244d8ba2696c99ca129b7534055d29a03999da4bac"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Acrylic Top.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Acrylic Top.SLDPRT",
+      "bytes": 100684,
+      "sha256": "910ceccd136b12d5f79ce681eddf5f6f1809e529b591e8321ac6709e0b2418fc"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Ball Caster Assembly.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Ball Caster Assembly.SLDASM",
+      "bytes": 5070417,
+      "sha256": "029c41e89937238b4c4f3e795d3f1f9702550e1f27ddadaeeedd641c55ce07cc"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Ball Caster Shaft 2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Ball Caster Shaft 2.SLDPRT",
+      "bytes": 36699,
+      "sha256": "2a3f42955c8ac06b3f15b8059122c76783aea6add542ccb570c3b601ddec95a9"
+    },
+    {
+      "source": "CAD files/HAMR3-2/BallJointActualDimentions.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/BallJointActualDimentions.SLDASM",
+      "bytes": 1142953,
+      "sha256": "4caf7a8995e167e372e22b0f3f573059cce69d02412a42d0b57974c1d841fb84"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Bearing Connection1 Pt1.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Bearing Connection1 Pt1.SLDPRT",
+      "bytes": 174881,
+      "sha256": "dca0813adb956b7bc8fc584adddb50a024de43c958486873fabdb94180eac941"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Bearing Connection1 Pt2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Bearing Connection1 Pt2.SLDPRT",
+      "bytes": 181129,
+      "sha256": "fefa2e093d5f5a3177e8b9d95ff3102a846a2d1a6ddd52b0f85d1e8e90c4120f"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Bearing Connection1.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Bearing Connection1.SLDPRT",
+      "bytes": 123331,
+      "sha256": "dcb7746494d6bab5fc1032ce7480a0ac7875fc3b3f4c4b5c2c1b3a14474171b2"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Bearing Housing.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Bearing Housing.SLDPRT",
+      "bytes": 179779,
+      "sha256": "9780dcf847eef1bd0a469537a064e56fc5300524e9e12065d18c904b31f0b890"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Bearing Housing_2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Bearing Housing_2.SLDPRT",
+      "bytes": 175793,
+      "sha256": "76fa315a8cb9595137f61a4fb1cd0599964fed0686750a63bae384d18377bcd6"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Bearing Shaft2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Bearing Shaft2.SLDPRT",
+      "bytes": 63196,
+      "sha256": "6a4829a1ba7f1cad924b67e6aa3f59afc0fe0e6be4070fcc0ad3c326ad69c0bc"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Camera Mount.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Camera Mount.SLDPRT",
+      "bytes": 586324,
+      "sha256": "03371d9470d1b0384a47b39b01a3bc0179e5d31d36848bb0c3cb335d6092c1aa"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Camera Plate.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Camera Plate.SLDPRT",
+      "bytes": 156425,
+      "sha256": "d1927fc9fc7046d92db8201c5bfbf3ab5de9289b769fd4507c414adec0d551e6"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Caster Fork.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Caster Fork.SLDPRT",
+      "bytes": 665584,
+      "sha256": "a2b5003233b8772e28b6f22b895649172312520e534aaef508b4ca0e68950485"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Caster Fork_Modified 2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Caster Fork_Modified 2.SLDPRT",
+      "bytes": 614438,
+      "sha256": "327d45e1597e481793bee61bb88813437e424e74c4fcb672da20ea789524fc19"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Collet Block.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Collet Block.SLDPRT",
+      "bytes": 244565,
+      "sha256": "73eca5d9fd40fabc7b54164c9dbb3a50208e747f1d256706cd6640694b3eef91"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Coupler Hub.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Coupler Hub.SLDPRT",
+      "bytes": 98511,
+      "sha256": "387a2fc654dd1800f746fe6e50b5059adf8d6e64f44d087022e76460776adeea"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Coupler Hub2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Coupler Hub2.SLDPRT",
+      "bytes": 135581,
+      "sha256": "3c84850498024081a9497e65ebcebb6bda5e550d4e443fa0d8bbec3d5436f253"
+    },
+    {
+      "source": "CAD files/HAMR3-2/DriveWheels (1).SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/DriveWheels (1).SLDPRT",
+      "bytes": 6046185,
+      "sha256": "a70eabc6bf3d0163dd75df0db44c970c479a7351ff9d97c332ebb167edf6bd75"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Flange Bearing.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Flange Bearing.SLDPRT",
+      "bytes": 76886,
+      "sha256": "fecc0a0ffcaea23b57452b91e8e22c1b4ce87930aaf6b6a265fc8c58f5d3ab2c"
+    },
+    {
+      "source": "CAD files/HAMR3-2/FrontPivotSubAssembly.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/FrontPivotSubAssembly.SLDASM",
+      "bytes": 2861652,
+      "sha256": "4a2bd608210cdc4fa71b6eacb64325ed81b576f7abadd137ec0170d29142b87d"
+    },
+    {
+      "source": "CAD files/HAMR3-2/GimbleBaseReWorked.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/GimbleBaseReWorked.SLDPRT",
+      "bytes": 223673,
+      "sha256": "7dddbf42985134c7f31323d0ff895081051343801abc57f416195a373ec57e3b"
+    },
+    {
+      "source": "CAD files/HAMR3-2/GimbleBaseReWorkedPart2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/GimbleBaseReWorkedPart2.SLDPRT",
+      "bytes": 276226,
+      "sha256": "bfee955ff5621f2a6ea7dfd14c2670aaf6386b83ac382d816719901c652cccc3"
+    },
+    {
+      "source": "CAD files/HAMR3-2/GimbleBaseReWorkedPart3.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/GimbleBaseReWorkedPart3.SLDPRT",
+      "bytes": 443435,
+      "sha256": "e809df20d81a0c56bf0f7524f4d736f26234ebce1bdc7e50ca3102a3321af213"
+    },
+    {
+      "source": "CAD files/HAMR3-2/GimbleBaseReWorkedPart4.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/GimbleBaseReWorkedPart4.SLDPRT",
+      "bytes": 424876,
+      "sha256": "0deff62b46e7de1418d91a33c6c147511d8291c4fa0ab1bcb4bbcd88edba5d25"
+    },
+    {
+      "source": "CAD files/HAMR3-2/GimbleBaseV2_Part3.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/GimbleBaseV2_Part3.SLDPRT",
+      "bytes": 542495,
+      "sha256": "fe5e229311305c0b77f8fd607dfc1af5af826f827139926a06bd5ff819c299a6"
+    },
+    {
+      "source": "CAD files/HAMR3-2/GimbleBaseV2_Part4.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/GimbleBaseV2_Part4.SLDPRT",
+      "bytes": 424876,
+      "sha256": "0deff62b46e7de1418d91a33c6c147511d8291c4fa0ab1bcb4bbcd88edba5d25"
+    },
+    {
+      "source": "CAD files/HAMR3-2/GimbleBasev2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/GimbleBasev2.SLDPRT",
+      "bytes": 299656,
+      "sha256": "ff30811749c88dc97d005c5901e168ff87f1db00c8c14a9c6bfe92185454bb90"
+    },
+    {
+      "source": "CAD files/HAMR3-2/GimbleBasev2_Part2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/GimbleBasev2_Part2.SLDPRT",
+      "bytes": 266925,
+      "sha256": "d4402b05b9ccbb37bfbbaf57e07a49952a239dce3fedaf2aa0cdf6fb6c4c1a4a"
+    },
+    {
+      "source": "CAD files/HAMR3-2/GimbleCouplerReworked.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/GimbleCouplerReworked.SLDPRT",
+      "bytes": 382838,
+      "sha256": "238e675fa9a62ac98d54a399876a229e5782d47c2334417c537182d5b976ff88"
+    },
+    {
+      "source": "CAD files/HAMR3-2/GimbleCouplerReworked2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/GimbleCouplerReworked2.SLDPRT",
+      "bytes": 480814,
+      "sha256": "b1ceb3207f34db9c69e1e5bb22f106b171ffe76d81e02045dee6345ef17a9f21"
+    },
+    {
+      "source": "CAD files/HAMR3-2/GimbleCrossReWorked.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/GimbleCrossReWorked.SLDPRT",
+      "bytes": 216909,
+      "sha256": "529f04fe76b30f2727ba6a428327e75bc5cf7f09812212c31d150f527f86a1c8"
+    },
+    {
+      "source": "CAD files/HAMR3-2/GimbleCrossReWorked2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/GimbleCrossReWorked2.SLDPRT",
+      "bytes": 450985,
+      "sha256": "8f72feb71342b70c23e717066af059a3df094288cd8b1541164c251787cb2e22"
+    },
+    {
+      "source": "CAD files/HAMR3-2/GimbleFinal2.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/GimbleFinal2.SLDASM",
+      "bytes": 190443,
+      "sha256": "63b863a7495f7fa7e5f9f333b91d15bac18c860372447750b7de0fa7118d3d47"
+    },
+    {
+      "source": "CAD files/HAMR3-2/GimbleMotor.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/GimbleMotor.SLDPRT",
+      "bytes": 89143,
+      "sha256": "7529fab4bf89e8c203e1461dede7df0ccc9af289ac8100a2dd0d545aba7a166d"
+    },
+    {
+      "source": "CAD files/HAMR3-2/GimbleReworkedCrossLink.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/GimbleReworkedCrossLink.SLDPRT",
+      "bytes": 181783,
+      "sha256": "3fba54a810da095b619970f1d53c56e2bc31bdec05dbdaaf3cf726021f553274"
+    },
+    {
+      "source": "CAD files/HAMR3-2/HAMR3-2.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/HAMR3-2.SLDASM",
+      "bytes": 14277724,
+      "sha256": "2d8d6c940600aa3e01ef35867b39f72ba862783f13bb611e3e192f10af7aaa89"
+    },
+    {
+      "source": "CAD files/HAMR3-2/HAMR3-3.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/HAMR3-3.SLDASM",
+      "bytes": 14284994,
+      "sha256": "077a85dec5563b19edc933e9c44de5f03ff476cbbc7521850c51d9444ea7bd14"
+    },
+    {
+      "source": "CAD files/HAMR3-2/HAMRFrame.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/HAMRFrame.SLDASM",
+      "bytes": 709381,
+      "sha256": "3fd7f0579d4b14d792062da1ca47671996eeb30504dd04183f706cfd98e5845b"
+    },
+    {
+      "source": "CAD files/HAMR3-2/HAMR_Roll_Pitch_Yaw.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/HAMR_Roll_Pitch_Yaw.SLDASM",
+      "bytes": 2304843,
+      "sha256": "a96b782ccced2730e25d6d94b7d55e89f30325ca24b189e920c88d6ad01388dd"
+    },
+    {
+      "source": "CAD files/HAMR3-2/IMULink.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/IMULink.SLDPRT",
+      "bytes": 350125,
+      "sha256": "42ab9919b0fa005a60f144034903549be4db876c37b248571ce4086bd9386ab1"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Joint Piece.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Joint Piece.SLDPRT",
+      "bytes": 171983,
+      "sha256": "789582257e74aeffd14b16ddf11143631e0cfe439299b5fae5b74c32f7a5d001"
+    },
+    {
+      "source": "CAD files/HAMR3-2/MotorMount Assem.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/MotorMount Assem.SLDASM",
+      "bytes": 1001046,
+      "sha256": "cf92394bdeeab7913121da37d0317ac02764e3d2144ac560fb8683e93ad063d3"
+    },
+    {
+      "source": "CAD files/HAMR3-2/MotorPlate.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/MotorPlate.SLDPRT",
+      "bytes": 133082,
+      "sha256": "8b59042f7aeb558258e7f45035cc0600319d34392a7582bdd95c58e0cbf9a7a0"
+    },
+    {
+      "source": "CAD files/HAMR3-2/PCRod.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/PCRod.SLDPRT",
+      "bytes": 72345,
+      "sha256": "8736fe4aa828ec9e9a9599edc2f83d6b845bca834251ac6d07b500e89f7a98b3"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Pivot Bar Redone.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Pivot Bar Redone.SLDPRT",
+      "bytes": 948233,
+      "sha256": "8c9bc44e7d58e70a530bb781aaf71eac0ff1e9e94f1f0a5e3e69c9994148e129"
+    },
+    {
+      "source": "CAD files/HAMR3-2/PivotBarConnector.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/PivotBarConnector.SLDPRT",
+      "bytes": 182259,
+      "sha256": "2b7be9415228f3887679897142ceaccaad4cd3ef68608256adef3c008afd255a"
+    },
+    {
+      "source": "CAD files/HAMR3-2/PivotJoint.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/PivotJoint.SLDPRT",
+      "bytes": 109681,
+      "sha256": "b14b6a4eed4ece8769da962ba71114830c206092e2722a737085687367002c76"
+    },
+    {
+      "source": "CAD files/HAMR3-2/PivotStablizer.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/PivotStablizer.SLDPRT",
+      "bytes": 226459,
+      "sha256": "d1e48ca2090d6d058795f527cc0157cd49c1aa2dd08889d9c6035bd21d238efd"
+    },
+    {
+      "source": "CAD files/HAMR3-2/PivotStablizerpart2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/PivotStablizerpart2.SLDPRT",
+      "bytes": 189572,
+      "sha256": "e50c0e65eecd5122cee8df691c69fae31e1b1c58864247a470fee97badafc995"
+    },
+    {
+      "source": "CAD files/HAMR3-2/PivotSubAssembly.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/PivotSubAssembly.SLDASM",
+      "bytes": 1313517,
+      "sha256": "cd21347c0cfee0d30533841cf69e3d6cdee31718a3b4e074702eb4147a0e6ee7"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Rail Back Wheels.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Rail Back Wheels.SLDPRT",
+      "bytes": 390304,
+      "sha256": "059e7e1ca0a9b27d20f7b592d263a82c7a6603c0ca5dd8a0f7f808e4c8fcaee2"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Rail Exterior.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Rail Exterior.SLDPRT",
+      "bytes": 365851,
+      "sha256": "87176561ebc61c25af3697ea40d66ecc33b4be211f3ce3365723cd2d7599b403"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Rail long.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Rail long.SLDPRT",
+      "bytes": 325752,
+      "sha256": "06c280d4b0f68c8a701e6358b9ea75e62ceeb218cf2f9a6ad28563f261df3a78"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Rail short.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Rail short.SLDPRT",
+      "bytes": 387336,
+      "sha256": "3a553f8068bbb343cef2ee0323ab8106fcb7f8ca5510c0722fb8d178698c1200"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Rocker Pole.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Rocker Pole.SLDPRT",
+      "bytes": 49232,
+      "sha256": "b03d2a5276c73c9f15f64008ecd59dd30941f3605234d0e160fc0fe5269cb388"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Rocker Shaft.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Rocker Shaft.SLDPRT",
+      "bytes": 65535,
+      "sha256": "61eb8687ad47c12655f93e26cae74f5b7df848c0d20847dc094640ad3d5e6d8d"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Roller Cover.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Roller Cover.SLDPRT",
+      "bytes": 142807,
+      "sha256": "c146c87eb87987b50b96138756e0fceb11d215533966c3d84ee95435c55288f7"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Roller Cover.STEP",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Roller Cover.STEP",
+      "bytes": 109914,
+      "sha256": "435fd557565f2914a9c7a14a12f4b9e135b96fa48d262e0b39f56e65620dfa1b"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Roller Mount Modified.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Roller Mount Modified.SLDASM",
+      "bytes": 324642,
+      "sha256": "3f379ad9718953ccc5453f36ed8e7af549cb0d60b261804ee7e89bf53d9b887a"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Roller Mount.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Roller Mount.SLDPRT",
+      "bytes": 246990,
+      "sha256": "03d3a6acd99a79a9ce3b18ebb4627cf311be137f55a9a11f8d3ef3cdcb7c1a31"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Roller Shaft.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Roller Shaft.SLDPRT",
+      "bytes": 44575,
+      "sha256": "91ef2e94dc1bb5b5d299aef9201794e54757d6f686c298403597f26036327428"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Roller.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Roller.SLDPRT",
+      "bytes": 194950,
+      "sha256": "41d89c7421053b13fbd012ac58af99705917dcf9fc861262eadf1554a72755eb"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Semi-Spherical Wheel 2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Semi-Spherical Wheel 2.SLDPRT",
+      "bytes": 212899,
+      "sha256": "b175292553fa519e8fc93d6d053399efc7bfd624dda2997486ff54b1046b1d87"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Semi-Spherical Wheel.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Semi-Spherical Wheel.SLDPRT",
+      "bytes": 190353,
+      "sha256": "2b45e716c26db98b4e628a6a6df6069ca79e6d66a09d956bf45afff496b8d340"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Shaft determine_.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Shaft determine_.SLDASM",
+      "bytes": 83579,
+      "sha256": "8a902154aa9cc8a33d78d601d55a917c0bf92d5b6e798c9f54c53f86b8e74324"
+    },
+    {
+      "source": "CAD files/HAMR3-2/SideAssemb.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/SideAssemb.SLDASM",
+      "bytes": 6941076,
+      "sha256": "cedca4c1ed7dcf30815b30401270af1c05b68f43a68892bf649e8528ce3ad518"
+    },
+    {
+      "source": "CAD files/HAMR3-2/SideAssemb2.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/SideAssemb2.SLDASM",
+      "bytes": 6937564,
+      "sha256": "a33532b82ada31aecb0400c53afab48e9e78a82f7b2c274cbb665d3e22967ccb"
+    },
+    {
+      "source": "CAD files/HAMR3-2/SidePivot.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/SidePivot.SLDASM",
+      "bytes": 1253042,
+      "sha256": "2e6eb830cfa289cecb26d558738d7896a659330a9226f7abc0fbfcab850385c6"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Skate Bearing.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Skate Bearing.SLDPRT",
+      "bytes": 1368963,
+      "sha256": "ab9d43430a570aba3c464d295b8b3f357e8d23633defac7fdcab9f2c57d21a1d"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Slider - Copy.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Slider - Copy.SLDPRT",
+      "bytes": 178956,
+      "sha256": "a115b89b199bfa4b5fef5f56fd16d84fe95063e3b7bc5cd6497ddc57f8f0d4ba"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Slider.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Slider.SLDPRT",
+      "bytes": 185660,
+      "sha256": "a1bb004103cf69d82f65d4fbd2aef1432685aed8cef37d9705bb967e4395bc57"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Slider_2 - Copy.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Slider_2 - Copy.SLDPRT",
+      "bytes": 291156,
+      "sha256": "be69532c75e17fcd794775532f58e7fc35a111b583674a2adbd7c321c6d8448d"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Slider_2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Slider_2.SLDPRT",
+      "bytes": 275564,
+      "sha256": "3fa4c600a6e910d28a5ef657d4416f5a7a3618b9638360815baf7c06f47c3434"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Spacing.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Spacing.SLDPRT",
+      "bytes": 107249,
+      "sha256": "3e18832cde29a37fe7433cb5a67502748c05ee46fe5f2ea0ee95e464383a4a9e"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Stablizer assem.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Stablizer assem.SLDASM",
+      "bytes": 147107,
+      "sha256": "32b2cf644f5b95d0b4132f10b6733f0a31f846a0fe241bfb966830d200a351e3"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Stablizer3.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Stablizer3.SLDPRT",
+      "bytes": 198969,
+      "sha256": "24675f2fb576a04610714d1d9e9e96328ceed43b1ae605ce1a98f1c18c8748fb"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Test Stand_1.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Test Stand_1.SLDPRT",
+      "bytes": 474628,
+      "sha256": "cf6ee3b09c817974e668b3bbfa661c411cc29ca940d27b4b351b20f49819960d"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Test Stand_2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Test Stand_2.SLDPRT",
+      "bytes": 239223,
+      "sha256": "c9f3b22182bc0f8cd5746a243d650341832ce0bbaa2227e0dc36b0feb3b021b4"
+    },
+    {
+      "source": "CAD files/HAMR3-2/TurnTableSpacer.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/TurnTableSpacer.SLDPRT",
+      "bytes": 85078,
+      "sha256": "9da3e326a7998304f81436b7d4a0a8dcce3a5b1bb6cad90b92ddc6d57da0d9f6"
+    },
+    {
+      "source": "CAD files/HAMR3-2/TurntableMount.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/TurntableMount.SLDPRT",
+      "bytes": 206750,
+      "sha256": "c1be06ded30f277e3538c29899924fe73ae2ddea0ddffbe38a91a7accfffea0e"
+    },
+    {
+      "source": "CAD files/HAMR3-2/TurntableSpinner.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/TurntableSpinner.SLDPRT",
+      "bytes": 268609,
+      "sha256": "6b1d46c830dbfaff13881b62a454792ed8a456510ad65375c86f23cd96bf18fc"
+    },
+    {
+      "source": "CAD files/HAMR3-2/TurretTop.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/TurretTop.SLDPRT",
+      "bytes": 65489,
+      "sha256": "c8f1e39da926e88c8c8dcb631f5d3489d51b3c5ae380e3856b8b65c574eb7343"
+    },
+    {
+      "source": "CAD files/HAMR3-2/UpdatedTurretAssembly.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/UpdatedTurretAssembly.SLDASM",
+      "bytes": 12280107,
+      "sha256": "9d324d6c10922a72fc3dbaaa8191ec32197e18fb7dd21cb15b1ecbe38a574d60"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Wheel Disk.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Wheel Disk.SLDPRT",
+      "bytes": 322410,
+      "sha256": "eb58d54b17fa182ea80b9b7a4fcdcadc4f5791079788843a2c94841619f60b65"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Wheel Rail Control.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Wheel Rail Control.SLDPRT",
+      "bytes": 119901,
+      "sha256": "efb7b178578c46db3d28b153425f7f9c4089c3111765062263fe15da4dfcda7d"
+    },
+    {
+      "source": "CAD files/HAMR3-2/Wheel Shaft.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/Wheel Shaft.SLDASM",
+      "bytes": 188825,
+      "sha256": "96b2c5ec14461100b0c4a0a0fe5ec377fd6737ba734adf7a6f0a54452c85a76f"
+    },
+    {
+      "source": "CAD files/HAMR3-2/inner gear ring.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/inner gear ring.SLDPRT",
+      "bytes": 1136760,
+      "sha256": "2eb340f5a3b69cad206e44fc60e03dee20258f8844a41fbfe4df6b5b7e8f2e0a"
+    },
+    {
+      "source": "CAD files/HAMR3-2/motormountleftFixed.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/motormountleftFixed.SLDPRT",
+      "bytes": 331934,
+      "sha256": "397b7659387295533d7fb9a0d4cde8c5cb03748844d0d0e9e706b82b677a13c9"
+    },
+    {
+      "source": "CAD files/HAMR3-2/motormountrightFixed.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/motormountrightFixed.SLDPRT",
+      "bytes": 415790,
+      "sha256": "2358a53ba570015a6a9add3d2c9441a17dfe98b6f5af28b5e226de6fb9e0ebfa"
+    },
+    {
+      "source": "CAD files/HAMR3-2/shaft rocker back.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/shaft rocker back.SLDPRT",
+      "bytes": 84164,
+      "sha256": "c6f8020a1e4a373a745a0bacdcef930529338e97ce074601ff8e2371386e0d6f"
+    },
+    {
+      "source": "CAD files/HAMR3-2/shaft.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/shaft.SLDPRT",
+      "bytes": 79999,
+      "sha256": "b4c05e916e213f4a77154eaedf596edfe26c6f49bc4f865c3bf4e5465cd1f34d"
+    },
+    {
+      "source": "CAD files/HAMR3-2/stablizer1.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/stablizer1.SLDPRT",
+      "bytes": 136428,
+      "sha256": "8ca1b5666e084a581856235a09792f04794654bed2d72bd9933c5a965fdf8bf0"
+    },
+    {
+      "source": "CAD files/HAMR3-2/stablizer2.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/stablizer2.SLDPRT",
+      "bytes": 135349,
+      "sha256": "5d167ffd6ea0b8264549ec313b309bc6937cd818f9e95d5e642260f2ddd152ae"
+    },
+    {
+      "source": "CAD files/HAMR3-2/testattatchment.SLDASM",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/testattatchment.SLDASM",
+      "bytes": 176639,
+      "sha256": "e8b68f20a6b12718c3bd85d4d2fb557b65a92933471bb4ee5981a3692ecfc643"
+    },
+    {
+      "source": "CAD files/HAMR3-2/typeshi.SLDPRT",
+      "destination": "${HAMR_ARCHIVE}/CAD files/HAMR3-2/typeshi.SLDPRT",
+      "bytes": 117139,
+      "sha256": "f9dc0fab5eae055e8d9f77f152ac491efa12f6275216d9ab63e3d473e002e628"
+    },
+    {
+      "source": "hamr_ball_caster/docs/corner_analysis/experiments/baseline.json",
+      "destination": "${HAMR_ARCHIVE}/hamr_ball_caster/docs/corner_analysis/experiments/baseline.json",
+      "bytes": 16485723,
+      "sha256": "e72339c0c36ac06fa57680e3146042b94ff6da6d0fc138a62d78989b627af317"
+    },
+    {
+      "source": "hamr_ball_caster/docs/corner_analysis/experiments/no_slew.json",
+      "destination": "${HAMR_ARCHIVE}/hamr_ball_caster/docs/corner_analysis/experiments/no_slew.json",
+      "bytes": 16488046,
+      "sha256": "39f22070dc00e2b173ffc042418e87fc0fdb59cc249bbc17b608e609d3984cc3"
+    },
+    {
+      "source": "hamr_ball_caster/docs/corner_analysis/experiments/no_slew_half_step.json",
+      "destination": "${HAMR_ARCHIVE}/hamr_ball_caster/docs/corner_analysis/experiments/no_slew_half_step.json",
+      "bytes": 16689513,
+      "sha256": "6d38d94bc5a156a2b27ffd6c2a3cc92722cb5bfb0a6cae414d673341c146c171"
+    },
+    {
+      "source": "hamr_ball_caster/docs/corner_analysis/experiments/half_speed.json",
+      "destination": "${HAMR_ARCHIVE}/hamr_ball_caster/docs/corner_analysis/experiments/half_speed.json",
+      "bytes": 30010973,
+      "sha256": "53a487adfe8e3be3f4a6b7a34e908f2a92534388ebc8f0b2202be89ed956e044"
+    },
+    {
+      "source": "hamr_ball_caster/docs/corner_analysis/experiments/quintic_stop.json",
+      "destination": "${HAMR_ARCHIVE}/hamr_ball_caster/docs/corner_analysis/experiments/quintic_stop.json",
+      "bytes": 28343385,
+      "sha256": "1970a28844d213683cc70bd5f9b279f307698fe0527af002cd71a3c29d689d4a"
+    },
+    {
+      "source": "hamr_ball_caster/docs/corner_analysis/hamr_hw_20260916_184054.npz",
+      "destination": "${HAMR_ARCHIVE}/hamr_ball_caster/docs/corner_analysis/hamr_hw_20260916_184054.npz",
+      "bytes": 656668,
+      "sha256": "3d05f7b095c09aef656ceb917b880a37912d894cc5f50501a87db6219d9760b9"
+    },
+    {
+      "source": "hamr_ball_caster/docs/corner_analysis/hamr_hw_20260916_190842.npz",
+      "destination": "${HAMR_ARCHIVE}/hamr_ball_caster/docs/corner_analysis/hamr_hw_20260916_190842.npz",
+      "bytes": 1094659,
+      "sha256": "08316588e6c2450e1178b3077b95197701ba4f2dfcff3296c31b5f9c31f0f3b0"
+    },
+    {
+      "source": "hamr_ball_caster/docs/corner_analysis/hamr_hw_20260916_193228.npz",
+      "destination": "${HAMR_ARCHIVE}/hamr_ball_caster/docs/corner_analysis/hamr_hw_20260916_193228.npz",
+      "bytes": 696294,
+      "sha256": "c32aea56c35d483d2c96ab526b2157ebdcd351d4186beca36b8462630cd6873e"
+    },
+    {
+      "source": "compa_slam/maps/compa_real_cloud.ply",
+      "destination": "${HAMR_ARCHIVE}/compa_slam/maps/compa_real_cloud.ply",
+      "bytes": 66539484,
+      "sha256": "9e549c0b02eb875d9b48d1934ec081cada143463f20a735b9452d1232acb72b5"
+    }
+  ]
+}

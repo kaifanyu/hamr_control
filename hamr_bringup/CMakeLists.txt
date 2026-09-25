@@ -55,6 +55,9 @@ if(BUILD_TESTING)
   ament_add_pytest_test(camera_recording_launch
     test/test_camera_recording_launch.py
   )
+  ament_add_pytest_test(continuous_hardware_launch
+    test/test_continuous_hardware_launch.py
+  )
   ament_add_pytest_test(record_dual_cameras
     test/test_record_dual_cameras.py
   )

@@ -13,6 +13,34 @@
 
 ---
 
+## Current ball-caster and continuous-planner workflow
+
+The new shared planner runs the original `simple_waypoint` route with 2 cm
+corner blends, decelerating through bends without intermediate stops. Separate
+entry points retain the correct geometry and control configuration for each
+platform:
+
+| Task | Guide / entry point |
+|---|---|
+| New caster and full-vehicle URDF | [Model files and CAD scope](docs/SIMULATION.md#5-new-urdf-and-model-scope) |
+| WSL / Ubuntu Gazebo simulation and MP4 recording | [Simulation guide](docs/SIMULATION.md) · `ros2 launch hamr_ball_caster continuous_sim.launch.py` |
+| Real HAMR continuous run | [Hardware guide](docs/REAL_CAR_CONTINUOUS.md) · `ros2 launch hamr_bringup hamr_continuous_HW.launch.py` |
+| Repository layout and validation | [Development guide](docs/DEVELOPMENT.md) |
+
+Quick start in this repository:
+
+```bash
+bash hamr_ball_caster/scripts/build.sh
+source hamr_ball_caster/scripts/env.sh
+ros2 launch hamr_ball_caster continuous_sim.launch.py
+```
+
+Hardware launch waits for an explicit `/continuous_waypoint/start` service call;
+read its guide before running it. The new CAD model is the COMPA simulation
+chassis retrofit. Real HAMR uses its separately calibrated dimensions and
+existing hardware controller. The sections below retain the project's broader
+research background and older workflows.
+
 ## Introduction
 
 Most mobile robots are **non-holonomic**: their kinematics prevent them from moving freely in all directions without reorienting. Differential-drive and Ackermann steering robots, for example, cannot instantly move laterally or follow arbitrary trajectories without stop-and-turn maneuvers.
@@ -116,6 +144,15 @@ $\(\displaystyle \hat H=\frac{\sigma_{\min}(J)}{\sigma_{\max}(J)}\)$
 | `/reference_trajectory`  | `hamr_interfaces/msg/ReferenceTraj` | Interpolated reference poses           |
 | `/compa/odom`            | `nav_msgs/msg/Odometry`             | Odometry for outer-loop PID            |
 
+### Hardware localization calibration
+
+The HAMR hardware launch uses the calibrated wheel/IMU EKF by default. Tests on
+the three September 2026 recordings reduced position RMSE to 4.9, 10.2, and
+6.7 cm. Calibration, covariance values, held-out checks, plots, and reproduction
+commands are in the [EKF tuning report](rosbags/ekf_tuning/report/REPORT.md) and
+[offline replay guide](OFFLINE_EKF_QUICKSTART.md). Rebuild `hamr_odometry`,
+`hamr_uros_bridge`, and `hamr_bringup` to apply the source changes to a robot.
+
 
 ---
 
@@ -126,7 +163,7 @@ $\(\displaystyle \hat H=\frac{\sigma_{\min}(J)}{\sigma_{\max}(J)}\)$
 ```bash
 mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws/src
-git clone https://github.com/cedrichld/hamr_holonomic_robot.git
+git clone https://github.com/kaifanyu/hamr_control.git
 ```
 
 ### 2) Source ROS 2 (now and on login)

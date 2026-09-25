@@ -1,0 +1,41 @@
+{
+  "output": "/tmp/hamr_lod_recording.mp4",
+  "topic": "/hamr/recording_camera/image",
+  "fps": 25,
+  "timing": "camera message simulation timestamps, constant frame rate",
+  "frames_received": 70,
+  "frames_encoded": 76,
+  "frames_duplicated": 6,
+  "frames_same_timestamp_bin": 0,
+  "frames_queue_dropped": 0,
+  "max_image_gap_s": 0.08000000000000007,
+  "width": 1280,
+  "height": 720,
+  "encoding": "rgb8",
+  "first_sim_time_s": 0.04,
+  "last_sim_time_s": 3.04,
+  "simulation_span_s": 3.0,
+  "wall_duration_s": 22.559325300999262,
+  "expected_video_duration_s": 3.04,
+  "ffprobe": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1280,
+        "height": 720,
+        "pix_fmt": "yuv420p",
+        "r_frame_rate": "25/1",
+        "duration": "3.040000",
+        "nb_frames": "76"
+      }
+    ],
+    "format": {
+      "duration": "3.040000",
+      "size": "8799"
+    }
+  },
+  "errors": [],
+  "success": true,
+  "scope": "3-second stationary full vehicle camera/encoder benchmark; no trajectory claims"
+}

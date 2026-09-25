@@ -1,0 +1,108 @@
+# For original September bags, use prepare_calibrated_replay.py to apply
+# wheel_odometry_calibration.yaml AS WELL AS these covariance settings.
+# For future bags already recorded with calibrated live odometry, use
+# set_replay_covariances.py instead, so calibration is not applied twice.
+base_ekf_config: ekf_calibrated.yaml
+ekf:
+  two_d_mode: true
+  odom0_config:
+  - false
+  - false
+  - false
+  - false
+  - false
+  - false
+  - true
+  - true
+  - false
+  - false
+  - false
+  - true
+  - false
+  - false
+  - false
+  imu0_config:
+  - false
+  - false
+  - false
+  - false
+  - false
+  - false
+  - false
+  - false
+  - false
+  - false
+  - false
+  - true
+  - false
+  - false
+  - false
+covariances:
+  wheel_pose: null
+  wheel_twist:
+  - - 0.0002
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+  - - 0
+    - 0.0002
+    - 0
+    - 0
+    - 0
+    - 0
+  - - 0
+    - 0
+    - 1.0e-09
+    - 0
+    - 0
+    - 0
+  - - 0
+    - 0
+    - 0
+    - 1.0e-09
+    - 0
+    - 0
+  - - 0
+    - 0
+    - 0
+    - 0
+    - 1.0e-09
+    - 0
+  - - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0.004
+  imu_orientation:
+  - - 0.0003
+    - 0
+    - 0
+  - - 0
+    - 0.0003
+    - 0
+  - - 0
+    - 0
+    - 0.0009
+  imu_angular_velocity:
+  - - 0.0002
+    - 0
+    - 0
+  - - 0
+    - 0.0002
+    - 0
+  - - 0
+    - 0
+    - 0.04
+  imu_linear_acceleration:
+  - - 0.01
+    - 0
+    - 0
+  - - 0
+    - 0.01
+    - 0
+  - - 0
+    - 0
+    - 0.01

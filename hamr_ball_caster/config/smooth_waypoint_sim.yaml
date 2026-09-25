@@ -1,0 +1,42 @@
+# Exact original geometry, with continuous velocity/acceleration and planned
+# stops. Limits describe this nominal Gazebo model, not calibrated hardware.
+name: smooth_waypoint
+reference_source: reference_trajectory/reference_trajectory/waypoint_traj_simple.py
+speed_m_s: 0.25
+fixed_turret_yaw_rad: 0.0
+points_m:
+  - [0.0, 0.0]
+  - [0.0, 2.0]
+  - [-2.0, 2.0]
+  - [-2.0, 4.5]
+  - [0.0, 4.5]
+  - [0.0, 2.0]
+  - [0.0, 0.0]
+wheel_radius_m: 0.1075
+half_track_m: 0.33072
+base_ahead_of_axle_m: 0.27114
+# Simulation feedback gain validated at 100 Hz with source-time pose prediction.
+# This is not a hardware gain recommendation.
+position_gain_s_inv: 16.0
+orientation_gain_s_inv: 4.0
+max_translation_m_s: 0.50
+max_wheel_rate_rad_s: 6.0
+max_wheel_acceleration_rad_s2: 15.0
+max_gimbal_rate_rad_s: 2.5
+planning_max_translation_acceleration_m_s2: 0.10
+planning_wheel_rate_fraction: 0.65
+planning_wheel_acceleration_fraction: 0.50
+settle_position_tolerance_m: 0.0005
+settle_speed_tolerance_m_s: 0.003
+settle_dwell_s: 0.20
+settle_timeout_s: 8.0
+control_period_s: 0.01
+predict_odometry: true
+reference_lookahead_s: 0.005
+startup_hold_s: 3.0
+final_hold_s: 3.0
+acceptance:
+  max_tracking_error_m: 0.005
+  max_cross_track_m: 0.002
+  max_corner_overshoot_m: 0.001
+  max_final_error_m: 0.0005

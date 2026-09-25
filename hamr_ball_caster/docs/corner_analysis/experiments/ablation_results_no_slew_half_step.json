@@ -1,0 +1,8 @@
+{
+  "no_slew_half_step": {
+    "exit_code": 0,
+    "wall_duration_s": 266.8766240999994,
+    "domain": "74",
+    "partition": "hamr_corner_97450_no_slew_half_step"
+  }
+}

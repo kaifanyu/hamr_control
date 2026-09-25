@@ -9,9 +9,11 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <string>
+#include <stdexcept>
 #include <vector>
 #include <thread>
 #include <cerrno>
@@ -280,6 +282,14 @@ public:
     shutdown_zero_packets_ = static_cast<int>(std::max<int64_t>(
       1, this->declare_parameter<int64_t>("shutdown_zero_packets", 10)));
     imu_frame_id_ = this->declare_parameter<std::string>("imu_frame_id", "imu_link");
+    imu_gyro_z_variance_ = this->declare_parameter<double>("imu_gyro_z_variance", 0.0002);
+    imu_yaw_variance_ = this->declare_parameter<double>("imu_yaw_variance", 0.0009);
+    if (!std::isfinite(imu_gyro_z_variance_) || imu_gyro_z_variance_ <= 0.0) {
+      throw std::invalid_argument("imu_gyro_z_variance must be finite and positive");
+    }
+    if (!std::isfinite(imu_yaw_variance_) || imu_yaw_variance_ <= 0.0) {
+      throw std::invalid_argument("imu_yaw_variance must be finite and positive");
+    }
     turret_command_sign_ = this->declare_parameter<double>("turret_command_sign", -1.0);
 
     // Open serial
@@ -434,7 +444,7 @@ private:
 
   void publish_imu_data(const PacketIMU& p) {
     auto msg = sensor_msgs::msg::Imu();
-    msg.header.stamp    = rclcpp::Clock(RCL_ROS_TIME).now();
+    msg.header.stamp    = get_clock()->now();
     msg.header.frame_id = imu_frame_id_;
 
     // Orientation from BNO055 fusion (absolute, magnetometer-referenced)
@@ -448,7 +458,7 @@ private:
     msg.orientation_covariance = {
       0.0003, 0,      0,
       0,      0.0003, 0,
-      0,      0,      0.0009
+      0,      0,      imu_yaw_variance_
     };
 
     // Angular velocity from BNO055 gyroscope (rad/s)
@@ -458,7 +468,7 @@ private:
     msg.angular_velocity_covariance = {
       0.0002, 0,      0,
       0,      0.0002, 0,
-      0,      0,      0.0002
+      0,      0,      imu_gyro_z_variance_
     };
 
     // Linear acceleration from BNO055 VECTOR_LINEARACCEL (gravity already removed)
@@ -477,7 +487,7 @@ private:
   // Publish raw magnetometer (µT → Tesla) for distortion analysis / offline calibration.
   void publish_imu_mag(const PacketIMUExt& p) {
     auto m = sensor_msgs::msg::MagneticField();
-    m.header.stamp    = rclcpp::Clock(RCL_ROS_TIME).now();
+    m.header.stamp    = get_clock()->now();
     m.header.frame_id = imu_frame_id_;
     m.magnetic_field.x = static_cast<double>(p.mx) * 1e-6;
     m.magnetic_field.y = static_cast<double>(p.my) * 1e-6;
@@ -679,6 +689,8 @@ private:
   int shutdown_zero_packets_;
   double turret_command_sign_;
   std::string imu_frame_id_;
+  double imu_gyro_z_variance_;
+  double imu_yaw_variance_;
 
   // Serial
   SerialPort serial_;

@@ -1,0 +1,16 @@
+schema_version: 1
+name: waypoint_traj_simple
+kind: polyline
+description: Absolute-Vicon copy of the legacy 13 m waypoint_traj_simple route.
+closed: true
+default_speed_m_s: 0.20
+fixed_yaw_rad: 0.0
+origin_mode: vicon_absolute
+points_m:
+  - [0.0, 0.0]
+  - [0.0, 2.0]
+  - [-2.0, 2.0]
+  - [-2.0, 4.5]
+  - [0.0, 4.5]
+  - [0.0, 2.0]
+  - [0.0, 0.0]

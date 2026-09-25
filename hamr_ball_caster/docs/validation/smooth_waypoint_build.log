@@ -1,0 +1,191 @@
+Starting >>> hamr_ball_caster
+[0.725s] WARNING:colcon.colcon_ros.prefix_path.ament:The path '/home/para/.cache/hamr-gazebo-root/opt/ros/jazzy' in the environment variable AMENT_PREFIX_PATH doesn't contain any 'local_setup.*' files.
+Finished <<< hamr_ball_caster [0.29s]
+
+Summary: 1 package finished [0.45s]
+Starting >>> hamr_ball_caster
+[-0.183s] WARNING:colcon.colcon_ros.prefix_path.ament:The path '/home/para/.cache/hamr-gazebo-root/opt/ros/jazzy' in the environment variable AMENT_PREFIX_PATH doesn't contain any 'local_setup.*' files.
+UpdateCTestConfiguration  from :/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/CTestConfiguration.ini
+Parse Config file:/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/CTestConfiguration.ini
+   Site: Para
+   Build name: (empty)
+ Add coverage exclude regular expressions.
+Create new tag: 20260921-0019 - Experimental
+UpdateCTestConfiguration  from :/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/CTestConfiguration.ini
+Parse Config file:/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/CTestConfiguration.ini
+Test project /home/para/hamr_ball_caster_ws/build/hamr_ball_caster
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: caster_geometry
+
+1: Test command: /usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/caster_geometry.xunit.xml" "--package-name" "hamr_ball_caster" "--output-file" "/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/caster_geometry.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/para/hamr_control/hamr_ball_caster/test/test_geometry.py" "-o" "cache_dir=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/caster_geometry/.cache" "--junit-xml=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/caster_geometry.xunit.xml" "--junit-prefix=hamr_ball_caster"
+1: Working Directory: /home/para/hamr_ball_caster_ws/build/hamr_ball_caster
+1: Test timeout computed to be: 60
+1: -- run_test.py: invoking following command in '/home/para/hamr_ball_caster_ws/build/hamr_ball_caster':
+1:  - /usr/bin/python3 -u -m pytest /home/para/hamr_control/hamr_ball_caster/test/test_geometry.py -o cache_dir=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/caster_geometry/.cache --junit-xml=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/caster_geometry.xunit.xml --junit-prefix=hamr_ball_caster
+1: ============================= test session starts ==============================
+1: platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+1: cachedir: hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/caster_geometry/.cache
+1: rootdir: /home/para
+1: plugins: ament-lint-0.17.5, ament-flake8-0.17.5, ament-pep257-0.17.5, ament-xmllint-0.17.5, launch-testing-3.4.11, launch-testing-ros-0.26.12, ament-copyright-0.17.5
+1: collected 11 items
+1:
+1: ../../../hamr_control/hamr_ball_caster/test/test_geometry.py ........... [100%]
+1:
+1: - generated xml file: /home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/caster_geometry.xunit.xml -
+1: ============================== 11 passed in 0.59s ==============================
+1: -- run_test.py: return code 0
+1: -- run_test.py: verify result file '/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/caster_geometry.xunit.xml'
+1/7 Test #1: caster_geometry ..................   Passed    1.35 sec
+test 2
+    Start 2: compa_retrofit
+
+2: Test command: /usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/compa_retrofit.xunit.xml" "--package-name" "hamr_ball_caster" "--output-file" "/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/compa_retrofit.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/para/hamr_control/hamr_ball_caster/test/test_compa_retrofit.py" "-o" "cache_dir=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/compa_retrofit/.cache" "--junit-xml=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/compa_retrofit.xunit.xml" "--junit-prefix=hamr_ball_caster"
+2: Working Directory: /home/para/hamr_ball_caster_ws/build/hamr_ball_caster
+2: Test timeout computed to be: 60
+2: -- run_test.py: invoking following command in '/home/para/hamr_ball_caster_ws/build/hamr_ball_caster':
+2:  - /usr/bin/python3 -u -m pytest /home/para/hamr_control/hamr_ball_caster/test/test_compa_retrofit.py -o cache_dir=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/compa_retrofit/.cache --junit-xml=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/compa_retrofit.xunit.xml --junit-prefix=hamr_ball_caster
+2: ============================= test session starts ==============================
+2: platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+2: cachedir: hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/compa_retrofit/.cache
+2: rootdir: /home/para
+2: plugins: ament-lint-0.17.5, ament-flake8-0.17.5, ament-pep257-0.17.5, ament-xmllint-0.17.5, launch-testing-3.4.11, launch-testing-ros-0.26.12, ament-copyright-0.17.5
+2: collected 6 items
+2:
+2: ../../../hamr_control/hamr_ball_caster/test/test_compa_retrofit.py ..... [ 83%]
+2: .                                                                        [100%]
+2:
+2: - generated xml file: /home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/compa_retrofit.xunit.xml -
+2: ============================== 6 passed in 1.64s ===============================
+2: -- run_test.py: return code 0
+2: -- run_test.py: verify result file '/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/compa_retrofit.xunit.xml'
+2/7 Test #2: compa_retrofit ...................   Passed    2.32 sec
+test 3
+    Start 3: waypoint_sim
+
+3: Test command: /usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/waypoint_sim.xunit.xml" "--package-name" "hamr_ball_caster" "--output-file" "/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/waypoint_sim.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/para/hamr_control/hamr_ball_caster/test/test_waypoint_sim.py" "-o" "cache_dir=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/waypoint_sim/.cache" "--junit-xml=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/waypoint_sim.xunit.xml" "--junit-prefix=hamr_ball_caster"
+3: Working Directory: /home/para/hamr_ball_caster_ws/build/hamr_ball_caster
+3: Test timeout computed to be: 60
+3: -- run_test.py: invoking following command in '/home/para/hamr_ball_caster_ws/build/hamr_ball_caster':
+3:  - /usr/bin/python3 -u -m pytest /home/para/hamr_control/hamr_ball_caster/test/test_waypoint_sim.py -o cache_dir=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/waypoint_sim/.cache --junit-xml=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/waypoint_sim.xunit.xml --junit-prefix=hamr_ball_caster
+3: ============================= test session starts ==============================
+3: platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+3: cachedir: hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/waypoint_sim/.cache
+3: rootdir: /home/para
+3: plugins: ament-lint-0.17.5, ament-flake8-0.17.5, ament-pep257-0.17.5, ament-xmllint-0.17.5, launch-testing-3.4.11, launch-testing-ros-0.26.12, ament-copyright-0.17.5
+3: collected 7 items
+3:
+3: ../../../hamr_control/hamr_ball_caster/test/test_waypoint_sim.py ....... [100%]
+3:
+3: - generated xml file: /home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/waypoint_sim.xunit.xml -
+3: ============================== 7 passed in 0.20s ===============================
+3: -- run_test.py: return code 0
+3: -- run_test.py: verify result file '/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/waypoint_sim.xunit.xml'
+3/7 Test #3: waypoint_sim .....................   Passed    0.86 sec
+test 4
+    Start 4: recording_model
+
+4: Test command: /usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/recording_model.xunit.xml" "--package-name" "hamr_ball_caster" "--output-file" "/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/recording_model.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/para/hamr_control/hamr_ball_caster/test/test_recording_model.py" "-o" "cache_dir=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/recording_model/.cache" "--junit-xml=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/recording_model.xunit.xml" "--junit-prefix=hamr_ball_caster"
+4: Working Directory: /home/para/hamr_ball_caster_ws/build/hamr_ball_caster
+4: Test timeout computed to be: 60
+4: -- run_test.py: invoking following command in '/home/para/hamr_ball_caster_ws/build/hamr_ball_caster':
+4:  - /usr/bin/python3 -u -m pytest /home/para/hamr_control/hamr_ball_caster/test/test_recording_model.py -o cache_dir=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/recording_model/.cache --junit-xml=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/recording_model.xunit.xml --junit-prefix=hamr_ball_caster
+4: ============================= test session starts ==============================
+4: platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+4: cachedir: hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/recording_model/.cache
+4: rootdir: /home/para
+4: plugins: ament-lint-0.17.5, ament-flake8-0.17.5, ament-pep257-0.17.5, ament-xmllint-0.17.5, launch-testing-3.4.11, launch-testing-ros-0.26.12, ament-copyright-0.17.5
+4: collected 1 item
+4:
+4: ../../../hamr_control/hamr_ball_caster/test/test_recording_model.py .    [100%]
+4:
+4: - generated xml file: /home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/recording_model.xunit.xml -
+4: ============================== 1 passed in 0.13s ===============================
+4: -- run_test.py: return code 0
+4: -- run_test.py: verify result file '/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/recording_model.xunit.xml'
+4/7 Test #4: recording_model ..................   Passed    0.81 sec
+test 5
+    Start 5: feasible_waypoint
+
+5: Test command: /usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/feasible_waypoint.xunit.xml" "--package-name" "hamr_ball_caster" "--output-file" "/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/feasible_waypoint.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/para/hamr_control/hamr_ball_caster/test/test_feasible_waypoint.py" "-o" "cache_dir=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/feasible_waypoint/.cache" "--junit-xml=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/feasible_waypoint.xunit.xml" "--junit-prefix=hamr_ball_caster"
+5: Working Directory: /home/para/hamr_ball_caster_ws/build/hamr_ball_caster
+5: Test timeout computed to be: 60
+5: -- run_test.py: invoking following command in '/home/para/hamr_ball_caster_ws/build/hamr_ball_caster':
+5:  - /usr/bin/python3 -u -m pytest /home/para/hamr_control/hamr_ball_caster/test/test_feasible_waypoint.py -o cache_dir=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/feasible_waypoint/.cache --junit-xml=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/feasible_waypoint.xunit.xml --junit-prefix=hamr_ball_caster
+5: ============================= test session starts ==============================
+5: platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+5: cachedir: hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/feasible_waypoint/.cache
+5: rootdir: /home/para
+5: plugins: ament-lint-0.17.5, ament-flake8-0.17.5, ament-pep257-0.17.5, ament-xmllint-0.17.5, launch-testing-3.4.11, launch-testing-ros-0.26.12, ament-copyright-0.17.5
+5: collected 52 items
+5:
+5: ../../../hamr_control/hamr_ball_caster/test/test_feasible_waypoint.py .. [  3%]
+5: ..................................................                       [100%]
+5:
+5: - generated xml file: /home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/feasible_waypoint.xunit.xml -
+5: ============================== 52 passed in 0.46s ==============================
+5: -- run_test.py: return code 0
+5: -- run_test.py: verify result file '/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/feasible_waypoint.xunit.xml'
+5/7 Test #5: feasible_waypoint ................   Passed    1.13 sec
+test 6
+    Start 6: corner_tracking
+
+6: Test command: /usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/corner_tracking.xunit.xml" "--package-name" "hamr_ball_caster" "--output-file" "/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/corner_tracking.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/para/hamr_control/hamr_ball_caster/test/test_corner_tracking.py" "-o" "cache_dir=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/corner_tracking/.cache" "--junit-xml=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/corner_tracking.xunit.xml" "--junit-prefix=hamr_ball_caster"
+6: Working Directory: /home/para/hamr_ball_caster_ws/build/hamr_ball_caster
+6: Test timeout computed to be: 60
+6: -- run_test.py: invoking following command in '/home/para/hamr_ball_caster_ws/build/hamr_ball_caster':
+6:  - /usr/bin/python3 -u -m pytest /home/para/hamr_control/hamr_ball_caster/test/test_corner_tracking.py -o cache_dir=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/corner_tracking/.cache --junit-xml=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/corner_tracking.xunit.xml --junit-prefix=hamr_ball_caster
+6: ============================= test session starts ==============================
+6: platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+6: cachedir: hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/corner_tracking/.cache
+6: rootdir: /home/para
+6: plugins: ament-lint-0.17.5, ament-flake8-0.17.5, ament-pep257-0.17.5, ament-xmllint-0.17.5, launch-testing-3.4.11, launch-testing-ros-0.26.12, ament-copyright-0.17.5
+6: collected 14 items
+6:
+6: ../../../hamr_control/hamr_ball_caster/test/test_corner_tracking.py .... [ 28%]
+6: ..........                                                               [100%]
+6:
+6: - generated xml file: /home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/corner_tracking.xunit.xml -
+6: ============================== 14 passed in 0.24s ==============================
+6: -- run_test.py: return code 0
+6: -- run_test.py: verify result file '/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/corner_tracking.xunit.xml'
+6/7 Test #6: corner_tracking ..................   Passed    0.99 sec
+test 7
+    Start 7: waypoint_settling
+
+7: Test command: /usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/waypoint_settling.xunit.xml" "--package-name" "hamr_ball_caster" "--output-file" "/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/waypoint_settling.txt" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/home/para/hamr_control/hamr_ball_caster/test/test_waypoint_settling.py" "-o" "cache_dir=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/waypoint_settling/.cache" "--junit-xml=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/waypoint_settling.xunit.xml" "--junit-prefix=hamr_ball_caster"
+7: Working Directory: /home/para/hamr_ball_caster_ws/build/hamr_ball_caster
+7: Test timeout computed to be: 60
+7: -- run_test.py: invoking following command in '/home/para/hamr_ball_caster_ws/build/hamr_ball_caster':
+7:  - /usr/bin/python3 -u -m pytest /home/para/hamr_control/hamr_ball_caster/test/test_waypoint_settling.py -o cache_dir=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/waypoint_settling/.cache --junit-xml=/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/waypoint_settling.xunit.xml --junit-prefix=hamr_ball_caster
+7: ============================= test session starts ==============================
+7: platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+7: cachedir: hamr_ball_caster_ws/build/hamr_ball_caster/ament_cmake_pytest/waypoint_settling/.cache
+7: rootdir: /home/para
+7: plugins: ament-lint-0.17.5, ament-flake8-0.17.5, ament-pep257-0.17.5, ament-xmllint-0.17.5, launch-testing-3.4.11, launch-testing-ros-0.26.12, ament-copyright-0.17.5
+7: collected 3 items
+7:
+7: ../../../hamr_control/hamr_ball_caster/test/test_waypoint_settling.py .. [ 66%]
+7: .                                                                        [100%]
+7:
+7: - generated xml file: /home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/waypoint_settling.xunit.xml -
+7: ============================== 3 passed in 0.02s ===============================
+7: -- run_test.py: return code 0
+7: -- run_test.py: verify result file '/home/para/hamr_ball_caster_ws/build/hamr_ball_caster/test_results/hamr_ball_caster/waypoint_settling.xunit.xml'
+7/7 Test #7: waypoint_settling ................   Passed    0.67 sec
+
+100% tests passed, 0 tests failed out of 7
+
+Label Time Summary:
+pytest    =   8.12 sec*proc (7 tests)
+
+Total Test time (real) =   8.13 sec
+Finished <<< hamr_ball_caster [8.30s]
+
+Summary: 1 package finished [8.56s]
+Summary: 101 tests, 0 errors, 0 failures, 0 skipped

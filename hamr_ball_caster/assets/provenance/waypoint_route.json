@@ -1,0 +1,46 @@
+{
+  "route_source": "reference_trajectory/config/trajectories/waypoint_traj_simple.yaml",
+  "source_sha256": "fa5be00c5d0e0db4c3bd65e009b131eb6e2ebd652eae463f614ee5b1b0674b84",
+  "points_m": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      2.0
+    ],
+    [
+      -2.0,
+      2.0
+    ],
+    [
+      -2.0,
+      4.5
+    ],
+    [
+      0.0,
+      4.5
+    ],
+    [
+      0.0,
+      2.0
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "floor_label_sequence": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    2,
+    1
+  ],
+  "route_length_m": 13.0,
+  "markings_have_collisions": false,
+  "speed_note": "Executable waypoint_traj_simple defaults to0.25m/s; catalog YAML defaults to0.20m/s. Recording runner defaults to executable speed."
+}

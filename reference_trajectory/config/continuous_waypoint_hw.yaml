@@ -1,0 +1,55 @@
+# Continuous 2 cm corner blends on the existing hardware controller.
+# Coordinates translate to the captured start, keeping Vicon world X/Y axes.
+# Explicit /continuous_waypoint/start is required. Never auto-starts or loops.
+# 28 RPM wheel cap; nominal planning uses 65% to reserve feedback authority.
+# 2 rad/s^2 wheel acceleration is a conservative planning assumption to validate
+# against loaded hardware; it is not a new motor/firmware limit.
+# Raw Vicon base yaw should be near 0 rad at start; the existing controller
+# applies base_yaw_offset=pi/2 for its Jacobian. fixed_yaw_rad is turret world yaw.
+continuous_waypoint:
+  ros__parameters:
+    points_m_flat:
+    - 0.0
+    - 0.0
+    - 0.0
+    - 2.0
+    - -2.0
+    - 2.0
+    - -2.0
+    - 4.5
+    - 0.0
+    - 4.5
+    - 0.0
+    - 2.0
+    - 0.0
+    - 0.0
+    speed_m_s: 0.15
+    corner_deviation_m: 0.02
+    wheel_radius_m: 0.122
+    half_track_m: 0.35
+    base_ahead_of_axle_m: 0.301
+    max_wheel_rate_rad_s: 2.9321531433504737
+    planning_wheel_rate_fraction: 0.65
+    planning_wheel_acceleration_rad_s2: 2.0
+    planning_max_translation_acceleration_m_s2: 0.1
+    planning_max_jerk_m_s3: 0.2
+    fixed_yaw_rad: 0.0
+    origin_mode: start_translated_vicon
+    odom_topic: /HAMR_base/odom
+    reference_timer_hz: 100.0
+    startup_hold_s: 1.0
+    final_hold_s: 2.0
+    odom_timeout_s: 0.08
+    max_publish_gap_s: 0.08
+    odom_stable_s: 0.25
+    odom_recovery_samples: 10
+    start_position_tolerance_m: 0.03
+    nominal_start_base_yaw_rad: 0.0
+    start_yaw_tolerance_rad: 0.15
+    start_speed_max_m_s: 0.03
+    start_yaw_rate_max_rad_s: 0.1
+    odom_max_position_jump_m: 0.08
+    odom_max_yaw_jump_rad: 0.35
+    odom_min_z_m: 0.25
+    odom_max_z_m: 0.4
+    odom_max_tilt_rad: 0.35

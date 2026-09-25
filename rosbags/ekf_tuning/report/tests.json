@@ -1,0 +1,97 @@
+{
+  "focused_tests": {
+    "passed": 69,
+    "failed": 0
+  },
+  "broader_tests": {
+    "passed": 490,
+    "failed": 2
+  },
+  "preexisting_failures": [
+    "hamr_bringup/test/test_study_commands.py::test_launch_has_fixed_lifecycle_and_exactly_one_recorder_and_reference: missing hamr_study_reference.launch.xml",
+    "hamr_bringup/test/test_vicon_delivery_config.py::test_waypoint_vicon_unprotected_wrapper_is_narrow_and_one_shot: missing hamr_HW_waypoint_vicon_unprotected.launch.xml"
+  ],
+  "native_bridge_compile": true,
+  "bridge_integration": [
+    {
+      "parameter": "imu_gyro_z_variance",
+      "value": "0.0",
+      "rejected_before_serial_open": true
+    },
+    {
+      "parameter": "imu_gyro_z_variance",
+      "value": "-0.001",
+      "rejected_before_serial_open": true
+    },
+    {
+      "parameter": "imu_gyro_z_variance",
+      "value": ".nan",
+      "rejected_before_serial_open": true
+    },
+    {
+      "parameter": "imu_gyro_z_variance",
+      "value": ".inf",
+      "rejected_before_serial_open": true
+    },
+    {
+      "parameter": "imu_yaw_variance",
+      "value": "0.0",
+      "rejected_before_serial_open": true
+    },
+    {
+      "parameter": "imu_yaw_variance",
+      "value": "-0.001",
+      "rejected_before_serial_open": true
+    },
+    {
+      "parameter": "imu_yaw_variance",
+      "value": ".nan",
+      "rejected_before_serial_open": true
+    },
+    {
+      "parameter": "imu_yaw_variance",
+      "value": ".inf",
+      "rejected_before_serial_open": true
+    },
+    {
+      "serial_packet_decoding": true,
+      "gyro_override": 0.0123,
+      "yaw_override": 0.0456,
+      "default_other_axes_preserved": true,
+      "imu_sim_time": true,
+      "mag_sim_time": true
+    }
+  ],
+  "launch_validation": {
+    "resolved_launch_defaults": {
+      "ekf_config": "/home/para/hamr_control/rosbags/ekf_tuning/workspace/install/share/hamr_bringup/config/ekf_calibrated.yaml",
+      "wheel_odom_config": "/home/para/hamr_control/rosbags/ekf_tuning/workspace/install/share/hamr_bringup/config/wheel_odometry_calibration.yaml",
+      "use_mag": "false",
+      "use_orientation": "false"
+    },
+    "wheel_calibration": {
+      "r_wheel": 0.125,
+      "a_wheel": 0.35,
+      "b_wheel": 0.28,
+      "base_yaw_offset": 1.57079632679,
+      "yaw_sign": 1.0,
+      "left_tick_scale": 1.00146,
+      "right_tick_scale": 1.000044,
+      "ticks_per_rev": 2263.7,
+      "linear_velocity_scale": 0.95,
+      "yaw_rate_scale": 0.813,
+      "twist_variance_vx": 0.0002,
+      "twist_variance_vy": 0.0002,
+      "twist_variance_wz": 0.004
+    },
+    "odom_fused_indices": [
+      6,
+      7,
+      11
+    ],
+    "imu_fused_indices": [
+      11
+    ],
+    "hardware_processes_started": false
+  }
+}

@@ -1,0 +1,45 @@
+# Tight continuous motion: 20 mm maximum planned deviation from the polyline.
+# Each 90-degree blend passes 28.284 mm from its original corner vertex.
+# Use --profile continuous --config <this file> with the runner or recorder.
+# Bounds describe this nominal Gazebo model, not calibrated hardware limits.
+name: continuous_tight_waypoint
+reference_source: reference_trajectory/reference_trajectory/waypoint_traj_simple.py
+speed_m_s: 0.25
+fixed_turret_yaw_rad: 0.0
+points_m:
+  - [0.0, 0.0]
+  - [0.0, 2.0]
+  - [-2.0, 2.0]
+  - [-2.0, 4.5]
+  - [0.0, 4.5]
+  - [0.0, 2.0]
+  - [0.0, 0.0]
+# Maximum intentional distance from the original polyline. The nearest pass
+# to a corner vertex is a different distance and is reported separately.
+corner_deviation_m: 0.02
+wheel_radius_m: 0.1075
+half_track_m: 0.33072
+base_ahead_of_axle_m: 0.27114
+# Simulation-only tuning with feedback acceleration margin across capture timing.
+# Hardware keeps its own configuration.
+position_gain_s_inv: 12.0
+orientation_gain_s_inv: 4.0
+max_translation_m_s: 0.50
+max_wheel_rate_rad_s: 6.0
+max_wheel_acceleration_rad_s2: 15.0
+max_gimbal_rate_rad_s: 2.5
+planning_max_translation_acceleration_m_s2: 0.10
+planning_max_jerk_m_s3: 0.20
+planning_wheel_rate_fraction: 0.65
+planning_wheel_acceleration_fraction: 0.50
+control_period_s: 0.01
+predict_odometry: true
+reference_lookahead_s: 0.005
+startup_hold_s: 3.0
+final_hold_s: 3.0
+acceptance:
+  max_tracking_error_m: 0.005
+  max_cross_track_m: 0.002
+  max_final_error_m: 0.0005
+  min_corner_speed_m_s: 0.03
+  max_corner_slowdown_fraction: 0.30

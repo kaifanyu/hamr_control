@@ -1,0 +1,128 @@
+{
+  "scope": "Offline counterfactual planar kinematics; no Gazebo or hardware actuation",
+  "algebra_audit_10000_random_cases": {
+    "hamr_forward_residual": 2.6645352591003757e-15,
+    "compa_forward_residual": 2.6645352591003757e-15,
+    "adapter_forward_residual": 5.551115123125783e-16,
+    "hamr_adapter_wheel_difference": 3.552713678800501e-14
+  },
+  "parameters": {
+    "simulation": {
+      "radius_m": 0.1075,
+      "half_track_a_m": 0.33072,
+      "offset_b_m": 0.27114,
+      "xy_condition_number": 1.2197388802832485,
+      "xy_jacobian_singular_values_m_per_rad": [
+        0.07601397897755385,
+        0.062319878628368255
+      ],
+      "straight_wheel_rad_s_at_025": 2.3255813953488373,
+      "corner_initial_yaw_rate_rad_s": 0.9220328981338054,
+      "corner_initial_wheels_right_left_rad_s": [
+        2.836602047170346,
+        -2.836602047170346
+      ],
+      "initial_max_wheel_jump_rad_s": 5.162183442519183,
+      "frozen_yaw_transition_time_at_15_rad_s2_s": 0.3441455628346122,
+      "nominal_max_wheel_rad_s_during_alignment": 3.6680567062688167,
+      "max_point_speed_all_directions_m_s": 0.4089358807993497,
+      "heading_error_for_max_wheel_deg": 50.653468750133165,
+      "nominal_saturation_heading_range_deg_at_025": null,
+      "heading_small_error_time_constant_s": 1.08456
+    },
+    "hardware_config": {
+      "radius_m": 0.122,
+      "half_track_a_m": 0.35,
+      "offset_b_m": 0.301,
+      "xy_condition_number": 1.1627906976744187,
+      "xy_jacobian_singular_values_m_per_rad": [
+        0.08626702730475878,
+        0.07418964348209256
+      ],
+      "straight_wheel_rad_s_at_025": 2.0491803278688523,
+      "corner_initial_yaw_rate_rad_s": 0.8305647840531561,
+      "corner_initial_wheels_right_left_rad_s": [
+        2.382767823103317,
+        -2.382767823103317
+      ],
+      "initial_max_wheel_jump_rad_s": 4.431948150972169,
+      "frozen_yaw_transition_time_at_15_rad_s2_s": 0.2954632100648113,
+      "nominal_max_wheel_rad_s_during_alignment": 3.142725332405175,
+      "max_point_speed_all_directions_m_s": 0.23324923698517894,
+      "heading_error_for_max_wheel_deg": 49.30446896050799,
+      "nominal_saturation_heading_range_deg_at_025": [
+        28.211379513696155,
+        70.39755840731982
+      ],
+      "heading_small_error_time_constant_s": 1.204
+    }
+  },
+  "single_corner_cases": [
+    {
+      "label": "exact held wheels, 0.5 ms",
+      "dt_s": 0.0005,
+      "acceleration_limit_rad_s2": null,
+      "initial_command_delay_s": 0.0,
+      "speed_m_s": 0.25,
+      "max_tracking_error_m": 2.517784295949499e-05,
+      "max_past_corner_m": 0.0,
+      "peak_time_s": 1.0685,
+      "saturated_control_ticks": 0
+    },
+    {
+      "label": "exact held wheels, 20 ms",
+      "dt_s": 0.02,
+      "acceleration_limit_rad_s2": null,
+      "initial_command_delay_s": 0.0,
+      "speed_m_s": 0.25,
+      "max_tracking_error_m": 0.0010130191118438285,
+      "max_past_corner_m": 0.0,
+      "peak_time_s": 1.06,
+      "saturated_control_ticks": 0
+    },
+    {
+      "label": "15 rad/s2 command slew, 20 ms",
+      "dt_s": 0.02,
+      "acceleration_limit_rad_s2": 15.0,
+      "initial_command_delay_s": 0.0,
+      "speed_m_s": 0.25,
+      "max_tracking_error_m": 0.05482459443581616,
+      "max_past_corner_m": 0.04371798189920295,
+      "peak_time_s": 0.3,
+      "saturated_control_ticks": 0
+    },
+    {
+      "label": "15 rad/s2 plus 40 ms initial delay",
+      "dt_s": 0.02,
+      "acceleration_limit_rad_s2": 15.0,
+      "initial_command_delay_s": 0.04,
+      "speed_m_s": 0.25,
+      "max_tracking_error_m": 0.06893335828011073,
+      "max_past_corner_m": 0.05432360545858045,
+      "peak_time_s": 0.34,
+      "saturated_control_ticks": 0
+    },
+    {
+      "label": "half speed, 15 rad/s2",
+      "dt_s": 0.02,
+      "acceleration_limit_rad_s2": 15.0,
+      "initial_command_delay_s": 0.0,
+      "speed_m_s": 0.125,
+      "max_tracking_error_m": 0.013480586568085588,
+      "max_past_corner_m": 0.010496926871062129,
+      "peak_time_s": 0.16,
+      "saturated_control_ticks": 0
+    },
+    {
+      "label": "hardware geometry + cap, ideal wheel response",
+      "dt_s": 0.001,
+      "acceleration_limit_rad_s2": null,
+      "initial_command_delay_s": 0.0,
+      "speed_m_s": 0.25,
+      "max_tracking_error_m": 0.014466074096265697,
+      "max_past_corner_m": 0.0,
+      "peak_time_s": 1.721,
+      "saturated_control_ticks": 1699
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "hamr_hw_20260916_184054": {
+    "message_count": 3165,
+    "unique_payload_count": 144,
+    "publication_hz": 65.67566619814338,
+    "payload_refresh_hz": 2.9747984721128455,
+    "identical_consecutive_payload_fraction": 0.9548040455120101,
+    "gyro_repeated_while_turning": 0.9554317548746518,
+    "refresh_interval_quantiles_s": {
+      "min": 0.16496682167053223,
+      "p10": 0.330016565322876,
+      "median": 0.3369629383087158,
+      "p90": 0.34601287841796874,
+      "max": 0.35449695587158203
+    },
+    "fresh_gyro_delay_s": 0.20400000000000046,
+    "fresh_gyro_scale": 0.9719071328274972,
+    "fresh_gyro_fit_rmse": 0.015099785789472105
+  },
+  "hamr_hw_20260916_190842": {
+    "message_count": 5625,
+    "unique_payload_count": 255,
+    "publication_hz": 65.7012947876561,
+    "payload_refresh_hz": 2.968335342448349,
+    "identical_consecutive_payload_fraction": 0.9548364153627311,
+    "gyro_repeated_while_turning": 0.9545712663259511,
+    "refresh_interval_quantiles_s": {
+      "min": 0.19298100471496582,
+      "p10": 0.33068170547485354,
+      "median": 0.33695554733276367,
+      "p90": 0.3456343412399292,
+      "max": 0.3563539981842041
+    },
+    "fresh_gyro_delay_s": 0.20600000000000046,
+    "fresh_gyro_scale": 0.9579532687706409,
+    "fresh_gyro_fit_rmse": 0.01629939179268861
+  },
+  "hamr_hw_20260916_193228": {
+    "message_count": 3173,
+    "unique_payload_count": 145,
+    "publication_hz": 65.39786228555977,
+    "payload_refresh_hz": 2.9753784704690793,
+    "identical_consecutive_payload_fraction": 0.9546027742749055,
+    "gyro_repeated_while_turning": 0.9551521623064603,
+    "refresh_interval_quantiles_s": {
+      "min": 0.0826106071472168,
+      "p10": 0.3292961597442627,
+      "median": 0.33691978454589844,
+      "p90": 0.34538886547088626,
+      "max": 0.5923721790313721
+    },
+    "fresh_gyro_delay_s": 0.19800000000000045,
+    "fresh_gyro_scale": 0.9632089842096123,
+    "fresh_gyro_fit_rmse": 0.019176423770786516
+  }
+}

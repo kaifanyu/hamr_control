@@ -52,6 +52,7 @@ TOPIC_REGEX='^/(HAMR_base|HAMR_turret)/(odom|pose|individual_marker_array)$|^/(l
 TOPIC_REGEX="${TOPIC_REGEX}|^/wheel_control/status$"
 TOPIC_REGEX="${TOPIC_REGEX}|^/wheel_encoder/diagnostics$"
 TOPIC_REGEX="${TOPIC_REGEX}|^/hamr_test/trajectory_metadata$"
+TOPIC_REGEX="${TOPIC_REGEX}|^/continuous_waypoint/(metadata|status|path)$"
 
 mkdir -p "$(dirname "${BAG_DIR}")"
 

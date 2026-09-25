@@ -1,0 +1,56 @@
+{
+  "basis": "COMPA retrofit, not native full HAMR3 assembly",
+  "source_files": {
+    "compa_back.urdf.xacro": "eb503cae4a187cefac6c3d49d02a19bd45b76f966730eb0143b0126c0832b02a",
+    "common_properties.urdf.xacro": "0fca22db3727be2c5b4a45ca3092f9986ff1eb8c8e97703ae08426d86ee22da5",
+    "compa_gazebo.urdf.xacro": "79d97743eb9adb00a60ad69c2710fc3de8eda845888132d9880b1412327be243"
+  },
+  "mesh_files": {
+    "base_link.STL": {
+      "sha256": "33bfe9c731c9ab95e6ea0d566d561989bd471c9ef67ab43b992a634206dbc254",
+      "restored_truncated_legacy_copy": true
+    },
+    "f_right_wheel_link.STL": {
+      "sha256": "79822a4cc648560309408407ebed0419251776aa0d0938e9c221d88860b6c160",
+      "restored_truncated_legacy_copy": false
+    },
+    "f_left_wheel_link.STL": {
+      "sha256": "79822a4cc648560309408407ebed0419251776aa0d0938e9c221d88860b6c160",
+      "restored_truncated_legacy_copy": false
+    },
+    "roll_link.STL": {
+      "sha256": "dfedd608b1eb4f37769ad543dfb829a906f1c2f8514fa10299876882924c619f",
+      "restored_truncated_legacy_copy": false
+    },
+    "pitch_link.STL": {
+      "sha256": "55594caa56a5fb3bd09e83692c1843612c22f7c137d637c850401f9bdafb5ce5",
+      "restored_truncated_legacy_copy": true
+    },
+    "yaw_plate_link.STL": {
+      "sha256": "269bba9786baf21127a993d311c72c42114b6218f0312fc097bb37f8bd9e4828",
+      "restored_truncated_legacy_copy": true
+    },
+    "leverage_link.STL": {
+      "sha256": "43b1a95497b138e3018ffd01e0f095d563c335125bc7f4ffe34e322aa6086d80",
+      "restored_truncated_legacy_copy": false
+    },
+    "sphere_link.STL": {
+      "sha256": "6a8ed5137f12ce628289ac2a63ffa2d10c96a0da09d8abed3dfc08a54d9a28c7",
+      "restored_truncated_legacy_copy": false
+    },
+    "rod_link.STL": {
+      "sha256": "8eb5066ba3a7755f9ff9d96845aea851a044b72b597ede4c3c0b09e5f2f0175c",
+      "restored_truncated_legacy_copy": true
+    }
+  },
+  "rail_size_m": [
+    0.6658,
+    0.0254,
+    0.0254
+  ],
+  "rail_x_extent_m": [
+    -0.3,
+    0.3658
+  ],
+  "socket_center_above_ball_m": 0.13162
+}
