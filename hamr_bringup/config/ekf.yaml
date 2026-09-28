@@ -1,103 +1,89 @@
-/**:   # wildcard node name — applies to ekf_filter_node (live) AND ekf_filter_node_offline (offline replay)
+# Calibrated encoder + gyro EKF, validated on all three 2026-09-16 bags.
+# Requires wheel_odometry_calibration.yaml and imu_gyro_z_variance=0.04.
+# Vicon is evaluation only; no pose or magnetic heading is fused.
+# Q and P0 are unchanged from the original gyro configuration.
+# See rosbags/ekf_tuning/report/REPORT.md for metrics and held-out tests.
+/**:
   ros__parameters:
-
-    # ---------------------------------------------------------------
-    # Core settings
-    # ---------------------------------------------------------------
-    frequency: 50.0       # Hz — match hamr_odometry timer rate
-    two_d_mode: true      # constrain to x, y, yaw only (ground robot)
-    publish_tf: true      # EKF broadcasts odom → base_link TF
-    print_diagnostics: true   # console-print per-input accept/reject status (verification)
-
-    odom_frame:      odom
+    frequency: 50.0
+    two_d_mode: true
+    publish_tf: true
+    print_diagnostics: true
+    odom_frame: odom
     base_link_frame: base_link
-    world_frame:     odom   # local odometry, no map/GPS correction
-
-    # ---------------------------------------------------------------
-    # Input 1: wheel odometry  (/wheel_odom → nav_msgs/Odometry)
-    #
-    # State vector indices (true = fuse this element):
-    #   [x,  y,  z,  roll, pitch, yaw, vx,  vy,  vz,  vroll, vpitch, vyaw, ax, ay, az]
-    #
-    # Fuse the wheel's BODY VELOCITIES only (vx, vy) — NOT its absolute
-    # pose (x, y, yaw). The 2026-06-24 bag analysis showed the wheel
-    # under-rotates ~17% (703° vs Vicon 850°) and, because an absolute-yaw
-    # measurement directly observes the heading state, the wheel yaw was
-    # pinning the filter and overriding the accurate gyro (fused tracked
-    # wheel to <0.2°). Dropping wheel pose lets heading come from the IMU
-    # yaw rate below, while the wheel still supplies forward speed.
-    # ---------------------------------------------------------------
+    world_frame: odom
     odom0: /wheel_odom
-    odom0_config: [false, false, false,
-                   false, false, false,
-                   true,  true,  false,
-                   false, false, false,
-                   false, false, false]
+    odom0_config:
+    - false
+    - false
+    - false
+    - false
+    - false
+    - false
+    - true
+    - true
+    - false
+    - false
+    - false
+    - true
+    - false
+    - false
+    - false
     odom0_differential: false
-    odom0_relative:     false
-    odom0_queue_size:   5
-
-    # ---------------------------------------------------------------
-    # Input 2: IMU  (/imu/data → sensor_msgs/Imu)
-    #
-    # Fuse only: angular velocity z (yaw rate). The BNO055 gyro integrated
-    # to within 1% of Vicon (842° vs 850°), so it is the heading source.
-    # Absolute orientation (mag) stays OFF — it read 745° (worse than the
-    # gyro, likely motor/metal distortion). Linear accel x,y also OFF —
-    # noisy on a small ground robot; re-enable for a slip-tolerance test.
-    # ---------------------------------------------------------------
+    odom0_relative: false
+    odom0_queue_size: 5
     imu0: /imu/data
-    imu0_config: [false, false, false,
-                  false, false, false,
-                  false, false, false,
-                  false, false, true,
-                  false, false, false]
+    imu0_config:
+    - false
+    - false
+    - false
+    - false
+    - false
+    - false
+    - false
+    - false
+    - false
+    - false
+    - false
+    - true
+    - false
+    - false
+    - false
     imu0_differential: false
-    imu0_relative:     true    # incremental changes only — safe without mag calibration
-    imu0_remove_gravitational_acceleration: false  # BNO055 VECTOR_LINEARACCEL already gravity-free
-    imu0_queue_size:   10
+    imu0_relative: true
+    imu0_remove_gravitational_acceleration: false
+    imu0_queue_size: 10
 
-    # ---------------------------------------------------------------
-    # Process noise covariance  (15×15, row-major, 225 values)
-    # Diagonal order: x, y, z, roll, pitch, yaw, vx, vy, vz,
-    #                 vroll, vpitch, vyaw, ax, ay, az
-    # Increase a diagonal entry to let the filter trust measurements
-    # more than its own prediction for that state component.
-    # ---------------------------------------------------------------
     process_noise_covariance: [
-      0.05,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-      0.0,   0.05,  0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-      0.0,   0.0,   0.06,  0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-      0.0,   0.0,   0.0,   0.03,  0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-      0.0,   0.0,   0.0,   0.0,   0.03,  0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-      0.0,   0.0,   0.0,   0.0,   0.0,   0.06,  0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-      0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.025,  0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-      0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.025,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-      0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.04,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
-      0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.01,  0.0,   0.0,   0.0,   0.0,   0.0,
-      0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.01,  0.0,   0.0,   0.0,   0.0,
-      0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.02,  0.0,   0.0,   0.0,
-      0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.01,  0.0,   0.0,
-      0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.01,  0.0,
-      0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,    0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.015]
+      0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.06, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.06, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.04, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.02, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.015]
 
-    # ---------------------------------------------------------------
-    # Initial state covariance — robot starts at a known (0,0,0) pose
-    # so position/heading are tight; velocities/accels start wide.
-    # ---------------------------------------------------------------
     initial_estimate_covariance: [
-      1.0e-9, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,    1.0e-9, 0.0,    0.0,    0.0,    0.0,    0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,    0.0,    1.0e-9, 0.0,    0.0,    0.0,    0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,    0.0,    0.0,    1.0e-9, 0.0,    0.0,    0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,    0.0,    0.0,    0.0,    1.0e-9, 0.0,    0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,    0.0,    0.0,    0.0,    0.0,    1.0e-9, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,  0.0,  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,  0.0,  0.0,  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,  0.0,  0.0,  0.0,  1.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,  0.0,  0.0,  0.0,  0.0,  1.0,  0.0,  0.0,  0.0,
-      0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1.0,  0.0,  0.0,
-      0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1.0,  0.0,
-      0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1.0]
+      1.0e-09, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 1.0e-09, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 1.0e-09, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 1.0e-09, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 1.0e-09, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 1.0e-09, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]

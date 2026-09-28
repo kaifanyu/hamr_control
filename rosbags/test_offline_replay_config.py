@@ -113,7 +113,11 @@ class OfflineReplayTests(unittest.TestCase):
         before = CONFIG.read_bytes(), CONFIG.with_name("ekf.yaml").read_bytes()
         base = yaml.safe_load(before[1])["/**"]["ros__parameters"]
         parameters = self.ekf["/**"]["ros__parameters"]
-        for key in ("odom0_config", "imu0_config", "process_noise_covariance"):
+        # The experimental replay profile explicitly overrides sensor selection;
+        # the base EKF now uses the calibrated wheel yaw-rate selection.
+        for key in ("odom0_config", "imu0_config"):
+            self.assertEqual(self.document["ekf"][key], parameters[key])
+        for key in ("process_noise_covariance", "initial_estimate_covariance"):
             self.assertEqual(base[key], parameters[key])
         self.assertTrue(parameters["use_sim_time"])
         wheel_code = (ROOT / "hamr_odometry/hamr_odometry/holonomic_odom_node.py").read_text()

@@ -14,7 +14,7 @@ All estimates use the same 50 Hz evaluation grid and the same initial reference 
 | 190842 | 0.487 m | 0.310 m | **0.102 m** | 79.1% | 0.117 m | 1.58° |
 | 193228 | 0.612 m | 0.395 m | **0.067 m** | 89.0% | 0.106 m | 2.46° |
 
-The original gyro profile is `ekf.yaml`, replayed with the original recorded inputs. The recorded EKF is `/local_HAMR/odom` from each source bag; those bags lack a parameter snapshot. The original hardware default, `ekf_mag.yaml`, reproduces the recorded filter closely, but this is not proof of the historical loaded YAML.
+The original gyro profile was the version of `ekf.yaml` used at the time of tuning, replayed with the original recorded inputs. The current `ekf.yaml` now matches `ekf_calibrated.yaml`; the baseline results above refer to the earlier configuration retained in Git history. The recorded EKF is `/local_HAMR/odom` from each source bag; those bags lack a parameter snapshot. The original hardware default, `ekf_mag.yaml`, reproduces the recorded filter closely, but this is not proof of the historical loaded YAML.
 
 The second recording includes a long stationary lead-in. Moving-only tuned XY RMSE is **0.056 / 0.137 / 0.071 m**, using a fixed Vicon motion mask described in [metrics.json](metrics.json). Its recorded-filter counterparts are 0.317 / 0.653 / 0.640 m. Full-run mean of the three tuned RMSE values is **0.0726 m**; this is a mean of bag RMSEs, not a pooled-time RMSE.
 
@@ -77,7 +77,7 @@ The default `hamr_HW.launch.xml` now loads:
 - `hamr_bringup/config/wheel_odometry_calibration.yaml`
 - `hamr_bringup/config/hamr_uros_bridge.yaml`, with gyro variance 0.04
 
-Wheel calibration/covariances and IMU yaw/gyro variances are configurable and checked for positive finite values. IMU/magnetometer stamping now uses the node clock, so simulation-time behavior is correct. The original `ekf.yaml`, `ekf_mag.yaml`, and `ekf_orientation.yaml` are retained as comparison/alternative profiles. Explicit `use_mag:=true` or `use_orientation:=true` selects those alternatives; the tested default has both false. Other experimental/SLAM launch defaults were not retuned.
+Wheel calibration/covariances and IMU yaw/gyro variances are configurable and checked for positive finite values. IMU/magnetometer stamping now uses the node clock, so simulation-time behavior is correct. Both `ekf.yaml` and `ekf_calibrated.yaml` now contain the selected calibrated EKF parameters. The `ekf_mag.yaml` and `ekf_orientation.yaml` profiles remain available as alternatives. Explicit `use_mag:=true` or `use_orientation:=true` selects those alternatives; the tested default has both false. Launches loading `ekf.yaml` now inherit the calibrated measurement selection; the full calibrated setup also requires the wheel calibration and sensor variances listed above.
 
 Rebuild the affected packages in your robot workspace before using the new live defaults:
 
