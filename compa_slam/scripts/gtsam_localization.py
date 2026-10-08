@@ -5,7 +5,8 @@ IMU measurements, and RGB-D visual constraints.
 import bisect
 import gtsam
 from gtsam.symbol_shorthand import X, V, B
-from rtabmap_msgs.msg import MapGraph
+from rtabmap_msgs.msg import Info
+from rtabmap_msgs.msg import MapData
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
 import numpy as np
@@ -13,7 +14,7 @@ import numpy as np
 
 class gtsam_localization:
     def __init__(self):
-        self.k = 1
+        self.k = 0
 
         # Initialize IMU parameters
         self.prev_imu_time = None
@@ -34,6 +35,10 @@ class gtsam_localization:
             [0.2, 0.2, 0.1, 0.1, 0.1, 0.1])
         self.odom_noise = gtsam.noiseModel.Diagonal.Sigmas(
             [0.2, 0.2, 0.1, 0.1, 0.1, 0.1])
+        self.loop_noise = gtsam.noiseModel.Robust.Create(
+            gtsam.noiseModel.mEstimator.Huber.Create(1.0),
+            gtsam.noiseModel.Diagonal.Sigmas([0.2, 0.2, 0.1, 0.1, 0.1, 0.1])
+        )
 
         # Timestamps of each GTSAM state X(k), in order of k
         self.odom_times = []
@@ -42,7 +47,8 @@ class gtsam_localization:
 
         self.declare_parameter("odom_topic", "/wheel_odom")
         self.declare_parameter("imu_topic", "/imu/data")
-        self.declare_parameter("map_graph_topic", "/rtabmap/mapGraph")
+        self.declare_parameter("map_info_topic", "/rtabmap/info")
+        self.declare_parameter("map_data_topic", "/rtabmap/mapData")
 
         # Initialize the factor graph
         self.graph = gtsam.NonlinearFactorGraph()
@@ -71,18 +77,33 @@ class gtsam_localization:
         self.values.insert(V(0), initial_velocity)
         self.values.insert(B(0), initial_bias)
 
-        # Subscribe to RTAB map graph topic
+        # Subscribe to RTAB map info topic
         self.map_graph_sub = self.create_subscription(
-            MapGraph,
-            self.get_parameter("map_graph_topic").value,
-            self.map_graph_callback
+            Info,
+            self.get_parameter("map_info_topic").value,
+            self.map_info_callback,
+            10
         )
+
+        self.pending_closures = {}
+        self.seen_closures = set()
+
+        # Subscribe to RTAB map info topic
+        self.map_data_sub = self.create_subscription(
+            MapData,
+            self.get_parameter("map_data_topic").value,
+            self.map_data_callback,
+            10
+        )
+
+        self.rtabmap_stamps = {}
 
         # Subscribe to wheel odometry topic
         self.odom_sub = self.create_subscription(
             Odometry,
             self.get_parameter("odom_topic").value,
-            self.odom_callback
+            self.odom_callback,
+            10
         )
 
         # Subscribe to IMU topic
@@ -110,6 +131,7 @@ class gtsam_localization:
 
         if self.prev_odom_pose is None:
             self.prev_odom_pose = odom_pose
+            self.k += 1
             return
 
         # Add wheel odometry factor to graph
@@ -192,13 +214,64 @@ class gtsam_localization:
         self.prev_imu_time = current_time
         self.imu_integrated.integrateMeasurement(accel, gyro, dt)
 
-    def map_graph_callback(self, msg: MapGraph):
-        for link in msg.links:
-            # TODO:
-            # obtain timestamp for RTAB node i (from_id)
-            # obtain timestamp for RTAB node j (to_id)
-            #
-            # i = self._rtab_id_to_gtsam_k(rtab_i, time_i)
-            # j = self._rtab_id_to_gtsam_k(rtab_j, time_j)
-            #
-            # add BetweenFactorPose3 using the relative pose and noise model
+    def map_data_callback(self, msg: MapData):
+        for node in msg.nodes:
+            self.rtabmap_stamps[node.id] = node.stamp
+
+        self.process_pending_closures()
+
+    def map_info_callback(self, msg: Info):
+        if msg.loop_closure_id <= 0:
+            return
+
+        pair = (msg.ref_id, msg.loop_closure_id)
+
+        if pair in self.seen_closures:
+            return
+
+        self.pending_closures[pair] = msg.loop_closure_transform
+
+        self.process_pending_closures()
+
+    def process_pending_closures(self):
+        for pair, transform in list(self.pending_closures.items()):
+            current_id, previous_id = pair
+
+            if (current_id not in self.rtabmap_stamps or
+                    previous_id not in self.rtabmap_stamps):
+                continue
+
+            # Get time and corresponding GTSAM keys for the current and
+            # previous nodes.
+            current_time = self.rtabmap_stamps[current_id]
+            previous_time = self.rtabmap_stamps[previous_id]
+
+            current_k = self._rtab_id_to_gtsam_k(
+                current_id, current_time
+            )
+            previous_k = self._rtab_id_to_gtsam_k(
+                previous_id, previous_time
+            )
+
+            if current_k is None or previous_k is None:
+                continue
+
+            # Convert the RTAB-Map transform into a GTSAM Pose3
+            # and add it as a BetweenFactorPose3 to the graph.
+            t = transform.translation
+            q = transform.rotation
+            rot = gtsam.Rot3.Quaternion(q.w, q.x, q.y, q.z)
+            trans = gtsam.Point3(t.x, t.y, t.z)
+            relative_pose = gtsam.Pose3(rot, trans)
+
+            self.graph.add(
+                gtsam.BetweenFactorPose3(
+                    X(current_k),
+                    X(previous_k),
+                    relative_pose,
+                    self.loop_noise
+                )
+            )
+
+            self.seen_closures.add(pair)
+            del self.pending_closures[pair]
