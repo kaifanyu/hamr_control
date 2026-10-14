@@ -95,6 +95,8 @@ def _configure(context):
             "record_bag", "record_camera", "camera_repository", "camera_config",
             "recording_root", "camera_segment_mib", "run_foxglove", "use_mag",
             "use_orientation", "ekf_config", "wheel_odom_config",
+            "caster_encoders", "caster_encoder_bind_address",
+            "caster_encoder_udp_port", "caster_encoder_stale_timeout_s",
         )
     }
     forwarded.update({
@@ -139,6 +141,10 @@ def generate_launch_description():
             description="Raw Vicon world odometry used by both planner and hardware controller",
         ),
         DeclareLaunchArgument("record_bag", default_value="true"),
+        DeclareLaunchArgument("caster_encoders", default_value="true"),
+        DeclareLaunchArgument("caster_encoder_bind_address", default_value="0.0.0.0"),
+        DeclareLaunchArgument("caster_encoder_udp_port", default_value="5005"),
+        DeclareLaunchArgument("caster_encoder_stale_timeout_s", default_value="1.0"),
         DeclareLaunchArgument(
             "record_camera", default_value="false",
             description="Opt in to the external dual-camera repository and calibrated rig",

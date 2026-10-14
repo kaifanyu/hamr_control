@@ -9,6 +9,7 @@ __pycache__/
 !/rosbags/analyze_hamr_study.py
 !/rosbags/analyze_latest_hamr_bag.sh
 !/rosbags/plot_hamr_actuators.py
+!/rosbags/analyze_caster_encoders.py
 !/rosbags/analyze_hamr_firmware_pid_straight.py
 !/rosbags/test_analyze_hamr_firmware_pid_straight.py
 !/rosbags/set_replay_covariances.py

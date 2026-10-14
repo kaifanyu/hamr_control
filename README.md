@@ -218,6 +218,17 @@ ros2 run reference_trajectory waypoint_traj_simple # square, triangle, or circle
 
 ---
 
+## Caster encoder Wi-Fi recording and replay
+
+Hardware bringup now receives the H1/H2/CENTER ESP UDP stream and records raw
+telemetry, metadata, validity and live angle topics in the robot bag. For passive
+collection without the motor controller, use
+`ros2 launch hamr_bringup caster_encoders.launch.xml`.
+Replay recorded motion in the 3D CAD caster with
+`ros2 launch hamr_bringup caster_encoder_replay.launch.py bag:=/path/to/bag`.
+See [caster encoder setup and accuracy analysis](docs/CASTER_ENCODERS.md) for
+network settings, build steps, model calibration, plots and optional reference comparison.
+
 ## Hardware camera clips
 
 The hardware launch records the C920 to a timestamped MP4 with a JSON settings

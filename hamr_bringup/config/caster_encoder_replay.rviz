@@ -1,0 +1,71 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+  - Class: rviz_common/Views
+    Name: Views
+Visualization Manager:
+  Class: ""
+  Global Options:
+    Background Color: 30; 34; 42
+    Fixed Frame: caster_replay/caster_reference
+    Frame Rate: 30
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Scale grid (10 cm)
+      Enabled: true
+      Cell Size: 0.1
+      Plane: XY
+      Plane Cell Count: 10
+      Offset:
+        X: 0
+        Y: 0
+        Z: -0.11
+    - Class: rviz_default_plugins/RobotModel
+      Name: Recorded caster CAD
+      Enabled: true
+      Description Source: Topic
+      Description Topic:
+        Value: /caster_replay/robot_description
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Depth: 1
+      TF Prefix: caster_replay
+      Visual Enabled: true
+      Collision Enabled: false
+      Alpha: 1
+      Update Interval: 0
+    - Class: rviz_default_plugins/Marker
+      Name: Replay validity and calibration
+      Enabled: true
+      Topic:
+        Value: /caster_replay/status_marker
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Depth: 1
+    - Class: rviz_default_plugins/MarkerArray
+      Name: Illustrative phase markers
+      Enabled: true
+      Topic:
+        Value: /caster_replay/phase_markers
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Depth: 1
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Current View
+      Distance: 0.95
+      Pitch: 0.35
+      Yaw: 0.8
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0.17
+      Near Clip Distance: 0.001
+      Target Frame: caster_replay/caster_reference
+Window Geometry:
+  Width: 1280
+  Height: 900

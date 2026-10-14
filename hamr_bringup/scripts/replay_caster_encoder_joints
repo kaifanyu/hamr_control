@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+"""Animate the CAD caster from isolated replayed raw encoder packets."""
+
+import json
+import sys
+
+import rclpy
+from rclpy.clock import Clock, ClockType
+from rclpy.node import Node
+from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
+from sensor_msgs.msg import JointState
+from std_msgs.msg import String
+from visualization_msgs.msg import Marker, MarkerArray
+from geometry_msgs.msg import Point
+
+from caster_replay_model import DEFAULT_MAPPING, ReplayModel, status_text
+
+
+class ReplayCasterEncoderJoints(Node):
+    def __init__(self):
+        super().__init__("replay_caster_encoder_joints")
+        if not self.get_parameter("use_sim_time").value:
+            raise RuntimeError("Replay requires use_sim_time=true and the rosbag playback /clock")
+        for name, value in DEFAULT_MAPPING.items():
+            self.declare_parameter(name, value)
+        self.declare_parameter("stale_timeout_s", 1.0)
+        mapping = {name: self.get_parameter(name).value for name in DEFAULT_MAPPING}
+        self.model = ReplayModel(mapping, self.get_parameter("stale_timeout_s").value)
+        reliable = QoSProfile(depth=1000, reliability=ReliabilityPolicy.RELIABLE)
+        latched = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
+                             durability=DurabilityPolicy.TRANSIENT_LOCAL)
+        self.joints = self.create_publisher(JointState, "/caster_replay/joint_states", reliable)
+        self.status = self.create_publisher(String, "/caster_replay/status", latched)
+        self.status_marker = self.create_publisher(Marker, "/caster_replay/status_marker", latched)
+        self.phase_markers = self.create_publisher(MarkerArray, "/caster_replay/phase_markers", latched)
+        self.subscription = self.create_subscription(
+            String, "/caster_replay/packets", self.receive, reliable)
+        # Keep rendering on pause/EOF: bag /clock may stop immediately after the
+        # final packet, before a simulation-time timer could publish its pose.
+        self.render_clock = Clock(clock_type=ClockType.STEADY_TIME)
+        self.create_timer(0.05, self.publish, clock=self.render_clock)
+        self.last_warning_ns = None
+        self.get_logger().info(
+            "Kinematic CAD replay: waiting for H1/H2/CENTER. No motion is synthesized for missing data. "
+            "Polar rollers are unmeasured; CAD side/sign/zero mapping is illustrative until calibrated."
+        )
+
+    def receive(self, message):
+        now_ns = self.get_clock().now().nanoseconds
+        try:
+            self.model.receive(message.data, now_ns)
+        except ValueError as error:
+            if self.last_warning_ns is None or now_ns < self.last_warning_ns or now_ns - self.last_warning_ns > 5000000000:
+                self.get_logger().warning(str(error))
+                self.last_warning_ns = now_ns
+
+    def marker(self, frame, namespace, identity, kind, stamp):
+        marker = Marker()
+        marker.header.frame_id = frame
+        marker.header.stamp = stamp
+        marker.ns = namespace
+        marker.id = identity
+        marker.type = kind
+        marker.action = Marker.ADD
+        marker.pose.orientation.w = 1.0
+        marker.frame_locked = True
+        marker.color.a = 1.0
+        return marker
+
+    def publish(self):
+        now = self.get_clock().now()
+        names, positions, report = self.model.snapshot(now.nanoseconds)
+        stamp = now.to_msg()
+        if names:
+            joints = JointState()
+            joints.header.stamp = stamp
+            joints.name, joints.position = names, positions
+            self.joints.publish(joints)
+        status = String()
+        status.data = json.dumps(report, separators=(",", ":"), allow_nan=False)
+        self.status.publish(status)
+        marker = self.marker("caster_replay/caster_reference", "encoder_status", 0,
+                             Marker.TEXT_VIEW_FACING, stamp)
+        marker.pose.position.z = 0.37
+        marker.scale.z = 0.015
+        # RViz uses scale.x as text space width. Set it explicitly: Humble's
+        # default width is computed before scale.z changes the character size.
+        marker.scale.x = 0.6 * marker.scale.z
+        all_fresh = all(node["display_state"] == "fresh" for node in report["nodes"])
+        if not all_fresh:
+            marker.color.r, marker.color.g, marker.color.b = 1.0, 0.35, 0.2
+        elif not report["mapping_calibration_current"]:
+            marker.color.r, marker.color.g, marker.color.b = 1.0, 0.8, 0.2
+        else:
+            marker.color.r, marker.color.g, marker.color.b = 0.45, 1.0, 0.55
+        marker.text = status_text(report)
+        self.status_marker.publish(marker)
+        phases = MarkerArray()
+        # Off-axis phase dots make spin visible on the smooth spherical shells.
+        # They are visual references, not marks measured on the real mechanism.
+        for index, (frame, position, color) in enumerate((
+            ("caster_positive_hemisphere_link", (-0.0226, 0.0, 0.0974), (1.0, 0.12, 0.12)),
+            ("caster_negative_hemisphere_link", (0.0927, 0.0, 0.0376), (0.12, 1.0, 0.2)),
+        )):
+            dot = self.marker("caster_replay/" + frame, "illustrative_phase", index, Marker.SPHERE, stamp)
+            dot.pose.position.x, dot.pose.position.y, dot.pose.position.z = position
+            dot.scale.x = dot.scale.y = dot.scale.z = 0.014
+            dot.color.r, dot.color.g, dot.color.b = color
+            phases.markers.append(dot)
+        arrow = self.marker("caster_replay/caster_carrier_link", "illustrative_phase", 2, Marker.ARROW, stamp)
+        origin, tip = Point(), Point()
+        tip.z = 0.15
+        arrow.points = [origin, tip]
+        arrow.scale.x, arrow.scale.y, arrow.scale.z = 0.004, 0.010, 0.018
+        arrow.color.r, arrow.color.g, arrow.color.b = 0.15, 0.6, 1.0
+        phases.markers.append(arrow)
+        self.phase_markers.publish(phases)
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = None
+    try:
+        node = ReplayCasterEncoderJoints()
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    except (RuntimeError, ValueError) as error:
+        print(f"replay_caster_encoder_joints: {error}", file=sys.stderr)
+        return 2
+    finally:
+        if node is not None:
+            node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

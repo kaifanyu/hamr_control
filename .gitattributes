@@ -1,0 +1,8 @@
+# These ROS executables are launched on Linux, including from Windows checkouts.
+hamr_bringup/scripts/record_hamr_test_bag text eol=lf
+hamr_bringup/scripts/record_hamr_vicon_bag text eol=lf
+hamr_bringup/scripts/caster_encoder_bridge text eol=lf
+hamr_bringup/scripts/caster_encoder_protocol.py text eol=lf
+hamr_bringup/scripts/replay_caster_encoder_joints text eol=lf
+hamr_bringup/scripts/caster_replay_model.py text eol=lf
+rosbags/analyze_caster_encoders.py text eol=lf

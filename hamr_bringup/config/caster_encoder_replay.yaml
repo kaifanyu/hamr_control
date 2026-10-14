@@ -1,0 +1,18 @@
+# Map physical encoders into the existing standalone CAD model.
+# Defaults only illustrate motion: physical H1/H2 sides and zeros are unverified.
+# q_model = sign * (q_encoder - zero_rad), in radians.
+# These signs apply AFTER the signs already recorded by the ESP firmware.
+# To exchange physical sides, exchange the two h*_joint strings.
+# H1/H2 need a new physical reference after every encoder reboot.
+replay_caster_encoder_joints:
+  ros__parameters:
+    h1_joint: caster_positive_hemisphere_joint
+    h2_joint: caster_negative_hemisphere_joint
+    h1_sign: 1.0
+    h2_sign: 1.0
+    center_sign: 1.0
+    h1_zero_rad: 0.0
+    h2_zero_rad: 0.0
+    center_zero_rad: 0.0
+    mapping_verified: false
+    stale_timeout_s: 1.0

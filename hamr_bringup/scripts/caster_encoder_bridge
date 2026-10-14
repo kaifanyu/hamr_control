@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+"""Record ESP32 caster Wi-Fi telemetry as ROS 2 topics with honest timestamps."""
+
+import json
+import math
+import sys
+import time
+
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
+from sensor_msgs.msg import JointState
+from std_msgs.msg import String
+
+from caster_encoder_protocol import ROLES, TelemetryState, UDPReceiver
+
+
+class CasterEncoderBridge(Node):
+    def __init__(self):
+        super().__init__("caster_encoder_bridge")
+        if self.get_parameter("use_sim_time").value:
+            raise RuntimeError("caster_encoder_bridge requires use_sim_time=false for live receipt timestamps")
+        self.declare_parameter("bind_address", "0.0.0.0")
+        self.declare_parameter("udp_port", 5005)
+        self.declare_parameter("stale_timeout_s", 1.0)
+        self.declare_parameter("expected_node_ids", [1, 2, 3])
+        bind_address = self.get_parameter("bind_address").value
+        udp_port = self.get_parameter("udp_port").value
+        stale_timeout = self.get_parameter("stale_timeout_s").value
+        if type(udp_port) is not int or not 1 <= udp_port <= 65535:
+            raise RuntimeError("udp_port must be an integer in 1..65535")
+        if not math.isfinite(stale_timeout) or stale_timeout <= 0:
+            raise RuntimeError("stale_timeout_s must be finite and positive")
+        self.state = TelemetryState(
+            self.get_parameter("expected_node_ids").value, stale_timeout)
+        qos = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST, depth=1000,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.VOLATILE,
+        )
+        metadata_qos = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST, depth=1,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+        )
+        self.packets = self.create_publisher(String, "/caster_encoder/packets", qos)
+        self.diagnostics = self.create_publisher(String, "/caster_encoder/diagnostics", qos)
+        self.metadata = self.create_publisher(String, "/caster_encoder/metadata", metadata_qos)
+        self.joints = {
+            node: self.create_publisher(JointState, f"/caster_encoder/{role}/joint_states", qos)
+            for node, role in ROLES.items()
+        }
+        self.receiver = UDPReceiver(bind_address, udp_port)
+        self.last_warning = -math.inf
+        self.last_invalid_warning = -math.inf
+        self.create_timer(0.002, self.receive)
+        self.create_timer(1.0, self.publish_diagnostics)
+        self.metadata.publish(self.json_message(self.state.metadata_snapshot()))
+        self.get_logger().info(
+            f"Listening on UDP {bind_address}:{udp_port}; ESP acquisition clocks are unsynchronized. "
+            "ROS headers use host receipt time; original samples and clocks are in /caster_encoder/packets."
+        )
+
+    @staticmethod
+    def json_message(value):
+        message = String()
+        message.data = json.dumps(value, separators=(",", ":"), allow_nan=False)
+        return message
+
+    def receive(self):
+        # Reject a runtime switch as well as startup use_sim_time=true. Never
+        # silently stamp physical acquisitions against bag playback time.
+        if self.get_parameter("use_sim_time").value:
+            raise RuntimeError("Live encoder bridge cannot run with use_sim_time=true")
+        for data, source, epoch_ns, monotonic_ns in self.receiver.drain():
+            stamp = self.get_clock().now()
+            try:
+                envelope, readings, metadata_changed = self.state.receive(
+                    data, source, epoch_ns, monotonic_ns, stamp.nanoseconds)
+            except ValueError as error:
+                now = time.monotonic()
+                if now - self.last_invalid_warning >= 5.0:
+                    self.get_logger().warning(f"Rejected malformed caster encoder datagram: {error}")
+                    self.last_invalid_warning = now
+                continue
+            self.packets.publish(self.json_message(envelope))
+            if metadata_changed:
+                self.metadata.publish(self.json_message(self.state.metadata_snapshot()))
+            for reading in readings:
+                message = JointState()
+                message.header.stamp = stamp.to_msg()
+                message.name = [reading["name"]]
+                message.position = [float(reading["position"])]
+                if reading["velocity"] is not None:
+                    message.velocity = [float(reading["velocity"])]
+                self.joints[reading["node_id"]].publish(message)
+
+    def publish_diagnostics(self):
+        report = self.state.diagnostics_snapshot(time.monotonic_ns())
+        report["receive_ros_ns"] = self.get_clock().now().nanoseconds
+        self.diagnostics.publish(self.json_message(report))
+        stale = [node["role"] for node in report["nodes"] if node["expected"] and node["stale"]]
+        now = time.monotonic()
+        if stale and now - self.last_warning >= 5.0:
+            self.get_logger().warning(
+                "No recent encoder samples from: " + ", ".join(stale) +
+                ". Check ESP receiver IPv4, 2.4 GHz Wi-Fi, UDP port, and node power."
+            )
+            self.last_warning = now
+
+    def destroy_node(self):
+        if hasattr(self, "receiver"):
+            self.receiver.close()
+        return super().destroy_node()
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = None
+    try:
+        node = CasterEncoderBridge()
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    except (RuntimeError, ValueError, OSError) as error:
+        print(f"caster_encoder_bridge: {error}", file=sys.stderr)
+        return 2
+    finally:
+        if node is not None:
+            node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

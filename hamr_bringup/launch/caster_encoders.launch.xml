@@ -1,0 +1,16 @@
+<launch>
+    <!-- Passive acquisition only: this launch never starts a motor controller. -->
+    <arg name="bind_address" default="0.0.0.0" />
+    <arg name="udp_port" default="5005" />
+    <arg name="stale_timeout_s" default="1.0" />
+    <arg name="record_bag" default="true" />
+    <node pkg="hamr_bringup" exec="caster_encoder_bridge"
+          name="caster_encoder_bridge" output="screen">
+        <param name="bind_address" value="$(var bind_address)" />
+        <param name="udp_port" value="$(var udp_port)" />
+        <param name="stale_timeout_s" value="$(var stale_timeout_s)" />
+        <param name="use_sim_time" value="false" />
+    </node>
+    <node pkg="hamr_bringup" exec="record_hamr_test_bag"
+          output="screen" if="$(var record_bag)" />
+</launch>
