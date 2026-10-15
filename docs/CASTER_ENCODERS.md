@@ -133,6 +133,77 @@ ros2 bag info "$HAMR_BAG_ROOT/$HAMR_BAG_NAME"
 
 Use the printed suffixed path if the requested bag name already existed.
 
+### Marked-rotation comparison: H1 versus H2
+
+Use this check to distinguish reported scale from the number of physical turns.
+Keep the existing bridge running and source the same ROS environment in another
+terminal. The script subscribes to `/caster_encoder/packets`; it does not bind the
+UDP port, command motors, change encoder settings, or need a firmware reflash.
+It uses raw integer counts and ESP acquisition timestamps, not JointState receipt
+timestamps, which can be identical for two samples in a packet.
+
+From the updated `hamr_control` repository directory:
+
+```bash
+python3 hamr_bringup/scripts/record_caster_rotation.py record H1
+python3 hamr_bringup/scripts/record_caster_rotation.py record H2
+```
+
+Run these sequentially. For each run:
+
+1. Mark the encoder shaft's position relative to its housing and hold it still.
+2. Wait for valid samples, then press Enter to set the start count.
+3. Rotate the shaft exactly **one full revolution in one direction**. Measure
+   shaft motion relative to the encoder housing, rather than whole-assembly motion.
+4. Stop at the original mark, hold still for at least one second so the final
+   counts arrive, then press Enter to finish. Ctrl+C saves an incomplete run and
+   deliberately produces no calibration.
+
+To improve the manual turn measurement, add `--turns 3` and make exactly three
+complete revolutions. The count comparison is normalized by the entered turns.
+Hand-rotation speeds do not have to match: compare counts per physical revolution,
+not the two runs' peak velocities.
+
+Each run creates a unique `recordings/caster_rotations/H1-...` or `H2-...` folder:
+
+- `packets.jsonl`: complete received envelopes for the selected node, including metadata.
+- `samples.csv`: raw counts, angles, velocities, acquisition and receipt times,
+  flags, index snapshots, and diagnostic counters; waiting samples are retained too.
+- `markers.json`: exact start and end sample identities and entered physical turns.
+- `summary.json` and `summary.txt`: count/angle change, observed counts per turn,
+  scale ratio, velocity statistics, missing sequences, duplicates, direction
+  reversals, and index intervals. Summary statistics use the inclusive marked interval.
+
+Compare the two **actual directories printed by the script**:
+
+```bash
+python3 hamr_bringup/scripts/record_caster_rotation.py compare \
+  recordings/caster_rotations/H1-ACTUAL_RUN \
+  recordings/caster_rotations/H2-ACTUAL_RUN
+```
+
+For configured 2048 PPR, one complete turn should produce approximately 8192
+counts and an angle change of magnitude 6.283185 radians. `count_scale_ratio`
+should be near 1; H1/H2 counts-per-revolution ratio should also be near 1 if both
+have the same physical encoder resolution and complete pulse capture. The
+reference PPR comes from received firmware metadata, falling back to an explicitly
+reported 2048 assumption. `--expected-ppr` overrides only the report's reference.
+
+`observed_ppr_equivalent` is counts per physical turn divided by four. It is
+**not proof of the encoder's programmed PPR**: missed pulses, mechanical slip,
+or an inaccurate physical turn can produce the same number. The script never
+changes PPR automatically. A different boot ID, conflicting samples, lost count
+continuity, or incomplete markers invalidate a calibration. Missing sequences
+are reported separately; continuous hardware counting may still preserve net
+travel across packet loss. Index intervals require monotonically directed motion
+and sufficient captured index snapshots to be interpreted as turns.
+
+No pip packages are needed beyond the existing ROS environment for recording;
+offline comparison uses only Python's standard library and the adjacent
+`caster_encoder_protocol.py`. Keep both scripts together if copying them to
+another computer. After rebuilding `hamr_bringup`, the same commands are available
+as `ros2 run hamr_bringup record_caster_rotation.py record H1` and `... compare ...`.
+
 ## 4. What is in the bag
 
 | Topic | Type | Meaning |

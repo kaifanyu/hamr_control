@@ -228,6 +228,11 @@ Replay recorded motion in the 3D CAD caster with
 `ros2 launch hamr_bringup caster_encoder_replay.launch.py bag:=/path/to/bag`.
 See [caster encoder setup and accuracy analysis](docs/CASTER_ENCODERS.md) for
 network settings, build steps, model calibration, plots and optional reference comparison.
+For an interactive one-turn H1/H2 count check, run
+`python3 hamr_bringup/scripts/record_caster_rotation.py record H1` from this
+repository with the bridge running; repeat with `H2`. See the
+[marked-rotation procedure](docs/CASTER_ENCODERS.md#marked-rotation-comparison-h1-versus-h2)
+for output files and the comparison command.
 
 ## Hardware camera clips
 

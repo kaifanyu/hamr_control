@@ -23,6 +23,7 @@ install(
     scripts/record_hamr_vicon_bag
     scripts/record_hamr_test_bag
     scripts/caster_encoder_bridge
+    scripts/record_caster_rotation.py
     scripts/replay_caster_encoder_joints
     scripts/record_camera_clip
     scripts/record_dual_cameras
@@ -56,6 +57,9 @@ if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
   ament_add_pytest_test(caster_encoder_bridge
     test/test_caster_encoder_bridge.py
+  )
+  ament_add_pytest_test(record_caster_rotation
+    test/test_record_caster_rotation.py
   )
   ament_add_pytest_test(caster_encoder_analysis
     test/test_analyze_caster_encoders.py
