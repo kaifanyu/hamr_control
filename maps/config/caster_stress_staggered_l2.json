@@ -1,0 +1,441 @@
+{
+  "id": "caster_stress_staggered_l2",
+  "title": "Staggered rounded pads \u00b7 level 2",
+  "description": "Controlled staggered challenge with 55mm nominal local relief; identical geometry and material for both caster models.",
+  "family": "staggered",
+  "level": 2,
+  "world": "../worlds/caster_stress_staggered_l2.sdf",
+  "bounds_m": {
+    "x": [
+      -3.0,
+      3.0
+    ],
+    "y": [
+      -4.0,
+      4.0
+    ]
+  },
+  "height_grid": "../meshes/caster_stress_staggered_l2_height.npz",
+  "collision_mesh": "../meshes/caster_stress_staggered_l2.stl",
+  "visual_mesh": "../meshes/caster_stress_staggered_l2.dae",
+  "grid_spacing_m": 0.025,
+  "vertices": 78482,
+  "triangles": 156960,
+  "surface_triangles": 153600,
+  "min_height_m": 0.0,
+  "max_height_m": 0.055,
+  "height_range_m": 0.055,
+  "max_surface_slope_deg": 26.684706395704385,
+  "max_triangle_face_slope_deg": 27.48467533170463,
+  "route_region": {
+    "definition": "|x|<=1.8m and |y|<=2m, covering prescribed chassis routes and approximate wheel footprint.",
+    "height_min_m": 0.0,
+    "height_max_m": 0.055,
+    "grade_p95_deg": 24.65232606714067,
+    "grade_max_deg": 26.250185637051608,
+    "maximum_adjacent_grid_height_change_m": 0.012807049547995105
+  },
+  "slope_method": "Grid-node finite differences, with separate exact triangle-face maximum; all exclude closing side walls. Whole-surface extrema include boundary blends.",
+  "parameters": {
+    "nominal_peak_height_m": 0.055,
+    "level_changes": "Height multiplier only; XY geometry, phases and contact settings stay fixed.",
+    "pad_semiaxes_m": [
+      0.24,
+      0.28
+    ],
+    "flat_top_radial_fraction": 0.3,
+    "x_pitch_m": 0.7,
+    "y_pitch_m": 0.7,
+    "alternate_row_x_offset_m": 0.35,
+    "nominal_track_check_x_m": [
+      -0.22,
+      0.22
+    ],
+    "pad_centers_xy_m": [
+      [
+        -2.6,
+        -1.75
+      ],
+      [
+        -1.9000000000000001,
+        -1.75
+      ],
+      [
+        -1.2000000000000002,
+        -1.75
+      ],
+      [
+        -0.5000000000000004,
+        -1.75
+      ],
+      [
+        0.19999999999999973,
+        -1.75
+      ],
+      [
+        0.8999999999999999,
+        -1.75
+      ],
+      [
+        1.5999999999999992,
+        -1.75
+      ],
+      [
+        2.2999999999999994,
+        -1.75
+      ],
+      [
+        -2.25,
+        -1.05
+      ],
+      [
+        -1.5500000000000003,
+        -1.05
+      ],
+      [
+        -0.8500000000000002,
+        -1.05
+      ],
+      [
+        -0.15000000000000047,
+        -1.05
+      ],
+      [
+        0.5499999999999997,
+        -1.05
+      ],
+      [
+        1.25,
+        -1.05
+      ],
+      [
+        1.9499999999999993,
+        -1.05
+      ],
+      [
+        2.6499999999999995,
+        -1.05
+      ],
+      [
+        -2.6,
+        -0.3500000000000001
+      ],
+      [
+        -1.9000000000000001,
+        -0.3500000000000001
+      ],
+      [
+        -1.2000000000000002,
+        -0.3500000000000001
+      ],
+      [
+        -0.5000000000000004,
+        -0.3500000000000001
+      ],
+      [
+        0.19999999999999973,
+        -0.3500000000000001
+      ],
+      [
+        0.8999999999999999,
+        -0.3500000000000001
+      ],
+      [
+        1.5999999999999992,
+        -0.3500000000000001
+      ],
+      [
+        2.2999999999999994,
+        -0.3500000000000001
+      ],
+      [
+        -2.25,
+        0.34999999999999964
+      ],
+      [
+        -1.5500000000000003,
+        0.34999999999999964
+      ],
+      [
+        -0.8500000000000002,
+        0.34999999999999964
+      ],
+      [
+        -0.15000000000000047,
+        0.34999999999999964
+      ],
+      [
+        0.5499999999999997,
+        0.34999999999999964
+      ],
+      [
+        1.25,
+        0.34999999999999964
+      ],
+      [
+        1.9499999999999993,
+        0.34999999999999964
+      ],
+      [
+        2.6499999999999995,
+        0.34999999999999964
+      ],
+      [
+        -2.6,
+        1.0499999999999998
+      ],
+      [
+        -1.9000000000000001,
+        1.0499999999999998
+      ],
+      [
+        -1.2000000000000002,
+        1.0499999999999998
+      ],
+      [
+        -0.5000000000000004,
+        1.0499999999999998
+      ],
+      [
+        0.19999999999999973,
+        1.0499999999999998
+      ],
+      [
+        0.8999999999999999,
+        1.0499999999999998
+      ],
+      [
+        1.5999999999999992,
+        1.0499999999999998
+      ],
+      [
+        2.2999999999999994,
+        1.0499999999999998
+      ],
+      [
+        -2.25,
+        1.75
+      ],
+      [
+        -1.5500000000000003,
+        1.75
+      ],
+      [
+        -0.8500000000000002,
+        1.75
+      ],
+      [
+        -0.15000000000000047,
+        1.75
+      ],
+      [
+        0.5499999999999997,
+        1.75
+      ],
+      [
+        1.25,
+        1.75
+      ],
+      [
+        1.9499999999999993,
+        1.75
+      ],
+      [
+        2.6499999999999995,
+        1.75
+      ],
+      [
+        -2.6,
+        2.4499999999999993
+      ],
+      [
+        -1.9000000000000001,
+        2.4499999999999993
+      ],
+      [
+        -1.2000000000000002,
+        2.4499999999999993
+      ],
+      [
+        -0.5000000000000004,
+        2.4499999999999993
+      ],
+      [
+        0.19999999999999973,
+        2.4499999999999993
+      ],
+      [
+        0.8999999999999999,
+        2.4499999999999993
+      ],
+      [
+        1.5999999999999992,
+        2.4499999999999993
+      ],
+      [
+        2.2999999999999994,
+        2.4499999999999993
+      ]
+    ],
+    "formula": "max_i H*ease((1-sqrt(((x-cx_i)/.24)^2+((y-cy_i)/.28)^2))/.70)",
+    "analytic_unblended_max_grade_upper_bound_deg": 27.21443877993762,
+    "mechanism": "Localized30/55mm rounded height transitions, with alternating left/right contacts and spatially changing transverse normals. No sharp vertical curb or movable obstacle."
+  },
+  "figure": {
+    "png": "../figures/caster_stress_staggered_l2_height_slope.png",
+    "svg": "../figures/caster_stress_staggered_l2_height_slope.svg",
+    "source": "Derived from exact generated height grid; not a Gazebo camera image.",
+    "common_height_limits_mm": [
+      0,
+      60
+    ],
+    "common_grade_limits_deg": [
+      0,
+      30
+    ]
+  },
+  "boundary_blend": {
+    "formula": "ease((3-|x|)/.60)*ease((y+2.35)/.35)*ease((3.80-y)/.55)",
+    "ease": "0.5-0.5*cos(pi*clip(t,0,1))",
+    "full_region": {
+      "x": [
+        -2.4,
+        2.4
+      ],
+      "y": [
+        -2.0,
+        3.25
+      ]
+    },
+    "note": "Only outside the stress-route region is a flat probe/entry margin or boundary taper; no special flat road through the center."
+  },
+  "terrain_friction": {
+    "mu": 1.0,
+    "mu2": 1.0,
+    "restitution": 0.0,
+    "basis": "Matches DART mesh attachment defaults; identical to prior validated shared terrain worlds. Runtime validation remains required."
+  },
+  "spawn": {
+    "x": 0.0,
+    "y": -2.8,
+    "z": 0.0,
+    "yaw": 1.5707963267948966
+  },
+  "probes": [
+    {
+      "name": "flat_approach",
+      "xy_m": [
+        0.0,
+        -2.6
+      ],
+      "kind": "flat"
+    },
+    {
+      "name": "crossfall",
+      "xy_m": [
+        0.22,
+        0.2
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "high_point",
+      "xy_m": [
+        -1.2249999999999999,
+        -1.8249999999999997
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "steep_point",
+      "xy_m": [
+        1.75,
+        -0.32499999999999973
+      ],
+      "kind": "feature"
+    }
+  ],
+  "smoke": {
+    "spawn_x": 0.0,
+    "spawn_y": -1.3,
+    "spawn_z": 0.125,
+    "initial_yaw": 1.5707963267948966,
+    "drive_speed_m_s": 0.25,
+    "duration_s": 10.0,
+    "scope": "Short common centerline segment for pilot contact checks, not a full trajectory comparison or a guaranteed pass."
+  },
+  "comparison_design": {
+    "geometry_fixed_before_robot_results": true,
+    "same_geometry_both_models": true,
+    "intended_speed_m_s": 0.25,
+    "levels_are_deterministic_conditions_not_statistical_replicates": true,
+    "intended_paths": "Reversals y\u00b11.1; tight figure-eight x\u00b1.65,y\u00b11; lateral turns x0..1.2,y\u22121.5..1.5; zigzag x\u00b1.6,y\u22121.5..1.5.",
+    "interpretation": "Compare paired runs within terrain/level/route/seed. Do not select only conditions favoring either caster or call commanded-path yaw difference tire slip on a sloped turn."
+  },
+  "research_sources": [
+    {
+      "title": "Kauzlarich, Bruning and Thacker: Wheelchair caster shimmy and turning resistance (1984)",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/6530672/",
+      "evidence": "Experiments and equations distinguish caster shimmy and sliding-friction turning resistance; tire geometry changes both.",
+      "limit": "No critical shimmy speed or measured tire-loss coefficient is transferred to HAMR."
+    },
+    {
+      "title": "Kauzlarich, Bruning and Thacker: Wheelchair caster shimmy II: damping (2000)",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/10917262/",
+      "evidence": "The correction to the earlier shimmy analysis considers tire friction, spindle-bearing friction and hydraulic damping.",
+      "limit": "Rigid Coulomb contact and estimated joint damping do not reproduce calibrated tire-elastic shimmy."
+    },
+    {
+      "title": "Sprigle, Huang and Misch: Measurement of rolling resistance and scrub torque of manual wheelchair drive wheels and casters (2022)",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31891276/",
+      "evidence": "Separate component tests measure coast-down rolling loss and loaded-wheel scrub torque; losses depend on load and surface and can trade off.",
+      "limit": "Local alignment, tracking and drive effort must be measured separately; one cannot infer real energy loss from yaw alignment alone."
+    },
+    {
+      "title": "Development of wheelchair caster testing equipment and preliminary testing of caster models (2017)",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5645576/",
+      "full_text_xml": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC5645576/fullTextXML",
+      "evidence": "The apparatus tests square and 30-degree oblique slat impacts and reverses travel to exercise stem bearings. The preliminary study found no significant durability difference between impact angles.",
+      "limit": "Oblique excitation motivates a test condition, not a prediction of greater damage or a fatigue/standards-validation claim."
+    },
+    {
+      "title": "Udengaard and Iagnemma: Analysis, Design, and Control of an Omnidirectional Mobile Robot in Rough Terrain (2009)",
+      "url": "https://doi.org/10.1115/1.4000214",
+      "evidence": "The rough-terrain controller considers wheel-terrain contact angles in an active split-offset caster system.",
+      "limit": "The mechanism is active and differs from both passive HAMR models; this motivates terrain-normal-aware interpretation, not transferring performance claims."
+    }
+  ],
+  "limitations": [
+    "Rigid analytic geometry; no soil deformation, loose gravel, fatigue or tire elasticity.",
+    "Estimated caster inertia, bearing loss and different wheel geometries remain model confounds.",
+    "Height levels are bounded engineering choices, not literature-derived pass/fail thresholds.",
+    "No guarantee either robot traverses until a physical pilot is run; no motor/climb capability claim.",
+    "Mesh colors encode altitude only and do not change material friction."
+  ],
+  "geometry_validation": {
+    "passed": true,
+    "checks": {
+      "finite": true,
+      "bounded_relief_at_most_60mm": true,
+      "nondegenerate_faces": true,
+      "upward_top_normals": true,
+      "closed_oriented_manifold": true,
+      "positive_enclosed_volume": true,
+      "zero_perimeter_height": true,
+      "flat_probe_approach": true
+    },
+    "runtime_status": "not_run_by_generator"
+  },
+  "generator": {
+    "script": "generate_caster_stress_terrains.py",
+    "script_sha256": "495f1707393f2f9fbedce321e04393c448b4eba6fe88e9b87abdad40c23618b9",
+    "shared_exporter": "generate_terrains.py",
+    "shared_exporter_sha256": "1ee5e1df92d980830ca33e11356352d491dca75cc368331afa309690191ec261",
+    "randomness": "none; analytic grid and fixed phases/pad centers"
+  },
+  "sha256": {
+    "stl": "d0f6b8b4a9d6375867f295099f5a340582775519fcce3ec31b36473ed1def90c",
+    "dae": "699c8f992f1a6a628d728e7c4daf7556a28e5d114eb697ff57e1c096a1ce2caf",
+    "world": "9d7a854bafa22300262a2b1d03d2d843d3e84743e31b6ec674b36be03dd2a89f"
+  }
+}

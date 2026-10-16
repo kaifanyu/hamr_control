@@ -1,0 +1,2820 @@
+{
+  "id": "rocky_staggered_rocks",
+  "title": "Staggered rock garden",
+  "description": "Filtered scan-derived ground plus explicit fixed stone solids.",
+  "family": "staggered_rocks",
+  "world": "../worlds/rocky_staggered_rocks.sdf",
+  "height_grid": "../meshes/rocky_staggered_rocks_height.npz",
+  "collision_mesh": "../meshes/rocky_staggered_rocks.stl",
+  "visual_mesh": "../meshes/rocky_staggered_rocks.dae",
+  "bounds_m": {
+    "x": [
+      -3,
+      3
+    ],
+    "y": [
+      -4,
+      4
+    ]
+  },
+  "grid_spacing_m": 0.05,
+  "height_range_m": 0.05179142175121945,
+  "min_height_m": 0.0,
+  "max_height_m": 0.05179142175121945,
+  "maximum_stone_height_m": 0.035,
+  "stones": [
+    {
+      "id": 0,
+      "center_xy_m": [
+        -2.6,
+        -3.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.0,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.02589259748917127,
+      "top_gradient": [
+        -0.004662309849152421,
+        -0.007267545104570621
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 1,
+      "center_xy_m": [
+        -2.08,
+        -3.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.54,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.04087360505133945,
+      "top_gradient": [
+        -0.0020331546017794836,
+        0.002653921714188023
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 2,
+      "center_xy_m": [
+        -1.56,
+        -3.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.66,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.0495663926606819,
+      "top_gradient": [
+        -0.004216574768285704,
+        -0.003222429247713407
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 3,
+      "center_xy_m": [
+        -1.04,
+        -3.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 2.2,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.017433800770438723,
+      "top_gradient": [
+        0.0060211569158476926,
+        0.002273451341294617
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 4,
+      "center_xy_m": [
+        -0.52,
+        -3.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.32,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.027105388432226422,
+      "top_gradient": [
+        -0.007125810518007071,
+        -0.002539893987906424
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 5,
+      "center_xy_m": [
+        0.0,
+        -3.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.44,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.037017883351638886,
+      "top_gradient": [
+        0.007343785401643587,
+        -0.008862305651110363
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 6,
+      "center_xy_m": [
+        0.52,
+        -3.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.98,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.019869366390500735,
+      "top_gradient": [
+        0.005991900199216454,
+        -0.007089360029532915
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 7,
+      "center_xy_m": [
+        1.04,
+        -3.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.1,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.027224937877558288,
+      "top_gradient": [
+        -0.00820183246786134,
+        0.0008264278575106261
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 8,
+      "center_xy_m": [
+        1.56,
+        -3.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.22,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.03864435984736484,
+      "top_gradient": [
+        -0.008094115113414388,
+        -0.004305779404581951
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 9,
+      "center_xy_m": [
+        2.0799999999999996,
+        -3.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.76,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.01636382790967089,
+      "top_gradient": [
+        0.0068901666556714595,
+        -0.005608031761893836
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 10,
+      "center_xy_m": [
+        2.6,
+        -3.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.88,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.029685363342218052,
+      "top_gradient": [
+        -0.0065974985777189805,
+        0.005401103894810048
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 11,
+      "center_xy_m": [
+        -2.38,
+        -2.58
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.66,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03881840127801202,
+      "top_gradient": [
+        0.004380872033599369,
+        0.002130035249132316
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 12,
+      "center_xy_m": [
+        -1.86,
+        -2.58
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 2.2,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.05037617477797051,
+      "top_gradient": [
+        0.007609154235145845,
+        -0.007989147659501518
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 13,
+      "center_xy_m": [
+        -1.34,
+        -2.58
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.32,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.022145741099103593,
+      "top_gradient": [
+        0.006829474841522609,
+        -0.0062446780464099705
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 14,
+      "center_xy_m": [
+        -0.8200000000000001,
+        -2.58
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.44,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.02809818812050605,
+      "top_gradient": [
+        0.0010545740397201447,
+        0.0008344847655956025
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 15,
+      "center_xy_m": [
+        -0.30000000000000004,
+        -2.58
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.98,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.0370926906172378,
+      "top_gradient": [
+        0.006374378829963525,
+        -0.0016456049853593646
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 16,
+      "center_xy_m": [
+        0.22,
+        -2.58
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.1,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.018888305985594912,
+      "top_gradient": [
+        0.0036871565314687566,
+        -0.007697304499699903
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 17,
+      "center_xy_m": [
+        0.74,
+        -2.58
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.22,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.02873396553559785,
+      "top_gradient": [
+        0.00385566427977322,
+        -0.008739945872900015
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 18,
+      "center_xy_m": [
+        1.26,
+        -2.58
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.76,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.03913738271784978,
+      "top_gradient": [
+        0.003796040102173312,
+        0.004518811522123824
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 19,
+      "center_xy_m": [
+        1.78,
+        -2.58
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.88,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.017665980145986904,
+      "top_gradient": [
+        -0.003626236080424357,
+        -0.004676718941007397
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 20,
+      "center_xy_m": [
+        2.3,
+        -2.58
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.0,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.027675206870495038,
+      "top_gradient": [
+        -0.0063596203018982484,
+        0.002424144746882087
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 21,
+      "center_xy_m": [
+        -2.6,
+        -2.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.32,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04721194650883443,
+      "top_gradient": [
+        0.001978915151317217,
+        -0.00887231686064533
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 22,
+      "center_xy_m": [
+        -2.08,
+        -2.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.44,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.02679273390761007,
+      "top_gradient": [
+        -0.004229100384474636,
+        0.0033212841840267546
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 23,
+      "center_xy_m": [
+        -1.56,
+        -2.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.98,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03533651874645981,
+      "top_gradient": [
+        -0.004285999742267072,
+        0.006029981663811369
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 24,
+      "center_xy_m": [
+        -1.04,
+        -2.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.1,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04075808074003562,
+      "top_gradient": [
+        0.00014143177156058714,
+        0.00026154152983053763
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 25,
+      "center_xy_m": [
+        -0.52,
+        -2.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.22,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.01873008804946641,
+      "top_gradient": [
+        0.0037316815398997973,
+        0.0073635141637924065
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 26,
+      "center_xy_m": [
+        0.0,
+        -2.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.76,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.026702211864267876,
+      "top_gradient": [
+        0.00824774491183647,
+        -0.003532935424700556
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 27,
+      "center_xy_m": [
+        0.52,
+        -2.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.88,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.03865061226070173,
+      "top_gradient": [
+        0.008751460520738925,
+        -0.004657868380450446
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 28,
+      "center_xy_m": [
+        1.04,
+        -2.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.0,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.019131418801022086,
+      "top_gradient": [
+        0.00376286649468497,
+        -0.00033506033230946454
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 29,
+      "center_xy_m": [
+        1.56,
+        -2.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.54,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.02988871884645283,
+      "top_gradient": [
+        0.003483609066899006,
+        0.0027076579122846684
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 30,
+      "center_xy_m": [
+        2.0799999999999996,
+        -2.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.66,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.03611517950984466,
+      "top_gradient": [
+        0.005512729096925545,
+        0.00787877789376827
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 31,
+      "center_xy_m": [
+        2.6,
+        -2.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 2.2,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.019155174052431546,
+      "top_gradient": [
+        -0.0013927320595817387,
+        -0.006967268493355433
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 32,
+      "center_xy_m": [
+        -2.38,
+        -1.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.98,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.02396949342459107,
+      "top_gradient": [
+        -0.008628135903322566,
+        -0.004192722317540891
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 33,
+      "center_xy_m": [
+        -1.86,
+        -1.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.1,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03525115497304902,
+      "top_gradient": [
+        -0.004873489455760063,
+        0.0022594869412985493
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 34,
+      "center_xy_m": [
+        -1.34,
+        -1.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.22,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04123758328150918,
+      "top_gradient": [
+        -0.000771458441482329,
+        -0.004074630103512465
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 35,
+      "center_xy_m": [
+        -0.8200000000000001,
+        -1.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.76,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.020138241123874717,
+      "top_gradient": [
+        0.002923753847622692,
+        -0.0011075197025552982
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 36,
+      "center_xy_m": [
+        -0.30000000000000004,
+        -1.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.88,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.026239000223205557,
+      "top_gradient": [
+        0.00020842643475342017,
+        -0.008916554942501315
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 37,
+      "center_xy_m": [
+        0.22,
+        -1.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.0,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.039136928331790465,
+      "top_gradient": [
+        0.006335800012919937,
+        0.003381538880511313
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 38,
+      "center_xy_m": [
+        0.74,
+        -1.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.54,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.018736775577275756,
+      "top_gradient": [
+        -0.007873799784609269,
+        -0.003979806646866868
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 39,
+      "center_xy_m": [
+        1.26,
+        -1.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.66,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03129973602996376,
+      "top_gradient": [
+        0.005583176895241756,
+        -0.0016380836306510793
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 40,
+      "center_xy_m": [
+        1.78,
+        -1.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 2.2,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.03786796122361988,
+      "top_gradient": [
+        -0.0013262334715486677,
+        -0.008347141293037992
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 41,
+      "center_xy_m": [
+        2.3,
+        -1.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.32,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.018429622458648848,
+      "top_gradient": [
+        -0.0054903903247033835,
+        0.007057360628715334
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 42,
+      "center_xy_m": [
+        -2.6,
+        -1.02
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.22,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03041192665504431,
+      "top_gradient": [
+        -0.0081937351261624,
+        0.0016410788630533187
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 43,
+      "center_xy_m": [
+        -2.08,
+        -1.02
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.76,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.0411289013842955,
+      "top_gradient": [
+        0.003627388305506473,
+        -0.006249544079323469
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 44,
+      "center_xy_m": [
+        -1.56,
+        -1.02
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.88,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.018890198932794915,
+      "top_gradient": [
+        0.005448442220259787,
+        0.00764296457493273
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 45,
+      "center_xy_m": [
+        -1.04,
+        -1.02
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.0,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.030458274124317106,
+      "top_gradient": [
+        0.001265791904323077,
+        0.006422521370761814
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 46,
+      "center_xy_m": [
+        -0.52,
+        -1.02
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.54,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.0388665328382707,
+      "top_gradient": [
+        0.0030639493084527146,
+        0.0017963396963073513
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 47,
+      "center_xy_m": [
+        0.0,
+        -1.02
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.66,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.02232874958417879,
+      "top_gradient": [
+        0.002035229758574078,
+        -0.007612943845065563
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 48,
+      "center_xy_m": [
+        0.52,
+        -1.02
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 2.2,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03574645464681073,
+      "top_gradient": [
+        -0.0031382964209174915,
+        -0.0007009017692539612
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 49,
+      "center_xy_m": [
+        1.04,
+        -1.02
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.32,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.0462208531186951,
+      "top_gradient": [
+        0.005264868117559331,
+        0.004154127916982166
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 50,
+      "center_xy_m": [
+        1.56,
+        -1.02
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.44,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.025453359201643766,
+      "top_gradient": [
+        0.0027163967099086243,
+        -0.0005248542212488595
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 51,
+      "center_xy_m": [
+        2.0799999999999996,
+        -1.02
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.98,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03165959811120969,
+      "top_gradient": [
+        -8.128754653106973e-06,
+        -0.006852851979451045
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 52,
+      "center_xy_m": [
+        2.6,
+        -1.02
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.1,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.038910381259791564,
+      "top_gradient": [
+        -0.004776806929352336,
+        0.007163438606616975
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 53,
+      "center_xy_m": [
+        -2.38,
+        -0.5
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.88,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04039209228101745,
+      "top_gradient": [
+        -0.005901633890760669,
+        0.006100903298303735
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 54,
+      "center_xy_m": [
+        -1.86,
+        -0.5
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.0,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.019781711384097067,
+      "top_gradient": [
+        -0.002695719457375163,
+        -0.0026179908744400305
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 55,
+      "center_xy_m": [
+        -1.34,
+        -0.5
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.54,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.02880978217123431,
+      "top_gradient": [
+        0.00755686777136816,
+        0.004876799558335235
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 56,
+      "center_xy_m": [
+        -0.8200000000000001,
+        -0.5
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.66,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04134152267391622,
+      "top_gradient": [
+        0.0004159076874489659,
+        -0.00029002984805385525
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 57,
+      "center_xy_m": [
+        -0.30000000000000004,
+        -0.5
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 2.2,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.02031880054839358,
+      "top_gradient": [
+        -0.008478625590312257,
+        0.0023271323004503634
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 58,
+      "center_xy_m": [
+        0.22,
+        -0.5
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.32,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03766482594681661,
+      "top_gradient": [
+        -0.00030440655474029896,
+        0.007106593360612883
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 59,
+      "center_xy_m": [
+        0.74,
+        -0.5
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.44,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04912166151358649,
+      "top_gradient": [
+        -0.00533847582930398,
+        0.008272862863432132
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 60,
+      "center_xy_m": [
+        1.26,
+        -0.5
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.98,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.031080467492703292,
+      "top_gradient": [
+        -0.0012498856929639346,
+        0.004100039868398558
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 61,
+      "center_xy_m": [
+        1.78,
+        -0.5
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.1,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03645434484806183,
+      "top_gradient": [
+        -0.005264004393677551,
+        -0.006786613126724581
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 62,
+      "center_xy_m": [
+        2.3,
+        -0.5
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.22,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04409613114346026,
+      "top_gradient": [
+        -0.005439400817893791,
+        -0.0051630444701860605
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 63,
+      "center_xy_m": [
+        -2.6,
+        0.020000000000000018
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.54,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.025722153695381028,
+      "top_gradient": [
+        -0.0002668671775257342,
+        0.005431926434352408
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 64,
+      "center_xy_m": [
+        -2.08,
+        0.020000000000000018
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.66,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.036154288465500714,
+      "top_gradient": [
+        0.0016865812859557898,
+        0.003792627157968782
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 65,
+      "center_xy_m": [
+        -1.56,
+        0.020000000000000018
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 2.2,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04275050705309924,
+      "top_gradient": [
+        0.0038095608595026913,
+        -0.0009389763070777046
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 66,
+      "center_xy_m": [
+        -1.04,
+        0.020000000000000018
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.32,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.02576563033042915,
+      "top_gradient": [
+        0.0028782505776799895,
+        -0.0070570599640427814
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 67,
+      "center_xy_m": [
+        -0.52,
+        0.020000000000000018
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.44,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03490167399680556,
+      "top_gradient": [
+        0.0049376408448582616,
+        -0.006914322155831392
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 68,
+      "center_xy_m": [
+        0.0,
+        0.020000000000000018
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.98,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04736561833202667,
+      "top_gradient": [
+        -0.0011020761630679901,
+        -0.007070057925009043
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 69,
+      "center_xy_m": [
+        0.52,
+        0.020000000000000018
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.1,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.023238019652536572,
+      "top_gradient": [
+        0.0030420233392306918,
+        0.0050324653577291725
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 70,
+      "center_xy_m": [
+        1.04,
+        0.020000000000000018
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.22,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.034528068454283904,
+      "top_gradient": [
+        0.003325551407403397,
+        -0.0033558209179109233
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 71,
+      "center_xy_m": [
+        1.56,
+        0.020000000000000018
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.76,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.045506726419114484,
+      "top_gradient": [
+        -0.006928399371328494,
+        0.0011278214159955412
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 72,
+      "center_xy_m": [
+        2.0799999999999996,
+        0.020000000000000018
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.88,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.02859724860731787,
+      "top_gradient": [
+        -0.0018415150144319636,
+        -0.005096014294540308
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 73,
+      "center_xy_m": [
+        2.6,
+        0.020000000000000018
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.0,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.032451942233284105,
+      "top_gradient": [
+        -0.008119884163950465,
+        0.003625115248681903
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 74,
+      "center_xy_m": [
+        -2.38,
+        0.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 2.2,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.032299726049515746,
+      "top_gradient": [
+        -0.007520535353476358,
+        0.0015393337142460637
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 75,
+      "center_xy_m": [
+        -1.86,
+        0.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.32,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.0399205415207672,
+      "top_gradient": [
+        0.0061800524471155895,
+        0.008370101850057413
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 76,
+      "center_xy_m": [
+        -1.34,
+        0.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.44,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.021157851204189875,
+      "top_gradient": [
+        0.0017524994952049927,
+        -0.004156500512601536
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 77,
+      "center_xy_m": [
+        -0.8200000000000001,
+        0.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.98,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.031901601720358205,
+      "top_gradient": [
+        0.0011370674976388506,
+        0.005869809886045737
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 78,
+      "center_xy_m": [
+        -0.30000000000000004,
+        0.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.1,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.043036712078061645,
+      "top_gradient": [
+        -0.00501783027305689,
+        -0.001816419818210977
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 79,
+      "center_xy_m": [
+        0.22,
+        0.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.22,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.02566873990076509,
+      "top_gradient": [
+        -0.0021430325751338967,
+        -0.004214469733613097
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 80,
+      "center_xy_m": [
+        0.74,
+        0.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.76,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.027788902916751953,
+      "top_gradient": [
+        -0.008941516062691661,
+        0.005769998122905243
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 81,
+      "center_xy_m": [
+        1.26,
+        0.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.88,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04055450061609327,
+      "top_gradient": [
+        0.007377669008930067,
+        -0.000678316742307861
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 82,
+      "center_xy_m": [
+        1.78,
+        0.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.0,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.02687827995817709,
+      "top_gradient": [
+        0.0033162016372512045,
+        0.0028129202632259202
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 83,
+      "center_xy_m": [
+        2.3,
+        0.54
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.54,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.037094007977885576,
+      "top_gradient": [
+        0.00353615436610971,
+        -0.008459787766711623
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 84,
+      "center_xy_m": [
+        -2.6,
+        1.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.44,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.0422958680678066,
+      "top_gradient": [
+        -0.0018955597885439452,
+        0.0010832395635690627
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 85,
+      "center_xy_m": [
+        -2.08,
+        1.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.98,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.02303510894180648,
+      "top_gradient": [
+        0.005408490001127149,
+        -0.00025643111895272755
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 86,
+      "center_xy_m": [
+        -1.56,
+        1.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.1,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.030033016025534306,
+      "top_gradient": [
+        0.0037274765843981414,
+        -0.007643157686860398
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 87,
+      "center_xy_m": [
+        -1.04,
+        1.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.22,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.0396149989106901,
+      "top_gradient": [
+        0.007507227918453442,
+        0.002368500897561644
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 88,
+      "center_xy_m": [
+        -0.52,
+        1.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.76,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.018965049984569417,
+      "top_gradient": [
+        -8.246475417254123e-06,
+        0.007453155357171179
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 89,
+      "center_xy_m": [
+        0.0,
+        1.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.88,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.035879975232368154,
+      "top_gradient": [
+        -0.008495630821141582,
+        -0.0025582394949711876
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 90,
+      "center_xy_m": [
+        0.52,
+        1.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.0,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.0395240452937842,
+      "top_gradient": [
+        0.0023241059978065647,
+        0.0017832904796516742
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 91,
+      "center_xy_m": [
+        1.04,
+        1.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.54,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.01799749556121184,
+      "top_gradient": [
+        -0.0019336781041057087,
+        -0.004615343306007406
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 92,
+      "center_xy_m": [
+        1.56,
+        1.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.66,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.030397345796907425,
+      "top_gradient": [
+        0.0049084897607401794,
+        -0.004182669068539704
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 93,
+      "center_xy_m": [
+        2.0799999999999996,
+        1.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 2.2,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.046999903792472604,
+      "top_gradient": [
+        0.007210871454739335,
+        -0.00429447120208445
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 94,
+      "center_xy_m": [
+        2.6,
+        1.06
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.32,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.0242977994592539,
+      "top_gradient": [
+        0.0044352481830008395,
+        -0.004374387553026892
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 95,
+      "center_xy_m": [
+        -2.38,
+        1.5799999999999996
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.1,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.027728746352912476,
+      "top_gradient": [
+        0.00687687260058171,
+        0.008418587957107008
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 96,
+      "center_xy_m": [
+        -1.86,
+        1.5799999999999996
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.22,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.0365914799032891,
+      "top_gradient": [
+        0.0032519298704649126,
+        -0.00350917938443783
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 97,
+      "center_xy_m": [
+        -1.34,
+        1.5799999999999996
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.76,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04392293058190413,
+      "top_gradient": [
+        0.002640258937479883,
+        0.008760460108548624
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 98,
+      "center_xy_m": [
+        -0.8200000000000001,
+        1.5799999999999996
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.88,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.017196865561949423,
+      "top_gradient": [
+        0.007494283149450191,
+        -0.003880312679480538
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 99,
+      "center_xy_m": [
+        -0.30000000000000004,
+        1.5799999999999996
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.0,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03190285738958833,
+      "top_gradient": [
+        0.004049928770648638,
+        -0.002803884274435936
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 100,
+      "center_xy_m": [
+        0.22,
+        1.5799999999999996
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.54,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04396437514981877,
+      "top_gradient": [
+        0.008610500191280257,
+        -0.001219083222505907
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 101,
+      "center_xy_m": [
+        0.74,
+        1.5799999999999996
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.66,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.01889822341603026,
+      "top_gradient": [
+        0.0035714013306786026,
+        -0.00797153812662312
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 102,
+      "center_xy_m": [
+        1.26,
+        1.5799999999999996
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 2.2,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.026761397821936875,
+      "top_gradient": [
+        0.0017570404313568544,
+        0.00576782380099394
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 103,
+      "center_xy_m": [
+        1.78,
+        1.5799999999999996
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.32,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04047358860188416,
+      "top_gradient": [
+        -0.004480470753493881,
+        0.006883096051012791
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 104,
+      "center_xy_m": [
+        2.3,
+        1.5799999999999996
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.44,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.020971455769225787,
+      "top_gradient": [
+        0.0031112804829386102,
+        -0.0033341364606418672
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 105,
+      "center_xy_m": [
+        -2.6,
+        2.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.76,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03644131427981138,
+      "top_gradient": [
+        0.005408784190983283,
+        -0.007820527354714023
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 106,
+      "center_xy_m": [
+        -2.08,
+        2.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.88,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.048841051701535215,
+      "top_gradient": [
+        0.005255784588531629,
+        0.00042802037919649656
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 107,
+      "center_xy_m": [
+        -1.56,
+        2.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.0,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.02895398075593312,
+      "top_gradient": [
+        -0.006918448800734715,
+        0.0017591842561197717
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 108,
+      "center_xy_m": [
+        -1.04,
+        2.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.54,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.027550528551374288,
+      "top_gradient": [
+        -0.008344851716393143,
+        0.0016227169338577478
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 109,
+      "center_xy_m": [
+        -0.52,
+        2.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.66,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.03814676761622001,
+      "top_gradient": [
+        -0.00187321616628474,
+        -0.0059385715936071375
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 110,
+      "center_xy_m": [
+        0.0,
+        2.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 2.2,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.025488011608709706,
+      "top_gradient": [
+        -0.004215830686393045,
+        -0.00495229639509801
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 111,
+      "center_xy_m": [
+        0.52,
+        2.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.32,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03255146413693084,
+      "top_gradient": [
+        0.007043988326775915,
+        -0.005040706002644588
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 112,
+      "center_xy_m": [
+        1.04,
+        2.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.44,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.03912074544253918,
+      "top_gradient": [
+        -0.00023938206152541996,
+        0.00017271336111711853
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 113,
+      "center_xy_m": [
+        1.56,
+        2.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.98,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.01736764435582736,
+      "top_gradient": [
+        -0.0023921986591037784,
+        -0.004960790641808599
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 114,
+      "center_xy_m": [
+        2.0799999999999996,
+        2.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.1,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.02912567727100543,
+      "top_gradient": [
+        0.006532448354194172,
+        0.006693029020243791
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 115,
+      "center_xy_m": [
+        2.6,
+        2.1
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.22,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.038793736671317844,
+      "top_gradient": [
+        0.0026648930809226503,
+        -0.0029554127498608576
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 116,
+      "center_xy_m": [
+        -2.38,
+        2.6200000000000006
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.0,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.050747494810383834,
+      "top_gradient": [
+        0.002377351071262492,
+        -0.006085041850998082
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 117,
+      "center_xy_m": [
+        -1.86,
+        2.6200000000000006
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.54,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.029950404178435627,
+      "top_gradient": [
+        -0.007030646180591278,
+        0.004492557347472729
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 118,
+      "center_xy_m": [
+        -1.34,
+        2.6200000000000006
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.66,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.031175307889429755,
+      "top_gradient": [
+        0.006318449038056425,
+        0.005466803336246925
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 119,
+      "center_xy_m": [
+        -0.8200000000000001,
+        2.6200000000000006
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 2.2,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.035641891123814565,
+      "top_gradient": [
+        9.165989942047648e-05,
+        -0.008355387759341219
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 120,
+      "center_xy_m": [
+        -0.30000000000000004,
+        2.6200000000000006
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.32,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.021979441061088574,
+      "top_gradient": [
+        -0.0061172294241766435,
+        0.002279513967890912
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 121,
+      "center_xy_m": [
+        0.22,
+        2.6200000000000006
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.44,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03461993111686382,
+      "top_gradient": [
+        0.002261231020929285,
+        0.004489555566743558
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 122,
+      "center_xy_m": [
+        0.74,
+        2.6200000000000006
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.98,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04268277406333055,
+      "top_gradient": [
+        -0.007007790497685776,
+        -0.002743901569982286
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 123,
+      "center_xy_m": [
+        1.26,
+        2.6200000000000006
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.1,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.020183999401071656,
+      "top_gradient": [
+        -0.008196646895619853,
+        -0.0042725667052100754
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 124,
+      "center_xy_m": [
+        1.78,
+        2.6200000000000006
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.22,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03696436171629704,
+      "top_gradient": [
+        -0.0012191386639398925,
+        0.0002460099243880194
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 125,
+      "center_xy_m": [
+        2.3,
+        2.6200000000000006
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.76,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04460719117805924,
+      "top_gradient": [
+        -0.0016282453084910144,
+        0.004179739518553946
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 126,
+      "center_xy_m": [
+        -2.6,
+        3.14
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.66,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.029447029556858198,
+      "top_gradient": [
+        -0.0014759728634141768,
+        -0.003185353331540592
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 127,
+      "center_xy_m": [
+        -2.08,
+        3.14
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 2.2,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.039747247298373145,
+      "top_gradient": [
+        -0.007070183278531873,
+        0.0065596076160236595
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 128,
+      "center_xy_m": [
+        -1.56,
+        3.14
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.32,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04339338608098295,
+      "top_gradient": [
+        9.113412564033634e-05,
+        0.0017859572956963818
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 129,
+      "center_xy_m": [
+        -1.04,
+        3.14
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.44,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.016946934346992806,
+      "top_gradient": [
+        0.002335026427697581,
+        -0.0002731328335096525
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 130,
+      "center_xy_m": [
+        -0.52,
+        3.14
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.98,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03137676017315025,
+      "top_gradient": [
+        0.004759855921298583,
+        0.0018945380404379545
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 131,
+      "center_xy_m": [
+        0.0,
+        3.14
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.1,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04270248390277979,
+      "top_gradient": [
+        0.006040205349499846,
+        -0.0035420668292768928
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 132,
+      "center_xy_m": [
+        0.52,
+        3.14
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.22,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.023289874827746648,
+      "top_gradient": [
+        0.006149507515353198,
+        0.008947666355501148
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 133,
+      "center_xy_m": [
+        1.04,
+        3.14
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.76,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.03152310415919754,
+      "top_gradient": [
+        0.0038186318042648538,
+        -0.007186119021297322
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 134,
+      "center_xy_m": [
+        1.56,
+        3.14
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.88,
+      "nominal_height_above_center_ground_m": 0.035,
+      "top_center_z_m": 0.04617178058759306,
+      "top_gradient": [
+        -0.0082589845165025,
+        0.0030487984134292857
+      ],
+      "bevel_m": 0.003
+    },
+    {
+      "id": 135,
+      "center_xy_m": [
+        2.0799999999999996,
+        3.14
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 0.0,
+      "nominal_height_above_center_ground_m": 0.015,
+      "top_center_z_m": 0.02669171415173787,
+      "top_gradient": [
+        -0.005357970868159507,
+        0.0014338821799207181
+      ],
+      "bevel_m": 0.0026999999999999997
+    },
+    {
+      "id": 136,
+      "center_xy_m": [
+        2.6,
+        3.14
+      ],
+      "size_xy_m": [
+        0.3,
+        0.25
+      ],
+      "yaw_rad": 1.54,
+      "nominal_height_above_center_ground_m": 0.025,
+      "top_center_z_m": 0.041119438231646065,
+      "top_gradient": [
+        0.007262669917204695,
+        -0.0006573946300830868
+      ],
+      "bevel_m": 0.003
+    }
+  ],
+  "vertices": 23330,
+  "triangles": 46108,
+  "flat_friction_probes": false,
+  "probes": [
+    {
+      "name": "rough_background",
+      "xy_m": [
+        -2.85,
+        -3.7
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "stone_top_0",
+      "xy_m": [
+        0.0,
+        0.020000000000000018
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "stone_edge_0",
+      "xy_m": [
+        -0.11009255463381717,
+        -0.027745464854789896
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "stone_top_1",
+      "xy_m": [
+        -0.52,
+        0.020000000000000018
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "stone_edge_1",
+      "xy_m": [
+        -0.57111273580792,
+        0.12857019958639562
+      ],
+      "kind": "feature"
+    }
+  ],
+  "spawn": {
+    "x": 0.0,
+    "y": -1.5,
+    "z": 0.09179142175121946,
+    "yaw": 1.5707963267948966
+  },
+  "terrain_friction": {
+    "mu": 1.0,
+    "mu2": 1.0,
+    "restitution": 0.0,
+    "status": "Estimated rigid contact; inherited backend settings"
+  },
+  "generation": {
+    "seed": 20261007,
+    "source": {
+      "source_commit": "2a82faceacf8eaf1a8564b05058062e7584b0f45",
+      "source_grid_shape": [
+        787,
+        1427
+      ],
+      "source_resolution_m": 0.00800000037997961,
+      "source_origin_xy_m": [
+        1.0080010779201984,
+        -0.4640008918941021
+      ],
+      "source_valid_fraction": 0.5546151592673161,
+      "source_rgb_valid_fraction": 0.5152286320543449,
+      "source_array_extent_m": [
+        11.408000541850924,
+        6.288000298663974
+      ],
+      "panels": [
+        {
+          "source_center_pixel_xy": [
+            900,
+            430
+          ],
+          "rotation_ccw_deg": 0,
+          "target_center_xy_m": [
+            -1.8,
+            -1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.19099990576505627
+        },
+        {
+          "source_center_pixel_xy": [
+            1030,
+            420
+          ],
+          "rotation_ccw_deg": 90,
+          "target_center_xy_m": [
+            1.8,
+            -1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.15324260096233397
+        },
+        {
+          "source_center_pixel_xy": [
+            800,
+            430
+          ],
+          "rotation_ccw_deg": 180,
+          "target_center_xy_m": [
+            -1.8,
+            1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.48213787008129183
+        },
+        {
+          "source_center_pixel_xy": [
+            650,
+            430
+          ],
+          "rotation_ccw_deg": 270,
+          "target_center_xy_m": [
+            1.8,
+            1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.4950726226182166
+        }
+      ],
+      "blend_width_m": 0.8,
+      "composed_inferred_weight_fraction": 0.03659937992551983,
+      "maximum_blended_gap_fill_distance_m": 0.15191023783916494,
+      "pre_scaling_height_range_m": 1.1468957230143735,
+      "filter": "5x5 median (40 mm), Gaussian sigma 1.5 pixels (12 mm); 25 mm bilinear output",
+      "microrelief": "Three deterministic sinusoids; summed amplitude bound 4 mm before level scaling",
+      "height_transform": "Subtract composed minimum and scale linearly to each requested relief; no height clipping",
+      "layout": "Four rotated measured 4.4 m patches, 0.8 m cosine overlap, new 8x8 m layout. Not the paper layout.",
+      "coordinate_convention": "Array row increases with source odom Y; columns with X, following upstream StaticMap.world_to_grid.",
+      "provenance": {
+        "repository": "https://github.com/fracance/verti-arena-extractor",
+        "commit": "2a82faceacf8eaf1a8564b05058062e7584b0f45",
+        "files": [
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/static_maps/fused_elevation_map.npy",
+            "file": "fused_elevation_map.npy",
+            "sha256": "a966b557eea61700e759002a226bfda494d3c75482528c40f8f25dda97e336a2"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/static_maps/fused_elevation_map_meta.txt",
+            "file": "fused_elevation_map_meta.txt",
+            "sha256": "0be0b8f2075a8830001d42c8dc2f0d99c72055da2a1fa6ff3c6918886dde6e4a"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/static_maps/fused_rgb_map.npy",
+            "file": "fused_rgb_map.npy",
+            "sha256": "ff40dd1a9804eb362b8f3023a09bfc132dcc30259d39fdf8c4dc2cb05114c327"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/README.md",
+            "file": "README.md",
+            "sha256": "1df00a8973f90eb101eecfc4b3209338d152df7fd829e3a07cbc2c4405c460ab"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/scripts/Grid.py",
+            "file": "Grid.py",
+            "sha256": "43fd1bdd70fdb68110f483977df7d100c63873d928c59f0b7794c0d3e93ae71a"
+          }
+        ]
+      }
+    },
+    "ground_relief_before_microrelief_m": 0.014,
+    "ground_filter_sigma_m": 0.2,
+    "background_grid_m": 0.05,
+    "stones": "Explicit closed convex polyhedra with vertical sides, beveled tops and small top tilts",
+    "grid_role": "Projected upper envelope for spawn and route visuals only; collision_vertices/faces are authoritative for physical support",
+    "closed_components": 138,
+    "all_components_validated": true
+  },
+  "limitations": [
+    "New synthetic stone layouts; not a reconstruction of GMU arena.",
+    "Fixed rigid rocks; no granular motion, soil sinkage or tire compliance.",
+    "Local step heights are engineering test choices, not established traversal limits.",
+    "Current vehicle configurations differ in radius, mass and bearing parameters."
+  ],
+  "sha256": {
+    "stl": "35cce3cc2907f210bbb6aefd17bcd069ea444c09dd4316a8c52837a6bdc9c87a",
+    "dae": "d4caf858dbe15172877aae050b65acadcc792d7f9361dd86c770417271d1b4c9",
+    "world": "bca7886e93f511a30aa139e05e3f5c5597b2d1f7a37e6289b44531de766fd8a2"
+  }
+}

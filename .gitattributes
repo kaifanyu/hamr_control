@@ -6,3 +6,6 @@ hamr_bringup/scripts/caster_encoder_protocol.py text eol=lf
 hamr_bringup/scripts/replay_caster_encoder_joints text eol=lf
 hamr_bringup/scripts/caster_replay_model.py text eol=lf
 rosbags/analyze_caster_encoders.py text eol=lf
+
+# Preserve the upstream reference byte-for-byte for its recorded SHA-256.
+maps/assets/verti_arena/Grid.py -whitespace

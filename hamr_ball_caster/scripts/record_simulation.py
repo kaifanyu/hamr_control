@@ -20,7 +20,7 @@ import threading
 import time
 
 import rclpy
-from rclpy.qos import qos_profile_sensor_data
+from rclpy.qos import QoSProfile, ReliabilityPolicy, qos_profile_sensor_data
 from rclpy.signals import SignalHandlerOptions
 from sensor_msgs.msg import Image
 
@@ -47,6 +47,8 @@ def main():
     parser.add_argument("--wall-timeout", type=float, default=3600)
     parser.add_argument("--no-bridge", action="store_true",
                         help="Use an image bridge already running in this ROS domain")
+    parser.add_argument("--reliable-images", action="store_true",
+                        help="Request reliable delivery from the image bridge for recording")
     args = parser.parse_args()
     if args.fps < 1 or args.fps > 120 or args.duration < 0 or args.wall_timeout <= 0:
         parser.error("fps must be 1..120, duration >= 0, wall-timeout > 0")
@@ -67,6 +69,7 @@ def main():
     pending = queue.Queue(maxsize=60)
     stats = {
         "output": str(output), "topic": args.topic, "fps": args.fps,
+        "image_subscription_reliability": "reliable" if args.reliable_images else "best_effort",
         "timing": "camera message simulation timestamps, constant frame rate",
         "frames_received": 0, "frames_encoded": 0, "frames_duplicated": 0,
         "frames_same_timestamp_bin": 0, "frames_queue_dropped": 0,
@@ -181,7 +184,9 @@ def main():
 
     rclpy.init(signal_handler_options=SignalHandlerOptions.NO)
     node = rclpy.create_node("hamr_simulation_video_recorder")
-    node.create_subscription(Image, args.topic, on_image, qos_profile_sensor_data)
+    image_qos = (QoSProfile(depth=20, reliability=ReliabilityPolicy.RELIABLE)
+                 if args.reliable_images else qos_profile_sensor_data)
+    node.create_subscription(Image, args.topic, on_image, image_qos)
     exit_code = 0
     try:
         if not args.no_bridge:

@@ -1,0 +1,89 @@
+{
+  "id": "rock_garden",
+  "title": "Fixed rock garden",
+  "description": "Fixed rounded embedded rocks 25\u201355 mm high plus small surface undulation; rigid packed-ground approximation.",
+  "world": "../worlds/rock_garden.sdf",
+  "bounds_m": {
+    "x": [
+      -3,
+      3
+    ],
+    "y": [
+      -4,
+      4
+    ]
+  },
+  "height_grid": "../meshes/rock_garden_height.npz",
+  "collision_mesh": "../meshes/rock_garden.stl",
+  "visual_mesh": "../meshes/rock_garden.dae",
+  "grid_spacing_m": 0.025,
+  "vertices": 78482,
+  "triangles": 156960,
+  "surface_triangles": 153600,
+  "min_height_m": 0.0,
+  "max_height_m": 0.06018332975518938,
+  "max_surface_slope_deg": 20.223545982377008,
+  "terrain_friction": {
+    "mu": 1.0,
+    "mu2": 1.0,
+    "restitution": 0.0,
+    "basis": "DART mesh attachment defaults; explicit matching SDF values; runtime probe validation required."
+  },
+  "spawn": {
+    "x": 0,
+    "y": -2.8,
+    "z": 0,
+    "yaw": 1.5707963267948966
+  },
+  "probes": [
+    {
+      "name": "flat_approach",
+      "xy_m": [
+        0,
+        -2.6
+      ],
+      "kind": "flat"
+    },
+    {
+      "name": "feature_0",
+      "xy_m": [
+        -0.18,
+        -1.25
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "feature_1",
+      "xy_m": [
+        -0.1,
+        1.25
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "feature_2",
+      "xy_m": [
+        0.32,
+        1.95
+      ],
+      "kind": "feature"
+    }
+  ],
+  "smoke": {
+    "spawn_x": 0,
+    "spawn_y": -0.3,
+    "spawn_z": 0.1,
+    "initial_yaw": 1.5707963267948966,
+    "drive_speed_m_s": 0.12,
+    "duration_s": 10.0
+  },
+  "limitations": [
+    "Rigid terrain, no loose particles, soil deformation or sinkage.",
+    "Estimated contact and robot parameters; no calibrated motor torque limits."
+  ],
+  "sha256": {
+    "stl": "dd8d3f0f0564a67ed55e6fef74943d4d0f400df7a4f06a32a75848635c8482f2",
+    "dae": "ffb441f5d767d8f8742bfea35c2b6d1ddce874bad517cfa041f1d824d003c955"
+  },
+  "slope_method": "Grid-node central finite differences over the top surface; excludes closing side walls."
+}

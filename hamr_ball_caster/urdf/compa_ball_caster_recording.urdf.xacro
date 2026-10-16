@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="compa">
+  <!-- Recording wrapper: original passive CAD casters, chassis and actuators.
+       No caster joint is driven or prescribed. Original entrypoint is unchanged. -->
+  <xacro:arg name="enable_closeup_camera" default="true"/>
+  <xacro:include filename="compa_ball_caster.urdf.xacro"/>
+  <xacro:include filename="ball_closeup_camera.xacro"/>
+  <xacro:if value="$(arg enable_closeup_camera)">
+    <xacro:ball_closeup_camera parent="right_rocker_link"/>
+  </xacro:if>
+</robot>

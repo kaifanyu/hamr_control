@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="powertec_17050_caster">
+  <xacro:arg name="initial_swivel_rad" default="0.0"/>
+  <xacro:arg name="caster_mass_scale" default="1.0"/>
+  <xacro:include filename="$(find hamr_ball_caster)/urdf/compa_common.xacro"/>
+  <xacro:include filename="swivel_caster.xacro"/>
+  <link name="mount_frame"/>
+  <!-- mount_frame is the top face of the plate. Unattached component URDF;
+       use the complete vehicle model for a supported, actuated simulation. -->
+  <xacro:swivel_caster prefix="caster_" parent="mount_frame" mount_xyz="0 0 0" swivel_phase="$(arg initial_swivel_rad)" mass_scale="$(arg caster_mass_scale)"/>
+</robot>

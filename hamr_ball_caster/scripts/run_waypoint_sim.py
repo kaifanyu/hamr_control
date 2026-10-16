@@ -154,7 +154,7 @@ def predict_control_pose(x, y, yaw, velocity, odom_age, enabled, continuous=Fals
 
 
 def summarize(samples, route, completed, target_yaw=0., arrivals=None, duration=None,
-              continuous=False):
+              continuous=False, passive_joint_names=None):
     failures = []
     if not completed:
         failures.append("Trajectory and final hold did not complete")
@@ -186,7 +186,8 @@ def summarize(samples, route, completed, target_yaw=0., arrivals=None, duration=
         failures.append(f"Base roll/pitch exceeded 0.4 rad: {max_tilt:.4f}")
     if any(not math.isfinite(v) for s in samples for key in ("position_m", "base_rpy_rad", "commands_rad_s") for v in s[key]):
         failures.append("Non-finite simulation state or command")
-    passive_names = [f"{side}_caster_{joint}_joint" for side in ("left", "right") for joint in (
+    passive_names = passive_joint_names if passive_joint_names is not None else [
+        f"{side}_caster_{joint}_joint" for side in ("left", "right") for joint in (
         "carrier", "positive_hemisphere", "negative_hemisphere", "positive_polar_roller", "negative_polar_roller")]
     missing = set(passive_names)-set(samples[-1]["joint_positions_rad"])
     if missing:
@@ -236,6 +237,15 @@ def main():
     config_path = args.config or Path(get_package_share_directory("hamr_ball_caster"))/"config"/config_name
     config_bytes = config_path.read_bytes()
     cfg = yaml.safe_load(config_bytes)
+    passive_names = cfg.get("passive_joint_names", [
+        f"{side}_caster_{joint}_joint" for side in ("left", "right") for joint in (
+        "carrier", "positive_hemisphere", "negative_hemisphere", "positive_polar_roller", "negative_polar_roller")])
+    if (not isinstance(passive_names, list) or not passive_names
+            or any(not isinstance(name, str) or not name for name in passive_names)
+            or len(set(passive_names)) != len(passive_names)
+            or any(not any(name.startswith(side + "_") for name in passive_names)
+                   for side in ("left", "right"))):
+        parser.error("passive_joint_names must list unique names for both left and right casters")
     implementation_sha256 = {"run_waypoint_sim.py": hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
     speed = args.speed if args.speed is not None else cfg["speed_m_s"]
     startup = args.startup_hold if args.startup_hold is not None else cfg["startup_hold_s"]
@@ -247,37 +257,53 @@ def main():
     if args.plan_only and args.profile != "continuous":
         parser.error("--plan-only requires --profile continuous")
     aligned_feedback = args.profile != "legacy"
-    continuous_plan = None
-    if args.profile == "continuous":
-        from continuous_waypoint import ContinuousWaypointReference
-        from reference_trajectory import continuous_waypoint
-        implementation_sha256["continuous_waypoint.py"] = hashlib.sha256(
-            Path(continuous_waypoint.__file__).read_bytes()).hexdigest()
-        route = ContinuousWaypointReference(
-            cfg["points_m"], speed, radius=cfg["wheel_radius_m"],
-            half_track=cfg["half_track_m"], offset=cfg["base_ahead_of_axle_m"],
-            max_translational_acceleration=cfg["planning_max_translation_acceleration_m_s2"],
-            planning_wheel_rate=cfg["max_wheel_rate_rad_s"]*cfg["planning_wheel_rate_fraction"],
-            planning_wheel_acceleration=cfg["max_wheel_acceleration_rad_s2"]*cfg["planning_wheel_acceleration_fraction"],
-            corner_deviation=cfg["corner_deviation_m"], max_jerk=cfg["planning_max_jerk_m_s3"])
-        continuous_plan = route.metadata()
-        schedule = None
-    elif args.profile == "smooth":
-        from feasible_waypoint import FeasibleWaypointReference
-        import feasible_waypoint
-        implementation_sha256["feasible_waypoint.py"] = hashlib.sha256(
-            Path(feasible_waypoint.__file__).read_bytes()).hexdigest()
-        route = FeasibleWaypointReference(
-            cfg["points_m"], speed, radius=cfg["wheel_radius_m"],
-            half_track=cfg["half_track_m"], offset=cfg["base_ahead_of_axle_m"],
-            max_translational_acceleration=cfg["planning_max_translation_acceleration_m_s2"],
-            planning_wheel_rate=cfg["max_wheel_rate_rad_s"]*cfg["planning_wheel_rate_fraction"],
-            planning_wheel_acceleration=cfg["max_wheel_acceleration_rad_s2"]*cfg["planning_wheel_acceleration_fraction"])
-        schedule = SettledWaypointSchedule(route, cfg["settle_position_tolerance_m"],
-            cfg["settle_speed_tolerance_m_s"], cfg["settle_dwell_s"], cfg["settle_timeout_s"])
-    else:
-        route = PolylineReference(cfg["points_m"], speed)
-        schedule = None
+    def build_reference(points):
+        continuous_plan = None
+        if args.profile == "continuous":
+            from continuous_waypoint import ContinuousWaypointReference
+            from reference_trajectory import continuous_waypoint
+            implementation_sha256["continuous_waypoint.py"] = hashlib.sha256(
+                Path(continuous_waypoint.__file__).read_bytes()).hexdigest()
+            route = ContinuousWaypointReference(
+                points, speed, radius=cfg["wheel_radius_m"],
+                half_track=cfg["half_track_m"], offset=cfg["base_ahead_of_axle_m"],
+                max_translational_acceleration=cfg["planning_max_translation_acceleration_m_s2"],
+                planning_wheel_rate=cfg["max_wheel_rate_rad_s"]*cfg["planning_wheel_rate_fraction"],
+                planning_wheel_acceleration=cfg["max_wheel_acceleration_rad_s2"]*cfg["planning_wheel_acceleration_fraction"],
+                corner_deviation=cfg["corner_deviation_m"], max_jerk=cfg["planning_max_jerk_m_s3"])
+            continuous_plan = route.metadata()
+            schedule = None
+        elif args.profile == "smooth":
+            from feasible_waypoint import FeasibleWaypointReference
+            import feasible_waypoint
+            implementation_sha256["feasible_waypoint.py"] = hashlib.sha256(
+                Path(feasible_waypoint.__file__).read_bytes()).hexdigest()
+            route = FeasibleWaypointReference(
+                points, speed, radius=cfg["wheel_radius_m"],
+                half_track=cfg["half_track_m"], offset=cfg["base_ahead_of_axle_m"],
+                max_translational_acceleration=cfg["planning_max_translation_acceleration_m_s2"],
+                planning_wheel_rate=cfg["max_wheel_rate_rad_s"]*cfg["planning_wheel_rate_fraction"],
+                planning_wheel_acceleration=cfg["max_wheel_acceleration_rad_s2"]*cfg["planning_wheel_acceleration_fraction"])
+            schedule = SettledWaypointSchedule(route, cfg["settle_position_tolerance_m"],
+                cfg["settle_speed_tolerance_m_s"], cfg["settle_dwell_s"], cfg["settle_timeout_s"])
+        else:
+            route = PolylineReference(points, speed)
+            schedule = None
+        return route, schedule, continuous_plan
+
+    route, schedule, continuous_plan = build_reference(cfg["points_m"])
+    configured_startup = startup
+    alignment = None
+    alignment_config = cfg.get("startup_alignment", {})
+    if not isinstance(alignment_config, dict):
+        parser.error("startup_alignment must be a configuration mapping")
+    if alignment_config.get("enabled", False):
+        from startup_alignment import StartupAlignment
+        import startup_alignment
+        implementation_sha256["startup_alignment.py"] = hashlib.sha256(
+            Path(startup_alignment.__file__).read_bytes()).hexdigest()
+        alignment = StartupAlignment(alignment_config, cfg["points_m"], cfg["wheel_radius_m"],
+                                     cfg["half_track_m"], cfg["base_ahead_of_axle_m"])
     if args.plan_only:
         args.plan_only.parent.mkdir(parents=True, exist_ok=True)
         args.plan_only.write_text(json.dumps({"trajectory_profile": args.profile,
@@ -326,6 +352,8 @@ def main():
         for pub, value in zip(pubs, values):
             pub.publish(Float64(data=float(value)))
     samples = []
+    alignment_sample = None
+    motion_epoch = None
     started = previous = None
     last_sample = -math.inf
     last_odom_sample = -math.inf
@@ -350,14 +378,17 @@ def main():
             if started is None:
                 if not all(pub.get_subscription_count() > 0 for pub in pubs):
                     continue
-                expected = {f"{side}_caster_{joint}_joint" for side in ("left", "right") for joint in (
-                    "carrier", "positive_hemisphere", "negative_hemisphere", "positive_polar_roller", "negative_polar_roller")}
+                expected = set(passive_names)
+                if alignment:
+                    expected.update(alignment.required_joint_names)
                 expected.update(("left_rocker_left_wheel_joint", "right_rocker_right_wheel_joint",
                                  "base_roll_joint", "roll_pitch_joint", "pitch_yaw_plate_joint"))
                 missing = expected-set(state["joints"].name)
                 if missing:
-                    raise RuntimeError(f"Expected the full COMPA CAD-caster simulation; missing joints: {sorted(missing)}")
+                    raise RuntimeError(f"Expected the full COMPA caster simulation; missing joints: {sorted(missing)}")
                 started = previous = now
+                if alignment is None:
+                    motion_epoch = started+startup
                 path = PathMessage()
                 path.header.frame_id = "odom"
                 display_points = ([point["position_m"] for point in continuous_plan["samples"]]
@@ -378,11 +409,13 @@ def main():
                 continue
             previous = now
             elapsed = now-started
-            trajectory_time = max(0., elapsed-startup)
+            trajectory_time = max(0., now-motion_epoch) if motion_epoch is not None else 0.
             odom = state["odom"].pose.pose
             x, y, z = odom.position.x, odom.position.y, odom.position.z
             roll, pitch, yaw = quaternion_rpy(odom.orientation)
             joints = dict(zip(state["joints"].name, state["joints"].position))
+            joint_stamp = (state["joints"].header.stamp.sec +
+                           state["joints"].header.stamp.nanosec*1e-9)
             odom_stamp = state["odom"].header.stamp.sec+state["odom"].header.stamp.nanosec*1e-9
             odom_age = now-odom_stamp
             velocity = state["velocity"]
@@ -397,11 +430,31 @@ def main():
                 continuous=args.profile == "continuous")
             motion_state = "startup_hold"
             reference_time = trajectory_time
-            if elapsed < startup:
+            preparation_wheels = None
+            if elapsed < configured_startup:
                 phase = "startup_hold"
                 rx, ry = route.points[0]
                 vx = vy = 0.
                 index = 0
+            elif alignment is not None and not alignment.done:
+                left, right, reference_xy, alignment_sample = alignment.update(
+                    now, (x, y), yaw, joints, math.hypot(*velocity[:2]))
+                preparation_wheels = (left, right)
+                phase = motion_state = alignment.phase
+                rx, ry = reference_xy
+                vx = vy = 0.
+                index = 0
+                if alignment.done:
+                    # Keep every requested destination. Only replace the source
+                    # of the first remaining segment with real measured pose.
+                    executed_points = [[x, y], *cfg["points_m"][1:]]
+                    route, schedule, continuous_plan = build_reference(executed_points)
+                    motion_epoch = now
+                    startup = motion_epoch-started
+                    for recorded in samples:
+                        recorded["trajectory_time_s"] = recorded["odometry_stamp_s"]-motion_epoch
+                    print(f"Startup alignment passed after {alignment.report()['duration_s']:.2f} s; "
+                          f"first destination retained at {route.points[1]}", flush=True)
             elif schedule:
                 previous_index = schedule.index
                 schedule.update(trajectory_time, (x, y), math.hypot(*velocity[:2]))
@@ -434,6 +487,8 @@ def main():
                 vx *= cfg["max_translation_m_s"]/norm
                 vy *= cfg["max_translation_m_s"]/norm
             left, right, omega = inverse_drive(vx, vy, control_yaw, cfg["wheel_radius_m"], cfg["half_track_m"], cfg["base_ahead_of_axle_m"])
+            if preparation_wheels is not None:
+                left, right = preparation_wheels
             raw_wheels = [left, right]
             factor = min(1., cfg["max_wheel_rate_rad_s"]/max(abs(left), abs(right), 1e-12))
             left, right = left*factor, right*factor
@@ -471,12 +526,14 @@ def main():
                 sample_reference = [rx, ry]
                 sample_velocity = reference_velocity
                 sample_time = trajectory_time
-                if aligned_feedback:
-                    sample_time = odom_stamp-started-startup
+                if aligned_feedback and preparation_wheels is None:
+                    sample_time = odom_stamp-motion_epoch if motion_epoch is not None else odom_stamp-started-configured_startup
                     at_pose = schedule.sample(sample_time) if schedule else route.sample(sample_time)
                     sx, sy, svx, svy = at_pose[:4]
                     sample_reference = [sx, sy]
                     sample_velocity = [svx, svy]
+                elif preparation_wheels is not None:
+                    sample_time = odom_stamp-motion_epoch if motion_epoch is not None else odom_stamp-started-configured_startup
                 sample = {"simulation_time_s": now,
                           "elapsed_s": odom_stamp-started if aligned_feedback else elapsed,
                           "controller_elapsed_s": elapsed,
@@ -492,12 +549,17 @@ def main():
                           "controller_dt_s": dt, "base_rpy_rad": [roll, pitch, yaw],
                           "turret_world_yaw_rad": turret_yaw, "commands_rad_s": commands,
                           "joint_positions_rad": joints,
+                          "joint_state_stamp_s": joint_stamp,
+                          "joint_state_age_s": now-joint_stamp,
                           "joint_velocities_rad_s": dict(zip(state["joints"].name, state["joints"].velocity))}
+                if alignment_sample is not None and preparation_wheels is not None:
+                    sample["startup_alignment"] = alignment_sample
                 samples.append(sample)
                 status_pub.publish(String(data=json.dumps({key:sample[key] for key in (
                     "elapsed_s", "trajectory_time_s", "phase", "segment", "reference_m", "position_m", "position_error_m")})))
             finish_time = schedule.completed_at if schedule else route.duration
-            feedback_covers_finish = not aligned_feedback or (finish_time is not None and odom_stamp-started-startup >= finish_time)
+            feedback_covers_finish = motion_epoch is not None and (not aligned_feedback or
+                (finish_time is not None and odom_stamp-motion_epoch >= finish_time))
             if finish_time is not None and trajectory_time >= finish_time+final_hold and feedback_covers_finish:
                 completed = True
                 break
@@ -510,9 +572,15 @@ def main():
         node.destroy_node()
         rclpy.shutdown()
     arrivals = schedule.arrivals if schedule else route.starts
+    if alignment is not None and motion_epoch is None:
+        # Keep failed preparation outside normal tracking metrics, with an
+        # explicit failed alignment report. Absolute feedback remains intact.
+        startup = samples[-1]["controller_elapsed_s"]+control_period if samples else configured_startup
+        for recorded in samples:
+            recorded["trajectory_time_s"] = recorded["odometry_stamp_s"]-started-startup
     motion_duration = schedule.completed_at if schedule else route.duration
     summary = summarize(samples, route, completed, cfg["fixed_turret_yaw_rad"], arrivals, motion_duration,
-                        continuous=args.profile == "continuous")
+                        continuous=args.profile == "continuous", passive_joint_names=passive_names)
     if failure:
         summary["passed"] = False
         summary["failures"].append(failure)
@@ -528,11 +596,20 @@ def main():
               "planner_segments": route.segments if aligned_feedback else [],
               "measurement_alignment": "Reference evaluated at raw odometry source stamp" if aligned_feedback else "Legacy reference at controller clock, raw latest odometry",
               "startup_hold_s": startup, "final_hold_s": final_hold,
+              "configured_startup_hold_s": configured_startup,
               "config_sha256": hashlib.sha256(config_bytes).hexdigest(),
               "implementation_sha256": implementation_sha256,
               "wall_duration_s": time.monotonic()-wall_started,
-              "scope": "Full COMPA/HAMR retrofit with two CAD casters; actual Gazebo physics feedback and offset-drive inverse kinematics with fixed upper yaw. Continuous profile rounds corners with a bounded-deviation curve and one uninterrupted speed plan. Smooth profile preserves exact straight segments with planned stops and measured settling; legacy retains original abrupt timing. Ideal velocity actuators and nominal physical parameters remain simulation assumptions.",
+              "scope": "Full COMPA/HAMR retrofit with two passive casters; actual Gazebo physics feedback and offset-drive inverse kinematics with fixed upper yaw. Continuous profile rounds corners with a bounded-deviation curve and one uninterrupted speed plan. Smooth profile preserves exact straight segments with planned stops and measured settling; legacy retains original abrupt timing. Ideal velocity actuators and nominal physical parameters remain simulation assumptions.",
               "samples": samples}
+    if alignment is not None:
+        report["requested_route_points_m"] = cfg["points_m"]
+        report["executed_route_points_m"] = [list(point) for point in route.points]
+        report["startup_alignment"] = alignment.report()
+        report["startup_alignment"]["total_premotion_duration_s"] = startup
+        if not alignment.done:
+            summary["passed"] = False
+            summary["failures"].append("Startup heading/caster alignment did not complete")
     if continuous_plan is not None:
         report["continuous_plan"] = continuous_plan
     if aligned_feedback:
@@ -546,7 +623,11 @@ def main():
         analyzer = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(analyzer)
         implementation_sha256[analysis_name] = hashlib.sha256(analysis_path.read_bytes()).hexdigest()
-        acceptance = analyzer.analyze_report(report, cfg["acceptance"])
+        try:
+            acceptance = analyzer.analyze_report(report, cfg["acceptance"])
+        except ValueError as exc:
+            # An incomplete route must still retain diagnostic feedback.
+            acceptance = {"passed": False, "failures": [f"Tracking analysis unavailable: {exc}"]}
         report["continuous_acceptance" if continuous_plan else "corner_acceptance"] = acceptance
         if not acceptance["passed"]:
             summary["passed"] = False

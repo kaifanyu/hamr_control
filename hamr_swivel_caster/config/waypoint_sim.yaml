@@ -1,0 +1,46 @@
+# Exploratory trajectory for estimated 160 mm rubber swivel casters.
+# The square exercises turns; the final out-and-back forces a caster reversal.
+# These are simulation checks, not calibrated hardware performance claims.
+name: swivel_caster_waypoint
+passive_joint_names:
+  - left_caster_swivel_joint
+  - left_caster_wheel_joint
+  - right_caster_swivel_joint
+  - right_caster_wheel_joint
+reference_source: hamr_ball_caster/scripts/feasible_waypoint.py
+speed_m_s: 0.20
+fixed_turret_yaw_rad: 0.0
+points_m:
+  - [0.0, 0.0]
+  - [0.8, 0.0]
+  - [0.8, 0.8]
+  - [0.0, 0.8]
+  - [0.0, 0.0]
+  - [0.6, 0.0]
+  - [0.0, 0.0]
+wheel_radius_m: 0.1075
+half_track_m: 0.33072
+base_ahead_of_axle_m: 0.27114
+position_gain_s_inv: 8.0
+orientation_gain_s_inv: 4.0
+max_translation_m_s: 0.40
+max_wheel_rate_rad_s: 6.0
+max_wheel_acceleration_rad_s2: 15.0
+max_gimbal_rate_rad_s: 2.5
+planning_max_translation_acceleration_m_s2: 0.10
+planning_wheel_rate_fraction: 0.65
+planning_wheel_acceleration_fraction: 0.50
+settle_position_tolerance_m: 0.004
+settle_speed_tolerance_m_s: 0.010
+settle_dwell_s: 0.30
+settle_timeout_s: 10.0
+control_period_s: 0.01
+predict_odometry: true
+reference_lookahead_s: 0.005
+startup_hold_s: 3.0
+final_hold_s: 3.0
+acceptance:
+  max_tracking_error_m: 0.080
+  max_cross_track_m: 0.050
+  max_corner_overshoot_m: 0.030
+  max_final_error_m: 0.010

@@ -1,0 +1,299 @@
+{
+  "created_utc": "2026-10-06T19:49:17.076789+00:00",
+  "complete": true,
+  "source_url": "https://github.com/youwyu/Adaptive-Diffusion-Terrain",
+  "source_commit": "262488cd981f616898541198537a4b302fa2922a",
+  "source_checkout": "/home/para/.cache/hamr-adtg/source",
+  "source_dirty_before_generation": false,
+  "standalone_source_tree_sha256": {
+    "README.md": "7a3856ea45511e860fb4ceed44b02084450fc58f23dafc941d3b26a6f5b40988",
+    "pyproject.toml": "55c1ecd4dd58e3e2c69674028da29c055b3207d722204c7d1b51765fb67b84b6",
+    "terrain_diffusion/__init__.py": "a3f74a0512b78430d246fb289a5c82e07112a3cd3426d0eb0b74e2d7b3517b71",
+    "terrain_diffusion/__main__.py": "d7815f9da17bcd8e79d1d47170e5795e29cc5837f97d1049664813068a9e563f",
+    "terrain_diffusion/cli.py": "41ebbe729f59cc14f46c8bdcf27b8eb76e88ae2555ec5a48b35d63cb865a86da",
+    "terrain_diffusion/generator.py": "cf34e41155e0b93bcbd4f85c8777f2fda44d9124065766d5b1e4a3a520094c71",
+    "terrain_diffusion/io.py": "dae37f21cd2ccfc45581d2002bae97c81a12e9f7eef81aa9bf5a0cae870c5ef9",
+    "terrain_diffusion/licenses/CONSISTENCY_MODELS_LICENSE.txt": "dcf7927ec000e0bea021baf556c82ad7ac2e96cdd8285a1c8b2a7014e8300c6d",
+    "terrain_diffusion/render.py": "284a28f11e9a93dfee856331e524caad8106b277681fc178885afca91c43ba41",
+    "terrain_diffusion/simulators/__init__.py": "0225e287f1f34b9460b8847072703e252f0a199ca37443dba7da14569d612a9a",
+    "terrain_diffusion/simulators/base.py": "cbbee853d3bbe3a1e7cf12a1e4e8c71ec0605a5034a1256eb5646ad0171000a0",
+    "terrain_diffusion/simulators/gazebo.py": "4a8cf0858cadadd95c63517d99165c55992cb443963526a258cb936d27d16f1d",
+    "terrain_diffusion/simulators/isaaclab.py": "aedf500c4b8d0f7dfbff4b342e51e19ad6f67d74b3862cd96a406e69e6629540",
+    "terrain_diffusion/simulators/mujoco.py": "57e7bed4afe8bb87b5f93f812ee0b6f0d7a40cdbb0089cc31aa384aeacce9f2a",
+    "terrain_diffusion/simulators/pybullet.py": "80ddcec23010b880b92212d5fed44857601768024969376007320878ee7e99bf",
+    "terrain_diffusion/weights/terrain_consistency_unet_difficulty100.onnx": "95be54b4a39d58320e187a7ec533351c957f16a00be58773c86074828ee67887",
+    "tools/build_teaser.py": "659ead0fe9cbb83f8749ebdcede7947b79cef482fab9680effa1e0e0f458d04d",
+    "tools/teaser/capture_isaaclab.py": "26ec136f09a50b5a0accc00fb229e24265311cadd5e36e9457ceee9e908a9111",
+    "tools/teaser/capture_mjlab.py": "064d44734c61b72d6c42a2d9d3d91e0e60ebe4e1d2c73508191da142ada92599",
+    "tutorials/simulators.md": "37c71cdbe5ba05c19e436f6fb7c58de4aca5da1819001ced661e468e4dfa9898"
+  },
+  "official_checkpoint": {
+    "source_file": "/home/para/.cache/hamr-adtg/source/contexts/standalone/terrain_diffusion/weights/terrain_consistency_unet_difficulty100.onnx",
+    "sha256": "95be54b4a39d58320e187a7ec533351c957f16a00be58773c86074828ee67887",
+    "bytes": 45458109
+  },
+  "environment": {
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+    "executable": "/home/para/.cache/hamr-adtg/venv/bin/python",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "distributions": {
+      "numpy": "2.2.6",
+      "flatbuffers": "25.12.19",
+      "coloredlogs": "15.0.1",
+      "onnxruntime": "1.22.1",
+      "protobuf": "7.36.2",
+      "setuptools": "80.9.0",
+      "mpmath": "1.3.0",
+      "adaptive-terrain-diffusion": "0.4.2",
+      "humanfriendly": "10.0",
+      "sympy": "1.14.0",
+      "wheel": "0.45.1",
+      "packaging": "26.3",
+      "pip": "24.0"
+    },
+    "cpu_runtime_note": "Official source installed with --no-deps; CPU onnxruntime 1.22.1 supplies the supported CPU API instead of Linux distribution metadata default onnxruntime-gpu. Source and weights unchanged."
+  },
+  "generation": {
+    "seed": 7,
+    "seed_reset_for_each_difficulty": true,
+    "num_terrains_per_call": 1,
+    "shape_y_x": [
+      321,
+      241
+    ],
+    "difficulty_values": [
+      5,
+      25,
+      50,
+      75,
+      95
+    ],
+    "size_mode": "auto",
+    "resolved_size_mode": "tile",
+    "tile_overlap": 32,
+    "batch_size": 16,
+    "zero_floor": true,
+    "sampling_steps": 1,
+    "guidance_scale": 1.0,
+    "postprocessing": "Only official API decoding, overlapping tile blending and zero_floor; no custom filtering, clipping, scaling or blending."
+  },
+  "units": {
+    "heights": "meters as interpreted by official SimulatorTerrain",
+    "generator_xy_spacing": null,
+    "official_simulator_default_spacing_m": 0.1,
+    "official_simulator_default_vertical_multiplier": 1.0,
+    "physical_extent_xy_m_at_default_spacing": [
+      24.0,
+      32.0
+    ],
+    "hamr_candidate_spacing_m_not_applied": 0.025,
+    "candidate_extent_xy_m": [
+      6.0,
+      8.0
+    ]
+  },
+  "scope": "Official current endpoint-distilled one-step consistency-diffusion generator; no claim this reproduces the complete original CoRL training/curriculum experiment.",
+  "samples": [
+    {
+      "difficulty": 5,
+      "seed": 7,
+      "file": "difficulty_005_seed7.npy",
+      "sha256": "9e99a581a46647bba5f3bf0e06d883927d65b72831ac220d56ee6b40451c6fb5",
+      "wall_s": 4.463079990000097,
+      "shape_y_x": [
+        321,
+        241
+      ],
+      "dtype": "float32",
+      "finite": true,
+      "height_min_m": 0.0,
+      "height_max_m": 2.355480432510376,
+      "height_range_m": 2.355480432510376,
+      "height_mean_m": 0.19825221598148346,
+      "height_std_m": 0.17507728934288025,
+      "height_percentiles_m": {
+        "p1": 0.0,
+        "p5": 0.0,
+        "p50": 0.18117891252040863,
+        "p95": 0.4551298916339874,
+        "p99": 0.5795089721679678
+      },
+      "unscaled_height_slopes_at_xy_spacing_0.1_m": {
+        "maximum_deg": 75.02770338267808,
+        "p95_deg": 8.248200989480154,
+        "rms_gradient": 0.1689312013501206
+      },
+      "unscaled_height_slopes_at_xy_spacing_0.025_m": {
+        "maximum_deg": 86.17502505926565,
+        "p95_deg": 30.10705148761585,
+        "rms_gradient": 0.6757248054004824
+      }
+    },
+    {
+      "difficulty": 25,
+      "seed": 7,
+      "file": "difficulty_025_seed7.npy",
+      "sha256": "99982626ed4c2c48eccba16488ff14e46c3b6910cb8a3b18eaf7c4d2499a5296",
+      "wall_s": 4.065154325000094,
+      "shape_y_x": [
+        321,
+        241
+      ],
+      "dtype": "float32",
+      "finite": true,
+      "height_min_m": 0.0,
+      "height_max_m": 9.1738920211792,
+      "height_range_m": 9.1738920211792,
+      "height_mean_m": 0.3285297155380249,
+      "height_std_m": 0.5204846262931824,
+      "height_percentiles_m": {
+        "p1": 0.0,
+        "p5": 0.006196211092174053,
+        "p50": 0.2636985778808594,
+        "p95": 0.6836338639259338,
+        "p99": 1.8197457551956016
+      },
+      "unscaled_height_slopes_at_xy_spacing_0.1_m": {
+        "maximum_deg": 85.32762516215827,
+        "p95_deg": 12.803766260188885,
+        "rms_gradient": 0.666140357001578
+      },
+      "unscaled_height_slopes_at_xy_spacing_0.025_m": {
+        "maximum_deg": 88.82947293296488,
+        "p95_deg": 42.27253785253254,
+        "rms_gradient": 2.664561428006312
+      }
+    },
+    {
+      "difficulty": 50,
+      "seed": 7,
+      "file": "difficulty_050_seed7.npy",
+      "sha256": "a5f288b62bda63673518918ff420b9a68ffd5700699b2e4e85c5c7303824fdf5",
+      "wall_s": 3.05187910199993,
+      "shape_y_x": [
+        321,
+        241
+      ],
+      "dtype": "float32",
+      "finite": true,
+      "height_min_m": 0.0,
+      "height_max_m": 17.82172393798828,
+      "height_range_m": 17.82172393798828,
+      "height_mean_m": 0.5120992660522461,
+      "height_std_m": 1.0367188453674316,
+      "height_percentiles_m": {
+        "p1": 0.014408958703279495,
+        "p5": 0.027389373630285263,
+        "p50": 0.3825295865535736,
+        "p95": 0.9988580346107483,
+        "p99": 3.6698054313659245
+      },
+      "unscaled_height_slopes_at_xy_spacing_0.1_m": {
+        "maximum_deg": 88.13840804162777,
+        "p95_deg": 20.546510633865783,
+        "rms_gradient": 1.4174444986374775
+      },
+      "unscaled_height_slopes_at_xy_spacing_0.025_m": {
+        "maximum_deg": 89.53444841986507,
+        "p95_deg": 56.29654352640534,
+        "rms_gradient": 5.66977799454991
+      }
+    },
+    {
+      "difficulty": 75,
+      "seed": 7,
+      "file": "difficulty_075_seed7.npy",
+      "sha256": "c553d9acc137991b623512f8179573a5d8ea8da6c3edb6a8ae92145009f317c5",
+      "wall_s": 3.919202969000253,
+      "shape_y_x": [
+        321,
+        241
+      ],
+      "dtype": "float32",
+      "finite": true,
+      "height_min_m": 0.0,
+      "height_max_m": 11.93776798248291,
+      "height_range_m": 11.93776798248291,
+      "height_mean_m": 0.6307188868522644,
+      "height_std_m": 0.6859632134437561,
+      "height_percentiles_m": {
+        "p1": 0.05673476755619049,
+        "p5": 0.08763687312602997,
+        "p50": 0.5440656542778015,
+        "p95": 1.2806282043457031,
+        "p99": 1.907382440567013
+      },
+      "unscaled_height_slopes_at_xy_spacing_0.1_m": {
+        "maximum_deg": 87.49695237767622,
+        "p95_deg": 25.38863352710862,
+        "rms_gradient": 0.8194289723166174
+      },
+      "unscaled_height_slopes_at_xy_spacing_0.025_m": {
+        "maximum_deg": 89.37386462705163,
+        "p95_deg": 62.22115346548531,
+        "rms_gradient": 3.2777158892664695
+      }
+    },
+    {
+      "difficulty": 95,
+      "seed": 7,
+      "file": "difficulty_095_seed7.npy",
+      "sha256": "4ade3ced1fb3b6ef8941a37a2a5fcf0dc748a90285f494f180f0ea0cbc33e3d4",
+      "wall_s": 3.6282506299999113,
+      "shape_y_x": [
+        321,
+        241
+      ],
+      "dtype": "float32",
+      "finite": true,
+      "height_min_m": 0.0,
+      "height_max_m": 6.9182868003845215,
+      "height_range_m": 6.9182868003845215,
+      "height_mean_m": 0.8855621814727783,
+      "height_std_m": 0.6266571283340454,
+      "height_percentiles_m": {
+        "p1": 0.06752517819404602,
+        "p5": 0.17593549191951752,
+        "p50": 0.7664485573768616,
+        "p95": 1.9086331129074097,
+        "p99": 2.476764059066772
+      },
+      "unscaled_height_slopes_at_xy_spacing_0.1_m": {
+        "maximum_deg": 85.97883490006365,
+        "p95_deg": 34.62054339291677,
+        "rms_gradient": 0.5677373274625059
+      },
+      "unscaled_height_slopes_at_xy_spacing_0.025_m": {
+        "maximum_deg": 88.99315856482488,
+        "p95_deg": 70.0937776225618,
+        "rms_gradient": 2.2709493098500237
+      }
+    }
+  ],
+  "runtime": {
+    "device": "cpu",
+    "providers": [
+      "CPUExecutionProvider"
+    ],
+    "model_metadata": {
+      "architecture": "consistency-unet-32",
+      "native_size": 128,
+      "num_classes": 100,
+      "sampling_method": "onestep",
+      "sampling_steps": 1,
+      "runtime": "onnxruntime"
+    },
+    "installed_model_path": "/home/para/.cache/hamr-adtg/venv/lib/python3.12/site-packages/terrain_diffusion/weights/terrain_consistency_unet_difficulty100.onnx",
+    "session_setup_wall_s": 1.0087849149999784,
+    "model_height_range_m": 22.16864013671875,
+    "model_asinh_scale_m": 0.1
+  },
+  "reproducibility_check": {
+    "difficulty": 50,
+    "seed": 7,
+    "array_equal": true,
+    "maximum_absolute_difference_m": 0.0,
+    "wall_s": 3.1310153360000186
+  },
+  "completed_utc": "2026-10-06T19:49:38.043446+00:00"
+}

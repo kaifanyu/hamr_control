@@ -1,0 +1,776 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.9">
+  <world name="hamr_terrain_adtg_d50">
+    <physics name="terrain_dart" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <dart>
+        <collision_detector>ode</collision_detector>
+        <solver>
+          <solver_type>dantzig</solver_type>
+        </solver>
+      </dart>
+    </physics>
+    <gravity>0 0 -9.80665</gravity>
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics">
+      <engine>
+        <filename>gz-physics-dartsim-plugin</filename>
+      </engine>
+    </plugin>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands" />
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster" />
+    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact" />
+    <scene>
+      <ambient>.55 .55 .55 1</ambient>
+      <background>.67 .75 .81 1</background>
+      <shadows>true</shadows>
+    </scene>
+    <model name="terrain">
+      <static>true</static>
+      <link name="surface">
+        <collision name="terrain_collision">
+          <geometry>
+            <mesh>
+              <uri>model://hamr_terrain/meshes/adtg_d50.stl</uri>
+              <scale>1 1 1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0</restitution_coefficient>
+            </bounce>
+          </surface>
+          <max_contacts>20</max_contacts>
+        </collision>
+        <visual name="terrain_visual">
+          <geometry>
+            <mesh>
+              <uri>model://hamr_terrain/meshes/adtg_d50.dae</uri>
+              <scale>1 1 1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <sensor name="terrain_contacts" type="contact">
+          <always_on>true</always_on>
+          <update_rate>100</update_rate>
+          <contact>
+            <collision>terrain_collision</collision>
+            <topic>/hamr/terrain/contacts</topic>
+          </contact>
+        </sensor>
+      </link>
+    </model>
+    <model name="apron_0">
+      <static>true</static>
+      <pose>-6 0 -0.15 0 0 0</pose>
+      <link name="ground">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>6 8 0.3</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0</restitution_coefficient>
+            </bounce>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>6 8 0.3</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.29 .35 .27 1</ambient>
+            <diffuse>.36 .42 .30 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="apron_1">
+      <static>true</static>
+      <pose>6 0 -0.15 0 0 0</pose>
+      <link name="ground">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>6 8 0.3</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0</restitution_coefficient>
+            </bounce>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>6 8 0.3</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.29 .35 .27 1</ambient>
+            <diffuse>.36 .42 .30 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="apron_2">
+      <static>true</static>
+      <pose>0 -6 -0.15 0 0 0</pose>
+      <link name="ground">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>18 4 0.3</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0</restitution_coefficient>
+            </bounce>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>18 4 0.3</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.29 .35 .27 1</ambient>
+            <diffuse>.36 .42 .30 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="apron_3">
+      <static>true</static>
+      <pose>0 6 -0.15 0 0 0</pose>
+      <link name="ground">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>18 4 0.3</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0</restitution_coefficient>
+            </bounce>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>18 4 0.3</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.29 .35 .27 1</ambient>
+            <diffuse>.36 .42 .30 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <light name="sun" type="directional">
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>.9 .86 .78 1</diffuse>
+      <specular>.15 .15 .15 1</specular>
+      <direction>-.6 .45 -1</direction>
+      <cast_shadows>true</cast_shadows>
+    </light>
+    <model name="marker_-1_0">
+      <static>true</static>
+      <pose>-1.55 -3.5 0.002 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_-1_1">
+      <static>true</static>
+      <pose>-1.55 -3.0 0.002 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_-1_2">
+      <static>true</static>
+      <pose>-1.55 -2.5 0.002 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_-1_3">
+      <static>true</static>
+      <pose>-1.55 -2.0 0.004111646083512551 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_-1_4">
+      <static>true</static>
+      <pose>-1.55 -1.5 0.06654358864149584 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_-1_5">
+      <static>true</static>
+      <pose>-1.55 -1.0 0.08433435153961182 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_-1_6">
+      <static>true</static>
+      <pose>-1.55 -0.5 0.07152725648880005 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_-1_7">
+      <static>true</static>
+      <pose>-1.55 0.0 0.05429883790016175 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_-1_8">
+      <static>true</static>
+      <pose>-1.55 0.5 0.04292564284801483 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_-1_9">
+      <static>true</static>
+      <pose>-1.55 1.0 0.021621269404888156 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_-1_10">
+      <static>true</static>
+      <pose>-1.55 1.5 0.004628774009644988 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_-1_11">
+      <static>true</static>
+      <pose>-1.55 2.0 0.0027553616072982564 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_-1_12">
+      <static>true</static>
+      <pose>-1.55 2.5 0.0045146642699837695 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_-1_13">
+      <static>true</static>
+      <pose>-1.55 3.0 0.004805668115615846 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_-1_14">
+      <static>true</static>
+      <pose>-1.55 3.5 0.0031808830802693474 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_1_0">
+      <static>true</static>
+      <pose>1.55 -3.5 0.002 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_1_1">
+      <static>true</static>
+      <pose>1.55 -3.0 0.002 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_1_2">
+      <static>true</static>
+      <pose>1.55 -2.5 0.002 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_1_3">
+      <static>true</static>
+      <pose>1.55 -2.0 0.0021214468670987564 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_1_4">
+      <static>true</static>
+      <pose>1.55 -1.5 0.0166423509770688 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_1_5">
+      <static>true</static>
+      <pose>1.55 -1.0 0.06468581151962283 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_1_6">
+      <static>true</static>
+      <pose>1.55 -0.5 0.061117931127548215 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_1_7">
+      <static>true</static>
+      <pose>1.55 0.0 0.05664739203453065 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_1_8">
+      <static>true</static>
+      <pose>1.55 0.5 0.05197890889644624 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_1_9">
+      <static>true</static>
+      <pose>1.55 1.0 0.06942513179779052 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_1_10">
+      <static>true</static>
+      <pose>1.55 1.5 0.058657171249389656 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_1_11">
+      <static>true</static>
+      <pose>1.55 2.0 0.04565962743759157 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_1_12">
+      <static>true</static>
+      <pose>1.55 2.5 0.044277082800865175 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_1_13">
+      <static>true</static>
+      <pose>1.55 3.0 0.048916860342025775 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_1_14">
+      <static>true</static>
+      <pose>1.55 3.5 0.020595822975921857 0 0 0</pose>
+      <link name="marker">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.055 .15 .003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.85 .85 .72 1</ambient>
+            <diffuse>.85 .85 .72 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="overview_camera">
+      <static>true</static>
+      <pose>7.2 -7.2 6.6 0 0.568775297820876 2.342496716819479</pose>
+      <link name="camera_link">
+        <sensor name="camera" type="camera">
+          <always_on>true</always_on>
+          <update_rate>5</update_rate>
+          <topic>/hamr/terrain/overview/image</topic>
+          <camera>
+            <horizontal_fov>0.95</horizontal_fov>
+            <image>
+              <width>1600</width>
+              <height>1000</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip>
+              <near>0.03</near>
+              <far>100</far>
+            </clip>
+          </camera>
+        </sensor>
+      </link>
+    </model>
+    <model name="detail_camera">
+      <static>true</static>
+      <pose>2.3 -3.9 1.6 0 0.32319778402877636 2.0872793314916245</pose>
+      <link name="camera_link">
+        <sensor name="camera" type="camera">
+          <always_on>true</always_on>
+          <update_rate>5</update_rate>
+          <topic>/hamr/terrain/detail/image</topic>
+          <camera>
+            <horizontal_fov>1.05</horizontal_fov>
+            <image>
+              <width>1600</width>
+              <height>1000</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip>
+              <near>0.03</near>
+              <far>100</far>
+            </clip>
+          </camera>
+        </sensor>
+      </link>
+    </model>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+  </world>
+</sdf>

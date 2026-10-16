@@ -92,7 +92,7 @@ def analyze(report, limits=None, corner_window_s=2.):
         raise ValueError("Acceptance limits must be finite and positive")
     if not math.isfinite(corner_window_s) or corner_window_s <= 0:
         raise ValueError("Corner window must be finite and positive")
-    points = np.asarray(report["configuration"]["points_m"], float)
+    points = np.asarray(report.get("executed_route_points_m", report["configuration"]["points_m"]), float)
     if points.ndim != 2 or points.shape[1] != 2 or len(points) < 2 or not np.all(np.isfinite(points)):
         raise ValueError("Need at least two finite XY waypoints")
     arrivals, departures, schedule_source = schedules(report, points)
@@ -251,7 +251,7 @@ def plot(report, metrics, output, baseline=None, baseline_metrics=None):
     route_ax = fig.add_subplot(grid[:2, :2])
     error_ax = fig.add_subplot(grid[0, 2:])
     geometry_ax = fig.add_subplot(grid[1, 2:])
-    points = np.array(report["configuration"]["points_m"], float)
+    points = np.array(report.get("executed_route_points_m", report["configuration"]["points_m"]), float)
     route_ax.plot(*points.T, "--", color="#727a86", linewidth=1.8, label="Waypoint path")
     datasets = [(report, metrics, "#087f8c", "Planned run")]
     if baseline is not None:

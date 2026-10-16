@@ -4,9 +4,66 @@ import importlib.util
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
+import numpy as np
 import xacro
 
 PACKAGE = Path(__file__).resolve().parents[1]
+
+
+def _substantive_xml(robot):
+    return [(node.tag, node.attrib, (node.text or '').strip()) for node in robot.iter()]
+
+
+def test_ball_comparison_wrapper_preserves_original_model_when_camera_disabled():
+    original = ET.fromstring(xacro.process_file(str(PACKAGE / 'urdf/compa_ball_caster.urdf.xacro')).toxml())
+    recording = ET.fromstring(xacro.process_file(
+        str(PACKAGE / 'urdf/compa_ball_caster_recording.urdf.xacro'),
+        mappings={'enable_closeup_camera': 'false'},
+    ).toxml())
+    assert _substantive_xml(recording) == _substantive_xml(original)
+
+
+def test_ball_comparison_camera_adds_no_collision_or_caster_actuation():
+    original = ET.fromstring(xacro.process_file(str(PACKAGE / 'urdf/compa_ball_caster.urdf.xacro')).toxml())
+    recording = ET.fromstring(xacro.process_file(str(PACKAGE / 'urdf/compa_ball_caster_recording.urdf.xacro')).toxml())
+    for name in ('ball_closeup_camera_link', 'ball_closeup_camera_joint'):
+        node = next(node for node in recording if node.get('name') == name)
+        if node.tag == 'link':
+            assert node.find('collision') is None
+            assert float(node.find('inertial/mass').get('value')) == .001
+        else:
+            assert node.get('type') == 'fixed'
+            assert node.find('parent').get('link') == 'right_rocker_link'
+        recording.remove(node)
+    camera = recording.find("./gazebo[@reference='ball_closeup_camera_link']")
+    assert camera.findtext('sensor/topic') == '/hamr/ball_caster/closeup/image'
+    assert camera.findtext('sensor/update_rate') == '25'
+    assert camera.findtext('sensor/camera/image/width') == '1280'
+    assert camera.findtext('sensor/camera/image/height') == '720'
+    recording.remove(camera)
+    assert _substantive_xml(recording) == _substantive_xml(original)
+
+
+def test_ball_comparison_camera_contains_the_rolling_mesh_envelope():
+    from test_geometry import forward_kinematics
+    recording = ET.fromstring(xacro.process_file(str(PACKAGE / 'urdf/compa_ball_caster_recording.urdf.xacro')).toxml())
+    fk = forward_kinematics(recording)
+    camera_inv = np.linalg.inv(fk['ball_closeup_camera_link'])
+    center_frame = fk['right_caster_carrier_link']
+    points = []
+    for latitude in np.linspace(-np.pi/2, np.pi/2, 19):
+        for longitude in np.linspace(-np.pi, np.pi, 36):
+            direction = np.array([np.cos(latitude)*np.cos(longitude),
+                                  np.cos(latitude)*np.sin(longitude), np.sin(latitude)])
+            # CAD shells have a 100 mm radius; the polar rollers extend the
+            # recovered rolling-component envelope to about 101.799 mm.
+            points.append(camera_inv @ center_frame @ np.r_[.1018*direction, 1.])
+    projected = np.array(points)
+    horizontal = np.tan(.5)
+    vertical = horizontal*720/1280
+    assert np.all(projected[:, 0] > .02)
+    assert np.all(np.abs(projected[:, 1]/projected[:, 0]) < horizontal)
+    assert np.all(np.abs(projected[:, 2]/projected[:, 0]) < vertical)
 
 
 def test_overview_preserves_every_nonvisual_model_element():

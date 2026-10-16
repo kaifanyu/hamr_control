@@ -116,7 +116,7 @@ def approximation_bound(plan, data):
 
 def rounding_metrics(report, data):
     """Keep deliberate path-design changes separate from controller error."""
-    points = np.asarray(report["configuration"]["points_m"], float)
+    points = np.asarray(report.get("executed_route_points_m", report["configuration"]["points_m"]), float)
     if points.ndim != 2 or points.shape[1] != 2 or len(points) < 2 or not np.all(np.isfinite(points)):
         raise ValueError("Original waypoint path must contain finite XY pairs")
     edges = np.diff(points, axis=0)
@@ -291,7 +291,7 @@ def plot(report, result, output):
     speed = np.linalg.norm(data["velocity"], axis=1)
     plan_speed = np.linalg.norm(data["plan_velocity"], axis=1)
     fig, axes = plt.subplots(3, 2, figsize=(14., 13.))
-    original = np.array(report["configuration"]["points_m"], float)
+    original = np.array(report.get("executed_route_points_m", report["configuration"]["points_m"]), float)
     axes[0, 0].plot(*original.T, "--", color="#9ba0a6", linewidth=1.2, label="Original sharp waypoint path")
     axes[0, 0].plot(*data["plan_position"].T, color="#17324d", linewidth=2., label="Intended continuous reference")
     axes[0, 0].plot(*data["position"].T, color="#087f8c", linewidth=1., label="Raw Gazebo position")

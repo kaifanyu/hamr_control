@@ -1,0 +1,49 @@
+# POWERTEC 17050 (Amazon ASIN B07B7KJ5QZ), nominal model, SI units.
+# Source: https://powertecproducts.com/17050-swivel-heavy-duty-industrial-caster-6-5-16/
+# Manufacturer metric dimensions are rounded; its imperial height and the Amazon
+# height disagree slightly. Use the manufacturer's 192 mm height as an estimate.
+# These are not measured/calibrated tire, bearing, fork, or chassis dynamics.
+product:
+  manufacturer: POWERTEC
+  model: '17050'
+  amazon_asin: B07B7KJ5QZ
+  source_url: https://powertecproducts.com/17050-swivel-heavy-duty-industrial-caster-6-5-16/
+geometry:
+  wheel_radius_m: 0.080
+  wheel_width_m: 0.050
+  overall_height_m: 0.192
+  plate_length_m: 0.115
+  plate_width_m: 0.100
+  plate_thickness_m: 0.0047625
+  swivel_trail_m: 0.045  # ESTIMATED axis-to-axle horizontal offset, measure hardware.
+  bearing_height_m: 0.014  # ESTIMATED visual/kinematic construction.
+  bearing_radius_m: 0.031  # ESTIMATED.
+  fork_thickness_m: 0.0047625  # ESTIMATED bent steel sheet thickness.
+  fork_leg_width_m: 0.023  # ESTIMATED.
+  fork_side_clearance_m: 0.005  # ESTIMATED wheel-to-fork gap.
+mass:
+  total_kg: 2.64  # Amazon listed item mass; may include packaging, needs weighing.
+  mount_kg: 0.70  # ESTIMATED plate + swivel bearing allocation.
+  fork_kg: 0.59  # ESTIMATED fork + axle allocation.
+  wheel_kg: 1.35  # ESTIMATED wheel + hub allocation; three components total 2.64 kg.
+  adapter_kg: 0.18  # ESTIMATED retrofit spacer, extra mass above each caster.
+  note: 'Inertias use solid primitive approximations and are not measured.'
+joints:
+  swivel_damping_Nm_s_per_rad: 0.015  # ESTIMATED viscous bearing resistance.
+  swivel_friction_Nm: 0.0  # ESTIMATED Coulomb torque; Harmonic/DART supports this parameter.
+  wheel_damping_Nm_s_per_rad: 0.006  # ESTIMATED rolling/bearing loss proxy.
+  wheel_friction_Nm: 0.0
+contact:
+  mu: 0.9  # ESTIMATED dry rubber/ground coefficient; rigid cylinder collision.
+  note: 'Knobby tread is visual only. DART uses the minimum of tire and ground mu. No tire compliance model.'
+retrofit:
+  mount_x_in_rocker_m: 0.315
+  mount_y_magnitude_in_rocker_m: 0.072
+  rear_ground_z_in_footprint_m: 0.0044
+  rocker_z_in_footprint_m: 0.2561
+  rail_bottom_z_in_rocker_m: -0.0337
+  note: 'A rigid spacer beneath each existing square rail aligns all four wheel bottoms.'
+
+# Sensitivity overrides are available through Xacro; see docs/PHYSICS_ASSUMPTIONS.md.
+# A full alternate YAML can be supplied with caster_physical_config:=/absolute/file.yaml.
+# All defaults above are estimates, not guaranteed bounds on the physical caster.

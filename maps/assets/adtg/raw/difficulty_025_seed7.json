@@ -1,0 +1,35 @@
+{
+  "difficulty": 25,
+  "seed": 7,
+  "file": "difficulty_025_seed7.npy",
+  "sha256": "99982626ed4c2c48eccba16488ff14e46c3b6910cb8a3b18eaf7c4d2499a5296",
+  "wall_s": 4.065154325000094,
+  "shape_y_x": [
+    321,
+    241
+  ],
+  "dtype": "float32",
+  "finite": true,
+  "height_min_m": 0.0,
+  "height_max_m": 9.1738920211792,
+  "height_range_m": 9.1738920211792,
+  "height_mean_m": 0.3285297155380249,
+  "height_std_m": 0.5204846262931824,
+  "height_percentiles_m": {
+    "p1": 0.0,
+    "p5": 0.006196211092174053,
+    "p50": 0.2636985778808594,
+    "p95": 0.6836338639259338,
+    "p99": 1.8197457551956016
+  },
+  "unscaled_height_slopes_at_xy_spacing_0.1_m": {
+    "maximum_deg": 85.32762516215827,
+    "p95_deg": 12.803766260188885,
+    "rms_gradient": 0.666140357001578
+  },
+  "unscaled_height_slopes_at_xy_spacing_0.025_m": {
+    "maximum_deg": 88.82947293296488,
+    "p95_deg": 42.27253785253254,
+    "rms_gradient": 2.664561428006312
+  }
+}

@@ -1,0 +1,647 @@
+[
+  {
+    "id": "verti_arena_low",
+    "title": "Verti-Arena scan-derived low: 15 cm relief",
+    "description": "Full 8x8 m off-road terrain assembled from metric measured patches; new layout, rigid-ground approximation.",
+    "world": "../worlds/verti_arena_low.sdf",
+    "height_grid": "../meshes/verti_arena_low_height.npz",
+    "collision_mesh": "../meshes/verti_arena_low.stl",
+    "visual_mesh": "../meshes/verti_arena_low.dae",
+    "bounds_m": {
+      "x": [
+        -4,
+        4
+      ],
+      "y": [
+        -4,
+        4
+      ]
+    },
+    "grid_spacing_m": 0.025,
+    "level": "low",
+    "vertices": 104322,
+    "triangles": 208640,
+    "peak_to_valley_limit_m": 0.15,
+    "min_height_m": 0.0,
+    "max_height_m": 0.15,
+    "height_range_m": 0.15,
+    "height_std_m": 0.029637988036548157,
+    "max_surface_slope_deg": 71.0975687938168,
+    "horizontal_surface_triangles": 0,
+    "surface_triangles": 204800,
+    "minimum_0_4m_patch_relief_m": 0.0019741833346607583,
+    "maximum_adjacent_node_height_difference_m": 0.06886193601417004,
+    "slope_method": "Exact planar gradient on every exported top triangle; closing walls excluded.",
+    "coverage_method": "Height range in every grid-aligned 0.4 x 0.4 m window, with 25 mm stride; entire 6 x 8 m surface including edges.",
+    "generation": {
+      "source_commit": "2a82faceacf8eaf1a8564b05058062e7584b0f45",
+      "source_grid_shape": [
+        787,
+        1427
+      ],
+      "source_resolution_m": 0.00800000037997961,
+      "source_origin_xy_m": [
+        1.0080010779201984,
+        -0.4640008918941021
+      ],
+      "source_valid_fraction": 0.5546151592673161,
+      "source_rgb_valid_fraction": 0.5152286320543449,
+      "source_array_extent_m": [
+        11.408000541850924,
+        6.288000298663974
+      ],
+      "panels": [
+        {
+          "source_center_pixel_xy": [
+            900,
+            430
+          ],
+          "rotation_ccw_deg": 0,
+          "target_center_xy_m": [
+            -1.8,
+            -1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.19099990576505627
+        },
+        {
+          "source_center_pixel_xy": [
+            1030,
+            420
+          ],
+          "rotation_ccw_deg": 90,
+          "target_center_xy_m": [
+            1.8,
+            -1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.15324260096233397
+        },
+        {
+          "source_center_pixel_xy": [
+            800,
+            430
+          ],
+          "rotation_ccw_deg": 180,
+          "target_center_xy_m": [
+            -1.8,
+            1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.48213787008129183
+        },
+        {
+          "source_center_pixel_xy": [
+            650,
+            430
+          ],
+          "rotation_ccw_deg": 270,
+          "target_center_xy_m": [
+            1.8,
+            1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.4950726226182166
+        }
+      ],
+      "blend_width_m": 0.8,
+      "composed_inferred_weight_fraction": 0.03659937992551983,
+      "maximum_blended_gap_fill_distance_m": 0.15191023783916494,
+      "pre_scaling_height_range_m": 1.1468957230143735,
+      "filter": "5x5 median (40 mm), Gaussian sigma 1.5 pixels (12 mm); 25 mm bilinear output",
+      "microrelief": "Three deterministic sinusoids; summed amplitude bound 4 mm before level scaling",
+      "height_transform": "Subtract composed minimum and scale linearly to each requested relief; no height clipping",
+      "layout": "Four rotated measured 4.4 m patches, 0.8 m cosine overlap, new 8x8 m layout. Not the paper layout.",
+      "coordinate_convention": "Array row increases with source odom Y; columns with X, following upstream StaticMap.world_to_grid.",
+      "provenance": {
+        "repository": "https://github.com/fracance/verti-arena-extractor",
+        "commit": "2a82faceacf8eaf1a8564b05058062e7584b0f45",
+        "files": [
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/static_maps/fused_elevation_map.npy",
+            "file": "fused_elevation_map.npy",
+            "sha256": "a966b557eea61700e759002a226bfda494d3c75482528c40f8f25dda97e336a2"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/static_maps/fused_elevation_map_meta.txt",
+            "file": "fused_elevation_map_meta.txt",
+            "sha256": "0be0b8f2075a8830001d42c8dc2f0d99c72055da2a1fa6ff3c6918886dde6e4a"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/static_maps/fused_rgb_map.npy",
+            "file": "fused_rgb_map.npy",
+            "sha256": "ff40dd1a9804eb362b8f3023a09bfc132dcc30259d39fdf8c4dc2cb05114c327"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/README.md",
+            "file": "README.md",
+            "sha256": "1df00a8973f90eb101eecfc4b3209338d152df7fd829e3a07cbc2c4405c460ab"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/scripts/Grid.py",
+            "file": "Grid.py",
+            "sha256": "43fd1bdd70fdb68110f483977df7d100c63873d928c59f0b7794c0d3e93ae71a"
+          }
+        ]
+      }
+    },
+    "terrain_friction": {
+      "mu": 1.0,
+      "mu2": 1.0,
+      "restitution": 0.0,
+      "status": "Estimated uniform rigid contact, not calibrated from RGB or paper"
+    },
+    "spawn": {
+      "x": 0.0,
+      "y": -3.2,
+      "z": 0.045323805699434325,
+      "yaw": 1.5707963267948966
+    },
+    "flat_friction_probes": false,
+    "probes": [
+      {
+        "name": "feature_0",
+        "xy_m": [
+          -2.6,
+          -2.6
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_1",
+        "xy_m": [
+          2.3,
+          -2.3
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_2",
+        "xy_m": [
+          0.0,
+          0.0
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_3",
+        "xy_m": [
+          -2.3,
+          2.3
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_4",
+        "xy_m": [
+          2.5,
+          2.5
+        ],
+        "kind": "feature"
+      }
+    ],
+    "limitations": [
+      "Not a digital twin or original arena layout. Source scan is partial and newer than the paper.",
+      "Missing scan cells are nearest-filled; the weight mask records inferred regions.",
+      "RGB is appearance only; no measured semantic friction classification.",
+      "Rigid collision: no sand sinkage, soil deformation, movable gravel, or vegetation entanglement.",
+      "A heightfield cannot reproduce overhangs or the underside of a bridge.",
+      "The 0.70 m full level intentionally exceeds previous HAMR clearance caps. Traversability is not guaranteed."
+    ],
+    "sha256": {
+      "stl": "66a1afebe1ff3a88c4f1f4d613dd828fe0f1293e70159a7eb7cb9838bbab0d25",
+      "dae": "a0699be2ed03128128e486f6b679cbb3b6788e970abe6cfb29bf6a6cb85b2214"
+    },
+    "texture_sha256": "db4968191895e158bb72e2dd57649b5e0f6c23a715538b4717f1a118922ac3ad"
+  },
+  {
+    "id": "verti_arena_medium",
+    "title": "Verti-Arena scan-derived medium: 35 cm relief",
+    "description": "Full 8x8 m off-road terrain assembled from metric measured patches; new layout, rigid-ground approximation.",
+    "world": "../worlds/verti_arena_medium.sdf",
+    "height_grid": "../meshes/verti_arena_medium_height.npz",
+    "collision_mesh": "../meshes/verti_arena_medium.stl",
+    "visual_mesh": "../meshes/verti_arena_medium.dae",
+    "bounds_m": {
+      "x": [
+        -4,
+        4
+      ],
+      "y": [
+        -4,
+        4
+      ]
+    },
+    "grid_spacing_m": 0.025,
+    "level": "medium",
+    "vertices": 104322,
+    "triangles": 208640,
+    "peak_to_valley_limit_m": 0.35,
+    "min_height_m": 0.0,
+    "max_height_m": 0.35,
+    "height_range_m": 0.35,
+    "height_std_m": 0.06915530541861237,
+    "max_surface_slope_deg": 81.65125970347009,
+    "horizontal_surface_triangles": 0,
+    "surface_triangles": 204800,
+    "minimum_0_4m_patch_relief_m": 0.004606427780875103,
+    "maximum_adjacent_node_height_difference_m": 0.16067785069973006,
+    "slope_method": "Exact planar gradient on every exported top triangle; closing walls excluded.",
+    "coverage_method": "Height range in every grid-aligned 0.4 x 0.4 m window, with 25 mm stride; entire 6 x 8 m surface including edges.",
+    "generation": {
+      "source_commit": "2a82faceacf8eaf1a8564b05058062e7584b0f45",
+      "source_grid_shape": [
+        787,
+        1427
+      ],
+      "source_resolution_m": 0.00800000037997961,
+      "source_origin_xy_m": [
+        1.0080010779201984,
+        -0.4640008918941021
+      ],
+      "source_valid_fraction": 0.5546151592673161,
+      "source_rgb_valid_fraction": 0.5152286320543449,
+      "source_array_extent_m": [
+        11.408000541850924,
+        6.288000298663974
+      ],
+      "panels": [
+        {
+          "source_center_pixel_xy": [
+            900,
+            430
+          ],
+          "rotation_ccw_deg": 0,
+          "target_center_xy_m": [
+            -1.8,
+            -1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.19099990576505627
+        },
+        {
+          "source_center_pixel_xy": [
+            1030,
+            420
+          ],
+          "rotation_ccw_deg": 90,
+          "target_center_xy_m": [
+            1.8,
+            -1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.15324260096233397
+        },
+        {
+          "source_center_pixel_xy": [
+            800,
+            430
+          ],
+          "rotation_ccw_deg": 180,
+          "target_center_xy_m": [
+            -1.8,
+            1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.48213787008129183
+        },
+        {
+          "source_center_pixel_xy": [
+            650,
+            430
+          ],
+          "rotation_ccw_deg": 270,
+          "target_center_xy_m": [
+            1.8,
+            1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.4950726226182166
+        }
+      ],
+      "blend_width_m": 0.8,
+      "composed_inferred_weight_fraction": 0.03659937992551983,
+      "maximum_blended_gap_fill_distance_m": 0.15191023783916494,
+      "pre_scaling_height_range_m": 1.1468957230143735,
+      "filter": "5x5 median (40 mm), Gaussian sigma 1.5 pixels (12 mm); 25 mm bilinear output",
+      "microrelief": "Three deterministic sinusoids; summed amplitude bound 4 mm before level scaling",
+      "height_transform": "Subtract composed minimum and scale linearly to each requested relief; no height clipping",
+      "layout": "Four rotated measured 4.4 m patches, 0.8 m cosine overlap, new 8x8 m layout. Not the paper layout.",
+      "coordinate_convention": "Array row increases with source odom Y; columns with X, following upstream StaticMap.world_to_grid.",
+      "provenance": {
+        "repository": "https://github.com/fracance/verti-arena-extractor",
+        "commit": "2a82faceacf8eaf1a8564b05058062e7584b0f45",
+        "files": [
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/static_maps/fused_elevation_map.npy",
+            "file": "fused_elevation_map.npy",
+            "sha256": "a966b557eea61700e759002a226bfda494d3c75482528c40f8f25dda97e336a2"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/static_maps/fused_elevation_map_meta.txt",
+            "file": "fused_elevation_map_meta.txt",
+            "sha256": "0be0b8f2075a8830001d42c8dc2f0d99c72055da2a1fa6ff3c6918886dde6e4a"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/static_maps/fused_rgb_map.npy",
+            "file": "fused_rgb_map.npy",
+            "sha256": "ff40dd1a9804eb362b8f3023a09bfc132dcc30259d39fdf8c4dc2cb05114c327"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/README.md",
+            "file": "README.md",
+            "sha256": "1df00a8973f90eb101eecfc4b3209338d152df7fd829e3a07cbc2c4405c460ab"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/scripts/Grid.py",
+            "file": "Grid.py",
+            "sha256": "43fd1bdd70fdb68110f483977df7d100c63873d928c59f0b7794c0d3e93ae71a"
+          }
+        ]
+      }
+    },
+    "terrain_friction": {
+      "mu": 1.0,
+      "mu2": 1.0,
+      "restitution": 0.0,
+      "status": "Estimated uniform rigid contact, not calibrated from RGB or paper"
+    },
+    "spawn": {
+      "x": 0.0,
+      "y": -3.2,
+      "z": 0.0724222132986801,
+      "yaw": 1.5707963267948966
+    },
+    "flat_friction_probes": false,
+    "probes": [
+      {
+        "name": "feature_0",
+        "xy_m": [
+          -2.6,
+          -2.6
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_1",
+        "xy_m": [
+          2.3,
+          -2.3
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_2",
+        "xy_m": [
+          0.0,
+          0.0
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_3",
+        "xy_m": [
+          -2.3,
+          2.3
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_4",
+        "xy_m": [
+          2.5,
+          2.5
+        ],
+        "kind": "feature"
+      }
+    ],
+    "limitations": [
+      "Not a digital twin or original arena layout. Source scan is partial and newer than the paper.",
+      "Missing scan cells are nearest-filled; the weight mask records inferred regions.",
+      "RGB is appearance only; no measured semantic friction classification.",
+      "Rigid collision: no sand sinkage, soil deformation, movable gravel, or vegetation entanglement.",
+      "A heightfield cannot reproduce overhangs or the underside of a bridge.",
+      "The 0.70 m full level intentionally exceeds previous HAMR clearance caps. Traversability is not guaranteed."
+    ],
+    "sha256": {
+      "stl": "b57d906ed24e768298ffa6554472ba31095a9f6fe0695a3f5c8cba70b974f516",
+      "dae": "3656950082859a6e0d757dd261bdab869b1b0203dd1af9fd3748693090811b21"
+    },
+    "texture_sha256": "db4968191895e158bb72e2dd57649b5e0f6c23a715538b4717f1a118922ac3ad"
+  },
+  {
+    "id": "verti_arena_full",
+    "title": "Verti-Arena scan-derived full: 70 cm relief",
+    "description": "Full 8x8 m off-road terrain assembled from metric measured patches; new layout, rigid-ground approximation.",
+    "world": "../worlds/verti_arena_full.sdf",
+    "height_grid": "../meshes/verti_arena_full_height.npz",
+    "collision_mesh": "../meshes/verti_arena_full.stl",
+    "visual_mesh": "../meshes/verti_arena_full.dae",
+    "bounds_m": {
+      "x": [
+        -4,
+        4
+      ],
+      "y": [
+        -4,
+        4
+      ]
+    },
+    "grid_spacing_m": 0.025,
+    "level": "full",
+    "vertices": 104322,
+    "triangles": 208640,
+    "peak_to_valley_limit_m": 0.7,
+    "min_height_m": 0.0,
+    "max_height_m": 0.7,
+    "height_range_m": 0.7,
+    "height_std_m": 0.13831061083722473,
+    "max_surface_slope_deg": 85.80335392881683,
+    "horizontal_surface_triangles": 0,
+    "surface_triangles": 204800,
+    "minimum_0_4m_patch_relief_m": 0.009212855561750206,
+    "maximum_adjacent_node_height_difference_m": 0.3213557013994601,
+    "slope_method": "Exact planar gradient on every exported top triangle; closing walls excluded.",
+    "coverage_method": "Height range in every grid-aligned 0.4 x 0.4 m window, with 25 mm stride; entire 6 x 8 m surface including edges.",
+    "generation": {
+      "source_commit": "2a82faceacf8eaf1a8564b05058062e7584b0f45",
+      "source_grid_shape": [
+        787,
+        1427
+      ],
+      "source_resolution_m": 0.00800000037997961,
+      "source_origin_xy_m": [
+        1.0080010779201984,
+        -0.4640008918941021
+      ],
+      "source_valid_fraction": 0.5546151592673161,
+      "source_rgb_valid_fraction": 0.5152286320543449,
+      "source_array_extent_m": [
+        11.408000541850924,
+        6.288000298663974
+      ],
+      "panels": [
+        {
+          "source_center_pixel_xy": [
+            900,
+            430
+          ],
+          "rotation_ccw_deg": 0,
+          "target_center_xy_m": [
+            -1.8,
+            -1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.19099990576505627
+        },
+        {
+          "source_center_pixel_xy": [
+            1030,
+            420
+          ],
+          "rotation_ccw_deg": 90,
+          "target_center_xy_m": [
+            1.8,
+            -1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.15324260096233397
+        },
+        {
+          "source_center_pixel_xy": [
+            800,
+            430
+          ],
+          "rotation_ccw_deg": 180,
+          "target_center_xy_m": [
+            -1.8,
+            1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.48213787008129183
+        },
+        {
+          "source_center_pixel_xy": [
+            650,
+            430
+          ],
+          "rotation_ccw_deg": 270,
+          "target_center_xy_m": [
+            1.8,
+            1.8
+          ],
+          "side_m": 4.4,
+          "maximum_gap_filled_m": 0.4950726226182166
+        }
+      ],
+      "blend_width_m": 0.8,
+      "composed_inferred_weight_fraction": 0.03659937992551983,
+      "maximum_blended_gap_fill_distance_m": 0.15191023783916494,
+      "pre_scaling_height_range_m": 1.1468957230143735,
+      "filter": "5x5 median (40 mm), Gaussian sigma 1.5 pixels (12 mm); 25 mm bilinear output",
+      "microrelief": "Three deterministic sinusoids; summed amplitude bound 4 mm before level scaling",
+      "height_transform": "Subtract composed minimum and scale linearly to each requested relief; no height clipping",
+      "layout": "Four rotated measured 4.4 m patches, 0.8 m cosine overlap, new 8x8 m layout. Not the paper layout.",
+      "coordinate_convention": "Array row increases with source odom Y; columns with X, following upstream StaticMap.world_to_grid.",
+      "provenance": {
+        "repository": "https://github.com/fracance/verti-arena-extractor",
+        "commit": "2a82faceacf8eaf1a8564b05058062e7584b0f45",
+        "files": [
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/static_maps/fused_elevation_map.npy",
+            "file": "fused_elevation_map.npy",
+            "sha256": "a966b557eea61700e759002a226bfda494d3c75482528c40f8f25dda97e336a2"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/static_maps/fused_elevation_map_meta.txt",
+            "file": "fused_elevation_map_meta.txt",
+            "sha256": "0be0b8f2075a8830001d42c8dc2f0d99c72055da2a1fa6ff3c6918886dde6e4a"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/static_maps/fused_rgb_map.npy",
+            "file": "fused_rgb_map.npy",
+            "sha256": "ff40dd1a9804eb362b8f3023a09bfc132dcc30259d39fdf8c4dc2cb05114c327"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/README.md",
+            "file": "README.md",
+            "sha256": "1df00a8973f90eb101eecfc4b3209338d152df7fd829e3a07cbc2c4405c460ab"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/scripts/Grid.py",
+            "file": "Grid.py",
+            "sha256": "43fd1bdd70fdb68110f483977df7d100c63873d928c59f0b7794c0d3e93ae71a"
+          }
+        ]
+      }
+    },
+    "terrain_friction": {
+      "mu": 1.0,
+      "mu2": 1.0,
+      "restitution": 0.0,
+      "status": "Estimated uniform rigid contact, not calibrated from RGB or paper"
+    },
+    "spawn": {
+      "x": 0.0,
+      "y": -3.2,
+      "z": 0.11984442659736019,
+      "yaw": 1.5707963267948966
+    },
+    "flat_friction_probes": false,
+    "probes": [
+      {
+        "name": "feature_0",
+        "xy_m": [
+          -2.6,
+          -2.6
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_1",
+        "xy_m": [
+          2.3,
+          -2.3
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_2",
+        "xy_m": [
+          0.0,
+          0.0
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_3",
+        "xy_m": [
+          -2.3,
+          2.3
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_4",
+        "xy_m": [
+          2.5,
+          2.5
+        ],
+        "kind": "feature"
+      }
+    ],
+    "limitations": [
+      "Not a digital twin or original arena layout. Source scan is partial and newer than the paper.",
+      "Missing scan cells are nearest-filled; the weight mask records inferred regions.",
+      "RGB is appearance only; no measured semantic friction classification.",
+      "Rigid collision: no sand sinkage, soil deformation, movable gravel, or vegetation entanglement.",
+      "A heightfield cannot reproduce overhangs or the underside of a bridge.",
+      "The 0.70 m full level intentionally exceeds previous HAMR clearance caps. Traversability is not guaranteed."
+    ],
+    "sha256": {
+      "stl": "8a3b1674f54451623ff74332642958fb368d08362fa4b8f06e61c961740bab4f",
+      "dae": "2d6ac181c989ad69df73d939d729c97fdcc0e34f321cdb968d87d664ea31caa7"
+    },
+    "texture_sha256": "db4968191895e158bb72e2dd57649b5e0f6c23a715538b4717f1a118922ac3ad"
+  }
+]

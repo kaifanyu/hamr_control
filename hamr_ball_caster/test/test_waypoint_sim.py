@@ -71,6 +71,24 @@ def test_original_route_cannot_pass_without_complete_run():
     assert "Trajectory and final hold did not complete" in report["failures"]
 
 
+def test_alternative_passive_joint_feedback_does_not_require_ball_components():
+    """A real two-joint caster can use the same controller and route checks."""
+    route = SIM.PolylineReference([[0., 0.], [1., 0.]], 1.)
+    names = [f"{side}_caster_{kind}_joint" for side in ("left", "right")
+             for kind in ("swivel", "wheel")]
+    samples = [{"trajectory_time_s": t, "phase": "motion", "position_m": [t, 0., 0.],
+                "position_error_m": 0., "base_rpy_rad": [0., 0., 0.],
+                "commands_rad_s": [0.]*5, "turret_world_yaw_rad": 0.,
+                "joint_positions_rad": {name: 2.*t for name in names}} for t in (0., 1.)]
+    report = SIM.summarize(samples, route, True, passive_joint_names=names)
+    assert report["passed"]
+    assert set(report["passive_joint_spans_rad"]) == set(names)
+    # Omitting the new configuration still demands the original ball joints.
+    original = SIM.summarize(samples, route, True)
+    assert not original["passed"]
+    assert any("Missing passive caster joints" in failure for failure in original["failures"])
+
+
 @pytest.mark.parametrize("age", [0., .02, .04, .054, .10])
 def test_continuous_prediction_matches_reference_clock_for_delayed_feedback(age):
     """A held constant-velocity pose must not invent an error after 40 ms.

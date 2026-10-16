@@ -1,0 +1,196 @@
+{
+  "id": "adtg_d50",
+  "title": "ADTG learned terrain \u00b7 difficulty 50",
+  "description": "Official standalone diffusion terrain, difficulty 50/100, seed 7; common HAMR height multiplier 0.1, 25 mm XY grid, with flat approach and border blends.",
+  "world": "../worlds/adtg_d50.sdf",
+  "bounds_m": {
+    "x": [
+      -3,
+      3
+    ],
+    "y": [
+      -4,
+      4
+    ]
+  },
+  "height_grid": "../meshes/adtg_d50_height.npz",
+  "collision_mesh": "../meshes/adtg_d50.stl",
+  "visual_mesh": "../meshes/adtg_d50.dae",
+  "grid_spacing_m": 0.025,
+  "vertices": 78482,
+  "triangles": 156960,
+  "surface_triangles": 153600,
+  "min_height_m": 0.0,
+  "max_height_m": 0.4552562579750604,
+  "height_mean_m": 0.027235868617858233,
+  "height_std_m": 0.039017010209405165,
+  "max_surface_slope_deg": 77.05674010430042,
+  "corridor_height_max_m": 0.15352696180343628,
+  "corridor_slope_p95_deg": 8.59225968277276,
+  "corridor_slope_max_deg": 19.169628673554964,
+  "corridor_definition": "|x|<=0.6m, -0.8<=y<=2.4m; excludes the entry/exit blends",
+  "slope_method": "Grid-node central finite differences over the top surface; excludes closing side walls.",
+  "terrain_friction": {
+    "mu": 1.0,
+    "mu2": 1.0,
+    "restitution": 0.0,
+    "basis": "Matches DART mesh attachment defaults; runtime sliding probes measure approximate effective response."
+  },
+  "spawn": {
+    "x": 0,
+    "y": -2.8,
+    "z": 0,
+    "yaw": 1.5707963267948966
+  },
+  "probes": [
+    {
+      "name": "flat_approach",
+      "xy_m": [
+        0,
+        -2.6
+      ],
+      "kind": "flat"
+    },
+    {
+      "name": "high_point",
+      "xy_m": [
+        -0.17499999999999982,
+        -0.7999999999999998
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "low_point",
+      "xy_m": [
+        -0.625,
+        1.6500000000000004
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "steep_point",
+      "xy_m": [
+        0.025000000000000355,
+        -0.6999999999999997
+      ],
+      "kind": "feature"
+    }
+  ],
+  "smoke": {
+    "spawn_x": 0,
+    "spawn_y": -1.0,
+    "spawn_z": 0.4264150119138187,
+    "initial_yaw": 1.5707963267948966,
+    "drive_speed_m_s": 0.12,
+    "duration_s": 10.0,
+    "scope": "Common short center corridor; does not traverse the entire map or its steep edge extrema."
+  },
+  "generation": {
+    "source_url": "https://github.com/youwyu/Adaptive-Diffusion-Terrain",
+    "source_commit": "262488cd981f616898541198537a4b302fa2922a",
+    "package": "adaptive-terrain-diffusion",
+    "version": "0.4.2",
+    "model": "Authors released endpoint-distilled, difficulty-conditioned one-step ONNX model",
+    "checkpoint_sha256": "95be54b4a39d58320e187a7ec533351c957f16a00be58773c86074828ee67887",
+    "difficulty": 50,
+    "seed": 7,
+    "shape_y_x": [
+      321,
+      241
+    ],
+    "raw_file": "../assets/adtg/raw/difficulty_050_seed7.npy",
+    "raw_sha256": "a5f288b62bda63673518918ff420b9a68ffd5700699b2e4e85c5c7303824fdf5",
+    "raw_manifest": "../assets/adtg/raw/manifest.json",
+    "raw_manifest_sha256": "44d21c64c11a81f479ff4d3c555ea760fd04abe044112f8365f8cd9344af41ab",
+    "inference": {
+      "seed": 7,
+      "seed_reset_for_each_difficulty": true,
+      "num_terrains_per_call": 1,
+      "shape_y_x": [
+        321,
+        241
+      ],
+      "difficulty_values": [
+        5,
+        25,
+        50,
+        75,
+        95
+      ],
+      "size_mode": "auto",
+      "resolved_size_mode": "tile",
+      "tile_overlap": 32,
+      "batch_size": 16,
+      "zero_floor": true,
+      "sampling_steps": 1,
+      "guidance_scale": 1.0,
+      "postprocessing": "Only official API decoding, overlapping tile blending and zero_floor; no custom filtering, clipping, scaling or blending."
+    },
+    "scope": "Learned elevation generation only; no reproduction of policy-adaptive curriculum, RL training, canopy or sim-to-real performance."
+  },
+  "adaptation": {
+    "vertical_multiplier": 0.1,
+    "horizontal_spacing_m": 0.025,
+    "official_adapter_default_spacing_m": 0.1,
+    "relative_xy_scale": 0.25,
+    "isotropic_scale": false,
+    "array_axes": "row=y, column=x; first sample at(-3,-4)",
+    "height_formula": "z = float64(raw_height_m) * vertical_multiplier * border_weight(x) * entry_weight(y) * exit_weight(y)",
+    "flat_approach_y_max_m": -2.1,
+    "full_entry_y_m": -1.1,
+    "full_exit_y_m": 3.1,
+    "zero_exit_y_m": 3.8,
+    "full_lateral_abs_x_max_m": 2.3,
+    "zero_lateral_abs_x_m": 3.0,
+    "weight_function": "0.5-0.5*cos(pi*clip(t,0,1))",
+    "smoothing": "none",
+    "clipping": "none",
+    "per_map_height_normalization": "none",
+    "note": "Boundary blending changes edge peaks; raw and adapted statistics are retained separately."
+  },
+  "raw_statistics": {
+    "difficulty": 50,
+    "seed": 7,
+    "file": "difficulty_050_seed7.npy",
+    "sha256": "a5f288b62bda63673518918ff420b9a68ffd5700699b2e4e85c5c7303824fdf5",
+    "wall_s": 3.05187910199993,
+    "shape_y_x": [
+      321,
+      241
+    ],
+    "dtype": "float32",
+    "finite": true,
+    "height_min_m": 0.0,
+    "height_max_m": 17.82172393798828,
+    "height_range_m": 17.82172393798828,
+    "height_mean_m": 0.5120992660522461,
+    "height_std_m": 1.0367188453674316,
+    "height_percentiles_m": {
+      "p1": 0.014408958703279495,
+      "p5": 0.027389373630285263,
+      "p50": 0.3825295865535736,
+      "p95": 0.9988580346107483,
+      "p99": 3.6698054313659245
+    },
+    "unscaled_height_slopes_at_xy_spacing_0.1_m": {
+      "maximum_deg": 88.13840804162777,
+      "p95_deg": 20.546510633865783,
+      "rms_gradient": 1.4174444986374775
+    },
+    "unscaled_height_slopes_at_xy_spacing_0.025_m": {
+      "maximum_deg": 89.53444841986507,
+      "p95_deg": 56.29654352640534,
+      "rms_gradient": 5.66977799454991
+    }
+  },
+  "limitations": [
+    "Rigid ground; no loose gravel, deformable mud, sinkage or vegetation.",
+    "Difficulty label is not calibrated to HAMR traversability; extrema need not be monotonic.",
+    "Uncalibrated ideal rear-wheel velocity servos; short drive does not establish motor/climb capability.",
+    "Adapted physical scales and boundary blends differ from the original paper environment."
+  ],
+  "sha256": {
+    "stl": "61bc5a01a7ec362d22f305208f927dcf2f6a4b29911c72e97ae21934c0f2f027",
+    "dae": "ed1833bf2817cca2af08c7e55a15c2c05a11712a6e535963c8adf1afc18cf767"
+  }
+}

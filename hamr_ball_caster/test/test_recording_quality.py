@@ -79,3 +79,34 @@ def test_missing_motion_cannot_be_reported_as_good_video():
     result = runner.continuous_video_quality(report, {
         "encoded_source_timestamps_s": source_images()})
     assert not result["passed"]
+
+
+@pytest.mark.parametrize("profile,expected_start,expected_end", [
+    ("legacy", 8., 11.), ("smooth", 7.98, 10.98)])
+def test_physical_startup_movement_is_covered_without_shifting_route_end(profile, expected_start, expected_end):
+    report = {"trajectory_profile": profile,
+              "startup_alignment": {"enabled": True, "passed": True},
+              "samples": [{"phase": "startup_heading_recovery", "simulation_time_s": 8.,
+                           "odometry_stamp_s": 7.98, "trajectory_time_s": -2.},
+                          {"phase": "motion", "simulation_time_s": 10.05,
+                           "odometry_stamp_s": 10.03, "trajectory_time_s": .05}],
+              "summary": {"reference_duration_s": 1.}}
+    stamps = [7.9+.04*index for index in range(86)]
+    result = runner.continuous_video_quality(report, {"encoded_source_timestamps_s": stamps})
+    assert result["passed"]
+    assert result["startup_motion_included"]
+    assert result["motion_interval_sim_s"] == pytest.approx([expected_start, expected_end])
+    assert result["route_motion_interval_sim_s"][1] == pytest.approx(expected_end)
+    # A stall during rotation must fail even if the ordinary trajectory is smooth.
+    damaged = [stamp for stamp in stamps if not 8.3 < stamp < 8.7]
+    result = runner.continuous_video_quality(report, {"encoded_source_timestamps_s": damaged})
+    assert not result["passed"]
+    assert result["max_motion_image_gap_s"] > .3
+
+
+def test_startup_enabled_report_requires_preparation_feedback():
+    report = trajectory()
+    report["startup_alignment"] = {"enabled": True}
+    result = runner.continuous_video_quality(report, {"encoded_source_timestamps_s": source_images()})
+    assert not result["passed"]
+    assert "preparation samples" in result["failure"]

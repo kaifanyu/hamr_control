@@ -1,0 +1,176 @@
+{
+  "id": "full_uneven_high",
+  "title": "Entire-map uneven terrain: high",
+  "description": "Continuous irregular relief over all 6 x 8 m; 45 mm peak-to-valley bound. No approach, border blend, flat apron, clipping or flat infill.",
+  "world": "../worlds/full_uneven_high.sdf",
+  "height_grid": "../meshes/full_uneven_high_height.npz",
+  "collision_mesh": "../meshes/full_uneven_high.stl",
+  "visual_mesh": "../meshes/full_uneven_high.dae",
+  "bounds_m": {
+    "x": [
+      -3,
+      3
+    ],
+    "y": [
+      -4,
+      4
+    ]
+  },
+  "grid_spacing_m": 0.025,
+  "vertices": 78482,
+  "triangles": 156960,
+  "min_height_m": 0.0,
+  "max_height_m": 0.045,
+  "height_range_m": 0.045,
+  "height_std_m": 0.00742667318306042,
+  "max_surface_slope_deg": 7.753813597464936,
+  "horizontal_surface_triangles": 0,
+  "surface_triangles": 153600,
+  "minimum_0_4m_patch_relief_m": 0.004645467804867085,
+  "maximum_adjacent_node_height_difference_m": 0.003225860898310798,
+  "slope_method": "Exact planar gradient on every exported top triangle; closing walls excluded.",
+  "coverage_method": "Height range in every grid-aligned 0.4 x 0.4 m window, with 25 mm stride; entire 6 x 8 m surface including edges.",
+  "level": "high",
+  "peak_to_valley_limit_m": 0.045,
+  "slope_limit_deg": 9.0,
+  "terrain_friction": {
+    "mu": 1.0,
+    "mu2": 1.0,
+    "restitution": 0.0
+  },
+  "generation": {
+    "kind": "Deterministic procedural multiscale directional waves, not new ADTG inference",
+    "seed": 20261006,
+    "components": [
+      {
+        "wavelength_m": 1.9285714285714288,
+        "weight": 1.0,
+        "direction_rad": 5.0973109302438795,
+        "phase_rad": 2.0258569969245186
+      },
+      {
+        "wavelength_m": 1.5000000000000002,
+        "weight": 0.85,
+        "direction_rad": 6.247336238593019,
+        "phase_rad": 1.40263881476199
+      },
+      {
+        "wavelength_m": 1.142857142857143,
+        "weight": 0.7,
+        "direction_rad": 3.446346480886102,
+        "phase_rad": 1.3237467135734653
+      },
+      {
+        "wavelength_m": 0.8928571428571429,
+        "weight": 0.58,
+        "direction_rad": 3.7070781263156816,
+        "phase_rad": 1.7011069730593291
+      },
+      {
+        "wavelength_m": 0.7142857142857143,
+        "weight": 0.48,
+        "direction_rad": 5.580286156106606,
+        "phase_rad": 5.714987430302048
+      },
+      {
+        "wavelength_m": 0.5714285714285715,
+        "weight": 0.37,
+        "direction_rad": 1.0360714787792373,
+        "phase_rad": 1.9179893245736572
+      },
+      {
+        "wavelength_m": 0.4714285714285715,
+        "weight": 0.26,
+        "direction_rad": 5.631434212013116,
+        "phase_rad": 5.1638591786565575
+      },
+      {
+        "wavelength_m": 0.3928571428571429,
+        "weight": 0.18,
+        "direction_rad": 3.5521753311936344,
+        "phase_rad": 6.255528882307976
+      },
+      {
+        "wavelength_m": 0.3285714285714286,
+        "weight": 0.12,
+        "direction_rad": 0.1700961612199044,
+        "phase_rad": 5.632202308019571
+      },
+      {
+        "wavelength_m": 0.2785714285714286,
+        "weight": 0.08,
+        "direction_rad": 3.747503008349784,
+        "phase_rad": 2.041648131044777
+      }
+    ],
+    "normalization": "One shared spatial field mapped linearly to [0, level height]; no clipping, flattening or border taper.",
+    "matched_levels": "Same pattern; only vertical amplitude changes."
+  },
+  "height_basis": {
+    "neutral_main_chassis_clearance_m": 0.1906,
+    "clearance_derivation": "URDF main chassis center .220 m minus .025 m half-thickness minus .0044 m neutral wheel support plane.",
+    "swivel_wheel_radius_m": 0.08,
+    "ball_nominal_radius_m": 0.1,
+    "rear_wheel_radius_m": 0.1075,
+    "high_level_fraction_of_chassis_clearance": 0.236096537250787,
+    "scope": "Conservative geometry bound, not a guarantee against dynamic tipping; check both vehicles at the intended speed."
+  },
+  "spawn": {
+    "x": 0.0,
+    "y": -3.2,
+    "z": 0.07,
+    "yaw": 1.5707963267948966
+  },
+  "flat_friction_probes": false,
+  "probes": [
+    {
+      "name": "surface_0",
+      "xy_m": [
+        -2.3,
+        -3.3
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "surface_1",
+      "xy_m": [
+        1.8,
+        -2.2
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "surface_2",
+      "xy_m": [
+        0.0,
+        0.0
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "surface_3",
+      "xy_m": [
+        2.2,
+        2.5
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "surface_4",
+      "xy_m": [
+        -2.1,
+        3.2
+      ],
+      "kind": "feature"
+    }
+  ],
+  "limitations": [
+    "Rigid ground; no soil deformation or loose particles.",
+    "No flat driving patches on the three uneven levels; isolated extrema and small planar mesh facets are unavoidable.",
+    "Geometry and contact parameters are estimates. A passed test covers its route, speed and initial state only."
+  ],
+  "sha256": {
+    "stl": "ad1bbeb18228ef8c8220856dc62165f919152540bca48ce4f683119bd0236c3e",
+    "dae": "c2939a8b00187861a1a3202e2aaf1af33942cd34e0a3cd7797901357ff5fccc0"
+  }
+}

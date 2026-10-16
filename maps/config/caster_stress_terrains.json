@@ -1,0 +1,1710 @@
+[
+  {
+    "id": "caster_stress_washboard_l1",
+    "title": "Oblique washboard \u00b7 level 1",
+    "description": "Controlled washboard challenge with 20mm nominal local relief; identical geometry and material for both caster models.",
+    "family": "washboard",
+    "level": 1,
+    "world": "../worlds/caster_stress_washboard_l1.sdf",
+    "bounds_m": {
+      "x": [
+        -3.0,
+        3.0
+      ],
+      "y": [
+        -4.0,
+        4.0
+      ]
+    },
+    "height_grid": "../meshes/caster_stress_washboard_l1_height.npz",
+    "collision_mesh": "../meshes/caster_stress_washboard_l1.stl",
+    "visual_mesh": "../meshes/caster_stress_washboard_l1.dae",
+    "grid_spacing_m": 0.025,
+    "vertices": 78482,
+    "triangles": 156960,
+    "surface_triangles": 153600,
+    "min_height_m": 0.0,
+    "max_height_m": 0.02,
+    "height_range_m": 0.02,
+    "max_surface_slope_deg": 10.638725444934025,
+    "max_triangle_face_slope_deg": 10.773182977365346,
+    "route_region": {
+      "definition": "|x|<=1.8m and |y|<=2m, covering prescribed chassis routes and approximate wheel footprint.",
+      "height_min_m": 0.0,
+      "height_max_m": 0.02,
+      "grade_p95_deg": 10.213168426557612,
+      "grade_max_deg": 10.31817112164281,
+      "maximum_adjacent_grid_height_change_m": 0.004301147446225638
+    },
+    "slope_method": "Grid-node finite differences, with separate exact triangle-face maximum; all exclude closing side walls. Whole-surface extrema include boundary blends.",
+    "parameters": {
+      "nominal_peak_height_m": 0.02,
+      "level_changes": "Height multiplier only; XY geometry, phases and contact settings stay fixed.",
+      "normal_wavelength_m": 0.34,
+      "wavefront_obliquity_deg": 30.0,
+      "formula": "H/2*(1+cos(2*pi*(sin(30deg)*x+cos(30deg)*y)/0.34))",
+      "analytic_unblended_max_grade_deg": 10.470113860822135,
+      "excitation_frequency_at_world_y_speed_0p25_m_s_hz": 0.6367833851356166,
+      "mechanism": "Repeated oblique support-normal changes and wheel/body excitation; direction changes require passive caster realignment while traversing ridges."
+    },
+    "figure": {
+      "png": "../figures/caster_stress_washboard_l1_height_slope.png",
+      "svg": "../figures/caster_stress_washboard_l1_height_slope.svg",
+      "source": "Derived from exact generated height grid; not a Gazebo camera image.",
+      "common_height_limits_mm": [
+        0,
+        60
+      ],
+      "common_grade_limits_deg": [
+        0,
+        30
+      ]
+    },
+    "boundary_blend": {
+      "formula": "ease((3-|x|)/.60)*ease((y+2.35)/.35)*ease((3.80-y)/.55)",
+      "ease": "0.5-0.5*cos(pi*clip(t,0,1))",
+      "full_region": {
+        "x": [
+          -2.4,
+          2.4
+        ],
+        "y": [
+          -2.0,
+          3.25
+        ]
+      },
+      "note": "Only outside the stress-route region is a flat probe/entry margin or boundary taper; no special flat road through the center."
+    },
+    "terrain_friction": {
+      "mu": 1.0,
+      "mu2": 1.0,
+      "restitution": 0.0,
+      "basis": "Matches DART mesh attachment defaults; identical to prior validated shared terrain worlds. Runtime validation remains required."
+    },
+    "spawn": {
+      "x": 0.0,
+      "y": -2.8,
+      "z": 0.0,
+      "yaw": 1.5707963267948966
+    },
+    "probes": [
+      {
+        "name": "flat_approach",
+        "xy_m": [
+          0.0,
+          -2.6
+        ],
+        "kind": "flat"
+      },
+      {
+        "name": "crossfall",
+        "xy_m": [
+          0.22,
+          0.2
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "high_point",
+        "xy_m": [
+          0.0,
+          0.0
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "steep_point",
+        "xy_m": [
+          0.5750000000000002,
+          -2.0
+        ],
+        "kind": "feature"
+      }
+    ],
+    "smoke": {
+      "spawn_x": 0.0,
+      "spawn_y": -1.3,
+      "spawn_z": 0.08999999954409407,
+      "initial_yaw": 1.5707963267948966,
+      "drive_speed_m_s": 0.25,
+      "duration_s": 10.0,
+      "scope": "Short common centerline segment for pilot contact checks, not a full trajectory comparison or a guaranteed pass."
+    },
+    "comparison_design": {
+      "geometry_fixed_before_robot_results": true,
+      "same_geometry_both_models": true,
+      "intended_speed_m_s": 0.25,
+      "levels_are_deterministic_conditions_not_statistical_replicates": true,
+      "intended_paths": "Reversals y\u00b11.1; tight figure-eight x\u00b1.65,y\u00b11; lateral turns x0..1.2,y\u22121.5..1.5; zigzag x\u00b1.6,y\u22121.5..1.5.",
+      "interpretation": "Compare paired runs within terrain/level/route/seed. Do not select only conditions favoring either caster or call commanded-path yaw difference tire slip on a sloped turn."
+    },
+    "research_sources": [
+      {
+        "title": "Kauzlarich, Bruning and Thacker: Wheelchair caster shimmy and turning resistance (1984)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/6530672/",
+        "evidence": "Experiments and equations distinguish caster shimmy and sliding-friction turning resistance; tire geometry changes both.",
+        "limit": "No critical shimmy speed or measured tire-loss coefficient is transferred to HAMR."
+      },
+      {
+        "title": "Kauzlarich, Bruning and Thacker: Wheelchair caster shimmy II: damping (2000)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/10917262/",
+        "evidence": "The correction to the earlier shimmy analysis considers tire friction, spindle-bearing friction and hydraulic damping.",
+        "limit": "Rigid Coulomb contact and estimated joint damping do not reproduce calibrated tire-elastic shimmy."
+      },
+      {
+        "title": "Sprigle, Huang and Misch: Measurement of rolling resistance and scrub torque of manual wheelchair drive wheels and casters (2022)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/31891276/",
+        "evidence": "Separate component tests measure coast-down rolling loss and loaded-wheel scrub torque; losses depend on load and surface and can trade off.",
+        "limit": "Local alignment, tracking and drive effort must be measured separately; one cannot infer real energy loss from yaw alignment alone."
+      },
+      {
+        "title": "Development of wheelchair caster testing equipment and preliminary testing of caster models (2017)",
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5645576/",
+        "full_text_xml": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC5645576/fullTextXML",
+        "evidence": "The apparatus tests square and 30-degree oblique slat impacts and reverses travel to exercise stem bearings. The preliminary study found no significant durability difference between impact angles.",
+        "limit": "Oblique excitation motivates a test condition, not a prediction of greater damage or a fatigue/standards-validation claim."
+      },
+      {
+        "title": "Udengaard and Iagnemma: Analysis, Design, and Control of an Omnidirectional Mobile Robot in Rough Terrain (2009)",
+        "url": "https://doi.org/10.1115/1.4000214",
+        "evidence": "The rough-terrain controller considers wheel-terrain contact angles in an active split-offset caster system.",
+        "limit": "The mechanism is active and differs from both passive HAMR models; this motivates terrain-normal-aware interpretation, not transferring performance claims."
+      }
+    ],
+    "limitations": [
+      "Rigid analytic geometry; no soil deformation, loose gravel, fatigue or tire elasticity.",
+      "Estimated caster inertia, bearing loss and different wheel geometries remain model confounds.",
+      "Height levels are bounded engineering choices, not literature-derived pass/fail thresholds.",
+      "No guarantee either robot traverses until a physical pilot is run; no motor/climb capability claim.",
+      "Mesh colors encode altitude only and do not change material friction."
+    ],
+    "geometry_validation": {
+      "passed": true,
+      "checks": {
+        "finite": true,
+        "bounded_relief_at_most_60mm": true,
+        "nondegenerate_faces": true,
+        "upward_top_normals": true,
+        "closed_oriented_manifold": true,
+        "positive_enclosed_volume": true,
+        "zero_perimeter_height": true,
+        "flat_probe_approach": true
+      },
+      "runtime_status": "not_run_by_generator"
+    },
+    "generator": {
+      "script": "generate_caster_stress_terrains.py",
+      "script_sha256": "495f1707393f2f9fbedce321e04393c448b4eba6fe88e9b87abdad40c23618b9",
+      "shared_exporter": "generate_terrains.py",
+      "shared_exporter_sha256": "1ee5e1df92d980830ca33e11356352d491dca75cc368331afa309690191ec261",
+      "randomness": "none; analytic grid and fixed phases/pad centers"
+    },
+    "sha256": {
+      "stl": "8abdb89472d3d653dc69a0d510bf4e7d1a1547ea0eeeda18a800feb474dda9c3",
+      "dae": "adbf15150694987761729575671140632068938e9e229e415c6a0936e55fe4e8",
+      "world": "6cde810d6af3b60e9845998c4217b86d747cf400e930c83feecd734d4c79730b"
+    }
+  },
+  {
+    "id": "caster_stress_washboard_l2",
+    "title": "Oblique washboard \u00b7 level 2",
+    "description": "Controlled washboard challenge with 36mm nominal local relief; identical geometry and material for both caster models.",
+    "family": "washboard",
+    "level": 2,
+    "world": "../worlds/caster_stress_washboard_l2.sdf",
+    "bounds_m": {
+      "x": [
+        -3.0,
+        3.0
+      ],
+      "y": [
+        -4.0,
+        4.0
+      ]
+    },
+    "height_grid": "../meshes/caster_stress_washboard_l2_height.npz",
+    "collision_mesh": "../meshes/caster_stress_washboard_l2.stl",
+    "visual_mesh": "../meshes/caster_stress_washboard_l2.dae",
+    "grid_spacing_m": 0.025,
+    "vertices": 78482,
+    "triangles": 156960,
+    "surface_triangles": 153600,
+    "min_height_m": 0.0,
+    "max_height_m": 0.036,
+    "height_range_m": 0.036,
+    "max_surface_slope_deg": 18.681434281016553,
+    "max_triangle_face_slope_deg": 18.906091162070947,
+    "route_region": {
+      "definition": "|x|<=1.8m and |y|<=2m, covering prescribed chassis routes and approximate wheel footprint.",
+      "height_min_m": 0.0,
+      "height_max_m": 0.036,
+      "grade_p95_deg": 17.967786819885937,
+      "grade_max_deg": 18.14423849762291,
+      "maximum_adjacent_grid_height_change_m": 0.007742065403206145
+    },
+    "slope_method": "Grid-node finite differences, with separate exact triangle-face maximum; all exclude closing side walls. Whole-surface extrema include boundary blends.",
+    "parameters": {
+      "nominal_peak_height_m": 0.036,
+      "level_changes": "Height multiplier only; XY geometry, phases and contact settings stay fixed.",
+      "normal_wavelength_m": 0.34,
+      "wavefront_obliquity_deg": 30.0,
+      "formula": "H/2*(1+cos(2*pi*(sin(30deg)*x+cos(30deg)*y)/0.34))",
+      "analytic_unblended_max_grade_deg": 18.39914869534514,
+      "excitation_frequency_at_world_y_speed_0p25_m_s_hz": 0.6367833851356166,
+      "mechanism": "Repeated oblique support-normal changes and wheel/body excitation; direction changes require passive caster realignment while traversing ridges."
+    },
+    "figure": {
+      "png": "../figures/caster_stress_washboard_l2_height_slope.png",
+      "svg": "../figures/caster_stress_washboard_l2_height_slope.svg",
+      "source": "Derived from exact generated height grid; not a Gazebo camera image.",
+      "common_height_limits_mm": [
+        0,
+        60
+      ],
+      "common_grade_limits_deg": [
+        0,
+        30
+      ]
+    },
+    "boundary_blend": {
+      "formula": "ease((3-|x|)/.60)*ease((y+2.35)/.35)*ease((3.80-y)/.55)",
+      "ease": "0.5-0.5*cos(pi*clip(t,0,1))",
+      "full_region": {
+        "x": [
+          -2.4,
+          2.4
+        ],
+        "y": [
+          -2.0,
+          3.25
+        ]
+      },
+      "note": "Only outside the stress-route region is a flat probe/entry margin or boundary taper; no special flat road through the center."
+    },
+    "terrain_friction": {
+      "mu": 1.0,
+      "mu2": 1.0,
+      "restitution": 0.0,
+      "basis": "Matches DART mesh attachment defaults; identical to prior validated shared terrain worlds. Runtime validation remains required."
+    },
+    "spawn": {
+      "x": 0.0,
+      "y": -2.8,
+      "z": 0.0,
+      "yaw": 1.5707963267948966
+    },
+    "probes": [
+      {
+        "name": "flat_approach",
+        "xy_m": [
+          0.0,
+          -2.6
+        ],
+        "kind": "flat"
+      },
+      {
+        "name": "crossfall",
+        "xy_m": [
+          0.22,
+          0.2
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "high_point",
+        "xy_m": [
+          0.0,
+          0.0
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "steep_point",
+        "xy_m": [
+          0.5750000000000002,
+          -2.0
+        ],
+        "kind": "feature"
+      }
+    ],
+    "smoke": {
+      "spawn_x": 0.0,
+      "spawn_y": -1.3,
+      "spawn_z": 0.10599999917936932,
+      "initial_yaw": 1.5707963267948966,
+      "drive_speed_m_s": 0.25,
+      "duration_s": 10.0,
+      "scope": "Short common centerline segment for pilot contact checks, not a full trajectory comparison or a guaranteed pass."
+    },
+    "comparison_design": {
+      "geometry_fixed_before_robot_results": true,
+      "same_geometry_both_models": true,
+      "intended_speed_m_s": 0.25,
+      "levels_are_deterministic_conditions_not_statistical_replicates": true,
+      "intended_paths": "Reversals y\u00b11.1; tight figure-eight x\u00b1.65,y\u00b11; lateral turns x0..1.2,y\u22121.5..1.5; zigzag x\u00b1.6,y\u22121.5..1.5.",
+      "interpretation": "Compare paired runs within terrain/level/route/seed. Do not select only conditions favoring either caster or call commanded-path yaw difference tire slip on a sloped turn."
+    },
+    "research_sources": [
+      {
+        "title": "Kauzlarich, Bruning and Thacker: Wheelchair caster shimmy and turning resistance (1984)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/6530672/",
+        "evidence": "Experiments and equations distinguish caster shimmy and sliding-friction turning resistance; tire geometry changes both.",
+        "limit": "No critical shimmy speed or measured tire-loss coefficient is transferred to HAMR."
+      },
+      {
+        "title": "Kauzlarich, Bruning and Thacker: Wheelchair caster shimmy II: damping (2000)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/10917262/",
+        "evidence": "The correction to the earlier shimmy analysis considers tire friction, spindle-bearing friction and hydraulic damping.",
+        "limit": "Rigid Coulomb contact and estimated joint damping do not reproduce calibrated tire-elastic shimmy."
+      },
+      {
+        "title": "Sprigle, Huang and Misch: Measurement of rolling resistance and scrub torque of manual wheelchair drive wheels and casters (2022)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/31891276/",
+        "evidence": "Separate component tests measure coast-down rolling loss and loaded-wheel scrub torque; losses depend on load and surface and can trade off.",
+        "limit": "Local alignment, tracking and drive effort must be measured separately; one cannot infer real energy loss from yaw alignment alone."
+      },
+      {
+        "title": "Development of wheelchair caster testing equipment and preliminary testing of caster models (2017)",
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5645576/",
+        "full_text_xml": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC5645576/fullTextXML",
+        "evidence": "The apparatus tests square and 30-degree oblique slat impacts and reverses travel to exercise stem bearings. The preliminary study found no significant durability difference between impact angles.",
+        "limit": "Oblique excitation motivates a test condition, not a prediction of greater damage or a fatigue/standards-validation claim."
+      },
+      {
+        "title": "Udengaard and Iagnemma: Analysis, Design, and Control of an Omnidirectional Mobile Robot in Rough Terrain (2009)",
+        "url": "https://doi.org/10.1115/1.4000214",
+        "evidence": "The rough-terrain controller considers wheel-terrain contact angles in an active split-offset caster system.",
+        "limit": "The mechanism is active and differs from both passive HAMR models; this motivates terrain-normal-aware interpretation, not transferring performance claims."
+      }
+    ],
+    "limitations": [
+      "Rigid analytic geometry; no soil deformation, loose gravel, fatigue or tire elasticity.",
+      "Estimated caster inertia, bearing loss and different wheel geometries remain model confounds.",
+      "Height levels are bounded engineering choices, not literature-derived pass/fail thresholds.",
+      "No guarantee either robot traverses until a physical pilot is run; no motor/climb capability claim.",
+      "Mesh colors encode altitude only and do not change material friction."
+    ],
+    "geometry_validation": {
+      "passed": true,
+      "checks": {
+        "finite": true,
+        "bounded_relief_at_most_60mm": true,
+        "nondegenerate_faces": true,
+        "upward_top_normals": true,
+        "closed_oriented_manifold": true,
+        "positive_enclosed_volume": true,
+        "zero_perimeter_height": true,
+        "flat_probe_approach": true
+      },
+      "runtime_status": "not_run_by_generator"
+    },
+    "generator": {
+      "script": "generate_caster_stress_terrains.py",
+      "script_sha256": "495f1707393f2f9fbedce321e04393c448b4eba6fe88e9b87abdad40c23618b9",
+      "shared_exporter": "generate_terrains.py",
+      "shared_exporter_sha256": "1ee5e1df92d980830ca33e11356352d491dca75cc368331afa309690191ec261",
+      "randomness": "none; analytic grid and fixed phases/pad centers"
+    },
+    "sha256": {
+      "stl": "5863540df64e2ea50b6e9efc1e00090068e681c88c81eed52254755225e4e3eb",
+      "dae": "15923b6bd4c9024de4a2578326553ffe94116e3cb69f2149fc956c5eabccbb85",
+      "world": "1a2852ac48c08b120d8147c2424f327e51d52b639e8a7baa6988123cd39b320e"
+    }
+  },
+  {
+    "id": "caster_stress_staggered_l1",
+    "title": "Staggered rounded pads \u00b7 level 1",
+    "description": "Controlled staggered challenge with 30mm nominal local relief; identical geometry and material for both caster models.",
+    "family": "staggered",
+    "level": 1,
+    "world": "../worlds/caster_stress_staggered_l1.sdf",
+    "bounds_m": {
+      "x": [
+        -3.0,
+        3.0
+      ],
+      "y": [
+        -4.0,
+        4.0
+      ]
+    },
+    "height_grid": "../meshes/caster_stress_staggered_l1_height.npz",
+    "collision_mesh": "../meshes/caster_stress_staggered_l1.stl",
+    "visual_mesh": "../meshes/caster_stress_staggered_l1.dae",
+    "grid_spacing_m": 0.025,
+    "vertices": 78482,
+    "triangles": 156960,
+    "surface_triangles": 153600,
+    "min_height_m": 0.0,
+    "max_height_m": 0.03,
+    "height_range_m": 0.03,
+    "max_surface_slope_deg": 15.331105690861122,
+    "max_triangle_face_slope_deg": 15.841834982137119,
+    "route_region": {
+      "definition": "|x|<=1.8m and |y|<=2m, covering prescribed chassis routes and approximate wheel footprint.",
+      "height_min_m": 0.0,
+      "height_max_m": 0.03,
+      "grade_p95_deg": 14.054113043440694,
+      "grade_max_deg": 15.055657336131246,
+      "maximum_adjacent_grid_height_change_m": 0.006985663389815513
+    },
+    "slope_method": "Grid-node finite differences, with separate exact triangle-face maximum; all exclude closing side walls. Whole-surface extrema include boundary blends.",
+    "parameters": {
+      "nominal_peak_height_m": 0.03,
+      "level_changes": "Height multiplier only; XY geometry, phases and contact settings stay fixed.",
+      "pad_semiaxes_m": [
+        0.24,
+        0.28
+      ],
+      "flat_top_radial_fraction": 0.3,
+      "x_pitch_m": 0.7,
+      "y_pitch_m": 0.7,
+      "alternate_row_x_offset_m": 0.35,
+      "nominal_track_check_x_m": [
+        -0.22,
+        0.22
+      ],
+      "pad_centers_xy_m": [
+        [
+          -2.6,
+          -1.75
+        ],
+        [
+          -1.9000000000000001,
+          -1.75
+        ],
+        [
+          -1.2000000000000002,
+          -1.75
+        ],
+        [
+          -0.5000000000000004,
+          -1.75
+        ],
+        [
+          0.19999999999999973,
+          -1.75
+        ],
+        [
+          0.8999999999999999,
+          -1.75
+        ],
+        [
+          1.5999999999999992,
+          -1.75
+        ],
+        [
+          2.2999999999999994,
+          -1.75
+        ],
+        [
+          -2.25,
+          -1.05
+        ],
+        [
+          -1.5500000000000003,
+          -1.05
+        ],
+        [
+          -0.8500000000000002,
+          -1.05
+        ],
+        [
+          -0.15000000000000047,
+          -1.05
+        ],
+        [
+          0.5499999999999997,
+          -1.05
+        ],
+        [
+          1.25,
+          -1.05
+        ],
+        [
+          1.9499999999999993,
+          -1.05
+        ],
+        [
+          2.6499999999999995,
+          -1.05
+        ],
+        [
+          -2.6,
+          -0.3500000000000001
+        ],
+        [
+          -1.9000000000000001,
+          -0.3500000000000001
+        ],
+        [
+          -1.2000000000000002,
+          -0.3500000000000001
+        ],
+        [
+          -0.5000000000000004,
+          -0.3500000000000001
+        ],
+        [
+          0.19999999999999973,
+          -0.3500000000000001
+        ],
+        [
+          0.8999999999999999,
+          -0.3500000000000001
+        ],
+        [
+          1.5999999999999992,
+          -0.3500000000000001
+        ],
+        [
+          2.2999999999999994,
+          -0.3500000000000001
+        ],
+        [
+          -2.25,
+          0.34999999999999964
+        ],
+        [
+          -1.5500000000000003,
+          0.34999999999999964
+        ],
+        [
+          -0.8500000000000002,
+          0.34999999999999964
+        ],
+        [
+          -0.15000000000000047,
+          0.34999999999999964
+        ],
+        [
+          0.5499999999999997,
+          0.34999999999999964
+        ],
+        [
+          1.25,
+          0.34999999999999964
+        ],
+        [
+          1.9499999999999993,
+          0.34999999999999964
+        ],
+        [
+          2.6499999999999995,
+          0.34999999999999964
+        ],
+        [
+          -2.6,
+          1.0499999999999998
+        ],
+        [
+          -1.9000000000000001,
+          1.0499999999999998
+        ],
+        [
+          -1.2000000000000002,
+          1.0499999999999998
+        ],
+        [
+          -0.5000000000000004,
+          1.0499999999999998
+        ],
+        [
+          0.19999999999999973,
+          1.0499999999999998
+        ],
+        [
+          0.8999999999999999,
+          1.0499999999999998
+        ],
+        [
+          1.5999999999999992,
+          1.0499999999999998
+        ],
+        [
+          2.2999999999999994,
+          1.0499999999999998
+        ],
+        [
+          -2.25,
+          1.75
+        ],
+        [
+          -1.5500000000000003,
+          1.75
+        ],
+        [
+          -0.8500000000000002,
+          1.75
+        ],
+        [
+          -0.15000000000000047,
+          1.75
+        ],
+        [
+          0.5499999999999997,
+          1.75
+        ],
+        [
+          1.25,
+          1.75
+        ],
+        [
+          1.9499999999999993,
+          1.75
+        ],
+        [
+          2.6499999999999995,
+          1.75
+        ],
+        [
+          -2.6,
+          2.4499999999999993
+        ],
+        [
+          -1.9000000000000001,
+          2.4499999999999993
+        ],
+        [
+          -1.2000000000000002,
+          2.4499999999999993
+        ],
+        [
+          -0.5000000000000004,
+          2.4499999999999993
+        ],
+        [
+          0.19999999999999973,
+          2.4499999999999993
+        ],
+        [
+          0.8999999999999999,
+          2.4499999999999993
+        ],
+        [
+          1.5999999999999992,
+          2.4499999999999993
+        ],
+        [
+          2.2999999999999994,
+          2.4499999999999993
+        ]
+      ],
+      "formula": "max_i H*ease((1-sqrt(((x-cx_i)/.24)^2+((y-cy_i)/.28)^2))/.70)",
+      "analytic_unblended_max_grade_upper_bound_deg": 15.668773345959476,
+      "mechanism": "Localized30/55mm rounded height transitions, with alternating left/right contacts and spatially changing transverse normals. No sharp vertical curb or movable obstacle."
+    },
+    "figure": {
+      "png": "../figures/caster_stress_staggered_l1_height_slope.png",
+      "svg": "../figures/caster_stress_staggered_l1_height_slope.svg",
+      "source": "Derived from exact generated height grid; not a Gazebo camera image.",
+      "common_height_limits_mm": [
+        0,
+        60
+      ],
+      "common_grade_limits_deg": [
+        0,
+        30
+      ]
+    },
+    "boundary_blend": {
+      "formula": "ease((3-|x|)/.60)*ease((y+2.35)/.35)*ease((3.80-y)/.55)",
+      "ease": "0.5-0.5*cos(pi*clip(t,0,1))",
+      "full_region": {
+        "x": [
+          -2.4,
+          2.4
+        ],
+        "y": [
+          -2.0,
+          3.25
+        ]
+      },
+      "note": "Only outside the stress-route region is a flat probe/entry margin or boundary taper; no special flat road through the center."
+    },
+    "terrain_friction": {
+      "mu": 1.0,
+      "mu2": 1.0,
+      "restitution": 0.0,
+      "basis": "Matches DART mesh attachment defaults; identical to prior validated shared terrain worlds. Runtime validation remains required."
+    },
+    "spawn": {
+      "x": 0.0,
+      "y": -2.8,
+      "z": 0.0,
+      "yaw": 1.5707963267948966
+    },
+    "probes": [
+      {
+        "name": "flat_approach",
+        "xy_m": [
+          0.0,
+          -2.6
+        ],
+        "kind": "flat"
+      },
+      {
+        "name": "crossfall",
+        "xy_m": [
+          0.22,
+          0.2
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "high_point",
+        "xy_m": [
+          -1.2249999999999999,
+          -1.8249999999999997
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "steep_point",
+        "xy_m": [
+          1.75,
+          -1.725
+        ],
+        "kind": "feature"
+      }
+    ],
+    "smoke": {
+      "spawn_x": 0.0,
+      "spawn_y": -1.3,
+      "spawn_z": 0.1,
+      "initial_yaw": 1.5707963267948966,
+      "drive_speed_m_s": 0.25,
+      "duration_s": 10.0,
+      "scope": "Short common centerline segment for pilot contact checks, not a full trajectory comparison or a guaranteed pass."
+    },
+    "comparison_design": {
+      "geometry_fixed_before_robot_results": true,
+      "same_geometry_both_models": true,
+      "intended_speed_m_s": 0.25,
+      "levels_are_deterministic_conditions_not_statistical_replicates": true,
+      "intended_paths": "Reversals y\u00b11.1; tight figure-eight x\u00b1.65,y\u00b11; lateral turns x0..1.2,y\u22121.5..1.5; zigzag x\u00b1.6,y\u22121.5..1.5.",
+      "interpretation": "Compare paired runs within terrain/level/route/seed. Do not select only conditions favoring either caster or call commanded-path yaw difference tire slip on a sloped turn."
+    },
+    "research_sources": [
+      {
+        "title": "Kauzlarich, Bruning and Thacker: Wheelchair caster shimmy and turning resistance (1984)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/6530672/",
+        "evidence": "Experiments and equations distinguish caster shimmy and sliding-friction turning resistance; tire geometry changes both.",
+        "limit": "No critical shimmy speed or measured tire-loss coefficient is transferred to HAMR."
+      },
+      {
+        "title": "Kauzlarich, Bruning and Thacker: Wheelchair caster shimmy II: damping (2000)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/10917262/",
+        "evidence": "The correction to the earlier shimmy analysis considers tire friction, spindle-bearing friction and hydraulic damping.",
+        "limit": "Rigid Coulomb contact and estimated joint damping do not reproduce calibrated tire-elastic shimmy."
+      },
+      {
+        "title": "Sprigle, Huang and Misch: Measurement of rolling resistance and scrub torque of manual wheelchair drive wheels and casters (2022)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/31891276/",
+        "evidence": "Separate component tests measure coast-down rolling loss and loaded-wheel scrub torque; losses depend on load and surface and can trade off.",
+        "limit": "Local alignment, tracking and drive effort must be measured separately; one cannot infer real energy loss from yaw alignment alone."
+      },
+      {
+        "title": "Development of wheelchair caster testing equipment and preliminary testing of caster models (2017)",
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5645576/",
+        "full_text_xml": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC5645576/fullTextXML",
+        "evidence": "The apparatus tests square and 30-degree oblique slat impacts and reverses travel to exercise stem bearings. The preliminary study found no significant durability difference between impact angles.",
+        "limit": "Oblique excitation motivates a test condition, not a prediction of greater damage or a fatigue/standards-validation claim."
+      },
+      {
+        "title": "Udengaard and Iagnemma: Analysis, Design, and Control of an Omnidirectional Mobile Robot in Rough Terrain (2009)",
+        "url": "https://doi.org/10.1115/1.4000214",
+        "evidence": "The rough-terrain controller considers wheel-terrain contact angles in an active split-offset caster system.",
+        "limit": "The mechanism is active and differs from both passive HAMR models; this motivates terrain-normal-aware interpretation, not transferring performance claims."
+      }
+    ],
+    "limitations": [
+      "Rigid analytic geometry; no soil deformation, loose gravel, fatigue or tire elasticity.",
+      "Estimated caster inertia, bearing loss and different wheel geometries remain model confounds.",
+      "Height levels are bounded engineering choices, not literature-derived pass/fail thresholds.",
+      "No guarantee either robot traverses until a physical pilot is run; no motor/climb capability claim.",
+      "Mesh colors encode altitude only and do not change material friction."
+    ],
+    "geometry_validation": {
+      "passed": true,
+      "checks": {
+        "finite": true,
+        "bounded_relief_at_most_60mm": true,
+        "nondegenerate_faces": true,
+        "upward_top_normals": true,
+        "closed_oriented_manifold": true,
+        "positive_enclosed_volume": true,
+        "zero_perimeter_height": true,
+        "flat_probe_approach": true
+      },
+      "runtime_status": "not_run_by_generator"
+    },
+    "generator": {
+      "script": "generate_caster_stress_terrains.py",
+      "script_sha256": "495f1707393f2f9fbedce321e04393c448b4eba6fe88e9b87abdad40c23618b9",
+      "shared_exporter": "generate_terrains.py",
+      "shared_exporter_sha256": "1ee5e1df92d980830ca33e11356352d491dca75cc368331afa309690191ec261",
+      "randomness": "none; analytic grid and fixed phases/pad centers"
+    },
+    "sha256": {
+      "stl": "d30719f261b7652a016391adc71c602fa5697d8473e6b0fbda522bb7875a3b30",
+      "dae": "bab61875f67cbf8582bea076edba26f99441f098c0dd7fd23c805539389a3048",
+      "world": "70a75e3a342472012bc47875261a43e9f289400a694a6c943070ac0283223384"
+    }
+  },
+  {
+    "id": "caster_stress_staggered_l2",
+    "title": "Staggered rounded pads \u00b7 level 2",
+    "description": "Controlled staggered challenge with 55mm nominal local relief; identical geometry and material for both caster models.",
+    "family": "staggered",
+    "level": 2,
+    "world": "../worlds/caster_stress_staggered_l2.sdf",
+    "bounds_m": {
+      "x": [
+        -3.0,
+        3.0
+      ],
+      "y": [
+        -4.0,
+        4.0
+      ]
+    },
+    "height_grid": "../meshes/caster_stress_staggered_l2_height.npz",
+    "collision_mesh": "../meshes/caster_stress_staggered_l2.stl",
+    "visual_mesh": "../meshes/caster_stress_staggered_l2.dae",
+    "grid_spacing_m": 0.025,
+    "vertices": 78482,
+    "triangles": 156960,
+    "surface_triangles": 153600,
+    "min_height_m": 0.0,
+    "max_height_m": 0.055,
+    "height_range_m": 0.055,
+    "max_surface_slope_deg": 26.684706395704385,
+    "max_triangle_face_slope_deg": 27.48467533170463,
+    "route_region": {
+      "definition": "|x|<=1.8m and |y|<=2m, covering prescribed chassis routes and approximate wheel footprint.",
+      "height_min_m": 0.0,
+      "height_max_m": 0.055,
+      "grade_p95_deg": 24.65232606714067,
+      "grade_max_deg": 26.250185637051608,
+      "maximum_adjacent_grid_height_change_m": 0.012807049547995105
+    },
+    "slope_method": "Grid-node finite differences, with separate exact triangle-face maximum; all exclude closing side walls. Whole-surface extrema include boundary blends.",
+    "parameters": {
+      "nominal_peak_height_m": 0.055,
+      "level_changes": "Height multiplier only; XY geometry, phases and contact settings stay fixed.",
+      "pad_semiaxes_m": [
+        0.24,
+        0.28
+      ],
+      "flat_top_radial_fraction": 0.3,
+      "x_pitch_m": 0.7,
+      "y_pitch_m": 0.7,
+      "alternate_row_x_offset_m": 0.35,
+      "nominal_track_check_x_m": [
+        -0.22,
+        0.22
+      ],
+      "pad_centers_xy_m": [
+        [
+          -2.6,
+          -1.75
+        ],
+        [
+          -1.9000000000000001,
+          -1.75
+        ],
+        [
+          -1.2000000000000002,
+          -1.75
+        ],
+        [
+          -0.5000000000000004,
+          -1.75
+        ],
+        [
+          0.19999999999999973,
+          -1.75
+        ],
+        [
+          0.8999999999999999,
+          -1.75
+        ],
+        [
+          1.5999999999999992,
+          -1.75
+        ],
+        [
+          2.2999999999999994,
+          -1.75
+        ],
+        [
+          -2.25,
+          -1.05
+        ],
+        [
+          -1.5500000000000003,
+          -1.05
+        ],
+        [
+          -0.8500000000000002,
+          -1.05
+        ],
+        [
+          -0.15000000000000047,
+          -1.05
+        ],
+        [
+          0.5499999999999997,
+          -1.05
+        ],
+        [
+          1.25,
+          -1.05
+        ],
+        [
+          1.9499999999999993,
+          -1.05
+        ],
+        [
+          2.6499999999999995,
+          -1.05
+        ],
+        [
+          -2.6,
+          -0.3500000000000001
+        ],
+        [
+          -1.9000000000000001,
+          -0.3500000000000001
+        ],
+        [
+          -1.2000000000000002,
+          -0.3500000000000001
+        ],
+        [
+          -0.5000000000000004,
+          -0.3500000000000001
+        ],
+        [
+          0.19999999999999973,
+          -0.3500000000000001
+        ],
+        [
+          0.8999999999999999,
+          -0.3500000000000001
+        ],
+        [
+          1.5999999999999992,
+          -0.3500000000000001
+        ],
+        [
+          2.2999999999999994,
+          -0.3500000000000001
+        ],
+        [
+          -2.25,
+          0.34999999999999964
+        ],
+        [
+          -1.5500000000000003,
+          0.34999999999999964
+        ],
+        [
+          -0.8500000000000002,
+          0.34999999999999964
+        ],
+        [
+          -0.15000000000000047,
+          0.34999999999999964
+        ],
+        [
+          0.5499999999999997,
+          0.34999999999999964
+        ],
+        [
+          1.25,
+          0.34999999999999964
+        ],
+        [
+          1.9499999999999993,
+          0.34999999999999964
+        ],
+        [
+          2.6499999999999995,
+          0.34999999999999964
+        ],
+        [
+          -2.6,
+          1.0499999999999998
+        ],
+        [
+          -1.9000000000000001,
+          1.0499999999999998
+        ],
+        [
+          -1.2000000000000002,
+          1.0499999999999998
+        ],
+        [
+          -0.5000000000000004,
+          1.0499999999999998
+        ],
+        [
+          0.19999999999999973,
+          1.0499999999999998
+        ],
+        [
+          0.8999999999999999,
+          1.0499999999999998
+        ],
+        [
+          1.5999999999999992,
+          1.0499999999999998
+        ],
+        [
+          2.2999999999999994,
+          1.0499999999999998
+        ],
+        [
+          -2.25,
+          1.75
+        ],
+        [
+          -1.5500000000000003,
+          1.75
+        ],
+        [
+          -0.8500000000000002,
+          1.75
+        ],
+        [
+          -0.15000000000000047,
+          1.75
+        ],
+        [
+          0.5499999999999997,
+          1.75
+        ],
+        [
+          1.25,
+          1.75
+        ],
+        [
+          1.9499999999999993,
+          1.75
+        ],
+        [
+          2.6499999999999995,
+          1.75
+        ],
+        [
+          -2.6,
+          2.4499999999999993
+        ],
+        [
+          -1.9000000000000001,
+          2.4499999999999993
+        ],
+        [
+          -1.2000000000000002,
+          2.4499999999999993
+        ],
+        [
+          -0.5000000000000004,
+          2.4499999999999993
+        ],
+        [
+          0.19999999999999973,
+          2.4499999999999993
+        ],
+        [
+          0.8999999999999999,
+          2.4499999999999993
+        ],
+        [
+          1.5999999999999992,
+          2.4499999999999993
+        ],
+        [
+          2.2999999999999994,
+          2.4499999999999993
+        ]
+      ],
+      "formula": "max_i H*ease((1-sqrt(((x-cx_i)/.24)^2+((y-cy_i)/.28)^2))/.70)",
+      "analytic_unblended_max_grade_upper_bound_deg": 27.21443877993762,
+      "mechanism": "Localized30/55mm rounded height transitions, with alternating left/right contacts and spatially changing transverse normals. No sharp vertical curb or movable obstacle."
+    },
+    "figure": {
+      "png": "../figures/caster_stress_staggered_l2_height_slope.png",
+      "svg": "../figures/caster_stress_staggered_l2_height_slope.svg",
+      "source": "Derived from exact generated height grid; not a Gazebo camera image.",
+      "common_height_limits_mm": [
+        0,
+        60
+      ],
+      "common_grade_limits_deg": [
+        0,
+        30
+      ]
+    },
+    "boundary_blend": {
+      "formula": "ease((3-|x|)/.60)*ease((y+2.35)/.35)*ease((3.80-y)/.55)",
+      "ease": "0.5-0.5*cos(pi*clip(t,0,1))",
+      "full_region": {
+        "x": [
+          -2.4,
+          2.4
+        ],
+        "y": [
+          -2.0,
+          3.25
+        ]
+      },
+      "note": "Only outside the stress-route region is a flat probe/entry margin or boundary taper; no special flat road through the center."
+    },
+    "terrain_friction": {
+      "mu": 1.0,
+      "mu2": 1.0,
+      "restitution": 0.0,
+      "basis": "Matches DART mesh attachment defaults; identical to prior validated shared terrain worlds. Runtime validation remains required."
+    },
+    "spawn": {
+      "x": 0.0,
+      "y": -2.8,
+      "z": 0.0,
+      "yaw": 1.5707963267948966
+    },
+    "probes": [
+      {
+        "name": "flat_approach",
+        "xy_m": [
+          0.0,
+          -2.6
+        ],
+        "kind": "flat"
+      },
+      {
+        "name": "crossfall",
+        "xy_m": [
+          0.22,
+          0.2
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "high_point",
+        "xy_m": [
+          -1.2249999999999999,
+          -1.8249999999999997
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "steep_point",
+        "xy_m": [
+          1.75,
+          -0.32499999999999973
+        ],
+        "kind": "feature"
+      }
+    ],
+    "smoke": {
+      "spawn_x": 0.0,
+      "spawn_y": -1.3,
+      "spawn_z": 0.125,
+      "initial_yaw": 1.5707963267948966,
+      "drive_speed_m_s": 0.25,
+      "duration_s": 10.0,
+      "scope": "Short common centerline segment for pilot contact checks, not a full trajectory comparison or a guaranteed pass."
+    },
+    "comparison_design": {
+      "geometry_fixed_before_robot_results": true,
+      "same_geometry_both_models": true,
+      "intended_speed_m_s": 0.25,
+      "levels_are_deterministic_conditions_not_statistical_replicates": true,
+      "intended_paths": "Reversals y\u00b11.1; tight figure-eight x\u00b1.65,y\u00b11; lateral turns x0..1.2,y\u22121.5..1.5; zigzag x\u00b1.6,y\u22121.5..1.5.",
+      "interpretation": "Compare paired runs within terrain/level/route/seed. Do not select only conditions favoring either caster or call commanded-path yaw difference tire slip on a sloped turn."
+    },
+    "research_sources": [
+      {
+        "title": "Kauzlarich, Bruning and Thacker: Wheelchair caster shimmy and turning resistance (1984)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/6530672/",
+        "evidence": "Experiments and equations distinguish caster shimmy and sliding-friction turning resistance; tire geometry changes both.",
+        "limit": "No critical shimmy speed or measured tire-loss coefficient is transferred to HAMR."
+      },
+      {
+        "title": "Kauzlarich, Bruning and Thacker: Wheelchair caster shimmy II: damping (2000)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/10917262/",
+        "evidence": "The correction to the earlier shimmy analysis considers tire friction, spindle-bearing friction and hydraulic damping.",
+        "limit": "Rigid Coulomb contact and estimated joint damping do not reproduce calibrated tire-elastic shimmy."
+      },
+      {
+        "title": "Sprigle, Huang and Misch: Measurement of rolling resistance and scrub torque of manual wheelchair drive wheels and casters (2022)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/31891276/",
+        "evidence": "Separate component tests measure coast-down rolling loss and loaded-wheel scrub torque; losses depend on load and surface and can trade off.",
+        "limit": "Local alignment, tracking and drive effort must be measured separately; one cannot infer real energy loss from yaw alignment alone."
+      },
+      {
+        "title": "Development of wheelchair caster testing equipment and preliminary testing of caster models (2017)",
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5645576/",
+        "full_text_xml": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC5645576/fullTextXML",
+        "evidence": "The apparatus tests square and 30-degree oblique slat impacts and reverses travel to exercise stem bearings. The preliminary study found no significant durability difference between impact angles.",
+        "limit": "Oblique excitation motivates a test condition, not a prediction of greater damage or a fatigue/standards-validation claim."
+      },
+      {
+        "title": "Udengaard and Iagnemma: Analysis, Design, and Control of an Omnidirectional Mobile Robot in Rough Terrain (2009)",
+        "url": "https://doi.org/10.1115/1.4000214",
+        "evidence": "The rough-terrain controller considers wheel-terrain contact angles in an active split-offset caster system.",
+        "limit": "The mechanism is active and differs from both passive HAMR models; this motivates terrain-normal-aware interpretation, not transferring performance claims."
+      }
+    ],
+    "limitations": [
+      "Rigid analytic geometry; no soil deformation, loose gravel, fatigue or tire elasticity.",
+      "Estimated caster inertia, bearing loss and different wheel geometries remain model confounds.",
+      "Height levels are bounded engineering choices, not literature-derived pass/fail thresholds.",
+      "No guarantee either robot traverses until a physical pilot is run; no motor/climb capability claim.",
+      "Mesh colors encode altitude only and do not change material friction."
+    ],
+    "geometry_validation": {
+      "passed": true,
+      "checks": {
+        "finite": true,
+        "bounded_relief_at_most_60mm": true,
+        "nondegenerate_faces": true,
+        "upward_top_normals": true,
+        "closed_oriented_manifold": true,
+        "positive_enclosed_volume": true,
+        "zero_perimeter_height": true,
+        "flat_probe_approach": true
+      },
+      "runtime_status": "not_run_by_generator"
+    },
+    "generator": {
+      "script": "generate_caster_stress_terrains.py",
+      "script_sha256": "495f1707393f2f9fbedce321e04393c448b4eba6fe88e9b87abdad40c23618b9",
+      "shared_exporter": "generate_terrains.py",
+      "shared_exporter_sha256": "1ee5e1df92d980830ca33e11356352d491dca75cc368331afa309690191ec261",
+      "randomness": "none; analytic grid and fixed phases/pad centers"
+    },
+    "sha256": {
+      "stl": "d0f6b8b4a9d6375867f295099f5a340582775519fcce3ec31b36473ed1def90c",
+      "dae": "699c8f992f1a6a628d728e7c4daf7556a28e5d114eb697ff57e1c096a1ce2caf",
+      "world": "9d7a854bafa22300262a2b1d03d2d843d3e84743e31b6ec674b36be03dd2a89f"
+    }
+  },
+  {
+    "id": "caster_stress_saddle_l1",
+    "title": "Alternating cross slopes \u00b7 level 1",
+    "description": "Controlled saddle challenge with 35mm nominal local relief; identical geometry and material for both caster models.",
+    "family": "saddle",
+    "level": 1,
+    "world": "../worlds/caster_stress_saddle_l1.sdf",
+    "bounds_m": {
+      "x": [
+        -3.0,
+        3.0
+      ],
+      "y": [
+        -4.0,
+        4.0
+      ]
+    },
+    "height_grid": "../meshes/caster_stress_saddle_l1_height.npz",
+    "collision_mesh": "../meshes/caster_stress_saddle_l1.stl",
+    "visual_mesh": "../meshes/caster_stress_saddle_l1.dae",
+    "grid_spacing_m": 0.025,
+    "vertices": 78482,
+    "triangles": 156960,
+    "surface_triangles": 153600,
+    "min_height_m": 0.0,
+    "max_height_m": 0.034945086406048126,
+    "height_range_m": 0.034945086406048126,
+    "max_surface_slope_deg": 9.95183156303558,
+    "max_triangle_face_slope_deg": 10.13264153236085,
+    "route_region": {
+      "definition": "|x|<=1.8m and |y|<=2m, covering prescribed chassis routes and approximate wheel footprint.",
+      "height_min_m": 5.4913593951876066e-05,
+      "height_max_m": 0.034945086406048126,
+      "grade_p95_deg": 6.413805772453841,
+      "grade_max_deg": 6.908985918938112,
+      "maximum_adjacent_grid_height_change_m": 0.004467036193713567
+    },
+    "slope_method": "Grid-node finite differences, with separate exact triangle-face maximum; all exclude closing side walls. Whole-surface extrema include boundary blends.",
+    "parameters": {
+      "nominal_peak_height_m": 0.035,
+      "level_changes": "Height multiplier only; XY geometry, phases and contact settings stay fixed.",
+      "wavelength_x_m": 1.2,
+      "wavelength_y_m": 0.9,
+      "phase_x_rad": 0.6283185307179586,
+      "phase_y_rad": 0.4487989505128276,
+      "formula": "H/2*(1+sin(2*pi*x/1.20+pi/5)*sin(2*pi*y/.90+pi/7))",
+      "analytic_unblended_max_grade_upper_bound_deg": 6.965480697943524,
+      "mechanism": "Alternating cross-slope/camber and roll demand; phase offsets make the centerline exposure asymmetric without changing material properties."
+    },
+    "figure": {
+      "png": "../figures/caster_stress_saddle_l1_height_slope.png",
+      "svg": "../figures/caster_stress_saddle_l1_height_slope.svg",
+      "source": "Derived from exact generated height grid; not a Gazebo camera image.",
+      "common_height_limits_mm": [
+        0,
+        60
+      ],
+      "common_grade_limits_deg": [
+        0,
+        30
+      ]
+    },
+    "boundary_blend": {
+      "formula": "ease((3-|x|)/.60)*ease((y+2.35)/.35)*ease((3.80-y)/.55)",
+      "ease": "0.5-0.5*cos(pi*clip(t,0,1))",
+      "full_region": {
+        "x": [
+          -2.4,
+          2.4
+        ],
+        "y": [
+          -2.0,
+          3.25
+        ]
+      },
+      "note": "Only outside the stress-route region is a flat probe/entry margin or boundary taper; no special flat road through the center."
+    },
+    "terrain_friction": {
+      "mu": 1.0,
+      "mu2": 1.0,
+      "restitution": 0.0,
+      "basis": "Matches DART mesh attachment defaults; identical to prior validated shared terrain worlds. Runtime validation remains required."
+    },
+    "spawn": {
+      "x": 0.0,
+      "y": -2.8,
+      "z": 0.0,
+      "yaw": 1.5707963267948966
+    },
+    "probes": [
+      {
+        "name": "flat_approach",
+        "xy_m": [
+          0.0,
+          -2.6
+        ],
+        "kind": "flat"
+      },
+      {
+        "name": "crossfall",
+        "xy_m": [
+          0.22,
+          0.2
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "high_point",
+        "xy_m": [
+          0.7750000000000004,
+          -1.1999999999999997
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "steep_point",
+        "xy_m": [
+          -1.625,
+          1.2750000000000004
+        ],
+        "kind": "feature"
+      }
+    ],
+    "smoke": {
+      "spawn_x": 0.0,
+      "spawn_y": -1.3,
+      "spawn_z": 0.10494508640604813,
+      "initial_yaw": 1.5707963267948966,
+      "drive_speed_m_s": 0.25,
+      "duration_s": 10.0,
+      "scope": "Short common centerline segment for pilot contact checks, not a full trajectory comparison or a guaranteed pass."
+    },
+    "comparison_design": {
+      "geometry_fixed_before_robot_results": true,
+      "same_geometry_both_models": true,
+      "intended_speed_m_s": 0.25,
+      "levels_are_deterministic_conditions_not_statistical_replicates": true,
+      "intended_paths": "Reversals y\u00b11.1; tight figure-eight x\u00b1.65,y\u00b11; lateral turns x0..1.2,y\u22121.5..1.5; zigzag x\u00b1.6,y\u22121.5..1.5.",
+      "interpretation": "Compare paired runs within terrain/level/route/seed. Do not select only conditions favoring either caster or call commanded-path yaw difference tire slip on a sloped turn."
+    },
+    "research_sources": [
+      {
+        "title": "Kauzlarich, Bruning and Thacker: Wheelchair caster shimmy and turning resistance (1984)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/6530672/",
+        "evidence": "Experiments and equations distinguish caster shimmy and sliding-friction turning resistance; tire geometry changes both.",
+        "limit": "No critical shimmy speed or measured tire-loss coefficient is transferred to HAMR."
+      },
+      {
+        "title": "Kauzlarich, Bruning and Thacker: Wheelchair caster shimmy II: damping (2000)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/10917262/",
+        "evidence": "The correction to the earlier shimmy analysis considers tire friction, spindle-bearing friction and hydraulic damping.",
+        "limit": "Rigid Coulomb contact and estimated joint damping do not reproduce calibrated tire-elastic shimmy."
+      },
+      {
+        "title": "Sprigle, Huang and Misch: Measurement of rolling resistance and scrub torque of manual wheelchair drive wheels and casters (2022)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/31891276/",
+        "evidence": "Separate component tests measure coast-down rolling loss and loaded-wheel scrub torque; losses depend on load and surface and can trade off.",
+        "limit": "Local alignment, tracking and drive effort must be measured separately; one cannot infer real energy loss from yaw alignment alone."
+      },
+      {
+        "title": "Development of wheelchair caster testing equipment and preliminary testing of caster models (2017)",
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5645576/",
+        "full_text_xml": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC5645576/fullTextXML",
+        "evidence": "The apparatus tests square and 30-degree oblique slat impacts and reverses travel to exercise stem bearings. The preliminary study found no significant durability difference between impact angles.",
+        "limit": "Oblique excitation motivates a test condition, not a prediction of greater damage or a fatigue/standards-validation claim."
+      },
+      {
+        "title": "Udengaard and Iagnemma: Analysis, Design, and Control of an Omnidirectional Mobile Robot in Rough Terrain (2009)",
+        "url": "https://doi.org/10.1115/1.4000214",
+        "evidence": "The rough-terrain controller considers wheel-terrain contact angles in an active split-offset caster system.",
+        "limit": "The mechanism is active and differs from both passive HAMR models; this motivates terrain-normal-aware interpretation, not transferring performance claims."
+      }
+    ],
+    "limitations": [
+      "Rigid analytic geometry; no soil deformation, loose gravel, fatigue or tire elasticity.",
+      "Estimated caster inertia, bearing loss and different wheel geometries remain model confounds.",
+      "Height levels are bounded engineering choices, not literature-derived pass/fail thresholds.",
+      "No guarantee either robot traverses until a physical pilot is run; no motor/climb capability claim.",
+      "Mesh colors encode altitude only and do not change material friction."
+    ],
+    "geometry_validation": {
+      "passed": true,
+      "checks": {
+        "finite": true,
+        "bounded_relief_at_most_60mm": true,
+        "nondegenerate_faces": true,
+        "upward_top_normals": true,
+        "closed_oriented_manifold": true,
+        "positive_enclosed_volume": true,
+        "zero_perimeter_height": true,
+        "flat_probe_approach": true
+      },
+      "runtime_status": "not_run_by_generator"
+    },
+    "generator": {
+      "script": "generate_caster_stress_terrains.py",
+      "script_sha256": "495f1707393f2f9fbedce321e04393c448b4eba6fe88e9b87abdad40c23618b9",
+      "shared_exporter": "generate_terrains.py",
+      "shared_exporter_sha256": "1ee5e1df92d980830ca33e11356352d491dca75cc368331afa309690191ec261",
+      "randomness": "none; analytic grid and fixed phases/pad centers"
+    },
+    "sha256": {
+      "stl": "50899b735db6ce5a468e84ca70963001b93f75fb52036adc4b2967dc304c0620",
+      "dae": "98094d795502e1cbf041b67a164dc2b597d5f86cc0f5e0c4e96b270f642a512b",
+      "world": "e0fb88f5295de3380a3b3fe04383d51ce4739eef968315b10bef253a87af30b2"
+    }
+  },
+  {
+    "id": "caster_stress_saddle_l2",
+    "title": "Alternating cross slopes \u00b7 level 2",
+    "description": "Controlled saddle challenge with 60mm nominal local relief; identical geometry and material for both caster models.",
+    "family": "saddle",
+    "level": 2,
+    "world": "../worlds/caster_stress_saddle_l2.sdf",
+    "bounds_m": {
+      "x": [
+        -3.0,
+        3.0
+      ],
+      "y": [
+        -4.0,
+        4.0
+      ]
+    },
+    "height_grid": "../meshes/caster_stress_saddle_l2_height.npz",
+    "collision_mesh": "../meshes/caster_stress_saddle_l2.stl",
+    "visual_mesh": "../meshes/caster_stress_saddle_l2.dae",
+    "grid_spacing_m": 0.025,
+    "vertices": 78482,
+    "triangles": 156960,
+    "surface_triangles": 153600,
+    "min_height_m": 0.0,
+    "max_height_m": 0.059905862410368216,
+    "height_range_m": 0.059905862410368216,
+    "max_surface_slope_deg": 16.740711015013357,
+    "max_triangle_face_slope_deg": 17.033415394142416,
+    "route_region": {
+      "definition": "|x|<=1.8m and |y|<=2m, covering prescribed chassis routes and approximate wheel footprint.",
+      "height_min_m": 9.413758963178752e-05,
+      "height_max_m": 0.059905862410368216,
+      "grade_p95_deg": 10.907545502603242,
+      "grade_max_deg": 11.734834028513358,
+      "maximum_adjacent_grid_height_change_m": 0.0076577763320803995
+    },
+    "slope_method": "Grid-node finite differences, with separate exact triangle-face maximum; all exclude closing side walls. Whole-surface extrema include boundary blends.",
+    "parameters": {
+      "nominal_peak_height_m": 0.06,
+      "level_changes": "Height multiplier only; XY geometry, phases and contact settings stay fixed.",
+      "wavelength_x_m": 1.2,
+      "wavelength_y_m": 0.9,
+      "phase_x_rad": 0.6283185307179586,
+      "phase_y_rad": 0.4487989505128276,
+      "formula": "H/2*(1+sin(2*pi*x/1.20+pi/5)*sin(2*pi*y/.90+pi/7))",
+      "analytic_unblended_max_grade_upper_bound_deg": 11.82901835541632,
+      "mechanism": "Alternating cross-slope/camber and roll demand; phase offsets make the centerline exposure asymmetric without changing material properties."
+    },
+    "figure": {
+      "png": "../figures/caster_stress_saddle_l2_height_slope.png",
+      "svg": "../figures/caster_stress_saddle_l2_height_slope.svg",
+      "source": "Derived from exact generated height grid; not a Gazebo camera image.",
+      "common_height_limits_mm": [
+        0,
+        60
+      ],
+      "common_grade_limits_deg": [
+        0,
+        30
+      ]
+    },
+    "boundary_blend": {
+      "formula": "ease((3-|x|)/.60)*ease((y+2.35)/.35)*ease((3.80-y)/.55)",
+      "ease": "0.5-0.5*cos(pi*clip(t,0,1))",
+      "full_region": {
+        "x": [
+          -2.4,
+          2.4
+        ],
+        "y": [
+          -2.0,
+          3.25
+        ]
+      },
+      "note": "Only outside the stress-route region is a flat probe/entry margin or boundary taper; no special flat road through the center."
+    },
+    "terrain_friction": {
+      "mu": 1.0,
+      "mu2": 1.0,
+      "restitution": 0.0,
+      "basis": "Matches DART mesh attachment defaults; identical to prior validated shared terrain worlds. Runtime validation remains required."
+    },
+    "spawn": {
+      "x": 0.0,
+      "y": -2.8,
+      "z": 0.0,
+      "yaw": 1.5707963267948966
+    },
+    "probes": [
+      {
+        "name": "flat_approach",
+        "xy_m": [
+          0.0,
+          -2.6
+        ],
+        "kind": "flat"
+      },
+      {
+        "name": "crossfall",
+        "xy_m": [
+          0.22,
+          0.2
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "high_point",
+        "xy_m": [
+          0.7750000000000004,
+          0.6000000000000005
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "steep_point",
+        "xy_m": [
+          -1.025,
+          1.2750000000000004
+        ],
+        "kind": "feature"
+      }
+    ],
+    "smoke": {
+      "spawn_x": 0.0,
+      "spawn_y": -1.3,
+      "spawn_z": 0.12990586241036822,
+      "initial_yaw": 1.5707963267948966,
+      "drive_speed_m_s": 0.25,
+      "duration_s": 10.0,
+      "scope": "Short common centerline segment for pilot contact checks, not a full trajectory comparison or a guaranteed pass."
+    },
+    "comparison_design": {
+      "geometry_fixed_before_robot_results": true,
+      "same_geometry_both_models": true,
+      "intended_speed_m_s": 0.25,
+      "levels_are_deterministic_conditions_not_statistical_replicates": true,
+      "intended_paths": "Reversals y\u00b11.1; tight figure-eight x\u00b1.65,y\u00b11; lateral turns x0..1.2,y\u22121.5..1.5; zigzag x\u00b1.6,y\u22121.5..1.5.",
+      "interpretation": "Compare paired runs within terrain/level/route/seed. Do not select only conditions favoring either caster or call commanded-path yaw difference tire slip on a sloped turn."
+    },
+    "research_sources": [
+      {
+        "title": "Kauzlarich, Bruning and Thacker: Wheelchair caster shimmy and turning resistance (1984)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/6530672/",
+        "evidence": "Experiments and equations distinguish caster shimmy and sliding-friction turning resistance; tire geometry changes both.",
+        "limit": "No critical shimmy speed or measured tire-loss coefficient is transferred to HAMR."
+      },
+      {
+        "title": "Kauzlarich, Bruning and Thacker: Wheelchair caster shimmy II: damping (2000)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/10917262/",
+        "evidence": "The correction to the earlier shimmy analysis considers tire friction, spindle-bearing friction and hydraulic damping.",
+        "limit": "Rigid Coulomb contact and estimated joint damping do not reproduce calibrated tire-elastic shimmy."
+      },
+      {
+        "title": "Sprigle, Huang and Misch: Measurement of rolling resistance and scrub torque of manual wheelchair drive wheels and casters (2022)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/31891276/",
+        "evidence": "Separate component tests measure coast-down rolling loss and loaded-wheel scrub torque; losses depend on load and surface and can trade off.",
+        "limit": "Local alignment, tracking and drive effort must be measured separately; one cannot infer real energy loss from yaw alignment alone."
+      },
+      {
+        "title": "Development of wheelchair caster testing equipment and preliminary testing of caster models (2017)",
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5645576/",
+        "full_text_xml": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC5645576/fullTextXML",
+        "evidence": "The apparatus tests square and 30-degree oblique slat impacts and reverses travel to exercise stem bearings. The preliminary study found no significant durability difference between impact angles.",
+        "limit": "Oblique excitation motivates a test condition, not a prediction of greater damage or a fatigue/standards-validation claim."
+      },
+      {
+        "title": "Udengaard and Iagnemma: Analysis, Design, and Control of an Omnidirectional Mobile Robot in Rough Terrain (2009)",
+        "url": "https://doi.org/10.1115/1.4000214",
+        "evidence": "The rough-terrain controller considers wheel-terrain contact angles in an active split-offset caster system.",
+        "limit": "The mechanism is active and differs from both passive HAMR models; this motivates terrain-normal-aware interpretation, not transferring performance claims."
+      }
+    ],
+    "limitations": [
+      "Rigid analytic geometry; no soil deformation, loose gravel, fatigue or tire elasticity.",
+      "Estimated caster inertia, bearing loss and different wheel geometries remain model confounds.",
+      "Height levels are bounded engineering choices, not literature-derived pass/fail thresholds.",
+      "No guarantee either robot traverses until a physical pilot is run; no motor/climb capability claim.",
+      "Mesh colors encode altitude only and do not change material friction."
+    ],
+    "geometry_validation": {
+      "passed": true,
+      "checks": {
+        "finite": true,
+        "bounded_relief_at_most_60mm": true,
+        "nondegenerate_faces": true,
+        "upward_top_normals": true,
+        "closed_oriented_manifold": true,
+        "positive_enclosed_volume": true,
+        "zero_perimeter_height": true,
+        "flat_probe_approach": true
+      },
+      "runtime_status": "not_run_by_generator"
+    },
+    "generator": {
+      "script": "generate_caster_stress_terrains.py",
+      "script_sha256": "495f1707393f2f9fbedce321e04393c448b4eba6fe88e9b87abdad40c23618b9",
+      "shared_exporter": "generate_terrains.py",
+      "shared_exporter_sha256": "1ee5e1df92d980830ca33e11356352d491dca75cc368331afa309690191ec261",
+      "randomness": "none; analytic grid and fixed phases/pad centers"
+    },
+    "sha256": {
+      "stl": "80acda622937309739a0116a6d44479bfe1c04f210cc0f0e441e02072101f8d7",
+      "dae": "7489a804dd964a9dc4887a9960e56d21cc032991a464af4908f5498fec88da51",
+      "world": "fb206937434ab2d8977c0000a66ee0ffd419e79c40e122134d301e1d84b80158"
+    }
+  }
+]

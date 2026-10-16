@@ -1,0 +1,31 @@
+# Original waypoint_traj_simple Python route AND piecewise-linear timing.
+# Select --profile legacy. World coordinates stay fixed for every initial yaw.
+name: swivel_caster_waypoint_traj_simple
+reference_source: reference_trajectory/reference_trajectory/waypoint_traj_simple.py
+passive_joint_names:
+  - left_caster_swivel_joint
+  - left_caster_wheel_joint
+  - right_caster_swivel_joint
+  - right_caster_wheel_joint
+speed_m_s: 0.25
+fixed_turret_yaw_rad: 0.0
+expect_first_leg_alignment: true
+points_m:
+  - [0.0, 0.0]
+  - [0.0, 2.0]
+  - [-2.0, 2.0]
+  - [-2.0, 4.5]
+  - [0.0, 4.5]
+  - [0.0, 2.0]
+  - [0.0, 0.0]
+wheel_radius_m: 0.1075
+half_track_m: 0.33072
+base_ahead_of_axle_m: 0.27114
+position_gain_s_inv: 1.5
+orientation_gain_s_inv: 4.0
+max_translation_m_s: 0.50
+max_wheel_rate_rad_s: 6.0
+max_wheel_acceleration_rad_s2: 15.0
+max_gimbal_rate_rad_s: 2.5
+startup_hold_s: 3.0
+final_hold_s: 8.0

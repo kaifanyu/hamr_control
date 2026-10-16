@@ -1,10 +1,23 @@
 # CAD ball caster and continuous trajectory simulation
 
+For two ordinary POWERTEC-style front caster wheels, use the separate
+[swivel-caster simulator](../hamr_swivel_caster/README.md). It includes a physical
+trajectory test and separate overview and moving side close-up MP4 recordings.
+
+For shared uneven-ground scenes with either passive caster model, see
+[the shared terrain maps](../maps/README.md). The common terrain launcher
+provides road bumps, a hill, a cross slope, ruts and fixed rocks with a flat
+approach; it preserves each world's collision geometry and friction settings.
+
 Use ROS 2 Jazzy on Ubuntu 24.04, including Ubuntu under WSL2 with WSLg for the
 Gazebo window. The new entry point runs the complete COMPA simulation chassis
 with two CAD ball casters and the shared continuous planner. Simulation uses its
 own chassis dimensions and gains; use the [hardware guide](REAL_CAR_CONTINUOUS.md)
 for the physical HAMR.
+
+The separate [four-active-ball concept demo](../hamr_ball_caster/docs/ACTIVE_BALL_DEMO.md)
+provides a native Gazebo preview and a smooth MP4 replay of a hard-coded
+center-to-corners/edge-midpoints route. It uses ideal kinematics for visualization.
 
 ## 1. Install and build
 

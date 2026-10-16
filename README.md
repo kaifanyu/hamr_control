@@ -22,6 +22,9 @@ platform:
 
 | Task | Guide / entry point |
 |---|---|
+| Two ordinary front swivel casters: physical trajectory test + overview/close-up MP4s | [Swivel-caster simulator](hamr_swivel_caster/README.md) |
+| 28 shared terrain maps for ball or swivel casters | [Map files](maps/README.md) · [Terrain launcher](hamr_terrain/README.md) |
+| Four active ball casters: holonomic concept demo + MP4 | [Active-ball demo](hamr_ball_caster/docs/ACTIVE_BALL_DEMO.md) |
 | New caster and full-vehicle URDF | [Model files and CAD scope](docs/SIMULATION.md#5-new-urdf-and-model-scope) |
 | WSL / Ubuntu Gazebo simulation and MP4 recording | [Simulation guide](docs/SIMULATION.md) · `ros2 launch hamr_ball_caster continuous_sim.launch.py` |
 | Real HAMR continuous run | [Hardware guide](docs/REAL_CAR_CONTINUOUS.md) · `ros2 launch hamr_bringup hamr_continuous_HW.launch.py` |

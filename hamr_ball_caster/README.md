@@ -4,11 +4,17 @@ ROS 2 Jazzy / Gazebo Harmonic package for a CAD-derived passive split ball
 caster, a caster test rig, and a complete COMPA simulation chassis with two
 replacement casters.
 
+For the separate **four active ball caster concept**, see the
+[holonomic demo and MP4 instructions](docs/ACTIVE_BALL_DEMO.md). It visits all
+four corners and all four edge midpoints of a box with constant chassis heading.
+It uses ideal, hard-coded kinematics for visualization.
+
 - [Build, launch simulation, record MP4, and edit the model](../docs/SIMULATION.md)
 - [Launch the shared planner on the real HAMR](../docs/REAL_CAR_CONTINUOUS.md)
 - [CAD geometry and hemisphere orientation](docs/CAD_FINDINGS.md)
 - [Planner design](docs/CONTINUOUS_WAYPOINT.md) and [2 cm validation](docs/TIGHT_CONTINUOUS.md)
 - [Physical model validation](docs/VALIDATION.md)
+- [Caster comparison workflow](docs/CASTER_COMPARISON_WORKFLOW.md)
 
 From the repository root:
 

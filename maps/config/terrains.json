@@ -1,0 +1,447 @@
+[
+  {
+    "id": "road_bumps",
+    "title": "Progressive road bumps",
+    "description": "Three smooth raised-cosine road bumps: 15, 25, 40 mm high; 0.40, 0.50, 0.60 m long.",
+    "world": "../worlds/road_bumps.sdf",
+    "bounds_m": {
+      "x": [
+        -3,
+        3
+      ],
+      "y": [
+        -4,
+        4
+      ]
+    },
+    "height_grid": "../meshes/road_bumps_height.npz",
+    "collision_mesh": "../meshes/road_bumps.stl",
+    "visual_mesh": "../meshes/road_bumps.dae",
+    "grid_spacing_m": 0.025,
+    "vertices": 78482,
+    "triangles": 156960,
+    "surface_triangles": 153600,
+    "min_height_m": 0.0,
+    "max_height_m": 0.04,
+    "max_surface_slope_deg": 11.701423026561667,
+    "terrain_friction": {
+      "mu": 1.0,
+      "mu2": 1.0,
+      "restitution": 0.0,
+      "basis": "DART mesh attachment defaults; explicit matching SDF values; runtime probe validation required."
+    },
+    "spawn": {
+      "x": 0,
+      "y": -2.8,
+      "z": 0,
+      "yaw": 1.5707963267948966
+    },
+    "probes": [
+      {
+        "name": "flat_approach",
+        "xy_m": [
+          0,
+          -2.6
+        ],
+        "kind": "flat"
+      },
+      {
+        "name": "feature_0",
+        "xy_m": [
+          0,
+          -1.15
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_1",
+        "xy_m": [
+          0,
+          0.25
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_2",
+        "xy_m": [
+          0,
+          1.75
+        ],
+        "kind": "feature"
+      }
+    ],
+    "smoke": {
+      "spawn_x": 0,
+      "spawn_y": -1.75,
+      "spawn_z": 0.07,
+      "initial_yaw": 1.5707963267948966,
+      "drive_speed_m_s": 0.12,
+      "duration_s": 10.0
+    },
+    "limitations": [
+      "Rigid terrain, no loose particles, soil deformation or sinkage.",
+      "Estimated contact and robot parameters; no calibrated motor torque limits."
+    ],
+    "sha256": {
+      "stl": "d968631893bef6da231b1bc3d36604dc62d2e78ebe30f6120526910972e3ebcc",
+      "dae": "230d4328e6a44ae037b02d335d3756792ebeb32e88a9815931be13f6f48898fa"
+    },
+    "slope_method": "Grid-node central finite differences over the top surface; excludes closing side walls."
+  },
+  {
+    "id": "gentle_hill",
+    "title": "Gentle raised hill",
+    "description": "A smooth 140 mm rise with broad ascent, short crest and descent; centerline peak grade about 5.7 degrees.",
+    "world": "../worlds/gentle_hill.sdf",
+    "bounds_m": {
+      "x": [
+        -3,
+        3
+      ],
+      "y": [
+        -4,
+        4
+      ]
+    },
+    "height_grid": "../meshes/gentle_hill_height.npz",
+    "collision_mesh": "../meshes/gentle_hill.stl",
+    "visual_mesh": "../meshes/gentle_hill.dae",
+    "grid_spacing_m": 0.025,
+    "vertices": 78482,
+    "triangles": 156960,
+    "surface_triangles": 153600,
+    "min_height_m": 0.0,
+    "max_height_m": 0.14,
+    "max_surface_slope_deg": 13.714209939233495,
+    "terrain_friction": {
+      "mu": 1.0,
+      "mu2": 1.0,
+      "restitution": 0.0,
+      "basis": "DART mesh attachment defaults; explicit matching SDF values; runtime probe validation required."
+    },
+    "spawn": {
+      "x": 0,
+      "y": -2.8,
+      "z": 0,
+      "yaw": 1.5707963267948966
+    },
+    "probes": [
+      {
+        "name": "flat_approach",
+        "xy_m": [
+          0,
+          -2.6
+        ],
+        "kind": "flat"
+      },
+      {
+        "name": "feature_0",
+        "xy_m": [
+          0,
+          -0.7
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_1",
+        "xy_m": [
+          0,
+          0.7
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_2",
+        "xy_m": [
+          0.5,
+          0.7
+        ],
+        "kind": "feature"
+      }
+    ],
+    "smoke": {
+      "spawn_x": 0,
+      "spawn_y": -1.4,
+      "spawn_z": 0.09,
+      "initial_yaw": 1.5707963267948966,
+      "drive_speed_m_s": 0.12,
+      "duration_s": 10.0
+    },
+    "limitations": [
+      "Rigid terrain, no loose particles, soil deformation or sinkage.",
+      "Estimated contact and robot parameters; no calibrated motor torque limits."
+    ],
+    "sha256": {
+      "stl": "547c813f363ba694ed1d59a9f22ebf77e83a88daea66773b3176260afee8d440",
+      "dae": "4ce54a510036908aef89ab0881dea078214bd60c5dc00fe9266525e0cd55cfda"
+    },
+    "slope_method": "Grid-node central finite differences over the top surface; excludes closing side walls."
+  },
+  {
+    "id": "cross_slope",
+    "title": "Banked cross slope",
+    "description": "A 3 degree bank across the driving lane, with smooth entry and exit ramps.",
+    "world": "../worlds/cross_slope.sdf",
+    "bounds_m": {
+      "x": [
+        -3,
+        3
+      ],
+      "y": [
+        -4,
+        4
+      ]
+    },
+    "height_grid": "../meshes/cross_slope_height.npz",
+    "collision_mesh": "../meshes/cross_slope.stl",
+    "visual_mesh": "../meshes/cross_slope.dae",
+    "grid_spacing_m": 0.025,
+    "vertices": 78482,
+    "triangles": 156960,
+    "surface_triangles": 153600,
+    "min_height_m": 0.0,
+    "max_height_m": 0.13288933513964946,
+    "max_surface_slope_deg": 13.042148598327504,
+    "terrain_friction": {
+      "mu": 1.0,
+      "mu2": 1.0,
+      "restitution": 0.0,
+      "basis": "DART mesh attachment defaults; explicit matching SDF values; runtime probe validation required."
+    },
+    "spawn": {
+      "x": 0,
+      "y": -2.8,
+      "z": 0,
+      "yaw": 1.5707963267948966
+    },
+    "probes": [
+      {
+        "name": "flat_approach",
+        "xy_m": [
+          0,
+          -2.6
+        ],
+        "kind": "flat"
+      },
+      {
+        "name": "feature_0",
+        "xy_m": [
+          -0.7,
+          0.5
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_1",
+        "xy_m": [
+          0.7,
+          0.5
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_2",
+        "xy_m": [
+          0,
+          -0.7
+        ],
+        "kind": "feature"
+      }
+    ],
+    "smoke": {
+      "spawn_x": 0,
+      "spawn_y": -1.1,
+      "spawn_z": 0.12,
+      "initial_yaw": 1.5707963267948966,
+      "drive_speed_m_s": 0.12,
+      "duration_s": 10.0
+    },
+    "limitations": [
+      "Rigid terrain, no loose particles, soil deformation or sinkage.",
+      "Estimated contact and robot parameters; no calibrated motor torque limits."
+    ],
+    "sha256": {
+      "stl": "eff9c0d96b29bf0a85b84a1bcb6e982f29935d4ffeaf3ebe6facc642164a79c3",
+      "dae": "8ead7531b30cb23f534db2f3aaa659f452fda122462417a6ee08ec880475babc"
+    },
+    "slope_method": "Grid-node central finite differences over the top surface; excludes closing side walls."
+  },
+  {
+    "id": "rutted_track",
+    "title": "Ruts and washboard",
+    "description": "Two 22 mm wheel-track depressions and 6 mm amplitude washboard, with 0.40 m wavelength.",
+    "world": "../worlds/rutted_track.sdf",
+    "bounds_m": {
+      "x": [
+        -3,
+        3
+      ],
+      "y": [
+        -4,
+        4
+      ]
+    },
+    "height_grid": "../meshes/rutted_track_height.npz",
+    "collision_mesh": "../meshes/rutted_track.stl",
+    "visual_mesh": "../meshes/rutted_track.dae",
+    "grid_spacing_m": 0.025,
+    "vertices": 78482,
+    "triangles": 156960,
+    "surface_triangles": 153600,
+    "min_height_m": -0.027950163633007417,
+    "max_height_m": 0.00599044808023905,
+    "max_surface_slope_deg": 11.060324802562143,
+    "terrain_friction": {
+      "mu": 1.0,
+      "mu2": 1.0,
+      "restitution": 0.0,
+      "basis": "DART mesh attachment defaults; explicit matching SDF values; runtime probe validation required."
+    },
+    "spawn": {
+      "x": 0,
+      "y": -2.8,
+      "z": 0,
+      "yaw": 1.5707963267948966
+    },
+    "probes": [
+      {
+        "name": "flat_approach",
+        "xy_m": [
+          0,
+          -2.6
+        ],
+        "kind": "flat"
+      },
+      {
+        "name": "feature_0",
+        "xy_m": [
+          0.22,
+          0.9
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_1",
+        "xy_m": [
+          -0.22,
+          0.9
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_2",
+        "xy_m": [
+          0,
+          0.9
+        ],
+        "kind": "feature"
+      }
+    ],
+    "smoke": {
+      "spawn_x": 0,
+      "spawn_y": -1.1,
+      "spawn_z": 0.07,
+      "initial_yaw": 1.5707963267948966,
+      "drive_speed_m_s": 0.12,
+      "duration_s": 10.0
+    },
+    "limitations": [
+      "Rigid terrain, no loose particles, soil deformation or sinkage.",
+      "Estimated contact and robot parameters; no calibrated motor torque limits."
+    ],
+    "sha256": {
+      "stl": "a765342edc1c9a41cc3876bf528fd0fba32e42c65b6d655a0ae1c9ad8cf9aaa7",
+      "dae": "49855d0d1cc73d984f0a98c84d60e530d0bc0a7561d0b97bef0a443bafad6859"
+    },
+    "slope_method": "Grid-node central finite differences over the top surface; excludes closing side walls."
+  },
+  {
+    "id": "rock_garden",
+    "title": "Fixed rock garden",
+    "description": "Fixed rounded embedded rocks 25\u201355 mm high plus small surface undulation; rigid packed-ground approximation.",
+    "world": "../worlds/rock_garden.sdf",
+    "bounds_m": {
+      "x": [
+        -3,
+        3
+      ],
+      "y": [
+        -4,
+        4
+      ]
+    },
+    "height_grid": "../meshes/rock_garden_height.npz",
+    "collision_mesh": "../meshes/rock_garden.stl",
+    "visual_mesh": "../meshes/rock_garden.dae",
+    "grid_spacing_m": 0.025,
+    "vertices": 78482,
+    "triangles": 156960,
+    "surface_triangles": 153600,
+    "min_height_m": 0.0,
+    "max_height_m": 0.06018332975518938,
+    "max_surface_slope_deg": 20.223545982377008,
+    "terrain_friction": {
+      "mu": 1.0,
+      "mu2": 1.0,
+      "restitution": 0.0,
+      "basis": "DART mesh attachment defaults; explicit matching SDF values; runtime probe validation required."
+    },
+    "spawn": {
+      "x": 0,
+      "y": -2.8,
+      "z": 0,
+      "yaw": 1.5707963267948966
+    },
+    "probes": [
+      {
+        "name": "flat_approach",
+        "xy_m": [
+          0,
+          -2.6
+        ],
+        "kind": "flat"
+      },
+      {
+        "name": "feature_0",
+        "xy_m": [
+          -0.18,
+          -1.25
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_1",
+        "xy_m": [
+          -0.1,
+          1.25
+        ],
+        "kind": "feature"
+      },
+      {
+        "name": "feature_2",
+        "xy_m": [
+          0.32,
+          1.95
+        ],
+        "kind": "feature"
+      }
+    ],
+    "smoke": {
+      "spawn_x": 0,
+      "spawn_y": -0.3,
+      "spawn_z": 0.1,
+      "initial_yaw": 1.5707963267948966,
+      "drive_speed_m_s": 0.12,
+      "duration_s": 10.0
+    },
+    "limitations": [
+      "Rigid terrain, no loose particles, soil deformation or sinkage.",
+      "Estimated contact and robot parameters; no calibrated motor torque limits."
+    ],
+    "sha256": {
+      "stl": "dd8d3f0f0564a67ed55e6fef74943d4d0f400df7a4f06a32a75848635c8482f2",
+      "dae": "ffb441f5d767d8f8742bfea35c2b6d1ddce874bad517cfa041f1d824d003c955"
+    },
+    "slope_method": "Grid-node central finite differences over the top surface; excludes closing side walls."
+  }
+]

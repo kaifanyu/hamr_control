@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Ordinary passive caster: stationary plate, Z swivel, trailing Y-axis wheel.
+       Manufacturer envelope + explicitly estimated internals, not detailed CAD. -->
+  <!-- Absolute custom paths are recommended; relative paths resolve beside this file.
+       Numerical resistance/contact overrides use SI and 'default' reads the YAML. -->
+  <xacro:arg name="caster_physical_config" default="../config/physical_properties.yaml"/>
+  <xacro:arg name="caster_wheel_mass_scale" default="1.0"/>
+  <xacro:arg name="caster_fork_mass_scale" default="1.0"/>
+  <xacro:arg name="caster_wheel_inertia_scale" default="1.0"/>
+  <xacro:arg name="caster_fork_inertia_scale" default="1.0"/>
+  <xacro:arg name="swivel_damping" default="default"/>
+  <xacro:arg name="swivel_friction" default="default"/>
+  <xacro:arg name="wheel_damping" default="default"/>
+  <xacro:arg name="wheel_friction" default="default"/>
+  <xacro:arg name="tire_mu" default="default"/>
+  <xacro:arg name="caster_trail" default="default"/>
+  <xacro:property name="caster_config" value="${xacro.load_yaml('$(arg caster_physical_config)')}"/>
+  <xacro:macro name="caster_scaled_box_inertia" params="m x y z o_xyz inertia_scale">
+    <inertial><mass value="${m}"/><origin xyz="${o_xyz}" rpy="0 0 0"/>
+      <inertia ixx="${(m/12)*(y*y+z*z)*inertia_scale}" ixy="0" ixz="0"
+        iyy="${(m/12)*(x*x+z*z)*inertia_scale}" iyz="0" izz="${(m/12)*(y*y+x*x)*inertia_scale}"/>
+    </inertial>
+  </xacro:macro>
+  <xacro:macro name="caster_scaled_cylinder_inertia" params="m r h inertia_scale">
+    <inertial><mass value="${m}"/><origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+      <inertia ixx="${(m/12)*(3*r*r+h*h)*inertia_scale}" ixy="0" ixz="0"
+        iyy="${(m/12)*(3*r*r+h*h)*inertia_scale}" iyz="0" izz="${(m/2)*(r*r)*inertia_scale}"/>
+    </inertial>
+  </xacro:macro>
+  <xacro:macro name="swivel_caster" params="prefix parent mount_xyz mount_rpy:='0 0 0' swivel_phase:=0.0 mass_scale:=1.0">
+    <xacro:property name="g" value="${caster_config['geometry']}"/>
+    <xacro:property name="m" value="${caster_config['mass']}"/>
+    <xacro:property name="j" value="${caster_config['joints']}"/>
+    <xacro:property name="r" value="${g['wheel_radius_m']}"/>
+    <xacro:property name="w" value="${g['wheel_width_m']}"/>
+    <xacro:property name="trail" value="${g['swivel_trail_m'] if '$(arg caster_trail)' == 'default' else float('$(arg caster_trail)')}"/>
+    <xacro:property name="wheel_m" value="${m['wheel_kg']*mass_scale*float('$(arg caster_wheel_mass_scale)')}"/>
+    <xacro:property name="fork_m" value="${m['fork_kg']*mass_scale*float('$(arg caster_fork_mass_scale)')}"/>
+    <xacro:property name="wheel_I_scale" value="${float('$(arg caster_wheel_inertia_scale)')}"/>
+    <xacro:property name="fork_I_scale" value="${float('$(arg caster_fork_inertia_scale)')}"/>
+    <xacro:property name="swivel_d" value="${j['swivel_damping_Nm_s_per_rad'] if '$(arg swivel_damping)' == 'default' else float('$(arg swivel_damping)')}"/>
+    <xacro:property name="swivel_f" value="${j['swivel_friction_Nm'] if '$(arg swivel_friction)' == 'default' else float('$(arg swivel_friction)')}"/>
+    <xacro:property name="wheel_d" value="${j['wheel_damping_Nm_s_per_rad'] if '$(arg wheel_damping)' == 'default' else float('$(arg wheel_damping)')}"/>
+    <xacro:property name="wheel_f" value="${j['wheel_friction_Nm'] if '$(arg wheel_friction)' == 'default' else float('$(arg wheel_friction)')}"/>
+    <xacro:property name="mu" value="${caster_config['contact']['mu'] if '$(arg tire_mu)' == 'default' else float('$(arg tire_mu)')}"/>
+    <xacro:if value="${not python.all([math.isfinite(v) and v > 0 for v in [mass_scale, wheel_m, fork_m, wheel_I_scale, fork_I_scale, trail]])}">
+      <xacro:property name="invalid_caster_positive_parameter" value="${xacro.fatal('Caster mass/inertia scales, component masses, and trail must be finite and positive')}" lazy_eval="false"/>
+    </xacro:if>
+    <xacro:if value="${not python.all([math.isfinite(v) and v >= 0 for v in [swivel_d, swivel_f, wheel_d, wheel_f, mu]])}">
+      <xacro:property name="invalid_caster_nonnegative_parameter" value="${xacro.fatal('Caster damping, friction, and tire mu must be finite and nonnegative')}" lazy_eval="false"/>
+    </xacro:if>
+    <xacro:property name="plate_t" value="${g['plate_thickness_m']}"/>
+    <xacro:property name="swivel_z" value="${-plate_t-g['bearing_height_m']}"/>
+    <xacro:property name="drop" value="${g['overall_height_m']-r+swivel_z}"/>
+    <xacro:property name="leg_len" value="${sqrt(trail*trail+drop*drop)}"/>
+    <xacro:property name="leg_angle" value="${atan2(trail,drop)}"/>
+    <xacro:property name="leg_y" value="${w/2+g['fork_side_clearance_m']+g['fork_thickness_m']/2}"/>
+    <link name="${prefix}mount_link">
+      <xacro:box_inertia m="${m['mount_kg']*mass_scale}" x="${g['plate_length_m']}" y="${g['plate_width_m']}" z="${-swivel_z}" o_xyz="0 0 ${swivel_z/2}" o_rpy="0 0 0"/>
+      <visual name="mount_plate">
+        <origin xyz="0 0 ${-plate_t/2}"/>
+        <geometry><box size="${g['plate_length_m']} ${g['plate_width_m']} ${plate_t}"/></geometry>
+        <material name="${prefix}steel"><color rgba="0.68 0.72 0.76 1"/></material>
+      </visual>
+      <collision name="mount_plate"><origin xyz="0 0 ${-plate_t/2}"/><geometry><box size="${g['plate_length_m']} ${g['plate_width_m']} ${plate_t}"/></geometry></collision>
+      <visual name="swivel_bearing"><origin xyz="0 0 ${-plate_t-g['bearing_height_m']/2}"/><geometry><cylinder radius="${g['bearing_radius_m']}" length="${g['bearing_height_m']}"/></geometry><material name="${prefix}steel"/></visual>
+      <collision name="swivel_bearing"><origin xyz="0 0 ${-plate_t-g['bearing_height_m']/2}"/><geometry><cylinder radius="${g['bearing_radius_m']}" length="${g['bearing_height_m']}"/></geometry></collision>
+    </link>
+    <joint name="${prefix}mount_joint" type="fixed"><parent link="${parent}"/><child link="${prefix}mount_link"/><origin xyz="${mount_xyz}" rpy="${mount_rpy}"/></joint>
+    <link name="${prefix}fork_link">
+      <!-- Box-envelope inertia about its estimated COM, retains trailing mass. -->
+      <xacro:caster_scaled_box_inertia m="${fork_m}" x="${trail+g['fork_leg_width_m']}" y="${2*leg_y+g['fork_thickness_m']}" z="${drop}" o_xyz="${-trail/2} 0 ${-drop/2}" inertia_scale="${fork_I_scale}"/>
+      <visual name="fork_bridge"><origin xyz="0 0 -0.003"/><geometry><box size="0.045 ${2*leg_y+g['fork_thickness_m']} 0.006"/></geometry><material name="${prefix}steel"/></visual>
+      <collision name="fork_bridge"><origin xyz="0 0 -0.003"/><geometry><box size="0.045 ${2*leg_y+g['fork_thickness_m']} 0.006"/></geometry></collision>
+      <xacro:macro name="caster_fork_leg" params="sign">
+        <visual name="fork_leg_${sign}"><origin xyz="${-trail/2} ${sign*leg_y} ${-drop/2}" rpy="0 ${leg_angle} 0"/><geometry><box size="${g['fork_leg_width_m']} ${g['fork_thickness_m']} ${leg_len}"/></geometry><material name="${prefix}steel"/></visual>
+        <collision name="fork_leg_${sign}"><origin xyz="${-trail/2} ${sign*leg_y} ${-drop/2}" rpy="0 ${leg_angle} 0"/><geometry><box size="${g['fork_leg_width_m']} ${g['fork_thickness_m']} ${leg_len}"/></geometry></collision>
+      </xacro:macro>
+      <xacro:caster_fork_leg sign="-1"/><xacro:caster_fork_leg sign="1"/>
+      <visual name="axle"><origin xyz="${-trail} 0 ${-drop}" rpy="${pi/2} 0 0"/><geometry><cylinder radius="0.008" length="${2*leg_y+0.015}"/></geometry><material name="${prefix}steel"/></visual>
+    </link>
+    <joint name="${prefix}swivel_joint" type="continuous">
+      <parent link="${prefix}mount_link"/><child link="${prefix}fork_link"/><origin xyz="0 0 ${swivel_z}" rpy="0 0 ${swivel_phase}"/><axis xyz="0 0 1"/>
+      <dynamics damping="${swivel_d}" friction="${swivel_f}"/>
+    </joint>
+    <link name="${prefix}wheel_link">
+      <xacro:caster_scaled_cylinder_inertia m="${wheel_m}" r="${r}" h="${w}" inertia_scale="${wheel_I_scale}"/>
+      <visual name="rubber_tire"><origin rpy="${pi/2} 0 0"/><geometry><cylinder radius="${r}" length="${w}"/></geometry><material name="${prefix}rubber"><color rgba="0.055 0.065 0.075 1"/></material></visual>
+      <!-- Leave the tire collision unnamed: SDFormat URDF conversion then applies the link friction extension. -->
+      <collision><origin rpy="${pi/2} 0 0"/><geometry><cylinder radius="${r}" length="${w}"/></geometry></collision>
+      <visual name="hub"><origin rpy="${pi/2} 0 0"/><geometry><cylinder radius="0.038" length="${w+0.003}"/></geometry><material name="${prefix}hub"><color rgba="0.76 0.10 0.07 1"/></material></visual>
+      <!-- A rim marker and simplified knobby tread make actual rolling visible;
+           only the smooth envelope above participates in collision dynamics. -->
+      <visual name="outer_rim_marker"><origin xyz="0.021 ${-w/2-0.0018} 0"/><geometry><box size="0.028 0.001 0.008"/></geometry><material name="${prefix}rim_marker"><color rgba="0.95 0.96 0.92 1"/></material></visual>
+      <visual name="inner_rim_marker"><origin xyz="0.021 ${w/2+0.0018} 0"/><geometry><box size="0.028 0.001 0.008"/></geometry><material name="${prefix}rim_marker"/></visual>
+      <xacro:macro name="caster_tread" params="index">
+        <xacro:property name="a" value="${index*pi/12}"/>
+        <visual name="tread_${index}"><origin xyz="${(r-0.0005)*sin(a)} 0 ${(r-0.0005)*cos(a)}" rpy="0 ${a} 0"/><geometry><box size="0.013 ${w*0.92} 0.003"/></geometry><material name="${prefix}tread"><color rgba="0.14 0.16 0.18 1"/></material></visual>
+      </xacro:macro>
+      <xacro:caster_tread index="0"/><xacro:caster_tread index="1"/><xacro:caster_tread index="2"/><xacro:caster_tread index="3"/><xacro:caster_tread index="4"/><xacro:caster_tread index="5"/><xacro:caster_tread index="6"/><xacro:caster_tread index="7"/><xacro:caster_tread index="8"/><xacro:caster_tread index="9"/><xacro:caster_tread index="10"/><xacro:caster_tread index="11"/><xacro:caster_tread index="12"/><xacro:caster_tread index="13"/><xacro:caster_tread index="14"/><xacro:caster_tread index="15"/><xacro:caster_tread index="16"/><xacro:caster_tread index="17"/><xacro:caster_tread index="18"/><xacro:caster_tread index="19"/><xacro:caster_tread index="20"/><xacro:caster_tread index="21"/><xacro:caster_tread index="22"/><xacro:caster_tread index="23"/>
+    </link>
+    <joint name="${prefix}wheel_joint" type="continuous"><parent link="${prefix}fork_link"/><child link="${prefix}wheel_link"/><origin xyz="${-trail} 0 ${-drop}"/><axis xyz="0 1 0"/><dynamics damping="${wheel_d}" friction="${wheel_f}"/></joint>
+    <gazebo reference="${prefix}wheel_link"><mu1>${mu}</mu1><mu2>${mu}</mu2></gazebo>
+  </xacro:macro>
+</robot>

@@ -68,6 +68,9 @@ def _start(context):
         raise ValueError("caster_mass_scale must be finite and positive")
     if not math.isfinite(load_mass) or load_mass <= 0:
         raise ValueError("load_mass must be finite and positive, in kilograms")
+    initial_yaw = float(LaunchConfiguration("initial_yaw").perform(context))
+    if not math.isfinite(initial_yaw):
+        raise ValueError("initial_yaw must be finite radians")
 
     source_world = LaunchConfiguration("world").perform(context)
     source_world = Path(source_world) if source_world else share / "worlds/ball_caster_test.sdf"
@@ -113,9 +116,16 @@ def _start(context):
     visual_detail = LaunchConfiguration("visual_detail").perform(context)
     if visual_detail not in ("full", "overview"):
         raise ValueError("visual_detail must be full or overview")
-    description = ParameterValue(
-        overview_description(description_command.perform(context)) if visual_detail == "overview"
-        else description_command, value_type=str)
+    snapshot = LaunchConfiguration("robot_description_file").perform(context)
+    if snapshot:
+        xml_text = Path(snapshot).expanduser().read_text()
+        description = ParameterValue(
+            overview_description(xml_text) if visual_detail == "overview" else xml_text,
+            value_type=str)
+    else:
+        description = ParameterValue(
+            overview_description(description_command.perform(context)) if visual_detail == "overview"
+            else description_command, value_type=str)
     gui = _bool(context, "gui")
     gui_config = LaunchConfiguration("gui_config").perform(context)
     gui_config = Path(gui_config) if gui_config else share / 'config' / f'{model}_gui.config'
@@ -148,7 +158,7 @@ def _start(context):
             package="ros_gz_sim", executable="create", output="screen",
             arguments=["-world", world.attrib["name"], "-topic", "/robot_description",
                        "-name", "caster_test_rig" if model == "rig" else "compa",
-                       "-allow_renaming", "false", "-z", "0"],
+                       "-allow_renaming", "false", "-z", "0", "-Y", str(initial_yaw)],
         ),
         Node(
             package="ros_gz_bridge", executable="parameter_bridge", output="screen",
@@ -185,6 +195,8 @@ def generate_launch_description():
         DeclareLaunchArgument("real_time_factor", default_value="1.0", description="Target simulation/wall-time ratio; reduce for smooth camera recording"),
         DeclareLaunchArgument("ground_friction", default_value="0.8", description="Ground Coulomb coefficient, 0 to 1"),
         DeclareLaunchArgument("carrier_phase", default_value="0.0", description="Initial carrier rotation from the saved CAD pose, radians"),
+        DeclareLaunchArgument("initial_yaw", default_value="0.0", description="Initial model world yaw, radians"),
+        DeclareLaunchArgument("robot_description_file", default_value="", description="Optional expanded URDF snapshot; empty preserves the original Xacro model"),
         DeclareLaunchArgument("caster_mass_scale", default_value="1.0", description="Positive multiplier for caster masses and inertias"),
         DeclareLaunchArgument("load_mass", default_value="2.0", description="Vertical fixture load mass in kilograms; rig model only"),
         OpaqueFunction(function=_start),

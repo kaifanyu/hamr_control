@@ -1,0 +1,31 @@
+{
+  "repository": "https://github.com/fracance/verti-arena-extractor",
+  "commit": "2a82faceacf8eaf1a8564b05058062e7584b0f45",
+  "files": [
+    {
+      "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/static_maps/fused_elevation_map.npy",
+      "file": "fused_elevation_map.npy",
+      "sha256": "a966b557eea61700e759002a226bfda494d3c75482528c40f8f25dda97e336a2"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/static_maps/fused_elevation_map_meta.txt",
+      "file": "fused_elevation_map_meta.txt",
+      "sha256": "0be0b8f2075a8830001d42c8dc2f0d99c72055da2a1fa6ff3c6918886dde6e4a"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/static_maps/fused_rgb_map.npy",
+      "file": "fused_rgb_map.npy",
+      "sha256": "ff40dd1a9804eb362b8f3023a09bfc132dcc30259d39fdf8c4dc2cb05114c327"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/README.md",
+      "file": "README.md",
+      "sha256": "1df00a8973f90eb101eecfc4b3209338d152df7fd829e3a07cbc2c4405c460ab"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/fracance/verti-arena-extractor/2a82faceacf8eaf1a8564b05058062e7584b0f45/scripts/Grid.py",
+      "file": "Grid.py",
+      "sha256": "43fd1bdd70fdb68110f483977df7d100c63873d928c59f0b7794c0d3e93ae71a"
+    }
+  ]
+}

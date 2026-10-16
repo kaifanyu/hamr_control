@@ -1,0 +1,2995 @@
+<sdf version='1.11'>
+  <model name='compa'>
+    <link name='base_footprint'>
+      <inertial>
+        <pose>0 0 0.22 0 0 0</pose>
+        <mass>4.7699999999999996</mass>
+        <inertia>
+          <ixx>0.08148749999999999</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.08148749999999999</iyy>
+          <iyz>0</iyz>
+          <izz>0.16098750000000001</izz>
+        </inertia>
+      </inertial>
+      <collision name='base_footprint_fixed_joint_lump__base_link_collision'>
+        <pose>0 0 0.22 0 0 1.5707963267948959</pose>
+        <geometry>
+          <box>
+            <size>0.45000000000000001 0.45000000000000001 0.050000000000000003</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='base_footprint_fixed_joint_lump__base_link_visual'>
+        <pose>0 0 0.22 0 0 1.5707963267948959</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/compa/base_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <ambient>1 1 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+    <joint name='base_left_rocker_joint' type='revolute'>
+      <pose relative_to='base_footprint'>0 0.185 0.25609999999999999 0 0 0</pose>
+      <parent>base_footprint</parent>
+      <child>left_rocker_link</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='left_rocker_link'>
+      <pose relative_to='base_left_rocker_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.032818128283468209 0.071990293068231986 -0.021036776170020519 0 0 0</pose>
+        <mass>4.3707978872196902</mass>
+        <inertia>
+          <ixx>0.00049108342039048611</ixx>
+          <ixy>-1.166226448153472e-05</ixy>
+          <ixz>-4.4184241905349548e-05</ixz>
+          <iyy>0.16176585987193731</iyy>
+          <iyz>-5.2386030190395066e-06</iyz>
+          <izz>0.16174738999723121</izz>
+        </inertia>
+      </inertial>
+      <collision name='left_rocker_link_collision'>
+        <pose>0.032899999999999999 0.071999999999999995 -0.021000000000000001 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.66579999999999995 0.025399999999999999 0.025399999999999999</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='left_rocker_link_fixed_joint_lump__left_rod_sphere2_link_collision_1'>
+        <pose>-0.24206 0.039399999999999998 -0.14451 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>0.0054999999999999997</radius>
+          </sphere>
+        </geometry>
+      </collision>
+      <visual name='left_rocker_link_visual'>
+        <pose>0.032899999999999999 0.071999999999999995 -0.021000000000000001 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.66579999999999995 0.025399999999999999 0.025399999999999999</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>0.850000024 0.875 0.900000036 1</diffuse>
+          <ambient>0.850000024 0.875 0.900000036 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_rocker_link_fixed_joint_lump__left_rod_sphere2_link_visual_1'>
+        <pose>-0.24206 0.039399999999999998 -0.14451 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/compa/sphere_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <ambient>1 1 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+    <joint name='left_caster_mount_joint' type='fixed'>
+      <pose relative_to='left_rocker_link'>0.315 0.071999999999999995 -0.15262000000000001 0 0 0</pose>
+      <parent>left_rocker_link</parent>
+      <child>left_caster_fork_link</child>
+      <axis>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+      </axis>
+      <physics>
+        <ode>
+          <limit>
+            <cfm>0</cfm>
+            <erp>0.20000000000000001</erp>
+          </limit>
+        </ode>
+      </physics>
+    </joint>
+    <link name='left_caster_fork_link'>
+      <pose relative_to='left_caster_mount_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-1.3599197126200999e-07 2.8604869825049999e-05 0.091935870891651006 0 0 0</pose>
+        <mass>0.81535135680880999</mass>
+        <inertia>
+          <ixx>0.0047211976629729004</ixx>
+          <ixy>-3.5517404097827e-09</ixy>
+          <ixz>3.8422497949019998e-09</ixz>
+          <iyy>0.0028164757209924998</iyy>
+          <iyz>8.2243084640889005e-09</iyz>
+          <izz>0.0025994587581606998</izz>
+        </inertia>
+      </inertial>
+      <collision name='left_caster_fork_link_fixed_joint_lump__left_caster_ball_caster_shaft_2_1_collision_collision'>
+        <pose>0 0 0 2.7315965366357999e-16 0.13412114902576003 1.7417512486349002e-17</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/ball_caster_shaft_2.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='left_caster_fork_link_fixed_joint_lump__left_caster_caster_fork_1_collision_collision_1'>
+        <pose>0 0 0 -3.141592653589786 0 -1.5707963267949003</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/caster_fork.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='left_caster_fork_link_fixed_joint_lump__left_caster_ball_caster_shaft_2_1_visual_visual'>
+        <pose>0 0 0 2.7315965366357999e-16 0.13412114902576003 1.7417512486349002e-17</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/ball_caster_shaft_2.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.875 0.900000036 0.925000012 1</diffuse>
+          <ambient>0.875 0.900000036 0.925000012 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_fork_link_fixed_joint_lump__left_caster_caster_fork_1_visual_visual_1'>
+        <pose>0 0 0 -3.141592653589786 0 -1.5707963267949003</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/caster_fork.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.875 0.900000036 0.925000012 1</diffuse>
+          <ambient>0.875 0.900000036 0.925000012 1</ambient>
+        </material>
+      </visual>
+      <self_collide>false</self_collide>
+    </link>
+    <joint name='left_caster_carrier_joint' type='revolute'>
+      <pose relative_to='left_caster_fork_link'>0 0 0 0 0 0</pose>
+      <parent>left_caster_fork_link</parent>
+      <child>left_caster_carrier_link</child>
+      <axis>
+        <xyz>0 -1 0</xyz>
+        <limit>
+          <effort>100</effort>
+          <velocity>1000</velocity>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <damping>0.00020000000000000001</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='left_caster_carrier_link'>
+      <pose relative_to='left_caster_carrier_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-2.133168032576e-08 -1.2227821200412e-07 3.8781100106540003e-08 0 0 0</pose>
+        <mass>0.38698373450096002</mass>
+        <inertia>
+          <ixx>0.00027350192546672002</ixx>
+          <ixy>9.9900177579252e-10</ixy>
+          <ixz>0.00040459859435645998</ixz>
+          <iyy>0.0010428237231050999</iyy>
+          <iyz>-5.5213106945673998e-10</iyz>
+          <izz>0.00084334325421017004</izz>
+        </inertia>
+      </inertial>
+      <collision name='left_caster_carrier_link_fixed_joint_lump__left_caster_bearing_shaft2_1_collision_collision'>
+        <pose>0 0 0 1.5707963267948999 1.0922075901177 -3.1415926535897865</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/bearing_shaft2.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='left_caster_carrier_link_fixed_joint_lump__left_caster_collet_block_2_collision_collision_1'>
+        <pose>0 0 0 -2.0493850634721 5.5511151231257827e-17 -1.5707963267949003</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/collet_block.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='left_caster_carrier_link_fixed_joint_lump__left_caster_collet_block_3_collision_collision_2'>
+        <pose>0 0 0 2.0493850634721 5.5511151231257827e-17 1.5707963267949003</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/collet_block.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='left_caster_carrier_link_fixed_joint_lump__left_caster_roller_mount_1_collision_collision_3'>
+        <pose>-0.060359909726957997 1.9287932241350999e-16 0.031315831423633998 1.5707963267949003 -1.0922075901177006 -7.5939153157919203e-15</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_mount.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='left_caster_carrier_link_fixed_joint_lump__left_caster_roller_mount_2_collision_collision_4'>
+        <pose>0.060359909726957997 -1.3811343066965001e-16 -0.031315831423633998 -1.5707963267948999 1.0922075901177 3.1415926535897865</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_mount.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='left_caster_carrier_link_fixed_joint_lump__left_caster_roller_shaft_1_collision_collision_5'>
+        <pose>0.080225421192978 -2.8415196902364e-16 -0.041622424177471001 -1.4392304055066001 0.46150368964668997 0.2888626140617</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_shaft.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='left_caster_carrier_link_fixed_joint_lump__left_caster_roller_shaft_2_collision_collision_6'>
+        <pose>-0.080225421192978 7.0151206739908995e-16 0.041622424177471001 1.0958134073629002 -0.061014222721210994 -1.6888185547779999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_shaft.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_4668k11_permanently_lubricated_stainless_steel_ball_bearing_1_visual_visual'>
+        <pose>-0.088970459223413997 6.8588413165423004e-16 0.024766741857070999 0.45307624399293001 0.15982567044983001 1.2548593889253001</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/4668k11_permanently_lubricated_stainless_steel_ball_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_bearing_shaft2_1_visual_visual_1'>
+        <pose>0 0 0 1.5707963267948999 1.0922075901177 -3.1415926535897865</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/bearing_shaft2.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_5905k22_needle_roller_bearing_1_visual_visual_2'>
+        <pose>-1.3184492090813001e-16 0.019050000000000001 -1.042718811455e-16 1.5707963267949003 0.60871845433135019 3.141592653589786</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5905k22_needle_roller_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_5905k22_needle_roller_bearing_2_visual_visual_3'>
+        <pose>3.1802981880822999e-18 -0.019050000000000001 -1.2001068601845e-16 -1.5707963267949003 -0.13260381745763 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5905k22_needle_roller_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_collet_block_2_visual_visual_4'>
+        <pose>0 0 0 -2.0493850634721 5.5511151231257827e-17 -1.5707963267949003</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/collet_block.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_collet_block_3_visual_visual_5'>
+        <pose>0 0 0 2.0493850634721 5.5511151231257827e-17 1.5707963267949003</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/collet_block.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_roller_mount_1_visual_visual_6'>
+        <pose>-0.060359909726957997 1.9287932241350999e-16 0.031315831423633998 1.5707963267949003 -1.0922075901177006 -7.5939153157919203e-15</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_mount.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_roller_mount_2_visual_visual_7'>
+        <pose>0.060359909726957997 -1.3811343066965001e-16 -0.031315831423633998 -1.5707963267948999 1.0922075901177 3.1415926535897865</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_mount.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_4668k11_permanently_lubricated_stainless_steel_ball_bearing_2_visual_visual_8'>
+        <pose>-0.071480383162542002 5.4945115298253002e-16 0.058478106497869997 0.46314632171207998 0.12522539295773991 1.3257140492452</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/4668k11_permanently_lubricated_stainless_steel_ball_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_4668k11_permanently_lubricated_stainless_steel_ball_bearing_3_visual_visual_9'>
+        <pose>0.071480383162542002 -2.9012956509494002e-16 -0.058478106497869997 2.6646924774639 -0.041808928058327102 -1.6515158407661998</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/4668k11_permanently_lubricated_stainless_steel_ball_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_4668k11_permanently_lubricated_stainless_steel_ball_bearing_4_visual_visual_10'>
+        <pose>0.088970459223413997 -1.6812812318935e-16 -0.024766741857071999 2.6646924774639 -0.041808928058303989 -1.6515158407662001</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/4668k11_permanently_lubricated_stainless_steel_ball_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_roller_shaft_1_visual_visual_11'>
+        <pose>0.080225421192978 -2.8415196902364e-16 -0.041622424177471001 -1.4392304055066001 0.46150368964668997 0.2888626140617</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_shaft.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_roller_shaft_2_visual_visual_12'>
+        <pose>-0.080225421192978 7.0151206739908995e-16 0.041622424177471001 1.0958134073629002 -0.061014222721210994 -1.6888185547779999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_shaft.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_spacing_5_visual_visual_13'>
+        <pose>-2.8952794135496002e-17 -0.025399999999999 -2.5717006399238001e-16 3.141592653589786 -8.8817841970012997e-16 1.5543122344752e-15</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/spacing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_spacing_6_visual_visual_14'>
+        <pose>2.2696948974482998e-16 -0.025399999999999 -1.4803878107189001e-16 -8.8817841970012997e-16 8.8817841970012997e-16 3.141592653589786</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/spacing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_spacing_7_visual_visual_15'>
+        <pose>-1.4428355583670999e-15 0.032399999999999998 -1.0306020025052e-15 -6.6613381477508988e-16 0.52935104682236023 3.141592653589786</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/spacing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_carrier_link_fixed_joint_lump__left_caster_spacing_8_visual_visual_16'>
+        <pose>-1.5239597869526e-15 0.032399999999999998 -1.1274203577879999e-15 3.141592653589786 -0.52935104682236023 1.776356839400301e-15</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/spacing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <self_collide>false</self_collide>
+    </link>
+    <joint name='left_caster_negative_hemisphere_joint' type='revolute'>
+      <pose relative_to='left_caster_carrier_link'>0 0 0 0 0 0</pose>
+      <parent>left_caster_carrier_link</parent>
+      <child>left_caster_negative_hemisphere_link</child>
+      <axis>
+        <xyz>0.88764573127879998 5.6516578430981001e-15 -0.46052693270049999</xyz>
+        <limit>
+          <effort>100</effort>
+          <velocity>1000</velocity>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <damping>0.00020000000000000001</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='left_caster_negative_hemisphere_link'>
+      <pose relative_to='left_caster_negative_hemisphere_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.036944402537414003 -1.0642642877525e-07 -0.019167062591225002 0 0 0</pose>
+        <mass>2.0383619968878999</mass>
+        <inertia>
+          <ixx>0.0074812878349042001</ixx>
+          <ixy>-2.3862733495564002e-07</ixy>
+          <ixz>-0.0013282105240380001</ixz>
+          <iyy>0.0049224141573316997</iyy>
+          <iyz>-4.5202301339492998e-07</iyz>
+          <izz>0.0056103135631599002</izz>
+        </inertia>
+      </inertial>
+      <collision name='left_caster_negative_hemisphere_link_fixed_joint_lump__left_caster_semi_spherical_wheel_2_2_collision_collision'>
+        <pose>-1.1102230246251999e-16 1.9336361357265999e-18 -2.2551405187697999e-17 -0.5044896268357002 -0.30859784072295005 -1.4046428316971999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel_2.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='left_caster_negative_hemisphere_link_fixed_joint_lump__left_caster_semi_spherical_wheel_2_collision_collision_1'>
+        <pose>-9.0205620750794006e-17 8.8725300396349006e-18 -1.5612511283792e-17 -2.1538292924542 -0.98643883988159031 0.66905578937252952</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='left_caster_negative_hemisphere_link_fixed_joint_lump__left_caster_semi_spherical_wheel_2_2_visual_visual'>
+        <pose>-1.1102230246251999e-16 1.9336361357265999e-18 -2.2551405187697999e-17 -0.5044896268357002 -0.30859784072295005 -1.4046428316971999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel_2.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_negative_hemisphere_link_fixed_joint_lump__left_caster_semi_spherical_wheel_2_visual_visual_1'>
+        <pose>-9.0205620750794006e-17 8.8725300396349006e-18 -1.5612511283792e-17 -2.1538292924542 -0.98643883988159031 0.66905578937252952</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_negative_hemisphere_link_fixed_joint_lump__left_caster_skate_bearing_2_visual_visual_2'>
+        <pose>0.035503010975954 3.9036127645923e-17 -0.018419615135008002 -0.99892165266746991 -0.55305845915749041 1.2447737919121999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/skate_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_negative_hemisphere_link_fixed_joint_lump__left_caster_5_16_18screw_5_visual_visual_3'>
+        <pose>0.04263318490411 -0.054499072572978001 0.00023877993477569999 2.4339736648289998 -0.91974016347279985 0.82169875960565975</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_negative_hemisphere_link_fixed_joint_lump__left_caster_5_16_18screw_6_visual_visual_4'>
+        <pose>0.024354242910868001 0.054499072572978001 -0.034993089648725002 2.5725069013097999 -0.99239226180859053 0.65236682451013028</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_negative_hemisphere_link_fixed_joint_lump__left_caster_5_16_18screw_7_visual_visual_5'>
+        <pose>0.058592004634543997 0.019845681864961998 0.030998714271082001 -2.0767204751395001 -0.31662261187193003 -1.3999784246435998</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_negative_hemisphere_link_fixed_joint_lump__left_caster_5_16_18screw_8_visual_visual_6'>
+        <pose>0.0083954231804332993 -0.019845681864961998 -0.065753023985031994 2.1599575648649001 -0.5938600729337602 1.2129201066780999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_negative_hemisphere_link_fixed_joint_lump__left_caster_5_16nuts_5_visual_visual_7'>
+        <pose>-0.0042723465797926 -0.019845681864961998 -0.059180752023076003 -0.50876555452624994 -1.0153612961816003 0.58087355223520021</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_negative_hemisphere_link_fixed_joint_lump__left_caster_5_16nuts_6_visual_visual_8'>
+        <pose>0.011686473150642 0.054499072572978001 -0.02842081768677 1.0104123317138003 -0.52275350587402003 -1.2671984154294</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_negative_hemisphere_link_fixed_joint_lump__left_caster_5_16nuts_7_visual_visual_9'>
+        <pose>0.029965415143884001 -0.054499072572978001 0.0068110518967311002 -0.14315434932909019 -1.0868381944458003 0.16142406561222017</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_negative_hemisphere_link_fixed_joint_lump__left_caster_5_16nuts_8_visual_visual_10'>
+        <pose>0.045924234874319 0.019845681864961998 0.037570986233037999 0.76825306233286006 0.8757794543267301 -2.242383813969</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <self_collide>false</self_collide>
+    </link>
+    <joint name='left_caster_negative_polar_roller_joint' type='revolute'>
+      <pose relative_to='left_caster_carrier_link'>0.080225421192978 -2.8043167259144002e-16 -0.041622424177471001 0 0 0</pose>
+      <parent>left_caster_carrier_link</parent>
+      <child>left_caster_negative_polar_roller_link</child>
+      <axis>
+        <xyz>0.46052693270049999 -4.4187884109047e-16 0.88764573127879998</xyz>
+        <limit>
+          <effort>100</effort>
+          <velocity>1000</velocity>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <damping>5.0000000000000002e-05</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='left_caster_negative_polar_roller_link'>
+      <pose relative_to='left_caster_negative_polar_roller_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 8.2732296049671003e-21 0 0 0 0</pose>
+        <mass>0.013223655784153</mass>
+        <inertia>
+          <ixx>1.2733569321509e-06</ixx>
+          <ixy>-1.1545655675093e-15</ixy>
+          <ixz>-2.2039970640658e-07</ixz>
+          <iyy>1.3877043500344001e-06</iyy>
+          <iyz>5.9901023350699998e-16</iyz>
+          <izz>9.628934586069799e-07</izz>
+        </inertia>
+      </inertial>
+      <collision name='left_caster_negative_polar_roller_link_fixed_joint_lump__left_caster_roller_1_collision_collision'>
+        <pose>0 0 0 1.1104924496602 -0.1359928906610699 -1.8377024180979</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='left_caster_negative_polar_roller_link_fixed_joint_lump__left_caster_roller_1_visual_visual'>
+        <pose>0 0 0 1.1104924496602 -0.1359928906610699 -1.8377024180979</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.162499994 0.162499994 0.162499994 1</diffuse>
+          <ambient>0.162499994 0.162499994 0.162499994 1</ambient>
+        </material>
+      </visual>
+      <self_collide>false</self_collide>
+    </link>
+    <joint name='left_caster_positive_hemisphere_joint' type='revolute'>
+      <pose relative_to='left_caster_carrier_link'>0 0 0 0 0 0</pose>
+      <parent>left_caster_carrier_link</parent>
+      <child>left_caster_positive_hemisphere_link</child>
+      <axis>
+        <xyz>-0.88764573127879998 -5.6516578430981001e-15 0.46052693270049999</xyz>
+        <limit>
+          <effort>100</effort>
+          <velocity>1000</velocity>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <damping>0.00020000000000000001</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='left_caster_positive_hemisphere_link'>
+      <pose relative_to='left_caster_positive_hemisphere_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.036951230355081001 -3.0749538233539e-08 0.019170577654182001 0 0 0</pose>
+        <mass>2.0709380529088999</mass>
+        <inertia>
+          <ixx>0.0074861835508766</ixx>
+          <ixy>3.5316119278929998e-07</ixy>
+          <ixz>-0.0013246743261826001</ixz>
+          <iyy>0.0049333432093748002</iyy>
+          <iyz>6.7342472776004997e-07</iyz>
+          <izz>0.0056201850601559997</izz>
+        </inertia>
+      </inertial>
+      <collision name='left_caster_positive_hemisphere_link_fixed_joint_lump__left_caster_semi_spherical_wheel_1_collision_collision'>
+        <pose>1.7694179454963001e-16 -5.5481220780721001e-19 -1.2316536679435e-16 0.71065342193326975 0.78699994929643025 2.1182129953911999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='left_caster_positive_hemisphere_link_fixed_joint_lump__left_caster_semi_spherical_wheel_2_1_collision_collision_1'>
+        <pose>1.6306400674181999e-16 4.4230204607358998e-17 -1.0928757898654001e-16 2.5650468234093 0.56460526687104995 -1.9056289156507</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel_2.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='left_caster_positive_hemisphere_link_fixed_joint_lump__left_caster_semi_spherical_wheel_1_visual_visual'>
+        <pose>1.7694179454963001e-16 -5.5481220780721001e-19 -1.2316536679435e-16 0.71065342193326975 0.78699994929643025 2.1182129953911999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_positive_hemisphere_link_fixed_joint_lump__left_caster_semi_spherical_wheel_2_1_visual_visual_1'>
+        <pose>1.6306400674181999e-16 4.4230204607358998e-17 -1.0928757898654001e-16 2.5650468234093 0.56460526687104995 -1.9056289156507</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel_2.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_positive_hemisphere_link_fixed_joint_lump__left_caster_skate_bearing_1_visual_visual_2'>
+        <pose>-0.035531193727923002 -3.8982107145220999e-16 0.018434236865122001 2.2832693225987999 -0.78909905016034021 1.0208131898149999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/skate_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_positive_hemisphere_link_fixed_joint_lump__left_caster_5_16_18screw_1_visual_visual_3'>
+        <pose>-0.049595127823706002 -0.046277283800630002 -0.013657623600985999 -0.45316506971899978 1.0330191027485005 2.6257939448190011</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_positive_hemisphere_link_fixed_joint_lump__left_caster_5_16_18screw_2_visual_visual_4'>
+        <pose>-0.054805649469903003 0.034963023382368001 -0.023700678563830999 -1.0905256490405999 -0.080395600940614861 1.5289833294768003</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_positive_hemisphere_link_fixed_joint_lump__left_caster_5_16_18screw_3_visual_visual_5'>
+        <pose>-0.012181778345075001 -0.034963023382369 0.05845498827778 -0.95501938998601998 0.64795302416344025 1.9743998503884999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_positive_hemisphere_link_fixed_joint_lump__left_caster_5_16_18screw_4_visual_visual_6'>
+        <pose>-0.017392299991270999 0.046277283800629003 0.048411933314934999 1.0522011676212 -0.37877672733572015 -1.3628129859789997</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_positive_hemisphere_link_fixed_joint_lump__left_caster_5_16nuts_1_visual_visual_7'>
+        <pose>-0.0047245302310450999 0.046277283800627997 0.04183966135298 2.1405937187466 0.54778722863856022 1.8928473823869001</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_positive_hemisphere_link_fixed_joint_lump__left_caster_5_16nuts_2_visual_visual_8'>
+        <pose>-0.042137879709677001 0.034963023382369 -0.030272950525786001 2.1365234965122002 0.53720132729304004 1.8849636778078001</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_positive_hemisphere_link_fixed_joint_lump__left_caster_5_16nuts_3_visual_visual_9'>
+        <pose>0.00048599141515139998 -0.034963023382369 0.051882716315824001 2.1251703774555999 0.50568558696175003 1.8621758748594002</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_positive_hemisphere_link_fixed_joint_lump__left_caster_5_16nuts_4_visual_visual_10'>
+        <pose>-0.036927358063480999 -0.046277283800629003 -0.020229895562942 2.2003707786773998 0.67269735420518995 1.9968920047620999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_positive_hemisphere_link_fixed_joint_lump__left_caster_flange_bearing_2_visual_visual_11'>
+        <pose>-0.017438333036995001 -1.0612432377335e-19 0.0090473279394555003 2.6219074061647998 0.38353693871307998 -1.7817100453473</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/flange_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='left_caster_positive_hemisphere_link_fixed_joint_lump__left_caster_flange_bearing_3_visual_visual_12'>
+        <pose>-0.057253149667482003 9.6279340218303997e-17 0.029703987159181999 -0.63075874525378994 -0.67473128223081025 -1.1428024187977002</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/flange_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <self_collide>false</self_collide>
+    </link>
+    <joint name='left_caster_positive_polar_roller_joint' type='revolute'>
+      <pose relative_to='left_caster_carrier_link'>-0.080225421192978 6.8040911579083997e-16 0.041622424177471001 0 0 0</pose>
+      <parent>left_caster_carrier_link</parent>
+      <child>left_caster_positive_polar_roller_link</child>
+      <axis>
+        <xyz>-0.46052693270049999 -4.9764123225192999e-17 -0.88764573127879998</xyz>
+        <limit>
+          <effort>100</effort>
+          <velocity>1000</velocity>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <damping>5.0000000000000002e-05</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='left_caster_positive_polar_roller_link'>
+      <pose relative_to='left_caster_positive_polar_roller_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 -1.5370836474374001e-20 0 0 0 0</pose>
+        <mass>0.013223655784153</mass>
+        <inertia>
+          <ixx>1.273356929078e-06</ixx>
+          <ixy>-1.0454631537301001e-15</ixy>
+          <ixz>-2.2039970481233001e-07</ixz>
+          <iyy>1.3877043539344e-06</iyy>
+          <iyz>5.4240561278525997e-16</iyz>
+          <izz>9.628934577798499e-07</izz>
+        </inertia>
+      </inertial>
+      <collision name='left_caster_positive_polar_roller_link_fixed_joint_lump__left_caster_roller_2_collision_collision'>
+        <pose>0 0 0 -1.4346048172574 0.46024901835937032 0.29926335305386992</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='left_caster_positive_polar_roller_link_fixed_joint_lump__left_caster_roller_2_visual_visual'>
+        <pose>0 0 0 -1.4346048172574 0.46024901835937032 0.29926335305386992</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.162499994 0.162499994 0.162499994 1</diffuse>
+          <ambient>0.162499994 0.162499994 0.162499994 1</ambient>
+        </material>
+      </visual>
+      <self_collide>false</self_collide>
+    </link>
+    <joint name='left_rocker_left_wheel_joint' type='revolute'>
+      <pose relative_to='left_rocker_link'>-0.27113999999999999 0.14571999999999999 -0.14419999999999999 0 0 0</pose>
+      <parent>left_rocker_link</parent>
+      <child>left_wheel_link</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='left_wheel_link'>
+      <pose relative_to='left_rocker_left_wheel_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 -1.5707963267948959 0 0</pose>
+        <mass>20.743780985902269</mass>
+        <inertia>
+          <ixx>0.071838738688906667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.071838738688906667</iyy>
+          <iyz>0</iyz>
+          <izz>0.11986015950916649</izz>
+        </inertia>
+      </inertial>
+      <collision name='left_wheel_link_collision'>
+        <pose>0 0 0 -1.5707963267948959 0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.083000000000000004</length>
+            <radius>0.1075</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='left_wheel_link_visual'>
+        <pose>-0.001 -0.098000000000000004 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/compa/f_left_wheel_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.372549027 0.372549027 0.372549027 1</diffuse>
+          <ambient>0.372549027 0.372549027 0.372549027 1</ambient>
+        </material>
+      </visual>
+    </link>
+    <joint name='base_leverage_joint' type='revolute'>
+      <pose relative_to='base_footprint'>-0.23319999999999999 0 0.25825999999999999 0 0 0</pose>
+      <parent>base_footprint</parent>
+      <child>leverage_link</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-0.26179938779914941</lower>
+          <upper>0.26179938779914941</upper>
+          <effort>20</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='leverage_link'>
+      <pose relative_to='base_leverage_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.01195072094312336 8.0783688054708602e-05 -0.00032823990208232092 0 0 0</pose>
+        <mass>0.17222821287881099</mass>
+        <inertia>
+          <ixx>0.001437514238915866</ixx>
+          <ixy>-2.7926001955835818e-07</ixy>
+          <ixz>-1.4609431796884671e-07</ixz>
+          <iyy>5.9389573707897768e-05</iyy>
+          <iyz>2.6727587460931471e-06</iyz>
+          <izz>0.0013826145762084849</izz>
+        </inertia>
+      </inertial>
+      <collision name='leverage_link_collision'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.01 0.45000000000000001 0.070000000000000007</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='leverage_link_fixed_joint_lump__left_rod_sphere1_link_collision_1'>
+        <pose>-0.024 0.222 -0.0064000000000000003 0 0 1.5708</pose>
+        <geometry>
+          <sphere>
+            <radius>0.0054999999999999997</radius>
+          </sphere>
+        </geometry>
+      </collision>
+      <collision name='leverage_link_fixed_joint_lump__right_rod_sphere1_link_collision_2'>
+        <pose>-0.024 -0.222 -0.0064000000000000003 0 0 1.5708</pose>
+        <geometry>
+          <sphere>
+            <radius>0.0054999999999999997</radius>
+          </sphere>
+        </geometry>
+      </collision>
+      <visual name='leverage_link_visual'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/compa/leverage_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <ambient>1 1 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='leverage_link_fixed_joint_lump__left_rod_sphere1_link_visual_1'>
+        <pose>-0.024 0.222 -0.0064000000000000003 0 0 1.5708</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/compa/sphere_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <ambient>1 1 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='leverage_link_fixed_joint_lump__right_rod_sphere1_link_visual_2'>
+        <pose>-0.024 -0.222 -0.0064000000000000003 0 0 1.5708</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/compa/sphere_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <ambient>1 1 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+    <joint name='left_rod_sphere1_rev_x' type='revolute'>
+      <pose relative_to='leverage_link'>-0.024 0.222 -0.0064000000000000003 -0.10749999999999998 -6.9388939039072284e-18 1.5708</pose>
+      <parent>leverage_link</parent>
+      <child>left_rod_sphere1_t1</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-1.5700000000000001</lower>
+          <upper>1.5700000000000001</upper>
+          <effort>1</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='left_rod_sphere1_t1'>
+      <pose relative_to='left_rod_sphere1_rev_x'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>4.0000000000000001e-08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.0000000000000001e-08</iyy>
+          <iyz>0</iyz>
+          <izz>4.0000000000000001e-08</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='left_rod_sphere1_rev_y' type='revolute'>
+      <pose relative_to='left_rod_sphere1_t1'>0 0 0 0 -0.017100000000000004 0</pose>
+      <parent>left_rod_sphere1_t1</parent>
+      <child>left_rod_sphere1_t2</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.5700000000000001</lower>
+          <upper>1.5700000000000001</upper>
+          <effort>1</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='left_rod_sphere1_t2'>
+      <pose relative_to='left_rod_sphere1_rev_y'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>4.0000000000000001e-08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.0000000000000001e-08</iyy>
+          <iyz>0</iyz>
+          <izz>4.0000000000000001e-08</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='left_rod_sphere1_rev_z' type='revolute'>
+      <pose relative_to='left_rod_sphere1_t2'>0 0 0 0 0 0</pose>
+      <parent>left_rod_sphere1_t2</parent>
+      <child>left_rod_sphere1_t3</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='left_rod_sphere1_t3'>
+      <pose relative_to='left_rod_sphere1_rev_z'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.0075804694399758303 0.0012464295032884999 -0.071921989698866109 0 0 0</pose>
+        <mass>0.0161753641367165</mass>
+        <inertia>
+          <ixx>3.8353311999977513e-05</ixx>
+          <ixy>-6.9641061152173986e-08</ixy>
+          <ixz>4.0161681062463052e-06</ixz>
+          <iyy>3.8765229796682211e-05</iyy>
+          <iyz>6.6093992544452372e-07</iyz>
+          <izz>6.7091603267913803e-07</izz>
+        </inertia>
+      </inertial>
+      <collision name='left_rod_sphere1_t3_fixed_joint_lump__left_rod_link_collision'>
+        <pose>0 0 -0.070559999999999998 0 0 1.5707963267948959</pose>
+        <geometry>
+          <cylinder>
+            <length>0.13411999999999999</length>
+            <radius>0.0035000000000000001</radius>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name='left_rod_sphere1_t3_fixed_joint_lump__left_rod_link_visual'>
+        <pose>0 0 -0.070559999999999998 0 0 1.5707963267948959</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/compa/rod_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <ambient>1 1 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+    <joint name='tmp_left_rod_sphere2_rev_x' type='revolute'>
+      <pose relative_to='left_rod_sphere1_t3'>0 0 -0.14112 0 0 0</pose>
+      <parent>left_rod_sphere1_t3</parent>
+      <child>tmp_left_rod_sphere2_t1</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-1.5700000000000001</lower>
+          <upper>1.5700000000000001</upper>
+          <effort>1</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='tmp_left_rod_sphere2_t1'>
+      <pose relative_to='tmp_left_rod_sphere2_rev_x'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>4.0000000000000001e-08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.0000000000000001e-08</iyy>
+          <iyz>0</iyz>
+          <izz>4.0000000000000001e-08</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='tmp_left_rod_sphere2_rev_y' type='revolute'>
+      <pose relative_to='tmp_left_rod_sphere2_t1'>0 0 0 0 0 0</pose>
+      <parent>tmp_left_rod_sphere2_t1</parent>
+      <child>tmp_left_rod_sphere2_t2</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.5700000000000001</lower>
+          <upper>1.5700000000000001</upper>
+          <effort>1</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='tmp_left_rod_sphere2_t2'>
+      <pose relative_to='tmp_left_rod_sphere2_rev_y'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>4.0000000000000001e-08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.0000000000000001e-08</iyy>
+          <iyz>0</iyz>
+          <izz>4.0000000000000001e-08</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='tmp_left_rod_sphere2_rev_z' type='revolute'>
+      <pose relative_to='tmp_left_rod_sphere2_t2'>0 0 0 0 0 0</pose>
+      <parent>tmp_left_rod_sphere2_t2</parent>
+      <child>tmp_left_rod_sphere2_t3</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='tmp_left_rod_sphere2_t3'>
+      <pose relative_to='tmp_left_rod_sphere2_rev_z'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.002</mass>
+        <inertia>
+          <ixx>1.04e-06</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1.04e-06</iyy>
+          <iyz>0</iyz>
+          <izz>1.04e-06</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='right_rod_sphere1_rev_x' type='revolute'>
+      <pose relative_to='leverage_link'>-0.024 -0.222 -0.0064000000000000003 -0.10749999999999998 -6.9388939039072284e-18 1.5708</pose>
+      <parent>leverage_link</parent>
+      <child>right_rod_sphere1_t1</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-1.5700000000000001</lower>
+          <upper>1.5700000000000001</upper>
+          <effort>1</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='right_rod_sphere1_t1'>
+      <pose relative_to='right_rod_sphere1_rev_x'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>4.0000000000000001e-08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.0000000000000001e-08</iyy>
+          <iyz>0</iyz>
+          <izz>4.0000000000000001e-08</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='right_rod_sphere1_rev_y' type='revolute'>
+      <pose relative_to='right_rod_sphere1_t1'>0 0 0 0 0.017100000000000004 0</pose>
+      <parent>right_rod_sphere1_t1</parent>
+      <child>right_rod_sphere1_t2</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.5700000000000001</lower>
+          <upper>1.5700000000000001</upper>
+          <effort>1</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='right_rod_sphere1_t2'>
+      <pose relative_to='right_rod_sphere1_rev_y'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>4.0000000000000001e-08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.0000000000000001e-08</iyy>
+          <iyz>0</iyz>
+          <izz>4.0000000000000001e-08</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='right_rod_sphere1_rev_z' type='revolute'>
+      <pose relative_to='right_rod_sphere1_t2'>0 0 0 0 0 0</pose>
+      <parent>right_rod_sphere1_t2</parent>
+      <child>right_rod_sphere1_t3</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='right_rod_sphere1_t3'>
+      <pose relative_to='right_rod_sphere1_rev_z'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.0061807806506529806 0.001016169980721386 -0.058641413277852772 0 0 0</pose>
+        <mass>0.016175339287224699</mass>
+        <inertia>
+          <ixx>3.650450870867445e-05</ixx>
+          <ixy>-6.6263732134042181e-08</ixy>
+          <ixz>3.821375361980097e-06</ixz>
+          <iyy>3.6896451209081973e-05</iyy>
+          <iyz>6.2887360580682058e-07</iyz>
+          <izz>6.4982607266164765e-07</izz>
+        </inertia>
+      </inertial>
+      <collision name='right_rod_sphere1_t3_fixed_joint_lump__right_rod_link_collision'>
+        <pose>0 0 -0.070559999999999998 0 0 1.5707963267948959</pose>
+        <geometry>
+          <cylinder>
+            <length>0.13411999999999999</length>
+            <radius>0.0035000000000000001</radius>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name='right_rod_sphere1_t3_fixed_joint_lump__right_rod_link_visual'>
+        <pose>0 0 -0.070559999999999998 0 0 1.5707963267948959</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/compa/rod_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <ambient>1 1 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+    <joint name='tmp_right_rod_sphere2_rev_x' type='revolute'>
+      <pose relative_to='right_rod_sphere1_t3'>0 0 -0.14112 0 0 0</pose>
+      <parent>right_rod_sphere1_t3</parent>
+      <child>tmp_right_rod_sphere2_t1</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-1.5700000000000001</lower>
+          <upper>1.5700000000000001</upper>
+          <effort>1</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='tmp_right_rod_sphere2_t1'>
+      <pose relative_to='tmp_right_rod_sphere2_rev_x'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>4.0000000000000001e-08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.0000000000000001e-08</iyy>
+          <iyz>0</iyz>
+          <izz>4.0000000000000001e-08</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='tmp_right_rod_sphere2_rev_y' type='revolute'>
+      <pose relative_to='tmp_right_rod_sphere2_t1'>0 0 0 0 0 0</pose>
+      <parent>tmp_right_rod_sphere2_t1</parent>
+      <child>tmp_right_rod_sphere2_t2</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1.5700000000000001</lower>
+          <upper>1.5700000000000001</upper>
+          <effort>1</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='tmp_right_rod_sphere2_t2'>
+      <pose relative_to='tmp_right_rod_sphere2_rev_y'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>4.0000000000000001e-08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.0000000000000001e-08</iyy>
+          <iyz>0</iyz>
+          <izz>4.0000000000000001e-08</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='tmp_right_rod_sphere2_rev_z' type='revolute'>
+      <pose relative_to='tmp_right_rod_sphere2_t2'>0 0 0 0 0 0</pose>
+      <parent>tmp_right_rod_sphere2_t2</parent>
+      <child>tmp_right_rod_sphere2_t3</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='tmp_right_rod_sphere2_t3'>
+      <pose relative_to='tmp_right_rod_sphere2_rev_z'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.002</mass>
+        <inertia>
+          <ixx>1.04e-06</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1.04e-06</iyy>
+          <iyz>0</iyz>
+          <izz>1.04e-06</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='base_right_rocker_joint' type='revolute'>
+      <pose relative_to='base_footprint'>0 -0.184999999999999 0.25609999999999911 0 0 0</pose>
+      <parent>base_footprint</parent>
+      <child>right_rocker_link</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='right_rocker_link'>
+      <pose relative_to='base_right_rocker_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.032852938189059093 -0.072099632456571291 -0.021029676853681869 0 0 0</pose>
+        <mass>4.3717978872196914</mass>
+        <inertia>
+          <ixx>0.00072148749615765645</ixx>
+          <ixy>8.4390036908315105e-05</ixy>
+          <ixz>-4.8906396207701232e-05</ixz>
+          <iyy>0.16179097695771499</iyy>
+          <iyz>2.0071089758052531e-05</iyz>
+          <izz>0.16199998503650581</izz>
+        </inertia>
+      </inertial>
+      <collision name='right_rocker_link_collision'>
+        <pose>0.032899999999999999 -0.071999999999999995 -0.021000000000000001 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.66579999999999995 0.025399999999999999 0.025399999999999999</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name='right_rocker_link_fixed_joint_lump__right_rod_sphere2_link_collision_1'>
+        <pose>-0.24206 -0.039399999999999998 -0.14451 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>0.0054999999999999997</radius>
+          </sphere>
+        </geometry>
+      </collision>
+      <visual name='right_rocker_link_visual'>
+        <pose>0.032899999999999999 -0.071999999999999995 -0.021000000000000001 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.66579999999999995 0.025399999999999999 0.025399999999999999</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>0.850000024 0.875 0.900000036 1</diffuse>
+          <ambient>0.850000024 0.875 0.900000036 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_rocker_link_fixed_joint_lump__right_rod_sphere2_link_visual_1'>
+        <pose>-0.24206 -0.039399999999999998 -0.14451 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/compa/sphere_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <ambient>1 1 1 1</ambient>
+        </material>
+      </visual>
+      <sensor name='ball_caster_closeup' type='camera'>
+        <always_on>true</always_on>
+        <update_rate>25</update_rate>
+        <visualize>false</visualize>
+        <topic>/hamr/ball_caster/closeup/image</topic>
+        <camera>
+          <horizontal_fov>1</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>100</far>
+          </clip>
+        </camera>
+        <pose>0.185 -0.55000000000000004 0.01 2.9163546484430594e-17 0.31200000000000006 1.3506</pose>
+      </sensor>
+    </link>
+    <joint name='right_caster_mount_joint' type='fixed'>
+      <pose relative_to='right_rocker_link'>0.315 -0.071999999999999995 -0.15262000000000001 0 0 0</pose>
+      <parent>right_rocker_link</parent>
+      <child>right_caster_fork_link</child>
+      <axis>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+      </axis>
+      <physics>
+        <ode>
+          <limit>
+            <cfm>0</cfm>
+            <erp>0.20000000000000001</erp>
+          </limit>
+        </ode>
+      </physics>
+    </joint>
+    <link name='right_caster_fork_link'>
+      <pose relative_to='right_caster_mount_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-1.3599197126200999e-07 2.8604869825049999e-05 0.091935870891651006 0 0 0</pose>
+        <mass>0.81535135680880999</mass>
+        <inertia>
+          <ixx>0.0047211976629729004</ixx>
+          <ixy>-3.5517404097827e-09</ixy>
+          <ixz>3.8422497949019998e-09</ixz>
+          <iyy>0.0028164757209924998</iyy>
+          <iyz>8.2243084640889005e-09</iyz>
+          <izz>0.0025994587581606998</izz>
+        </inertia>
+      </inertial>
+      <collision name='right_caster_fork_link_fixed_joint_lump__right_caster_ball_caster_shaft_2_1_collision_collision'>
+        <pose>0 0 0 2.7315965366357999e-16 0.13412114902576003 1.7417512486349002e-17</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/ball_caster_shaft_2.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='right_caster_fork_link_fixed_joint_lump__right_caster_caster_fork_1_collision_collision_1'>
+        <pose>0 0 0 -3.141592653589786 0 -1.5707963267949003</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/caster_fork.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='right_caster_fork_link_fixed_joint_lump__right_caster_ball_caster_shaft_2_1_visual_visual'>
+        <pose>0 0 0 2.7315965366357999e-16 0.13412114902576003 1.7417512486349002e-17</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/ball_caster_shaft_2.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.875 0.900000036 0.925000012 1</diffuse>
+          <ambient>0.875 0.900000036 0.925000012 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_fork_link_fixed_joint_lump__right_caster_caster_fork_1_visual_visual_1'>
+        <pose>0 0 0 -3.141592653589786 0 -1.5707963267949003</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/caster_fork.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.875 0.900000036 0.925000012 1</diffuse>
+          <ambient>0.875 0.900000036 0.925000012 1</ambient>
+        </material>
+      </visual>
+      <self_collide>false</self_collide>
+    </link>
+    <joint name='right_caster_carrier_joint' type='revolute'>
+      <pose relative_to='right_caster_fork_link'>0 0 0 0 0 0</pose>
+      <parent>right_caster_fork_link</parent>
+      <child>right_caster_carrier_link</child>
+      <axis>
+        <xyz>0 -1 0</xyz>
+        <limit>
+          <effort>100</effort>
+          <velocity>1000</velocity>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <damping>0.00020000000000000001</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='right_caster_carrier_link'>
+      <pose relative_to='right_caster_carrier_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-2.133168032576e-08 -1.2227821200412e-07 3.8781100106540003e-08 0 0 0</pose>
+        <mass>0.38698373450096002</mass>
+        <inertia>
+          <ixx>0.00027350192546672002</ixx>
+          <ixy>9.9900177579252e-10</ixy>
+          <ixz>0.00040459859435645998</ixz>
+          <iyy>0.0010428237231050999</iyy>
+          <iyz>-5.5213106945673998e-10</iyz>
+          <izz>0.00084334325421017004</izz>
+        </inertia>
+      </inertial>
+      <collision name='right_caster_carrier_link_fixed_joint_lump__right_caster_bearing_shaft2_1_collision_collision'>
+        <pose>0 0 0 1.5707963267948999 1.0922075901177 -3.1415926535897865</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/bearing_shaft2.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='right_caster_carrier_link_fixed_joint_lump__right_caster_collet_block_2_collision_collision_1'>
+        <pose>0 0 0 -2.0493850634721 5.5511151231257827e-17 -1.5707963267949003</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/collet_block.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='right_caster_carrier_link_fixed_joint_lump__right_caster_collet_block_3_collision_collision_2'>
+        <pose>0 0 0 2.0493850634721 5.5511151231257827e-17 1.5707963267949003</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/collet_block.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='right_caster_carrier_link_fixed_joint_lump__right_caster_roller_mount_1_collision_collision_3'>
+        <pose>-0.060359909726957997 1.9287932241350999e-16 0.031315831423633998 1.5707963267949003 -1.0922075901177006 -7.5939153157919203e-15</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_mount.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='right_caster_carrier_link_fixed_joint_lump__right_caster_roller_mount_2_collision_collision_4'>
+        <pose>0.060359909726957997 -1.3811343066965001e-16 -0.031315831423633998 -1.5707963267948999 1.0922075901177 3.1415926535897865</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_mount.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='right_caster_carrier_link_fixed_joint_lump__right_caster_roller_shaft_1_collision_collision_5'>
+        <pose>0.080225421192978 -2.8415196902364e-16 -0.041622424177471001 -1.4392304055066001 0.46150368964668997 0.2888626140617</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_shaft.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='right_caster_carrier_link_fixed_joint_lump__right_caster_roller_shaft_2_collision_collision_6'>
+        <pose>-0.080225421192978 7.0151206739908995e-16 0.041622424177471001 1.0958134073629002 -0.061014222721210994 -1.6888185547779999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_shaft.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_4668k11_permanently_lubricated_stainless_steel_ball_bearing_1_visual_visual'>
+        <pose>-0.088970459223413997 6.8588413165423004e-16 0.024766741857070999 0.45307624399293001 0.15982567044983001 1.2548593889253001</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/4668k11_permanently_lubricated_stainless_steel_ball_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_bearing_shaft2_1_visual_visual_1'>
+        <pose>0 0 0 1.5707963267948999 1.0922075901177 -3.1415926535897865</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/bearing_shaft2.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_5905k22_needle_roller_bearing_1_visual_visual_2'>
+        <pose>-1.3184492090813001e-16 0.019050000000000001 -1.042718811455e-16 1.5707963267949003 0.60871845433135019 3.141592653589786</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5905k22_needle_roller_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_5905k22_needle_roller_bearing_2_visual_visual_3'>
+        <pose>3.1802981880822999e-18 -0.019050000000000001 -1.2001068601845e-16 -1.5707963267949003 -0.13260381745763 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5905k22_needle_roller_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_collet_block_2_visual_visual_4'>
+        <pose>0 0 0 -2.0493850634721 5.5511151231257827e-17 -1.5707963267949003</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/collet_block.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_collet_block_3_visual_visual_5'>
+        <pose>0 0 0 2.0493850634721 5.5511151231257827e-17 1.5707963267949003</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/collet_block.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_roller_mount_1_visual_visual_6'>
+        <pose>-0.060359909726957997 1.9287932241350999e-16 0.031315831423633998 1.5707963267949003 -1.0922075901177006 -7.5939153157919203e-15</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_mount.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_roller_mount_2_visual_visual_7'>
+        <pose>0.060359909726957997 -1.3811343066965001e-16 -0.031315831423633998 -1.5707963267948999 1.0922075901177 3.1415926535897865</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_mount.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_4668k11_permanently_lubricated_stainless_steel_ball_bearing_2_visual_visual_8'>
+        <pose>-0.071480383162542002 5.4945115298253002e-16 0.058478106497869997 0.46314632171207998 0.12522539295773991 1.3257140492452</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/4668k11_permanently_lubricated_stainless_steel_ball_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_4668k11_permanently_lubricated_stainless_steel_ball_bearing_3_visual_visual_9'>
+        <pose>0.071480383162542002 -2.9012956509494002e-16 -0.058478106497869997 2.6646924774639 -0.041808928058327102 -1.6515158407661998</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/4668k11_permanently_lubricated_stainless_steel_ball_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_4668k11_permanently_lubricated_stainless_steel_ball_bearing_4_visual_visual_10'>
+        <pose>0.088970459223413997 -1.6812812318935e-16 -0.024766741857071999 2.6646924774639 -0.041808928058303989 -1.6515158407662001</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/4668k11_permanently_lubricated_stainless_steel_ball_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_roller_shaft_1_visual_visual_11'>
+        <pose>0.080225421192978 -2.8415196902364e-16 -0.041622424177471001 -1.4392304055066001 0.46150368964668997 0.2888626140617</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_shaft.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_roller_shaft_2_visual_visual_12'>
+        <pose>-0.080225421192978 7.0151206739908995e-16 0.041622424177471001 1.0958134073629002 -0.061014222721210994 -1.6888185547779999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller_shaft.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_spacing_5_visual_visual_13'>
+        <pose>-2.8952794135496002e-17 -0.025399999999999 -2.5717006399238001e-16 3.141592653589786 -8.8817841970012997e-16 1.5543122344752e-15</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/spacing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_spacing_6_visual_visual_14'>
+        <pose>2.2696948974482998e-16 -0.025399999999999 -1.4803878107189001e-16 -8.8817841970012997e-16 8.8817841970012997e-16 3.141592653589786</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/spacing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_spacing_7_visual_visual_15'>
+        <pose>-1.4428355583670999e-15 0.032399999999999998 -1.0306020025052e-15 -6.6613381477508988e-16 0.52935104682236023 3.141592653589786</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/spacing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_carrier_link_fixed_joint_lump__right_caster_spacing_8_visual_visual_16'>
+        <pose>-1.5239597869526e-15 0.032399999999999998 -1.1274203577879999e-15 3.141592653589786 -0.52935104682236023 1.776356839400301e-15</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/spacing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.6875 0.712499976 0.75000006 1</diffuse>
+          <ambient>0.6875 0.712499976 0.75000006 1</ambient>
+        </material>
+      </visual>
+      <self_collide>false</self_collide>
+    </link>
+    <joint name='right_caster_negative_hemisphere_joint' type='revolute'>
+      <pose relative_to='right_caster_carrier_link'>0 0 0 0 0 0</pose>
+      <parent>right_caster_carrier_link</parent>
+      <child>right_caster_negative_hemisphere_link</child>
+      <axis>
+        <xyz>0.88764573127879998 5.6516578430981001e-15 -0.46052693270049999</xyz>
+        <limit>
+          <effort>100</effort>
+          <velocity>1000</velocity>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <damping>0.00020000000000000001</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='right_caster_negative_hemisphere_link'>
+      <pose relative_to='right_caster_negative_hemisphere_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0.036944402537414003 -1.0642642877525e-07 -0.019167062591225002 0 0 0</pose>
+        <mass>2.0383619968878999</mass>
+        <inertia>
+          <ixx>0.0074812878349042001</ixx>
+          <ixy>-2.3862733495564002e-07</ixy>
+          <ixz>-0.0013282105240380001</ixz>
+          <iyy>0.0049224141573316997</iyy>
+          <iyz>-4.5202301339492998e-07</iyz>
+          <izz>0.0056103135631599002</izz>
+        </inertia>
+      </inertial>
+      <collision name='right_caster_negative_hemisphere_link_fixed_joint_lump__right_caster_semi_spherical_wheel_2_2_collision_collision'>
+        <pose>-1.1102230246251999e-16 1.9336361357265999e-18 -2.2551405187697999e-17 -0.5044896268357002 -0.30859784072295005 -1.4046428316971999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel_2.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='right_caster_negative_hemisphere_link_fixed_joint_lump__right_caster_semi_spherical_wheel_2_collision_collision_1'>
+        <pose>-9.0205620750794006e-17 8.8725300396349006e-18 -1.5612511283792e-17 -2.1538292924542 -0.98643883988159031 0.66905578937252952</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='right_caster_negative_hemisphere_link_fixed_joint_lump__right_caster_semi_spherical_wheel_2_2_visual_visual'>
+        <pose>-1.1102230246251999e-16 1.9336361357265999e-18 -2.2551405187697999e-17 -0.5044896268357002 -0.30859784072295005 -1.4046428316971999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel_2.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_negative_hemisphere_link_fixed_joint_lump__right_caster_semi_spherical_wheel_2_visual_visual_1'>
+        <pose>-9.0205620750794006e-17 8.8725300396349006e-18 -1.5612511283792e-17 -2.1538292924542 -0.98643883988159031 0.66905578937252952</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_negative_hemisphere_link_fixed_joint_lump__right_caster_skate_bearing_2_visual_visual_2'>
+        <pose>0.035503010975954 3.9036127645923e-17 -0.018419615135008002 -0.99892165266746991 -0.55305845915749041 1.2447737919121999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/skate_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_negative_hemisphere_link_fixed_joint_lump__right_caster_5_16_18screw_5_visual_visual_3'>
+        <pose>0.04263318490411 -0.054499072572978001 0.00023877993477569999 2.4339736648289998 -0.91974016347279985 0.82169875960565975</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_negative_hemisphere_link_fixed_joint_lump__right_caster_5_16_18screw_6_visual_visual_4'>
+        <pose>0.024354242910868001 0.054499072572978001 -0.034993089648725002 2.5725069013097999 -0.99239226180859053 0.65236682451013028</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_negative_hemisphere_link_fixed_joint_lump__right_caster_5_16_18screw_7_visual_visual_5'>
+        <pose>0.058592004634543997 0.019845681864961998 0.030998714271082001 -2.0767204751395001 -0.31662261187193003 -1.3999784246435998</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_negative_hemisphere_link_fixed_joint_lump__right_caster_5_16_18screw_8_visual_visual_6'>
+        <pose>0.0083954231804332993 -0.019845681864961998 -0.065753023985031994 2.1599575648649001 -0.5938600729337602 1.2129201066780999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_negative_hemisphere_link_fixed_joint_lump__right_caster_5_16nuts_5_visual_visual_7'>
+        <pose>-0.0042723465797926 -0.019845681864961998 -0.059180752023076003 -0.50876555452624994 -1.0153612961816003 0.58087355223520021</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_negative_hemisphere_link_fixed_joint_lump__right_caster_5_16nuts_6_visual_visual_8'>
+        <pose>0.011686473150642 0.054499072572978001 -0.02842081768677 1.0104123317138003 -0.52275350587402003 -1.2671984154294</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_negative_hemisphere_link_fixed_joint_lump__right_caster_5_16nuts_7_visual_visual_9'>
+        <pose>0.029965415143884001 -0.054499072572978001 0.0068110518967311002 -0.14315434932909019 -1.0868381944458003 0.16142406561222017</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_negative_hemisphere_link_fixed_joint_lump__right_caster_5_16nuts_8_visual_visual_10'>
+        <pose>0.045924234874319 0.019845681864961998 0.037570986233037999 0.76825306233286006 0.8757794543267301 -2.242383813969</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0.574999988 0.149999991 1</diffuse>
+          <ambient>1 0.574999988 0.149999991 1</ambient>
+        </material>
+      </visual>
+      <self_collide>false</self_collide>
+    </link>
+    <joint name='right_caster_negative_polar_roller_joint' type='revolute'>
+      <pose relative_to='right_caster_carrier_link'>0.080225421192978 -2.8043167259144002e-16 -0.041622424177471001 0 0 0</pose>
+      <parent>right_caster_carrier_link</parent>
+      <child>right_caster_negative_polar_roller_link</child>
+      <axis>
+        <xyz>0.46052693270049999 -4.4187884109047e-16 0.88764573127879998</xyz>
+        <limit>
+          <effort>100</effort>
+          <velocity>1000</velocity>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <damping>5.0000000000000002e-05</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='right_caster_negative_polar_roller_link'>
+      <pose relative_to='right_caster_negative_polar_roller_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 8.2732296049671003e-21 0 0 0 0</pose>
+        <mass>0.013223655784153</mass>
+        <inertia>
+          <ixx>1.2733569321509e-06</ixx>
+          <ixy>-1.1545655675093e-15</ixy>
+          <ixz>-2.2039970640658e-07</ixz>
+          <iyy>1.3877043500344001e-06</iyy>
+          <iyz>5.9901023350699998e-16</iyz>
+          <izz>9.628934586069799e-07</izz>
+        </inertia>
+      </inertial>
+      <collision name='right_caster_negative_polar_roller_link_fixed_joint_lump__right_caster_roller_1_collision_collision'>
+        <pose>0 0 0 1.1104924496602 -0.1359928906610699 -1.8377024180979</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='right_caster_negative_polar_roller_link_fixed_joint_lump__right_caster_roller_1_visual_visual'>
+        <pose>0 0 0 1.1104924496602 -0.1359928906610699 -1.8377024180979</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.162499994 0.162499994 0.162499994 1</diffuse>
+          <ambient>0.162499994 0.162499994 0.162499994 1</ambient>
+        </material>
+      </visual>
+      <self_collide>false</self_collide>
+    </link>
+    <joint name='right_caster_positive_hemisphere_joint' type='revolute'>
+      <pose relative_to='right_caster_carrier_link'>0 0 0 0 0 0</pose>
+      <parent>right_caster_carrier_link</parent>
+      <child>right_caster_positive_hemisphere_link</child>
+      <axis>
+        <xyz>-0.88764573127879998 -5.6516578430981001e-15 0.46052693270049999</xyz>
+        <limit>
+          <effort>100</effort>
+          <velocity>1000</velocity>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <damping>0.00020000000000000001</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='right_caster_positive_hemisphere_link'>
+      <pose relative_to='right_caster_positive_hemisphere_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.036951230355081001 -3.0749538233539e-08 0.019170577654182001 0 0 0</pose>
+        <mass>2.0709380529088999</mass>
+        <inertia>
+          <ixx>0.0074861835508766</ixx>
+          <ixy>3.5316119278929998e-07</ixy>
+          <ixz>-0.0013246743261826001</ixz>
+          <iyy>0.0049333432093748002</iyy>
+          <iyz>6.7342472776004997e-07</iyz>
+          <izz>0.0056201850601559997</izz>
+        </inertia>
+      </inertial>
+      <collision name='right_caster_positive_hemisphere_link_fixed_joint_lump__right_caster_semi_spherical_wheel_1_collision_collision'>
+        <pose>1.7694179454963001e-16 -5.5481220780721001e-19 -1.2316536679435e-16 0.71065342193326975 0.78699994929643025 2.1182129953911999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='right_caster_positive_hemisphere_link_fixed_joint_lump__right_caster_semi_spherical_wheel_2_1_collision_collision_1'>
+        <pose>1.6306400674181999e-16 4.4230204607358998e-17 -1.0928757898654001e-16 2.5650468234093 0.56460526687104995 -1.9056289156507</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel_2.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='right_caster_positive_hemisphere_link_fixed_joint_lump__right_caster_semi_spherical_wheel_1_visual_visual'>
+        <pose>1.7694179454963001e-16 -5.5481220780721001e-19 -1.2316536679435e-16 0.71065342193326975 0.78699994929643025 2.1182129953911999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_positive_hemisphere_link_fixed_joint_lump__right_caster_semi_spherical_wheel_2_1_visual_visual_1'>
+        <pose>1.6306400674181999e-16 4.4230204607358998e-17 -1.0928757898654001e-16 2.5650468234093 0.56460526687104995 -1.9056289156507</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/semi_spherical_wheel_2.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_positive_hemisphere_link_fixed_joint_lump__right_caster_skate_bearing_1_visual_visual_2'>
+        <pose>-0.035531193727923002 -3.8982107145220999e-16 0.018434236865122001 2.2832693225987999 -0.78909905016034021 1.0208131898149999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/skate_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_positive_hemisphere_link_fixed_joint_lump__right_caster_5_16_18screw_1_visual_visual_3'>
+        <pose>-0.049595127823706002 -0.046277283800630002 -0.013657623600985999 -0.45316506971899978 1.0330191027485005 2.6257939448190011</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_positive_hemisphere_link_fixed_joint_lump__right_caster_5_16_18screw_2_visual_visual_4'>
+        <pose>-0.054805649469903003 0.034963023382368001 -0.023700678563830999 -1.0905256490405999 -0.080395600940614861 1.5289833294768003</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_positive_hemisphere_link_fixed_joint_lump__right_caster_5_16_18screw_3_visual_visual_5'>
+        <pose>-0.012181778345075001 -0.034963023382369 0.05845498827778 -0.95501938998601998 0.64795302416344025 1.9743998503884999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_positive_hemisphere_link_fixed_joint_lump__right_caster_5_16_18screw_4_visual_visual_6'>
+        <pose>-0.017392299991270999 0.046277283800629003 0.048411933314934999 1.0522011676212 -0.37877672733572015 -1.3628129859789997</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16_18screw.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_positive_hemisphere_link_fixed_joint_lump__right_caster_5_16nuts_1_visual_visual_7'>
+        <pose>-0.0047245302310450999 0.046277283800627997 0.04183966135298 2.1405937187466 0.54778722863856022 1.8928473823869001</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_positive_hemisphere_link_fixed_joint_lump__right_caster_5_16nuts_2_visual_visual_8'>
+        <pose>-0.042137879709677001 0.034963023382369 -0.030272950525786001 2.1365234965122002 0.53720132729304004 1.8849636778078001</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_positive_hemisphere_link_fixed_joint_lump__right_caster_5_16nuts_3_visual_visual_9'>
+        <pose>0.00048599141515139998 -0.034963023382369 0.051882716315824001 2.1251703774555999 0.50568558696175003 1.8621758748594002</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_positive_hemisphere_link_fixed_joint_lump__right_caster_5_16nuts_4_visual_visual_10'>
+        <pose>-0.036927358063480999 -0.046277283800629003 -0.020229895562942 2.2003707786773998 0.67269735420518995 1.9968920047620999</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/5_16nuts.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_positive_hemisphere_link_fixed_joint_lump__right_caster_flange_bearing_2_visual_visual_11'>
+        <pose>-0.017438333036995001 -1.0612432377335e-19 0.0090473279394555003 2.6219074061647998 0.38353693871307998 -1.7817100453473</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/flange_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <visual name='right_caster_positive_hemisphere_link_fixed_joint_lump__right_caster_flange_bearing_3_visual_visual_12'>
+        <pose>-0.057253149667482003 9.6279340218303997e-17 0.029703987159181999 -0.63075874525378994 -0.67473128223081025 -1.1428024187977002</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/flange_bearing.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.199999988 0.574999988 1 1</diffuse>
+          <ambient>0.199999988 0.574999988 1 1</ambient>
+        </material>
+      </visual>
+      <self_collide>false</self_collide>
+    </link>
+    <joint name='right_caster_positive_polar_roller_joint' type='revolute'>
+      <pose relative_to='right_caster_carrier_link'>-0.080225421192978 6.8040911579083997e-16 0.041622424177471001 0 0 0</pose>
+      <parent>right_caster_carrier_link</parent>
+      <child>right_caster_positive_polar_roller_link</child>
+      <axis>
+        <xyz>-0.46052693270049999 -4.9764123225192999e-17 -0.88764573127879998</xyz>
+        <limit>
+          <effort>100</effort>
+          <velocity>1000</velocity>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <damping>5.0000000000000002e-05</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='right_caster_positive_polar_roller_link'>
+      <pose relative_to='right_caster_positive_polar_roller_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 -1.5370836474374001e-20 0 0 0 0</pose>
+        <mass>0.013223655784153</mass>
+        <inertia>
+          <ixx>1.273356929078e-06</ixx>
+          <ixy>-1.0454631537301001e-15</ixy>
+          <ixz>-2.2039970481233001e-07</ixz>
+          <iyy>1.3877043539344e-06</iyy>
+          <iyz>5.4240561278525997e-16</iyz>
+          <izz>9.628934577798499e-07</izz>
+        </inertia>
+      </inertial>
+      <collision name='right_caster_positive_polar_roller_link_fixed_joint_lump__right_caster_roller_2_collision_collision'>
+        <pose>0 0 0 -1.4346048172574 0.46024901835937032 0.29926335305386992</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='right_caster_positive_polar_roller_link_fixed_joint_lump__right_caster_roller_2_visual_visual'>
+        <pose>0 0 0 -1.4346048172574 0.46024901835937032 0.29926335305386992</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/cad/roller.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.162499994 0.162499994 0.162499994 1</diffuse>
+          <ambient>0.162499994 0.162499994 0.162499994 1</ambient>
+        </material>
+      </visual>
+      <self_collide>false</self_collide>
+    </link>
+    <joint name='right_rocker_right_wheel_joint' type='revolute'>
+      <pose relative_to='right_rocker_link'>-0.27113999999999999 -0.14571999999999999 -0.14419999999999999 0 0 0</pose>
+      <parent>right_rocker_link</parent>
+      <child>right_wheel_link</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='right_wheel_link'>
+      <pose relative_to='right_rocker_right_wheel_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 -1.5707963267948959 0 0</pose>
+        <mass>20.743780985902269</mass>
+        <inertia>
+          <ixx>0.071838738688906667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.071838738688906667</iyy>
+          <iyz>0</iyz>
+          <izz>0.11986015950916649</izz>
+        </inertia>
+      </inertial>
+      <collision name='right_wheel_link_collision'>
+        <pose>0 0 0 -1.5707963267948959 0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.083000000000000004</length>
+            <radius>0.1075</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='right_wheel_link_visual'>
+        <pose>0.001 0.098000000000000004 0 0 0 3.1415926535897931</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/compa/f_right_wheel_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.372549027 0.372549027 0.372549027 1</diffuse>
+          <ambient>0.372549027 0.372549027 0.372549027 1</ambient>
+        </material>
+      </visual>
+    </link>
+    <joint name='base_roll_joint' type='revolute'>
+      <pose relative_to='base_footprint'>0 0 0.25825999999999999 0 0 0</pose>
+      <parent>base_footprint</parent>
+      <child>roll_link</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='roll_link'>
+      <pose relative_to='base_roll_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.94451713992114195</mass>
+        <inertia>
+          <ixx>0.0098387202075118935</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.0098387202075118935</iyy>
+          <iyz>0</iyz>
+          <izz>0.019283891606723311</izz>
+        </inertia>
+      </inertial>
+      <collision name='roll_link_collision'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.34999999999999998 0.34999999999999998 0.050000000000000003</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='roll_link_visual'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/compa/roll_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <ambient>1 1 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+    <joint name='roll_pitch_joint' type='revolute'>
+      <pose relative_to='roll_link'>-0.0035000000000000001 0 0 0 0 0</pose>
+      <parent>roll_link</parent>
+      <child>pitch_link</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='pitch_link'>
+      <pose relative_to='roll_pitch_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-1.5361249152481801e-06 0.045281871189762297 -0.0047911820867602203 0 0 0</pose>
+        <mass>0.373399633584383</mass>
+        <inertia>
+          <ixx>0.00024512102317402899</ixx>
+          <ixy>-1.0446114122347501e-09</ixy>
+          <ixz>-5.0258959384400597e-10</ixz>
+          <iyy>0.000177685960624184</iyy>
+          <iyz>-2.5289514079841801e-05</iyz>
+          <izz>0.000294726650760256</izz>
+        </inertia>
+      </inertial>
+      <collision name='pitch_link_collision'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.070000000000000007 0.29999999999999999 0.050000000000000003</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='pitch_link_visual'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/compa/pitch_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <ambient>1 1 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+    <joint name='pitch_yaw_plate_joint' type='revolute'>
+      <pose relative_to='pitch_link'>0 0 0.037499999999999999 0 0 0</pose>
+      <parent>pitch_link</parent>
+      <child>yaw_plate_link</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-inf</lower>
+          <upper>inf</upper>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='yaw_plate_link'>
+      <pose relative_to='pitch_yaw_plate_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.0044791361078896702 2.4119632636231102e-05 -0.127371508973676 0 0 0</pose>
+        <mass>4.7735957459399199</mass>
+        <inertia>
+          <ixx>0.137280882823545</ixx>
+          <ixy>2.1267397892399301e-05</ixy>
+          <ixz>0.00012123358519639201</ixz>
+          <iyy>0.141251293392401</iyy>
+          <iyz>-6.4753775050179098e-07</iyz>
+          <izz>0.27812043683304999</izz>
+        </inertia>
+      </inertial>
+      <collision name='yaw_plate_link_collision'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.01</length>
+            <radius>0.40000000000000002</radius>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name='yaw_plate_link_visual'>
+        <pose>0 0 0 0 0 3.1415926535897931</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://hamr_ball_caster/meshes/compa/yaw_plate_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <ambient>1 1 1 1</ambient>
+        </material>
+      </visual>
+    </link>
+    <plugin name='gz::sim::systems::DetachableJoint' filename='libgz-sim-detachable-joint-system.so'>
+      <parent_link>left_rocker_link</parent_link>
+      <child_model>compa</child_model>
+      <child_link>tmp_left_rod_sphere2_t3</child_link>
+      <attach_topic>close_left_loop</attach_topic>
+      <detach_topic>open_left_loop</detach_topic>
+    </plugin>
+    <plugin name='gz::sim::systems::DetachableJoint' filename='libgz-sim-detachable-joint-system.so'>
+      <parent_link>right_rocker_link</parent_link>
+      <child_model>compa</child_model>
+      <child_link>tmp_right_rod_sphere2_t3</child_link>
+      <attach_topic>close_right_loop</attach_topic>
+      <detach_topic>open_right_loop</detach_topic>
+    </plugin>
+    <plugin name='gz::sim::systems::JointStatePublisher' filename='gz-sim-joint-state-publisher-system'>
+      <topic>/ball_caster/joint_states</topic>
+    </plugin>
+    <plugin name='gz::sim::systems::JointController' filename='gz-sim-joint-controller-system'>
+      <joint_name>left_rocker_left_wheel_joint</joint_name>
+    </plugin>
+    <plugin name='gz::sim::systems::JointController' filename='gz-sim-joint-controller-system'>
+      <joint_name>right_rocker_right_wheel_joint</joint_name>
+    </plugin>
+    <plugin name='gz::sim::systems::JointController' filename='gz-sim-joint-controller-system'>
+      <joint_name>base_roll_joint</joint_name>
+    </plugin>
+    <plugin name='gz::sim::systems::JointController' filename='gz-sim-joint-controller-system'>
+      <joint_name>roll_pitch_joint</joint_name>
+    </plugin>
+    <plugin name='gz::sim::systems::JointController' filename='gz-sim-joint-controller-system'>
+      <joint_name>pitch_yaw_plate_joint</joint_name>
+    </plugin>
+    <plugin name='gz::sim::systems::OdometryPublisher' filename='gz-sim-odometry-publisher-system'>
+      <odom_frame>odom</odom_frame>
+      <robot_base_frame>base_footprint</robot_base_frame>
+      <odom_publish_frequency>50</odom_publish_frequency>
+      <odom_topic>/model/compa/odometry</odom_topic>
+      <tf_topic>/model/compa/tf</tf_topic>
+      <dimensions>3</dimensions>
+    </plugin>
+    <frame name='base_joint' attached_to='base_footprint'>
+      <pose>0 0 0.22 0 0 0</pose>
+    </frame>
+    <frame name='base_link' attached_to='base_joint'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+    <frame name='left_rocker_rod_sphere2_joint' attached_to='left_rocker_link'>
+      <pose>-0.24206 0.039399999999999998 -0.14451 0 0 0</pose>
+    </frame>
+    <frame name='left_rod_sphere2_link' attached_to='left_rocker_rod_sphere2_joint'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+    <frame name='leverage_left_rod_sphere1_joint' attached_to='leverage_link'>
+      <pose>-0.024 0.222 -0.0064000000000000003 0 0 1.5708</pose>
+    </frame>
+    <frame name='left_rod_sphere1_link' attached_to='leverage_left_rod_sphere1_joint'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+    <frame name='left_rod_sphere1_fixed' attached_to='left_rod_sphere1_t3'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+    <frame name='left_rod_link' attached_to='left_rod_sphere1_fixed'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+    <frame name='tmp_left_rod_sphere2_fixed' attached_to='tmp_left_rod_sphere2_t3'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+    <frame name='tmp_left_rod_sphere2_link' attached_to='tmp_left_rod_sphere2_fixed'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+    <frame name='leverage_right_rod_sphere1_joint' attached_to='leverage_link'>
+      <pose>-0.024 -0.222 -0.0064000000000000003 0 0 1.5708</pose>
+    </frame>
+    <frame name='right_rod_sphere1_link' attached_to='leverage_right_rod_sphere1_joint'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+    <frame name='right_rod_sphere1_fixed' attached_to='right_rod_sphere1_t3'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+    <frame name='right_rod_link' attached_to='right_rod_sphere1_fixed'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+    <frame name='tmp_right_rod_sphere2_fixed' attached_to='tmp_right_rod_sphere2_t3'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+    <frame name='tmp_right_rod_sphere2_link' attached_to='tmp_right_rod_sphere2_fixed'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+    <frame name='ball_closeup_camera_joint' attached_to='right_rocker_link'>
+      <pose>0.185 -0.55000000000000004 0.01 2.9163546484430594e-17 0.31200000000000017 1.3506</pose>
+    </frame>
+    <frame name='ball_closeup_camera_link' attached_to='ball_closeup_camera_joint'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+    <frame name='right_rocker_rod_sphere2_joint' attached_to='right_rocker_link'>
+      <pose>-0.24206 -0.039399999999999998 -0.14451 0 0 0</pose>
+    </frame>
+    <frame name='right_rod_sphere2_link' attached_to='right_rocker_rod_sphere2_joint'>
+      <pose>0 0 0 0 0 0</pose>
+    </frame>
+  </model>
+</sdf>

@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.9">
+  <world name="hamr_terrain_rocky_diagonal_ledges">
+    <physics name="terrain_dart" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <dart>
+        <collision_detector>ode</collision_detector>
+        <solver>
+          <solver_type>dantzig</solver_type>
+        </solver>
+      </dart>
+    </physics>
+    <gravity>0 0 -9.80665</gravity>
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics">
+      <engine>
+        <filename>gz-physics-dartsim-plugin</filename>
+      </engine>
+    </plugin>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands" />
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster" />
+    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact" />
+    <scene>
+      <ambient>.55 .55 .55 1</ambient>
+      <background>.67 .75 .81 1</background>
+      <shadows>true</shadows>
+    </scene>
+    <model name="terrain">
+      <static>true</static>
+      <link name="surface">
+        <collision name="terrain_collision">
+          <geometry>
+            <mesh>
+              <uri>model://hamr_terrain/meshes/rocky_diagonal_ledges.stl</uri>
+              <scale>1 1 1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0</restitution_coefficient>
+            </bounce>
+          </surface>
+          <max_contacts>20</max_contacts>
+        </collision>
+        <visual name="terrain_visual">
+          <geometry>
+            <mesh>
+              <uri>model://hamr_terrain/meshes/rocky_diagonal_ledges.dae</uri>
+              <scale>1 1 1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <sensor name="terrain_contacts" type="contact">
+          <always_on>true</always_on>
+          <update_rate>100</update_rate>
+          <contact>
+            <collision>terrain_collision</collision>
+            <topic>/hamr/terrain/contacts</topic>
+          </contact>
+        </sensor>
+      </link>
+    </model>
+    <light name="sun" type="directional">
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>.9 .86 .78 1</diffuse>
+      <specular>.15 .15 .15 1</specular>
+      <direction>-.6 .45 -1</direction>
+      <cast_shadows>true</cast_shadows>
+    </light>
+    <model name="overview_camera">
+      <static>true</static>
+      <pose>5.4 -6.4 5.2 0 0.5452995166621655 2.271650734679347</pose>
+      <link name="camera_link">
+        <sensor name="camera" type="camera">
+          <always_on>true</always_on>
+          <update_rate>5</update_rate>
+          <topic>/hamr/terrain/overview/image</topic>
+          <camera>
+            <horizontal_fov>0.95</horizontal_fov>
+            <image>
+              <width>1600</width>
+              <height>1000</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip>
+              <near>0.03</near>
+              <far>100</far>
+            </clip>
+          </camera>
+        </sensor>
+      </link>
+    </model>
+    <model name="detail_camera">
+      <static>true</static>
+      <pose>2.5 -3.1 1.35 0 0.31552589288890664 2.2494588175432093</pose>
+      <link name="camera_link">
+        <sensor name="camera" type="camera">
+          <always_on>true</always_on>
+          <update_rate>5</update_rate>
+          <topic>/hamr/terrain/detail/image</topic>
+          <camera>
+            <horizontal_fov>1.05</horizontal_fov>
+            <image>
+              <width>1600</width>
+              <height>1000</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip>
+              <near>0.03</near>
+              <far>100</far>
+            </clip>
+          </camera>
+        </sensor>
+      </link>
+    </model>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+  </world>
+</sdf>

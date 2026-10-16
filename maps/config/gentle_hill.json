@@ -1,0 +1,89 @@
+{
+  "id": "gentle_hill",
+  "title": "Gentle raised hill",
+  "description": "A smooth 140 mm rise with broad ascent, short crest and descent; centerline peak grade about 5.7 degrees.",
+  "world": "../worlds/gentle_hill.sdf",
+  "bounds_m": {
+    "x": [
+      -3,
+      3
+    ],
+    "y": [
+      -4,
+      4
+    ]
+  },
+  "height_grid": "../meshes/gentle_hill_height.npz",
+  "collision_mesh": "../meshes/gentle_hill.stl",
+  "visual_mesh": "../meshes/gentle_hill.dae",
+  "grid_spacing_m": 0.025,
+  "vertices": 78482,
+  "triangles": 156960,
+  "surface_triangles": 153600,
+  "min_height_m": 0.0,
+  "max_height_m": 0.14,
+  "max_surface_slope_deg": 13.714209939233495,
+  "terrain_friction": {
+    "mu": 1.0,
+    "mu2": 1.0,
+    "restitution": 0.0,
+    "basis": "DART mesh attachment defaults; explicit matching SDF values; runtime probe validation required."
+  },
+  "spawn": {
+    "x": 0,
+    "y": -2.8,
+    "z": 0,
+    "yaw": 1.5707963267948966
+  },
+  "probes": [
+    {
+      "name": "flat_approach",
+      "xy_m": [
+        0,
+        -2.6
+      ],
+      "kind": "flat"
+    },
+    {
+      "name": "feature_0",
+      "xy_m": [
+        0,
+        -0.7
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "feature_1",
+      "xy_m": [
+        0,
+        0.7
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "feature_2",
+      "xy_m": [
+        0.5,
+        0.7
+      ],
+      "kind": "feature"
+    }
+  ],
+  "smoke": {
+    "spawn_x": 0,
+    "spawn_y": -1.4,
+    "spawn_z": 0.09,
+    "initial_yaw": 1.5707963267948966,
+    "drive_speed_m_s": 0.12,
+    "duration_s": 10.0
+  },
+  "limitations": [
+    "Rigid terrain, no loose particles, soil deformation or sinkage.",
+    "Estimated contact and robot parameters; no calibrated motor torque limits."
+  ],
+  "sha256": {
+    "stl": "547c813f363ba694ed1d59a9f22ebf77e83a88daea66773b3176260afee8d440",
+    "dae": "4ce54a510036908aef89ab0881dea078214bd60c5dc00fe9266525e0cd55cfda"
+  },
+  "slope_method": "Grid-node central finite differences over the top surface; excludes closing side walls."
+}

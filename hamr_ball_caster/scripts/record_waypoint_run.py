@@ -23,7 +23,8 @@ def continuous_video_quality(trajectory, recording, max_gap_s=.16):
 
     Source timestamps count images that reached the encoder, so dropped camera
     or queue frames cannot be hidden by constant-rate duplicate video frames.
-    Startup/final-only gaps do not affect this motion-quality check.
+    Stationary startup/final holds are excluded. Optional physical startup
+    heading recovery and caster lead-in are motion and must also be covered.
     """
     result = {"passed": False, "max_allowed_motion_image_gap_s": max_gap_s,
               "failure": None, "motion_gaps_over_limit": []}
@@ -31,7 +32,10 @@ def continuous_video_quality(trajectory, recording, max_gap_s=.16):
         if not math.isfinite(max_gap_s) or max_gap_s <= 0:
             raise ValueError("Maximum image gap must be finite and positive")
         sample = next(s for s in trajectory["samples"] if s["phase"] == "motion")
-        start = float(sample["odometry_stamp_s"]) - float(sample["trajectory_time_s"])
+        # Legacy references use the controller clock; aligned profiles use
+        # the odometry source stamp. Match the clock used by trajectory_time_s.
+        stamp_key = "simulation_time_s" if trajectory.get("trajectory_profile") == "legacy" else "odometry_stamp_s"
+        start = float(sample[stamp_key]) - float(sample["trajectory_time_s"])
         duration = float(trajectory["summary"]["reference_duration_s"])
         stamps = [float(value) for value in recording["encoded_source_timestamps_s"]]
         if not math.isfinite(start) or not math.isfinite(duration) or duration <= 0:
@@ -41,6 +45,17 @@ def continuous_video_quality(trajectory, recording, max_gap_s=.16):
         if any(b <= a for a, b in zip(stamps, stamps[1:])):
             raise ValueError("Encoded source-image timestamps must increase strictly")
         end = start + duration
+        if trajectory.get("startup_alignment", {}).get("enabled", False):
+            result["route_motion_interval_sim_s"] = [start, end]
+            preparation = [s for s in trajectory["samples"] if s["phase"] in (
+                "startup_heading_recovery", "startup_caster_lead_in", "startup_alignment_settle")]
+            if not preparation:
+                raise ValueError("Startup alignment report is missing physical preparation samples")
+            preparation_start = float(preparation[0][stamp_key])
+            if not math.isfinite(preparation_start) or preparation_start > start:
+                raise ValueError("Startup alignment sample time must precede normal route motion")
+            start = preparation_start
+            result["startup_motion_included"] = True
         result["motion_interval_sim_s"] = [start, end]
         result["encoded_source_image_count"] = len(stamps)
         if stamps[0] > start + 1e-9 or stamps[-1] < end - 1e-9:

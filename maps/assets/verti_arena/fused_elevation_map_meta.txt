@@ -1,0 +1,8 @@
+resolution 0.00800000037997961
+origin_x 1.0080010779201984
+origin_y -0.4640008918941021
+width 1427
+height 787
+layers elevation,dino,traversability,rgb
+bags test4.bag
+global_frame odom

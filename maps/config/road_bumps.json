@@ -1,0 +1,89 @@
+{
+  "id": "road_bumps",
+  "title": "Progressive road bumps",
+  "description": "Three smooth raised-cosine road bumps: 15, 25, 40 mm high; 0.40, 0.50, 0.60 m long.",
+  "world": "../worlds/road_bumps.sdf",
+  "bounds_m": {
+    "x": [
+      -3,
+      3
+    ],
+    "y": [
+      -4,
+      4
+    ]
+  },
+  "height_grid": "../meshes/road_bumps_height.npz",
+  "collision_mesh": "../meshes/road_bumps.stl",
+  "visual_mesh": "../meshes/road_bumps.dae",
+  "grid_spacing_m": 0.025,
+  "vertices": 78482,
+  "triangles": 156960,
+  "surface_triangles": 153600,
+  "min_height_m": 0.0,
+  "max_height_m": 0.04,
+  "max_surface_slope_deg": 11.701423026561667,
+  "terrain_friction": {
+    "mu": 1.0,
+    "mu2": 1.0,
+    "restitution": 0.0,
+    "basis": "DART mesh attachment defaults; explicit matching SDF values; runtime probe validation required."
+  },
+  "spawn": {
+    "x": 0,
+    "y": -2.8,
+    "z": 0,
+    "yaw": 1.5707963267948966
+  },
+  "probes": [
+    {
+      "name": "flat_approach",
+      "xy_m": [
+        0,
+        -2.6
+      ],
+      "kind": "flat"
+    },
+    {
+      "name": "feature_0",
+      "xy_m": [
+        0,
+        -1.15
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "feature_1",
+      "xy_m": [
+        0,
+        0.25
+      ],
+      "kind": "feature"
+    },
+    {
+      "name": "feature_2",
+      "xy_m": [
+        0,
+        1.75
+      ],
+      "kind": "feature"
+    }
+  ],
+  "smoke": {
+    "spawn_x": 0,
+    "spawn_y": -1.75,
+    "spawn_z": 0.07,
+    "initial_yaw": 1.5707963267948966,
+    "drive_speed_m_s": 0.12,
+    "duration_s": 10.0
+  },
+  "limitations": [
+    "Rigid terrain, no loose particles, soil deformation or sinkage.",
+    "Estimated contact and robot parameters; no calibrated motor torque limits."
+  ],
+  "sha256": {
+    "stl": "d968631893bef6da231b1bc3d36604dc62d2e78ebe30f6120526910972e3ebcc",
+    "dae": "230d4328e6a44ae037b02d335d3756792ebeb32e88a9815931be13f6f48898fa"
+  },
+  "slope_method": "Grid-node central finite differences over the top surface; excludes closing side walls."
+}
