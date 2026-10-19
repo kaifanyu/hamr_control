@@ -367,8 +367,8 @@ This is the "I recorded a map, now drive it in sim" pipeline. New, additive, liv
 `compa_slam/scripts/` + `compa_slam/launch/`. Nothing in the SLAM mapping flow changes.
 
 ### 10.1 The key idea: a heightmap is the shared currency
-The existing sim already proves the pattern (see `hamr_bringup/worlds/compa_OR_test_map.sdf`
-+ `hamr_control_cpp/cost_map_publisher.cpp`): **one grayscale heightmap PNG drives BOTH**
+The conversion uses `compa_slam/scripts/map_to_sim.py` and
+`hamr_control_cpp/src/cost_map_publisher.cpp`: **one grayscale heightmap PNG drives BOTH**
 - the **Gazebo terrain** (`<heightmap>` geometry → the robot physically drives on it), and
 - the **planner inputs** (`cost_map_publisher` reads the same PNG → `/elevation_map`
   grid_map + `/costmap`, which `or_planner` consumes).

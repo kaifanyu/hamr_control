@@ -39,7 +39,7 @@
     "restitution": 0.0
   },
   "generation": {
-    "kind": "Deterministic procedural multiscale directional waves, not new ADTG inference",
+    "kind": "Deterministic procedural multiscale directional waves",
     "seed": 20261006,
     "components": [
       {

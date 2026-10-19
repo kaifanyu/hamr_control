@@ -157,7 +157,8 @@ including configuration/output paths containing spaces.
 - Initial, warmup and final manual-control readbacks all matched the requested
   profiles. The segmented session reader accepted the resulting recording.
 
-Evidence: [live launch and validation files](/home/hamr/hamster_ws/camera_diagnostics/dual_cam_ros_check_20260916_230912).
+The live launch and validation files are retained outside the repository as
+`camera_diagnostics/dual_cam_ros_check_20260916_230912` on the recording machine.
 The controller and trajectory were not launched during verification. This short
 check establishes the recording lifecycle, not long-duration USB reliability,
 geometric calibration or exposure synchronization. The current unverified

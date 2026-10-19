@@ -92,14 +92,14 @@ Then use your normal `ros2 launch hamr_bringup hamr_HW.launch.xml` command. No h
 
 ## Reproduce offline
 
-See [OFFLINE_EKF_QUICKSTART.md](../../../OFFLINE_EKF_QUICKSTART.md) for the complete replay commands. Prepared copies of all three original recordings are under `../prepared/`, each containing frozen `ekf.yaml`, covariance/calibration snapshots, and a provenance manifest. Original bags are unchanged. Reapplying the legacy correction to already-calibrated data is rejected for marked copies; future live recordings must use the covariance-only helper instead.
+See [OFFLINE_EKF_QUICKSTART.md](../../../docs/OFFLINE_EKF_QUICKSTART.md) for the complete replay commands. Prepared copies of all three original recordings are under `../prepared/`, each containing frozen `ekf.yaml`, covariance/calibration snapshots, and a provenance manifest. Original bags are unchanged. Reapplying the legacy correction to already-calibrated data is rejected for marked copies; future live recordings must use the covariance-only helper instead.
 
 Full copy validation checked **283,279 messages**, including **19,450 byte-identical Vicon odometry messages**. Original MCAP checksums, all header/recording times, non-target payloads, wheel poses, topic QoS and embedded message definitions are preserved. Prepared wheel/IMU values agree with the numerical experiment inputs to within `7.89e-12`. See [replay preparation validation](replay_preparation_validation.json).
 
 The fast numerical runner vendors the unmodified BSD-licensed `robot_localization` Jazzy EKF at commit `3efa714fb9c1ff40966327b7bed7053b2570be4d`. It was also compared to packaged version 3.8.3, with bit-identical numerical outputs. It implements planar, identity-frame measurement preparation for these sensors; it is not a replacement for the complete ROS transport/TF layer. [Engine documentation](../engine_README.md) records its scope and actual-node checks.
 
 ```bash
-cd /home/para/hamr_control
+cd ~/hamr_control
 source /opt/ros/jazzy/setup.bash
 bash rosbags/ekf_tuning/engine_build.sh
 /usr/bin/python3 rosbags/ekf_tuning/extract.py \

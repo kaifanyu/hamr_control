@@ -18,18 +18,12 @@ spec.loader.exec_module(generator)
 NS = {"c": "http://www.collada.org/2005/11/COLLADASchema"}
 
 
-ALL_IDS = generator.IDS + tuple(f"adtg_d{d:02d}" for d in (5, 25, 50, 75, 95))
+ALL_IDS = generator.IDS
 
 
 @pytest.mark.parametrize("name", ALL_IDS)
 def test_closed_oriented_collision_matches_visual(name):
-    if name in generator.IDS:
-        x, y, z, vertices, faces, top_count = generator.mesh_arrays(name)
-    else:
-        grid = np.load(ROOT / "meshes" / f"{name}_height.npz")
-        x, y, z, vertices, faces, top_count = generator.mesh_from_height_grid(
-            grid["x"], grid["y"], grid["z"]
-        )
+    x, y, z, vertices, faces, top_count = generator.mesh_arrays(name)
     triangles = vertices[faces]
     normals = np.cross(
         triangles[:, 1] - triangles[:, 0], triangles[:, 2] - triangles[:, 0]
@@ -124,3 +118,34 @@ def test_feature_dimensions_at_known_points():
     y = np.array([0.7, 0.7])
     heights = generator.height("cross_slope", x, y)
     assert np.rad2deg(np.arctan((heights[1] - heights[0]) / 1.4)) == pytest.approx(3.0)
+
+
+def test_triangle_interpolation_matches_collision_diagonal():
+    axis = np.array([0., 1.])
+    saddle = np.array([[1., 0.], [0., 1.]])
+    assert generator.triangle_height(axis, axis, saddle, .5, .5) == 1.
+    assert generator.triangle_height(axis, axis, saddle, .75, .25) == .5
+    assert generator.triangle_height(axis, axis, saddle, .25, .75) == .5
+
+
+def test_mesh_rejects_invalid_grid_and_bottom():
+    for x, y, z, bottom in [
+        ([0, 0], [0, 1], np.zeros((2, 2)), -1),
+        ([0, 1], [0, 1], np.zeros((3, 2)), -1),
+        ([0, 1], [0, 1], np.zeros((2, 2)), 0),
+    ]:
+        with pytest.raises(ValueError):
+            generator.mesh_from_height_grid(x, y, z, bottom)
+
+
+def test_custom_world_uses_its_own_mesh_paths(tmp_path):
+    (tmp_path / "worlds").mkdir()
+    generator.make_world(tmp_path, "gentle_hill", lambda x, y: 0.0)
+    uris = [
+        node.text
+        for node in ET.parse(tmp_path / "worlds/gentle_hill.sdf").findall(".//mesh/uri")
+    ]
+    assert uris == [
+        str(tmp_path / "meshes/gentle_hill.stl"),
+        str(tmp_path / "meshes/gentle_hill.dae"),
+    ]

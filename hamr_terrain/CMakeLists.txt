@@ -13,8 +13,6 @@ install(DIRECTORY
   PATTERN "__pycache__" EXCLUDE)
 install(PROGRAMS scripts/generate_terrains.py scripts/terrain_simulation_check.py
   scripts/build_terrain_gallery.py
-  scripts/generate_adtg_terrains.py scripts/build_adtg_gallery.py
-  scripts/sample_adtg.py scripts/setup_adtg.sh
   scripts/terrain_replay_paths.py scripts/run_terrain_replay.py
   scripts/build_terrain_replays.py scripts/run_terrain_replay_suite.py
   scripts/audit_terrain_replays.py
@@ -38,8 +36,6 @@ if(BUILD_TESTING)
   ament_add_pytest_test(terrain_geometry test/test_geometry.py TIMEOUT 120)
   ament_add_pytest_test(terrain_launch test/test_launch_contract.py)
   ament_add_pytest_test(terrain_checks test/test_simulation_check.py)
-  ament_add_pytest_test(adtg_import test/test_adtg_import.py)
-  ament_add_pytest_test(adtg_sampling test/test_adtg_sampling.py)
   ament_add_pytest_test(terrain_replay_paths test/test_replay_paths.py)
   ament_add_pytest_test(terrain_replay_suite test/test_replay_suite.py)
   ament_add_pytest_test(full_uneven_terrain test/test_full_uneven.py TIMEOUT 120)

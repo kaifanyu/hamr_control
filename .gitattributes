@@ -1,4 +1,6 @@
 # These ROS executables are launched on Linux, including from Windows checkouts.
+*.sh text eol=lf
+*.bash text eol=lf
 hamr_bringup/scripts/record_hamr_test_bag text eol=lf
 hamr_bringup/scripts/record_hamr_vicon_bag text eol=lf
 hamr_bringup/scripts/caster_encoder_bridge text eol=lf

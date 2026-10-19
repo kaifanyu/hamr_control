@@ -7,8 +7,7 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-from generate_adtg_terrains import triangle_height
-from generate_terrains import look_at
+from generate_terrains import look_at, triangle_height
 from terrain_simulation_check import prepare_world
 
 SHAPES = ("straight", "circle", "triangle", "square", "figure_eight")

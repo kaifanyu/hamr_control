@@ -9,7 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 
 install(
-  DIRECTORY launch config worlds terrain_assets
+  DIRECTORY launch config worlds
   DESTINATION share/${PROJECT_NAME}/
 )
 
@@ -25,6 +25,7 @@ install(
     scripts/caster_encoder_bridge
     scripts/record_caster_rotation.py
     scripts/replay_caster_encoder_joints
+    scripts/render_caster_encoder_video.py
     scripts/record_camera_clip
     scripts/record_dual_cameras
     scripts/run_waypoint_test
@@ -41,6 +42,7 @@ install(
 install(FILES scripts/c920_controls.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_encoder_protocol.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_replay_model.py DESTINATION lib/${PROJECT_NAME})
+install(FILES scripts/caster_encoder_plots.py DESTINATION lib/${PROJECT_NAME})
 
 # Keep the generic offline analyzers beside the concise operator wrapper so
 # `ros2 run` works from an installed workspace without relying on source paths.
@@ -69,6 +71,9 @@ if(BUILD_TESTING)
   )
   ament_add_pytest_test(caster_encoder_replay
     test/test_caster_encoder_replay.py
+  )
+  ament_add_pytest_test(caster_encoder_video
+    test/test_caster_encoder_video.py
   )
   ament_add_pytest_test(c920_controls
     test/test_c920_controls.py

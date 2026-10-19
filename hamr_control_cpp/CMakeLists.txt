@@ -179,4 +179,9 @@ install(
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
+install(
+  DIRECTORY ../maps/navigation
+  DESTINATION share/${PROJECT_NAME}/maps
+)
+
 ament_package()

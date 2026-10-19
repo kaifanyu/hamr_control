@@ -48,10 +48,10 @@ def test_polygon_keeps_exact_requested_corners(shape,n):
 
 
 def test_replay_world_changes_no_physics_or_collision(tmp_path):
-    source = PACKAGE/'worlds/adtg_d50.sdf'
+    source = PACKAGE/'worlds/gentle_hill.sdf'
     output = tmp_path/'world.sdf'
     before = ET.parse(source).getroot().find('world')
-    with np.load(PACKAGE/'meshes/adtg_d50_height.npz') as grid:
+    with np.load(PACKAGE/'meshes/gentle_hill_height.npz') as grid:
         prepare_replay_world(source,output,grid,Reference('figure_eight'))
     after = ET.parse(output).getroot().find('world')
     assert ET.tostring(before.find('physics'))==ET.tostring(after.find('physics'))
@@ -301,7 +301,7 @@ def test_dense_spawn_matches_legacy_and_sparse_spawn_encloses_cells():
 
 @pytest.mark.parametrize('axis', [0, 1])
 def test_fractional_sparse_spawn_clears_rising_cell_inside_footprint(axis):
-    from generate_adtg_terrains import triangle_height
+    from generate_terrains import triangle_height
     from run_terrain_replay import spawn_height
     coordinates = np.arange(5.)
     heights = np.broadcast_to([0., 0., 0., 2., 2.], (5, 5))

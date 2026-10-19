@@ -1,6 +1,6 @@
 # HAMR & COMPA Holonomic Robots (ROS 2 Jazzy)
 
-**Brief**: ROS 2 Jazzy packages for a holonomic base with an **offset turret**. Includes URDF/Xacro, Gazebo (gz sim) setup, a PID controller, and a waypoint-based reference trajectory for quick simulation. COMPA is a collaboration between the **University of Pennsylvania's GRASP ModLab** directed by Prof. Mark Yim, and **George Mason University's RobotiXX Lab** directed by Prof. Xuesu Xiao. The UPenn team is mostly focused on simulation, while the GMU team on the physical build of COMPA. See our paper for more information.
+**Brief**: ROS 2 Jazzy packages for a holonomic base with an **offset turret**. Includes URDF/Xacro, Gazebo (gz sim) setup, a PID controller, and a waypoint-based reference trajectory for quick simulation. COMPA is a collaboration between the **University of Pennsylvania's GRASP ModLab** directed by Prof. Mark Yim, and **George Mason University's RobotiXX Lab** directed by Prof. Xuesu Xiao. The UPenn team is mostly focused on simulation, while the GMU team on the physical build of COMPA. See [our paper](documents/COMPA_paper.pdf) for more information.
 
 **Capabilities:** holonomic turret control on uneven terrain; rocker suspension; 3-DoF stabilized gimbal; Jacobian PID-based controller; Gazebo Off-Road worlds (from heightmaps); PRM/A* path-finding.
 
@@ -22,21 +22,26 @@ platform:
 
 | Task | Guide / entry point |
 |---|---|
+| Gazebo UI and experiment runner: ball/swivel casters, live waypoints, WASD, optional cameras, replay and encoder logs | [Simulation Studio](hamr_sim_ui/README.md) · `bash hamr_sim_ui/scripts/start.sh` |
 | Two ordinary front swivel casters: physical trajectory test + overview/close-up MP4s | [Swivel-caster simulator](hamr_swivel_caster/README.md) |
-| 28 shared terrain maps for ball or swivel casters | [Map files](maps/README.md) · [Terrain launcher](hamr_terrain/README.md) |
+| 23 terrain maps plus a flat floor, for ball or swivel casters | [Map files](maps/README.md) · [Terrain launcher](hamr_terrain/README.md) |
 | Four active ball casters: holonomic concept demo + MP4 | [Active-ball demo](hamr_ball_caster/docs/ACTIVE_BALL_DEMO.md) |
 | New caster and full-vehicle URDF | [Model files and CAD scope](docs/SIMULATION.md#5-new-urdf-and-model-scope) |
 | WSL / Ubuntu Gazebo simulation and MP4 recording | [Simulation guide](docs/SIMULATION.md) · `ros2 launch hamr_ball_caster continuous_sim.launch.py` |
 | Real HAMR continuous run | [Hardware guide](docs/REAL_CAR_CONTINUOUS.md) · `ros2 launch hamr_bringup hamr_continuous_HW.launch.py` |
 | Repository layout and validation | [Development guide](docs/DEVELOPMENT.md) |
 
-Quick start in this repository:
+Quick start for the desktop simulator (see [dependencies](hamr_sim_ui/README.md#start)):
 
 ```bash
-bash hamr_ball_caster/scripts/build.sh
-source hamr_ball_caster/scripts/env.sh
-ros2 launch hamr_ball_caster continuous_sim.launch.py
+bash hamr_terrain/scripts/build.sh
+bash hamr_sim_ui/scripts/start.sh
 ```
+
+The UI starts with ball casters on a flat floor and cameras off. Choose a map,
+drive with WASD, edit waypoints, or use **Place car** to change the starting pose.
+All map assets live under `maps/`; `maps/navigation/` contains the older 2D
+occupancy map, and `maps/worlds/`, `meshes/`, and `config/` contain 3D terrains.
 
 Hardware launch waits for an explicit `/continuous_waypoint/start` service call;
 read its guide before running it. The new CAD model is the COMPA simulation
@@ -153,7 +158,7 @@ The HAMR hardware launch uses the calibrated wheel/IMU EKF by default. Tests on
 the three September 2026 recordings reduced position RMSE to 4.9, 10.2, and
 6.7 cm. Calibration, covariance values, held-out checks, plots, and reproduction
 commands are in the [EKF tuning report](rosbags/ekf_tuning/report/REPORT.md) and
-[offline replay guide](OFFLINE_EKF_QUICKSTART.md). Rebuild `hamr_odometry`,
+[offline replay guide](docs/OFFLINE_EKF_QUICKSTART.md). Rebuild `hamr_odometry`,
 `hamr_uros_bridge`, and `hamr_bringup` to apply the source changes to a robot.
 
 
@@ -203,21 +208,17 @@ echo 'export GZ_SIM_RESOURCE_PATH="$(ros2 pkg prefix hamr_bringup)/share":$GZ_SI
 
 ## Running a Trajectory
 
-**Terminal A** (Gazebo + bringup):
+To run and save a complete trajectory automatically:
 
 ```bash
-source /opt/ros/jazzy/setup.bash
-source ~/ros2_ws/install/setup.bash
-ros2 launch hamr_bringup compa.launch.xml
+bash hamr_sim_ui/scripts/run.sh \
+  --caster ball --terrain flat --trajectory square --speed 0.20 \
+  --cameras off --output "$HOME/hamr_runs"
 ```
 
-**Terminal B** (reference trajectory):
-
-```bash
-source /opt/ros/jazzy/setup.bash
-source ~/ros2_ws/install/setup.bash
-ros2 run reference_trajectory waypoint_traj_simple # square, triangle, or circle
-```
+Use `--caster swivel` for ordinary swivel wheels and `--list-terrains` to list
+map IDs. See [runner examples](hamr_sim_ui/README.md#run-a-complete-experiment-from-the-terminal)
+for speeds, saved routes, MP4 and replay commands.
 
 ---
 

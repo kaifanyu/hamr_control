@@ -45,6 +45,10 @@
   <exec_depend>visualization_msgs</exec_depend>
   <exec_depend>python3-matplotlib</exec_depend>
   <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-vtk9</exec_depend>
+  <exec_depend>python3-pil</exec_depend>
+  <exec_depend>fonts-dejavu-core</exec_depend>
+  <exec_depend>ffmpeg</exec_depend>
   <exec_depend>python3-opencv</exec_depend>
   <exec_depend>v4l-utils</exec_depend>
   <exec_depend>python3-yaml</exec_depend>

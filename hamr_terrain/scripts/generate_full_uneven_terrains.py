@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 import numpy as np
 
 import generate_terrains as geometry
-from generate_adtg_terrains import triangle_height
+from generate_terrains import triangle_height
 
 SEED = 20261006
 LEVELS = (("low", .015, 3.), ("medium", .030, 6.), ("high", .045, 9.))
@@ -93,7 +93,7 @@ def generate(output, seed=SEED):
                 "vertices": len(vertices), "triangles": len(faces), **stats,
                 "level": level, "peak_to_valley_limit_m": limit, "slope_limit_deg": slope_limit,
                 "terrain_friction": {"mu": 1., "mu2": 1., "restitution": 0.},
-                "generation": {"kind": "Deterministic procedural multiscale directional waves, not new ADTG inference",
+                "generation": {"kind": "Deterministic procedural multiscale directional waves",
                                "seed": seed, "components": components,
                                "normalization": "One shared spatial field mapped linearly to [0, level height]; no clipping, flattening or border taper.",
                                "matched_levels": "Same pattern; only vertical amplitude changes."},

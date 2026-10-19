@@ -25,7 +25,7 @@ separately. Paths below are relative to the repository root.
 | `img`, `map`, worlds and terrain assets | Demonstration media, raster maps, simulation geometry | Not measured localization trajectories; no EKF parameters. |
 
 The tracked inventory contained 335 files across these areas at audit time.
-The supplied `COMPA_paper.pdf` and `documents/[2017 Costa] Designing for Uniform
+The supplied `documents/COMPA_paper.pdf` and `documents/[2017 Costa] Designing for Uniform
 Mobility Using Holonomicity.pdf` could not be parsed: both lack a readable EOF
 marker and raise `PdfStreamError: Stream has ended unexpectedly`. The four other
 PDFs were extracted and read; they cover mobility ellipsoids, terrain A*, and map

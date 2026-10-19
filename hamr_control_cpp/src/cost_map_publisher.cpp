@@ -5,6 +5,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <string>
 #include <memory>
+#include <stdexcept>
 #include <sensor_msgs/msg/image.hpp>
 #include <cv_bridge/cv_bridge.hpp>
 #include <grid_map_core/grid_map_core.hpp>
@@ -49,7 +50,7 @@ public:
         this->declare_parameter("map_width_m", 40.0);
         this->declare_parameter("map_length_m", 40.0);
         this->declare_parameter("map_height_m", 2.0);
-        this->declare_parameter("image_path", "/home/cedric/ros2_ws/hamr_ws/src/hamr_bringup/terrain_assets/heightmaps/compa_OR_test_map_257.png");
+        this->declare_parameter<std::string>("image_path", "");
         this->declare_parameter("frame_id", "map");
         this->declare_parameter("publish_rate", 1.0);
         
@@ -60,6 +61,13 @@ public:
         this->get_parameter("image_path", image_path_);
         this->get_parameter("frame_id", frame_id_);
         this->get_parameter("publish_rate", publish_rate_);
+
+        if (image_path_.empty()) {
+            throw std::invalid_argument(
+                "Set image_path to the terrain heightmap PNG, for example: "
+                "--ros-args -p image_path:=/path/to/heightmap.png. "
+                "Set map_width_m, map_length_m, and map_height_m to match the terrain.");
+        }
         
         // Publisher with QoS settings for latching behavior
         rclcpp::QoS qos(1);
@@ -87,7 +95,7 @@ public:
         }
         else
         {
-            RCLCPP_ERROR(this->get_logger(), "Failed to initialize PNG Costmap Publisher");
+            throw std::runtime_error("Could not load terrain heightmap: " + image_path_);
         }
     }
     
@@ -263,7 +271,8 @@ int main(int argc, char** argv)
     }
     catch (const std::exception& e){
         RCLCPP_ERROR(rclcpp::get_logger("png_costmap_publisher"), "Exception in main: %s", e.what());
-        return -1;
+        rclcpp::shutdown();
+        return 1;
     }
     rclcpp::shutdown();
     return 0;

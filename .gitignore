@@ -53,6 +53,23 @@ bags/
 /build/
 /install/
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+.coverage
+htmlcov/
+.DS_Store
+Thumbs.db
+
+# Machine-local settings and simulation sessions.
+.env
+.env.*
+!.env.example
+/outputs/
+/runs/
+session_*/
+gazebo_log/
+*.tlog
 
 # Native CAD and retained experiment traces are supplied as external archives.
 /CAD files/

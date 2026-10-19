@@ -14,11 +14,12 @@ from run_terrain_replay_suite import matrix
 from build_terrain_replays import build_gallery
 
 
-def test_matrix_contains_all_100_unique_matched_runs(tmp_path):
+def test_matrix_contains_all_50_unique_matched_runs(tmp_path):
     cases=matrix(tmp_path)
-    assert len(cases)==100
-    assert len({c['directory'] for c in cases})==100
-    assert len({c['terrain'] for c in cases})==10
+    assert len(cases)==50
+    assert len({c['directory'] for c in cases})==50
+    assert {c['terrain'] for c in cases} == {
+        'road_bumps', 'gentle_hill', 'cross_slope', 'rutted_track', 'rock_garden'}
     assert len({c['shape'] for c in cases})==5
     for a,b in zip(cases[::2],cases[1::2]):
         assert (a['caster'],b['caster'])==('swivel','ball')
@@ -36,7 +37,7 @@ def test_resume_refuses_changed_saved_request(tmp_path):
 
 def test_speed_control_is_matched_and_cannot_resume_into_different_speed(tmp_path):
     cases=matrix(tmp_path,shapes=('straight',),speed=.12)
-    assert len(cases)==20
+    assert len(cases)==10
     assert all(c['route']['speed_m_s']==.12 for c in cases)
     assert all(a['route']==b['route'] for a,b in zip(cases[::2],cases[1::2]))
     with pytest.raises(ValueError,match='differs'):
@@ -73,7 +74,7 @@ def test_map_route_matrix_uses_each_map_metadata_and_refuses_changed_route(tmp_p
 def test_pending_gallery_does_not_claim_videos_exist(tmp_path):
     matrix(tmp_path)
     report=build_gallery(tmp_path)
-    assert report['expected']==100
+    assert report['expected']==50
     assert report['validated_replays']==0
     assert not report['complete']
     assert '<video ' not in (tmp_path/'index.html').read_text()

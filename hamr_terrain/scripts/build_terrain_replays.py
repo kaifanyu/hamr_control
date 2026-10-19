@@ -208,7 +208,7 @@ def _build_gallery(root):
             reason=(run['physical_failure'] or 'tracking outside tolerance').replace('_',' ')
             items.append(f'<li><a href="{rel}">{html.escape(label)}</a> — {html.escape(reason)}</li>')
         failure_links='<h2>Runs outside tracking limits</h2><ul>'+''.join(items)+'</ul>'
-    bundle_link='<p><a href="hamr_100_terrain_replays.zip" download>Download all 100 annotated MP4s (ZIP)</a></p>' if (root/'hamr_100_terrain_replays.zip').exists() else ''
+    bundle_link='<p><a href="hamr_terrain_replays.zip" download>Download annotated replay videos (ZIP)</a></p>' if (root/'hamr_terrain_replays.zip').exists() else ''
     text=f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HAMR terrain trajectory replays</title><style>body{{font:16px system-ui;margin:0 auto;max-width:1500px;padding:30px;background:#f0f4f8;color:#14243a}}h1{{font-size:32px}}h2{{border-top:2px solid #cbd6e2;padding-top:24px}}.pair{{display:grid;grid-template-columns:1fr 1fr;gap:20px}}article{{background:white;padding:16px;border-radius:8px}}video{{width:100%;background:#101722;aspect-ratio:1.75}}a{{color:#1158a4}}p{{line-height:1.5}}@media(max-width:800px){{.pair{{grid-template-columns:1fr}}}}</style>
 <h1>HAMR: {terrain_count} terrains × {shape_count} paths × two caster models</h1>

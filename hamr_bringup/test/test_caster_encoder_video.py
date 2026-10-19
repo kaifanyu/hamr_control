@@ -1,0 +1,105 @@
+"""Check video timing and measured CAD poses without rendering or hardware."""
+import math
+from pathlib import Path
+import sys
+import xml.etree.ElementTree as ET
+
+import numpy as np
+import pytest
+
+SCRIPTS = Path(__file__).resolve().parents[1] / 'scripts'
+sys.path.insert(0, str(SCRIPTS))
+from render_caster_encoder_video import frame_times, link_transforms, sample_frames
+from caster_encoder_plots import collect_readings, curve_points, EncoderPlots
+from test_caster_encoder_replay import envelope, SECOND_BOOT
+
+
+@pytest.mark.parametrize('rate', [.5, 1., 2.])
+def test_video_clock_preserves_rate_and_integer_epoch_precision(rate):
+    start = 1792030863809132538
+    span = 30_789_866_815
+    stamps = frame_times(start, start+span, 30, rate)
+    assert stamps[0] == start
+    assert stamps[30] - start == int(rate * 1_000_000_000)
+    assert stamps[-1] < start+span
+    assert 0 <= len(stamps)/30 - span/1e9/rate < 1/30
+
+
+@pytest.mark.parametrize('fps,rate', [(0,1), (121,1), (30,0), (30,-1), (30,float('nan'))])
+def test_invalid_output_clock_is_rejected(fps,rate):
+    with pytest.raises(ValueError):
+        frame_times(0,10_000_000_000,fps,rate)
+
+
+def test_frame_uses_only_past_valid_packets_and_marks_missing_stale_data():
+    start=1_000_000_000
+    events=[(start+10_000_000,envelope(node,angle=node*.1)) for node in (1,2,3)]
+    events += [(start+110_000_000,envelope(1,seq=1,angle=2.)),
+               (start+150_000_000,envelope(1,seq=2,angle=99,valid=False))]
+    frames=sample_frames(events,[start,start+100_000_000,start+120_000_000,start+200_000_000,start+2_000_000_000])
+    assert not frames[0]['joints']
+    assert frames[1]['joints']['caster_positive_hemisphere_joint']==.1
+    assert frames[2]['joints']['caster_positive_hemisphere_joint']==2.
+    assert frames[3]['joints']['caster_positive_hemisphere_joint']==2.
+    assert frames[3]['status']['nodes'][0]['display_state']=='invalid_held'
+    assert frames[4]['status']['nodes'][0]['display_state']=='stale_held'
+    assert frames[2]['joints']['caster_positive_polar_roller_joint']==0.
+
+
+def test_missing_encoder_does_not_produce_a_fabricated_video():
+    with pytest.raises(ValueError,match='No complete'):
+        sample_frames([(100,envelope(1))],[100,200])
+
+
+def test_plots_keep_batched_samples_and_share_integer_bag_time_with_video():
+    start = 1792030863809132538
+    packet = envelope(1, seq=0, angle=-10.)
+    packet['packet']['samples'].append(envelope(1, seq=1, angle=-9.)['packet']['samples'][0])
+    series, rejected = collect_readings([(start+123_456_789, packet)], start)
+    rows = series['H1']
+    assert rejected == 0
+    assert [row['angle_rad'] for row in rows] == [-10., -9.]
+    assert [row['time_s'] for row in rows] == [.123456789, .123456789]
+    assert [row['segment'] for row in rows] == [0, 0]
+    # At a shared timestamp the replay and chart use the last batched reading;
+    # a future packet is never used early, including at large epoch values.
+    plots = EncoderPlots.__new__(EncoderPlots)
+    plots.series, plots.times = series, {'H1': [row['bag_time_ns'] for row in rows]}
+    assert plots.current('H1', start+123_456_788) is None
+    assert plots.current('H1', start+123_456_789)['angle_rad'] == -9.
+
+
+def test_plot_curves_break_at_invalid_sequences_reboots_and_stale_gaps():
+    events = [(0, envelope(1, seq=0, angle=-2.)),
+              (10, envelope(1, seq=1, valid=False)),
+              (20, envelope(1, seq=2, angle=-1.)),
+              (30, envelope(1, seq=2, angle=99.)),  # duplicate
+              (40, envelope(1, seq=1, angle=99.)),  # reordered
+              (50, envelope(1, seq=0, angle=1., boot=SECOND_BOOT)),
+              (60, envelope(1, seq=3, angle=99.)),  # superseded boot
+              (2_000_000_000, envelope(1, seq=1, angle=2., boot=SECOND_BOOT)),
+              (2_000_000_001, 'malformed')]
+    series, rejected = collect_readings(events, 0)
+    rows = series['H1']
+    assert rejected == 1
+    assert [row['angle_rad'] for row in rows] == [-2., -1., 1., 2.]
+    assert [row['segment'] for row in rows] == [0, 1, 2, 3]
+
+
+def test_center_wrap_breaks_curve_without_unwrapping_or_discarding_endpoints():
+    events = [(0, envelope(3, angle=6.2)), (10, envelope(3, seq=1, angle=.01)),
+              (20, envelope(3, seq=2, angle=.02))]
+    series, _ = collect_readings(events, 0)
+    x, y = curve_points(series['CENTER'])
+    assert y[0] == 6.2 and math.isnan(y[1]) and y[2:] == [.01, .02]
+    assert x[0] == 0 and math.isnan(x[1]) and x[2:] == [1e-8, 2e-8]
+
+
+def test_transform_composes_parent_mount_joint_axis_and_child_offset():
+    robot=ET.fromstring('''<robot name="test"><link name="root"/><link name="a"/><link name="b"/>
+      <joint name="hinge" type="continuous"><parent link="root"/><child link="a"/>
+        <origin xyz="1 2 3" rpy="0 0 1.5707963267948966"/><axis xyz="1 0 0"/></joint>
+      <joint name="fixed" type="fixed"><parent link="a"/><child link="b"/><origin xyz="0 1 0"/></joint></robot>''')
+    result=link_transforms(robot,{'hinge':math.pi/2})
+    np.testing.assert_allclose(result['b'][:3,3],[1,2,4],atol=1e-14)
+    np.testing.assert_allclose(result['a'][:3,:3] @ [1,0,0],[0,1,0],atol=1e-14)

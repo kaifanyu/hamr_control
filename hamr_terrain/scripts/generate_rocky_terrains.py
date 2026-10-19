@@ -163,7 +163,7 @@ def generate(output):
     zz+=.0015*np.sin(9.3*xx+7.1*yy)+.001*np.cos(5.8*xx-11.2*yy)
     zz-=zz.min()
     manifest=[]
-    from generate_adtg_terrains import triangle_height
+    from generate_terrains import triangle_height
     for family in FAMILIES:
         name="rocky_"+family
         ground=zz.copy()

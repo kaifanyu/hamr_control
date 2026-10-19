@@ -88,7 +88,7 @@ class ReplayModel:
         self.last_replay_ns = replay_ns
 
     def receive(self, message, replay_ns):
-        """Accept the recorded JSON envelope, never a live JointState shortcut."""
+        """Accept an envelope and return every accepted source-angle reading."""
         self.advance_time(replay_ns)
         try:
             envelope = parse_json(message) if isinstance(message, (str, bytes)) else message
@@ -119,6 +119,7 @@ class ReplayModel:
                     "last_valid_replay_ns": replay_ns,
                 }
             self.last_error = None
+            return readings
         except (ValueError, TypeError, OverflowError, RecursionError) as error:
             self.invalid_envelopes += 1
             self.last_error = str(error)

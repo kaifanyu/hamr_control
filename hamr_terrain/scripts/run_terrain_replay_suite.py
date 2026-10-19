@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Resume-safe, bounded parallel execution of all ten terrain replay matrices."""
+"""Resume-safe, bounded parallel execution of terrain replay matrices."""
 import argparse
 from concurrent.futures import ThreadPoolExecutor,wait,FIRST_COMPLETED
 from datetime import datetime,timezone
@@ -22,7 +22,7 @@ from build_terrain_replays import build_gallery,finalize_case
 def matrix(root, terrain_manifest=None, shapes=SHAPES, speed=.25):
     package=package_directory()
     terrains=[]
-    manifests=[Path(terrain_manifest)] if terrain_manifest is not None else [package/'config'/name for name in ('terrains.json','adtg_terrains.json')]
+    manifests=[Path(terrain_manifest)] if terrain_manifest is not None else [package/'config/terrains.json']
     for path in manifests:
         terrains.extend(t['id'] for t in json.loads(path.read_text()))
     if not terrains or len(set(terrains))!=len(terrains):
@@ -51,7 +51,7 @@ def main():
     parser.add_argument('--domain-base',type=int,default=125)
     parser.add_argument('--render-backend',choices=('egl','display','d3d12'),default='egl')
     parser.add_argument('--prepare-only',action='store_true')
-    parser.add_argument('--terrain-manifest',type=Path,help='Optional terrain registry instead of the original ten maps')
+    parser.add_argument('--terrain-manifest',type=Path,help='Optional terrain registry instead of the five basic maps')
     parser.add_argument('--shapes',nargs='+',choices=SUPPORTED_SHAPES,help='Selected paths; default remains the original five')
     parser.add_argument('--speed',type=float,default=.25,help='Reference speed in m/s; default 0.25')
     parser.add_argument('--wall-timeout',type=float,default=7200,

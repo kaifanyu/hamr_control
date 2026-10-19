@@ -15,7 +15,7 @@ from PIL import Image
 from scipy.ndimage import distance_transform_edt, gaussian_filter, map_coordinates, median_filter
 
 import generate_terrains as geometry
-from generate_adtg_terrains import triangle_height
+from generate_terrains import triangle_height
 from generate_full_uneven_terrains import surface_statistics
 
 REVISION = '2a82faceacf8eaf1a8564b05058062e7584b0f45'

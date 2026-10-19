@@ -4,6 +4,12 @@
 
 | Location | Purpose |
 |---|---|
+| `hamr_sim_ui/` | Desktop simulator, terminal experiment runner, and UI tests |
+| `maps/worlds`, `maps/meshes`, `maps/config` | Shared 3D terrain scenes, geometry, height grids, and metadata |
+| `maps/navigation` | 2D occupancy map installed with `hamr_control_cpp` |
+| `maps/assets` | Source data and provenance for retained terrain families |
+| `docs/`, `docs/research/` | Operating guides and research plans |
+| `documents/` | Reference papers |
 | `reference_trajectory/reference_trajectory/continuous_waypoint.py` | Shared pure geometric planner and time parameterization |
 | `reference_trajectory/reference_trajectory/continuous_execution.py` | Hardware start/stop state machine, timing and feedback checks |
 | `reference_trajectory/reference_trajectory/continuous_waypoint_node.py` | ROS `ReferenceTraj` adapter and Trigger services |
@@ -99,13 +105,35 @@ The large exported point cloud was removed from the current source tree; this
 does not rewrite Git history or remove its old blobs from existing commits.
 No history rewrite or remote push is part of repository preparation.
 
-Before pushing your local branch:
+Run the terrain and frontend regression tests from the repository root:
+
+```bash
+source hamr_terrain/scripts/env.sh
+PYTHONPATH="$PWD/hamr_sim_ui:$PYTHONPATH" QT_QPA_PLATFORM=offscreen \
+  /usr/bin/python3 -m pytest -q hamr_terrain/test hamr_sim_ui/test
+```
+
+Both launchers use the retained terrain catalogue: 23 terrains plus the flat
+floor in the desktop/terminal simulator. ADTG assets and their tools have been
+removed. The former top-level `map/` directory has been consolidated into
+`maps/navigation/`.
+
+Cleanup verification passed 303 terrain/frontend tests. A fresh copied install
+built the five terrain/caster dependencies without an existing workspace
+overlay; after moving its exported source away, all 23 installed worlds and
+both caster models resolved their assets. The navigation-map publisher also
+compiled and published the installed occupancy grid. The full legacy C++
+package was not rebuilt because `grid_map` dependencies were unavailable in
+the validation environment.
+
+Before committing and pushing your chosen branch:
 
 ```bash
 git status --short
 git diff --check
-git log -1 --oneline
-git push -u origin feature/continuous-planner-caster
+git diff --stat
 ```
 
-Review the target remote with `git remote -v` if publishing to a different fork.
+New source files must be included in your commit. Build products, recordings,
+and local settings are ignored. Review the target remote with `git remote -v`;
+repository cleanup does not stage, commit, push, or rewrite history.

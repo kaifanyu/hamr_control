@@ -1,6 +1,6 @@
 # Shared terrain simulator
 
-The 28 tested terrain maps are stored in [`../maps`](../maps/README.md), including
+The 23 terrain maps are stored in [`../maps`](../maps/README.md), including
 world SDFs, collision and visual meshes, height grids, metadata, and source data.
 The package installs those files into its ROS share directory. Source-directory
 symlinks preserve the existing generator and launch interfaces.
@@ -33,6 +33,6 @@ Regenerate the five basic maps from their source definitions with:
 /usr/bin/python3 hamr_terrain/scripts/generate_terrains.py
 ```
 
-Other generators cover ADTG, fully uneven, caster stress, rocky, and Verti-Arena
+Other generators cover fully uneven, caster stress, rocky, and Verti-Arena
 maps. `--output /tmp/terrain-preview` creates a separate asset set. Recordings,
 run directories, reports, and comparison plots are not included with the maps.

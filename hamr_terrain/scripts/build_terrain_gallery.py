@@ -251,7 +251,7 @@ def build_gallery(suite, metadata_path):
                 if names:
                     cards += ['<details><summary>Observed collision names</summary><pre>'+escape("\n".join(names))+'</pre></details>']
             cards += ['</details>']
-        command = f"cd /home/para/hamr_control\nsource hamr_terrain/scripts/env.sh\nros2 launch hamr_terrain terrain_sim.launch.py terrain:={name} caster:=swivel"
+        command = f"cd ~/hamr_control\nsource hamr_terrain/scripts/env.sh\nros2 launch hamr_terrain terrain_sim.launch.py terrain:={name} caster:=swivel"
         cards += ['<details><summary>Open this map in Gazebo</summary><pre>'+escape(command)+'</pre><p class="small">Use <code>caster:=ball</code> for split-ball casters or <code>caster:=none</code> for terrain only. The launch opens the world; a drive or trajectory controller is a separate command.</p></details></section>']
     passed = sum(report["passed"] for record in records for report in record["reports"].values())
     expected = 3*len(metadata)

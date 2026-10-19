@@ -35,6 +35,17 @@ def ease(t):
     return 0.5 - 0.5 * np.cos(np.pi * np.clip(t, 0, 1))
 
 
+def triangle_height(x, y, z, px, py):
+    """Interpolate the same a-b-c / a-c-d diagonal as the collision export."""
+    i = int(np.clip(np.searchsorted(x, px, side="right") - 1, 0, len(x) - 2))
+    j = int(np.clip(np.searchsorted(y, py, side="right") - 1, 0, len(y) - 2))
+    u, v = (px - x[i]) / (x[i + 1] - x[i]), (py - y[j]) / (y[j + 1] - y[j])
+    a, b, c, d = z[j, i], z[j, i + 1], z[j + 1, i + 1], z[j + 1, i]
+    return float(
+        a + (b - a) * u + (c - b) * v if u >= v else a + (c - d) * u + (d - a) * v
+    )
+
+
 def window(t, start=-1.8, rise=1.0, end=3.2, fall=1.0):
     return ease((t - start) / rise) * ease((end - t) / fall)
 
@@ -227,11 +238,6 @@ def material_groups(name, vertices, faces, top_count):
         # The complete patch uses one altitude palette; no painted road strip.
         group[:top_count] = np.asarray([6, 5, 7, 8, 9])[
             np.digitize(z[:top_count], [.009, .018, .027, .036])
-        ]
-    elif name.startswith("adtg_"):
-        # Shared altitude colors across difficulty levels; material remains unchanged.
-        group[:top_count] = np.asarray([5, 6, 7, 8, 9])[
-            np.digitize(z[:top_count], [0.03, 0.06, 0.10, 0.18])
         ]
     else:
         group[:top_count] = 5
