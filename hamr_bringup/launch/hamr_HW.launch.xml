@@ -131,15 +131,19 @@
     <!-- <node pkg="reference_trajectory" exec="waypoint_traj_simple" output="screen" /> -->
 
     <!-- Record Vicon, onboard localization, commands, and encoder ticks for offline comparison. -->
-    <include file="$(find-pkg-share hamr_bringup)/launch/caster_encoders.launch.xml"
-             if="$(var caster_encoders)">
-        <arg name="config_file" value="$(var caster_encoder_config)" />
-        <arg name="mode" value="$(var caster_encoder_mode)" />
-        <arg name="bind_address" value="$(var caster_encoder_bind_address)" />
-        <arg name="udp_port" value="$(var caster_encoder_udp_port)" />
-        <arg name="stale_timeout_s" value="$(var caster_encoder_stale_timeout_s)" />
-        <arg name="record_bag" value="false" />
-    </include>
+    <!-- Keep the encoder-only recorder disabled without overriding the parent
+         record_bag setting: ROS 2 include arguments are otherwise unscoped. -->
+    <group scoped="true">
+        <include file="$(find-pkg-share hamr_bringup)/launch/caster_encoders.launch.xml"
+                 if="$(var caster_encoders)">
+            <arg name="config_file" value="$(var caster_encoder_config)" />
+            <arg name="mode" value="$(var caster_encoder_mode)" />
+            <arg name="bind_address" value="$(var caster_encoder_bind_address)" />
+            <arg name="udp_port" value="$(var caster_encoder_udp_port)" />
+            <arg name="stale_timeout_s" value="$(var caster_encoder_stale_timeout_s)" />
+            <arg name="record_bag" value="false" />
+        </include>
+    </group>
     <node pkg="hamr_bringup" exec="record_hamr_test_bag"
           output="screen" if="$(var record_bag)" />
 

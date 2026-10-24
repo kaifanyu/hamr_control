@@ -74,7 +74,7 @@ def test_encoder_only_launch_is_passive_and_hw_does_not_duplicate_bag():
     }
     assert not passive.findall("include")
     hardware = ET.parse(PACKAGE / "launch/hamr_HW.launch.xml").getroot()
-    include = next(item for item in hardware.findall("include")
+    include = next(item for item in hardware.iter("include")
                    if item.get("file").endswith("/caster_encoders.launch.xml"))
     assert include.get("if") == "$(var caster_encoders)"
     forwarded = {arg.get("name"): arg.get("value") for arg in include.findall("arg")}
@@ -91,6 +91,48 @@ def test_encoder_only_launch_is_passive_and_hw_does_not_duplicate_bag():
         assert settings["expected_source_ips"] == ["", "", ""]
     assert sum(node.get("exec") == "record_hamr_test_bag"
                for node in hardware.findall("node")) == 1
+
+
+@pytest.mark.parametrize("record_bag", ["true", "false"])
+@pytest.mark.parametrize("caster_encoders", ["true", "false"])
+@pytest.mark.parametrize("mode", ["dual", "legacy"])
+def test_hardware_recording_survives_encoder_include(
+        monkeypatch, record_bag, caster_encoders, mode):
+    """Evaluate real launch scopes and conditions without executing any nodes."""
+    pytest.importorskip("launch_xml")
+    from launch import LaunchContext
+    from launch.launch_description_sources import AnyLaunchDescriptionSource
+    from launch.utilities import normalize_to_list_of_substitutions, perform_substitutions
+    from launch_ros.actions import Node
+    from launch_ros.substitutions import FindPackageShare
+
+    monkeypatch.setattr(FindPackageShare, "find", lambda self, package: str(PACKAGE.parent / package))
+    context = LaunchContext()
+    context.launch_configurations.update({
+        "record_bag": record_bag, "caster_encoders": caster_encoders,
+        "caster_encoder_mode": mode,
+        "caster_encoder_config": str(PACKAGE / "config/caster_encoders.yaml"),
+        "record_camera": "false", "run_foxglove": "false",
+    })
+    description = AnyLaunchDescriptionSource(
+        str(PACKAGE / "launch/hamr_HW.launch.xml")
+    ).get_launch_description(context)
+    enabled_nodes = []
+
+    def visit(entity):
+        if isinstance(entity, Node):
+            if entity.condition is None or entity.condition.evaluate(context):
+                enabled_nodes.append(perform_substitutions(
+                    context, normalize_to_list_of_substitutions(entity.node_executable)))
+            return  # Never open serial ports, bind UDP sockets, or start a recorder.
+        for child in entity.visit(context) or []:
+            visit(child)
+
+    visit(description)
+    assert enabled_nodes.count("record_hamr_test_bag") == (1 if record_bag == "true" else 0)
+    expected_bridges = (2 if mode == "dual" else 1) if caster_encoders == "true" else 0
+    assert enabled_nodes.count("caster_encoder_bridge") == expected_bridges
+    assert context.launch_configurations["record_bag"] == record_bag
 
 
 @pytest.mark.parametrize("mode", ["dual", "legacy"])
