@@ -195,7 +195,7 @@ class RotationTests(unittest.TestCase):
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
             self.assertEqual(rotation.main(["compare", str(a.path), str(b.path)]), 0)
-        self.assertIn("H1/H2 counts-per-revolution ratio: 0.5", output.getvalue())
+        self.assertIn("legacy/H1 / legacy/H2 counts-per-revolution ratio: 0.5", output.getvalue())
 
     def test_bad_json_does_not_poison_next_packet(self):
         r = self.make()
@@ -246,3 +246,22 @@ class RotationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_v2_rotation_exports_identity_and_aborts_wrong_wheel(tmp_path):
+    recording = rotation.RotationRecording("H1", 1, tmp_path, wheel_id="front_left")
+    first = json.loads(envelope(0, 1000))
+    first["packet"].update(v=2, wheel_id="front_left", device_id="aa:bb:cc:dd:ee:01")
+    recording.ingest(json.dumps(first), now=0)
+    recording.mark(now=0)
+    wrong = json.loads(envelope(8192, 1001))
+    wrong["packet"].update(v=2, wheel_id="front_right", device_id="aa:bb:cc:dd:ee:02")
+    recording.ingest(json.dumps(wrong), now=1)
+    summary, _ = recording.close()
+    assert not summary["measurement_valid"]
+    assert summary["wheel_id"] == "front_left"
+    assert summary["device_id"] == "aa:bb:cc:dd:ee:01"
+    assert "Expected wheel front_left" in summary["warnings"][0]
+    assert len(recording.rows) == 1
+    assert recording.rows[0]["wheel_id"] == "front_left"
+    assert json.loads((recording.path / "markers.json").read_text())["start"]["device_id"] == "aa:bb:cc:dd:ee:01"

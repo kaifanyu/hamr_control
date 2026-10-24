@@ -95,7 +95,7 @@ def _configure(context):
             "record_bag", "record_camera", "camera_repository", "camera_config",
             "recording_root", "camera_segment_mib", "run_foxglove", "use_mag",
             "use_orientation", "ekf_config", "wheel_odom_config",
-            "caster_encoders", "caster_encoder_bind_address",
+            "caster_encoders", "caster_encoder_config", "caster_encoder_mode", "caster_encoder_bind_address",
             "caster_encoder_udp_port", "caster_encoder_stale_timeout_s",
         )
     }
@@ -142,6 +142,9 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument("record_bag", default_value="true"),
         DeclareLaunchArgument("caster_encoders", default_value="true"),
+        DeclareLaunchArgument("caster_encoder_config", default_value=PathJoinSubstitution(
+            [bringup, "config", "caster_encoders.yaml"])),
+        DeclareLaunchArgument("caster_encoder_mode", default_value="dual", choices=["dual", "legacy"]),
         DeclareLaunchArgument("caster_encoder_bind_address", default_value="0.0.0.0"),
         DeclareLaunchArgument("caster_encoder_udp_port", default_value="5005"),
         DeclareLaunchArgument("caster_encoder_stale_timeout_s", default_value="1.0"),

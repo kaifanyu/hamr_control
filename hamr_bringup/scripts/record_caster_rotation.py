@@ -15,13 +15,14 @@ import threading
 import time
 
 from caster_encoder_protocol import DIAGNOSTIC_FIELDS, SAMPLE_FIELDS, decode_packet
+from caster_encoder_selection import WHEELS, WheelIdentityGuard, WheelIdentityError, resolve_selection
 
 
 ROLES = {"H1": 1, "H2": 2}
 READY, SAMPLE_VALID, CONTINUOUS = 1, 2, 16
 VELOCITY_VALID, CONTINUITY_LOST, INDEX_VALID = 64, 256, 512
 CSV_FIELDS = ("phase", "receive_epoch_ns", "receive_ros_ns", "source_ip",
-              "node_id", "boot_id", *SAMPLE_FIELDS, *DIAGNOSTIC_FIELDS)
+              "wheel_id", "device_id", "node_id", "boot_id", *SAMPLE_FIELDS, *DIAGNOSTIC_FIELDS)
 
 
 def valid_count(sample):
@@ -31,18 +32,19 @@ def valid_count(sample):
 
 
 def marker(row):
-    return {key: row[key] for key in ("boot_id", "seq", "t_us", "raw_count", "angle_rad")}
+    return {key: row[key] for key in ("wheel_id", "device_id", "boot_id", "seq", "t_us", "raw_count", "angle_rad")}
 
 
 class RotationRecording:
     """Single-threaded recording state; only stdin runs in a background thread."""
 
-    def __init__(self, role, turns, output, expected_ppr=None):
+    def __init__(self, role, turns, output, expected_ppr=None, wheel_id=None):
+        self.guard = WheelIdentityGuard(wheel_id)
         self.role, self.node_id = role, ROLES[role]
         self.turns, self.expected_ppr = turns, expected_ppr
         output = Path(output)
         output.mkdir(parents=True, exist_ok=True)
-        prefix = role + "-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ-")
+        prefix = (wheel_id + "-" if wheel_id else "") + role + "-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ-")
         self.path = Path(tempfile.mkdtemp(prefix=prefix, dir=output)).resolve()
         self.raw_file = (self.path / "packets.jsonl").open("w", encoding="utf-8")
         self.csv_file = (self.path / "samples.csv").open("w", newline="", encoding="utf-8")
@@ -66,6 +68,12 @@ class RotationRecording:
         except (KeyError, TypeError, ValueError, RecursionError):
             self.invalid_messages += 1
             return
+        try:
+            wheel, device, _, _ = self.guard.accept(packet)
+        except WheelIdentityError as error:
+            self.abort_reason = str(error)
+            self.invalid_messages += 1
+            return
         if packet["node_id"] != self.node_id:
             return
         boot = packet["boot_id"].lower()
@@ -80,7 +88,7 @@ class RotationRecording:
                    "receive_epoch_ns": envelope.get("receive_epoch_ns"),
                    "receive_ros_ns": envelope.get("receive_ros_ns"),
                    "source_ip": envelope.get("source_ip"), "node_id": self.node_id,
-                   "boot_id": boot, **sample, **packet["diagnostics"]}
+                   "wheel_id": wheel, "device_id": device, "boot_id": boot, **sample, **packet["diagnostics"]}
             self.writer.writerow(row)
             self.rows.append(row)
             if (self.latest_observed is None or boot != self.latest_observed["boot_id"]
@@ -111,7 +119,8 @@ class RotationRecording:
         self.csv_file.flush()
         # Preserve operator markers even if the process subsequently stops.
         (self.path / "markers.json").write_text(json.dumps({
-            "role": self.role, "physical_turns": self.turns,
+            "role": self.role, "wheel_id": self.guard.wheel_id,
+            "device_id": self.guard.devices.get(self.node_id), "physical_turns": self.turns,
             "start": self.start, "end": self.end,
         }, indent=2) + "\n", encoding="utf-8")
 
@@ -131,7 +140,8 @@ class RotationRecording:
 
 def summarize(recording):
     r = recording
-    result = {"format_version": 1, "role": r.role, "physical_turns": r.turns,
+    result = {"format_version": 1, "role": r.role, "wheel_id": r.guard.wheel_id,
+              "device_id": r.guard.devices.get(r.node_id), "physical_turns": r.turns,
               "measurement_valid": False, "start": r.start, "end": r.end,
               "invalid_messages": r.invalid_messages, "warnings": [],
               "metadata": r.metadata[-1] if r.metadata else None}
@@ -254,7 +264,8 @@ def format_summary(s):
         ("Median sample interval [ms]", "sample_interval_median_ms"),
         ("Max sample interval [ms]", "sample_interval_max_ms"),
     )
-    lines = [f"{s['role']} marked-rotation report"]
+    lines = [f"{s.get('wheel_id', 'legacy')} {s['role']} marked-rotation report",
+             f"Device: {s.get('device_id', 'unknown')}"]
     lines += [f"{label}: {display(s.get(key))}" for label, key in fields]
     if "diagnostic_deltas" in s:
         lines += ["Firmware counter changes: " + json.dumps(s["diagnostic_deltas"], sort_keys=True),
@@ -276,12 +287,14 @@ def compare(paths):
     keys = ("measurement_valid", "physical_turns", "expected_ppr", "observed_counts_per_rev",
             "count_scale_ratio", "angle_change_deg", "peak_abs_velocity_rad_s", "reverse_counts",
             "missing_sequences", "invalid_count_samples")
-    print(f"{'Metric':32} {summaries[0]['role']:>18} {summaries[1]['role']:>18}")
+    labels = [f"{s.get('wheel_id') or 'legacy'}/{s['role']}" for s in summaries]
+    print(f"{'Metric':32} {labels[0]:>18} {labels[1]:>18}")
+    print(f"{'device_id':32} {summaries[0].get('device_id') or 'unknown':>18} {summaries[1].get('device_id') or 'unknown':>18}")
     for key in keys:
         print(f"{key:32} {display(summaries[0].get(key)):>18} {display(summaries[1].get(key)):>18}")
     a, b = summaries
     if all(s.get("measurement_valid") for s in summaries) and b.get("observed_counts_per_rev"):
-        print(f"{a['role']}/{b['role']} counts-per-revolution ratio: "
+        print(f"{labels[0]} / {labels[1]} counts-per-revolution ratio: "
               f"{a['observed_counts_per_rev'] / b['observed_counts_per_rev']:.9g}")
     else:
         print("No ratio: a run is incomplete/invalid or the second run has zero count travel.")
@@ -302,6 +315,9 @@ def request_enter(commands, prompt):
 
 
 def record(args):
+    wheel_id, topic = resolve_selection(getattr(args, "wheel", None), args.topic)
+    # An unspecified live selector retains the legacy topic, with explicit v1 identity.
+    wheel_id = wheel_id or ("legacy" if topic == "/caster_encoder/packets" else None)
     # Offline comparisons and analysis tests work without ROS installed.
     try:
         import rclpy
@@ -311,13 +327,13 @@ def record(args):
         raise RuntimeError("Source your ROS 2 environment first; recording needs rclpy and std_msgs.") from error
     rclpy.init(args=[])
     node = rclpy.create_node("record_caster_rotation")
-    recording = RotationRecording(args.role, args.turns, args.output, args.expected_ppr)
+    recording = RotationRecording(args.role, args.turns, args.output, args.expected_ppr, wheel_id)
     commands = queue.Queue()
     qos = QoSProfile(depth=2000, reliability=ReliabilityPolicy.RELIABLE,
                      durability=DurabilityPolicy.VOLATILE, history=HistoryPolicy.KEEP_LAST)
-    subscription = node.create_subscription(String, args.topic, lambda msg: recording.ingest(msg.data), qos)
-    print(f"Saving {args.role} to {recording.path}", flush=True)
-    print(f"Waiting for valid {args.role} samples on {args.topic}. Keep the encoder still at your mark.", flush=True)
+    subscription = node.create_subscription(String, topic, lambda msg: recording.ingest(msg.data), qos)
+    print(f"Saving {wheel_id or 'selected wheel'} {args.role} to {recording.path}", flush=True)
+    print(f"Waiting for valid {args.role} samples on {topic}. Keep the encoder still at your mark.", flush=True)
     started = last_flush = time.monotonic()
     prompted = False
     try:
@@ -384,7 +400,8 @@ def main(argv=None):
     capture.add_argument("role", choices=tuple(ROLES))
     capture.add_argument("--turns", type=positive, default=1.0, help="actual complete physical turns (default: 1)")
     capture.add_argument("--output", type=Path, default=Path("recordings/caster_rotations"))
-    capture.add_argument("--topic", default="/caster_encoder/packets")
+    capture.add_argument("--topic", help="packet topic, inferred from --wheel")
+    capture.add_argument("--wheel", choices=WHEELS, help="physical wheel; legacy for old firmware")
     capture.add_argument("--timeout", type=positive, default=10.0, help="seconds without new valid samples before aborting")
     capture.add_argument("--expected-ppr", type=positive, help="comparison reference; default firmware metadata, else assumed 2048")
     comparison = sub.add_parser("compare", help="compare two recording folders or summary.json files; ROS not required")

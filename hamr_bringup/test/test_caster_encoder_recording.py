@@ -13,10 +13,25 @@ import yaml
 
 
 PACKAGE = Path(__file__).resolve().parents[1]
+
+
+def test_caster_entrypoints_are_executable_for_symlink_install():
+    # ament's symlink install preserves source permissions; a readable script
+    # may pass Python unit tests but still fail ros2 run/launch discovery.
+    for path in (
+        PACKAGE / "scripts/caster_encoder_bridge",
+        PACKAGE / "scripts/record_caster_rotation.py",
+        PACKAGE / "scripts/replay_caster_encoder_joints",
+        PACKAGE / "scripts/render_caster_encoder_video.py",
+        PACKAGE.parent / "rosbags/analyze_caster_encoders.py",
+    ):
+        assert path.stat().st_mode & 0o111, f"Missing executable permission: {path}"
+
+
 TOPICS = [
-    "/caster_encoder/packets", "/caster_encoder/metadata",
-    "/caster_encoder/diagnostics",
-    *[f"/caster_encoder/{role}/joint_states" for role in ("H1", "H2", "CENTER")],
+    f"/caster_encoder/{wheel}{topic}"
+    for wheel in ("", "front_left/", "front_right/")
+    for topic in ("packets", "metadata", "diagnostics", "H1/joint_states", "H2/joint_states", "CENTER/joint_states")
 ]
 
 
@@ -46,7 +61,9 @@ def test_recorders_select_encoder_payloads_and_qos(tmp_path, script):
     qos = yaml.safe_load(qos_path.read_text())
     for topic in TOPICS:
         assert qos[topic]["reliability"] == "reliable"
-    assert qos["/caster_encoder/metadata"]["durability"] == "transient_local"
+    for wheel in ("", "front_left/", "front_right/"):
+        assert qos[f"/caster_encoder/{wheel}metadata"]["durability"] == "transient_local"
+    assert not regex.fullmatch("/caster_encoder/rear_left/packets")
 
 
 def test_encoder_only_launch_is_passive_and_hw_does_not_duplicate_bag():
@@ -62,11 +79,22 @@ def test_encoder_only_launch_is_passive_and_hw_does_not_duplicate_bag():
     assert include.get("if") == "$(var caster_encoders)"
     forwarded = {arg.get("name"): arg.get("value") for arg in include.findall("arg")}
     assert forwarded["record_bag"] == "false"
+    assert forwarded["config_file"] == "$(var caster_encoder_config)"
+    assert forwarded["mode"] == "$(var caster_encoder_mode)"
+    config = yaml.safe_load((PACKAGE / "config/caster_encoders.yaml").read_text())
+    for wheel, port in (("front_left", 5005), ("front_right", 5006)):
+        settings = config[f"/caster_encoder_{wheel}"]["ros__parameters"]
+        assert settings["wheel_id"] == wheel
+        assert settings["configured_wheel_id"] == wheel
+        assert settings["udp_port"] == port
+        assert settings["expected_device_ids"] == ["", "", ""]
+        assert settings["expected_source_ips"] == ["", "", ""]
     assert sum(node.get("exec") == "record_hamr_test_bag"
                for node in hardware.findall("node")) == 1
 
 
-def test_launch_frontend_resolves_encoder_parameters():
+@pytest.mark.parametrize("mode", ["dual", "legacy"])
+def test_launch_frontend_resolves_encoder_parameters(mode):
     pytest.importorskip("launch_xml")
     from launch import LaunchContext
     from launch.launch_description_sources import AnyLaunchDescriptionSource
@@ -76,17 +104,29 @@ def test_launch_frontend_resolves_encoder_parameters():
 
     context = LaunchContext()
     context.launch_configurations.update({
+        "mode": mode, "config_file": str(PACKAGE / "config/caster_encoders.yaml"),
         "bind_address": "0.0.0.0", "udp_port": "15005",
         "stale_timeout_s": "2.5", "record_bag": "false",
     })
     description = AnyLaunchDescriptionSource(
         str(PACKAGE / "launch/caster_encoders.launch.xml")
     ).get_launch_description(context)
-    bridge = next(action for action in description.entities
-                  if isinstance(action, Node) and perform_substitutions(
-                      context, normalize_to_list_of_substitutions(action.node_executable)
-                  ) == "caster_encoder_bridge")
-    parameters = evaluate_parameters(context, bridge._Node__parameters)
-    merged = {key: value for group in parameters for key, value in group.items()}
-    assert merged == {"bind_address": "0.0.0.0", "udp_port": 15005,
-                      "stale_timeout_s": 2.5, "use_sim_time": False}
+    bridges = [action for action in description.entities
+               if isinstance(action, Node) and perform_substitutions(
+                   context, normalize_to_list_of_substitutions(action.node_executable)
+               ) == "caster_encoder_bridge" and action.condition.evaluate(context)]
+    assert len(bridges) == (2 if mode == "dual" else 1)
+    for bridge in bridges:
+        parameters = evaluate_parameters(context, bridge._Node__parameters)
+        merged = {key: value for group in parameters if isinstance(group, dict)
+                  for key, value in group.items()}
+        assert merged["use_sim_time"] is False
+        if mode == "dual":
+            assert merged["wheel_id"] in ("front_left", "front_right")
+            assert merged["legacy_mode"] is False
+            assert merged["require_config"] is True
+            assert Path(parameters[0]) == PACKAGE / "config/caster_encoders.yaml"
+        else:
+            assert merged == {"wheel_id": "", "legacy_mode": True,
+                              "bind_address": "0.0.0.0", "udp_port": 15005,
+                              "stale_timeout_s": 2.5, "use_sim_time": False}

@@ -24,8 +24,10 @@ class ReplayCasterEncoderJoints(Node):
         for name, value in DEFAULT_MAPPING.items():
             self.declare_parameter(name, value)
         self.declare_parameter("stale_timeout_s", 1.0)
+        self.declare_parameter("wheel_id", "")
         mapping = {name: self.get_parameter(name).value for name in DEFAULT_MAPPING}
-        self.model = ReplayModel(mapping, self.get_parameter("stale_timeout_s").value)
+        self.model = ReplayModel(mapping, self.get_parameter("stale_timeout_s").value,
+                                 self.get_parameter("wheel_id").value or None)
         reliable = QoSProfile(depth=1000, reliability=ReliabilityPolicy.RELIABLE)
         latched = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
                              durability=DurabilityPolicy.TRANSIENT_LOCAL)

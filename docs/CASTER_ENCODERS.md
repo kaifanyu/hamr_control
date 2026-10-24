@@ -1,143 +1,96 @@
 # Caster encoder Wi-Fi recording and replay
 
-The `caster-encoder-controller` firmware measures the ball caster's two shell
-rotations (H1/H2) and common-rod rotation (CENTER). This integration receives its
-existing version-1 UDP protocol; no firmware or micro-ROS conversion is required.
-It adds passive telemetry to HAMR. The existing drive-wheel tick inputs, motor
-control and EKF continue to use their existing sensors.
+The firmware measures two shell rotations (H1/H2) and the common rod (CENTER)
+on each of the front-left and front-right wheels. Protocol v2 includes the
+physical wheel and permanent device MAC in every packet. Two Pi receivers keep
+boots, metadata, loss counters and live measurements independent. Existing
+motor control, drive-wheel odometry and EKF inputs are unchanged.
+
+For the complete firmware configuration, six flashing commands and Pi inventory,
+follow [Front-left and front-right caster setup](DUAL_CASTER_SETUP.md).
 
 ```text
-H1 ESP ----\
-H2 ESP ----- 2.4 GHz Wi-Fi / UDP 5005 --> recording computer
-CENTER ESP-/                             caster_encoder_bridge
-                                                |
-                                /caster_encoder/* ROS topics
-                                                |
-                      existing HAMR recorder --> MCAP rosbag
-                                                |
-                  Foxglove / ROS playback / analyze_caster_encoders.py
+Front-left H1/H2/CENTER  -- UDP 5005 --> /caster_encoder/front_left/*
+Front-right H1/H2/CENTER -- UDP 5006 --> /caster_encoder/front_right/*
+                                       | one MCAP bag, separate topic branches
 ```
 
-## 1. Network and firmware
+## 1. Network and identity
 
-Run the ROS receiver on the computer whose reachable LAN IPv4 address is compiled
-into each ESP's `RECEIVER_IPV4`. The ESPs initiate UDP delivery; the ROS receiver
-does not need their individual IP addresses. `0.0.0.0` means listen on all local
-interfaces, **not** an address to put in the ESP configuration.
+Edit `config/front_left.local.h` and `config/front_right.local.h` in the firmware
+repository. `RECEIVER_IPV4` is the Pi address; `UDP_PORT` defaults to 5005/5006.
+Each ESP may use DHCP, a router MAC reservation, or its role-specific fixed IP
+field. Every board has a unique source address. Configure the six verified MACs
+in the Pi's `caster_encoders.yaml`, in H1/H2/CENTER order for each wheel. Optional
+source-IP checks require stable source addresses. Allow both UDP ports through
+the Pi firewall and disable Wi-Fi client isolation.
 
-In `caster-encoder-controller/config/local.h`, confirm:
-
-- `WIFI_SSID` / `WIFI_PASSWORD`: the accessible 2.4 GHz network.
-- `RECEIVER_IPV4`: the recording computer's LAN address, preferably reserved by DHCP.
-- `UDP_PORT`: `5005`, matching the bridge parameter.
-- Each physical board has the correct role: H1=1, H2=2, CENTER=3.
-
-The private `local.h` is not in the supplied checkout. Inspect the configuration
-used to flash your boards, or their startup logs, to establish the actual target.
-If it already points to the ROS computer, keep the running firmware. If the
-receiver address changes, rebuild and flash each role using that repository's
-README. Follow its power/wiring instructions when connecting USB.
-
-Allow inbound UDP 5005 from the ESP network in the receiver firewall and disable
-AP/client isolation for this network. The default firmware samples at 200 Hz per
-node and sends batches of two at approximately 100 datagrams/s per node.
-Metadata repeats approximately every two seconds. The stream is best effort;
-there is no on-device storage or recovery of samples lost during a Wi-Fi outage.
-
-Only one receiver may bind the UDP port. Stop `host/logger.py` before starting
-the ROS bridge. A second bridge fails explicitly if the address is in use.
-On WSL, ESPs must be able to reach the Linux receiver through the Windows network
-and firewall; a working localhost test does not establish LAN delivery. Native
-Ubuntu on the robot/recording host is the simplest existing deployment path.
+A wheel-scoped bridge rejects mismatched wheel/device/source identity before
+publishing or changing live state. Empty inventory entries allow commissioning
+with process-lifetime device pinning; diagnostics report `inventory_verified:
+false`. Fill every expected MAC before experiments. UDP is best effort and there
+is no recovery of samples lost during a radio outage. Independent ESP clocks
+remain unsynchronized. Only one receiver may bind each port.
 
 ## 2. Build on the ROS recording computer
 
-These commands assume your existing ROS 2 Jazzy HAMR workspace is
-`~/hamster_ws`, with this updated repository under `src/hamr_control`:
+In an existing ROS 2 Jazzy workspace containing this repository:
 
 ```bash
 source /opt/ros/jazzy/setup.bash
 cd ~/hamster_ws
-rosdep install --from-paths src --ignore-src -r -y
 colcon build --symlink-install --packages-select hamr_ball_caster hamr_bringup
 source install/setup.bash
 ```
 
-The package installs the bridge, its vendored decoder and the analyzer together.
-The encoder firmware checkout is not required on the recording host. MCAP,
-`rosbag2_py`, NumPy and Matplotlib are already declared package dependencies.
-For a fresh workspace, first build the hardware dependencies using
-[REAL_CAR_CONTINUOUS.md](REAL_CAR_CONTINUOUS.md#1-build-the-hardware-packages).
+For a new workspace, first follow [the hardware build guide](REAL_CAR_CONTINUOUS.md#1-build-the-hardware-packages).
+The package installs its decoder, selection helpers and analyzer; no sibling
+firmware checkout is needed on the Pi.
 
 ## 3. Collect live encoder data
 
-For an encoder-only bench session, without starting motor control:
+Copy `hamr_bringup/config/caster_encoders.yaml` to `$HOME/caster_encoders.yaml`,
+fill the physical board inventory and confirm each port matches the firmware.
+For passive acquisition without motor control:
 
 ```bash
-source /opt/ros/jazzy/setup.bash
-source ~/hamster_ws/install/setup.bash
 export HAMR_BAG_ROOT="$HOME/hamr_recordings/bags"
 export HAMR_BAG_NAME="caster_$(date +%Y%m%d_%H%M%S)"
-ros2 launch hamr_bringup caster_encoders.launch.xml
+ros2 launch hamr_bringup caster_encoders.launch.xml \
+  config_file:="$HOME/caster_encoders.yaml"
 ```
 
-This starts the receiver and the existing test-bag recorder. Its topic filter also
-captures the usual HAMR/Vicon topics if those are already available. The console
-prints the actual bag directory; an existing name gets a numeric suffix.
-
-For the regular hardware workflow, both `hamr_HW.launch.xml` and
-`hamr_continuous_HW.launch.py` now enable the receiver by default. Use your usual
-hardware command; its existing recorder owns the bag. The continuous workflow
-still requires its explicit trajectory-start service described in
-[REAL_CAR_CONTINUOUS.md](REAL_CAR_CONTINUOUS.md).
-
-Available hardware launch overrides:
+This starts two bridges and one recorder. Hardware launches use
+`caster_encoder_config:="$HOME/caster_encoders.yaml"`; their existing recorder
+owns the bag. Use `record_bag:=false` for standalone bridges if the hardware
+recorder is already running, and `caster_encoders:=false` in hardware bringup
+if the receivers already run separately.
 
 ```bash
-ros2 launch hamr_bringup hamr_continuous_HW.launch.py \
-  caster_encoders:=true \
-  caster_encoder_bind_address:=0.0.0.0 \
-  caster_encoder_udp_port:=5005 \
-  caster_encoder_stale_timeout_s:=1.0
+ros2 topic echo /caster_encoder/front_left/diagnostics --once
+ros2 topic echo /caster_encoder/front_right/diagnostics --once
+ros2 topic echo /caster_encoder/front_left/metadata --once --qos-durability transient_local
+ros2 topic hz /caster_encoder/front_left/H1/joint_states
 ```
 
-Use `caster_encoders:=false` when the receiver already runs in a separate process.
-For an existing hardware session that predates this change, start just the bridge:
+Check all six roles are fresh, metadata arrived, and both inventories are
+verified. Stop with Ctrl+C and inspect `ros2 bag info` on the actual printed bag
+path. Both wheel branches, six topics each, must contain messages. Existing bag
+names receive a numeric suffix.
 
-```bash
-ros2 launch hamr_bringup caster_encoders.launch.xml record_bag:=false
-```
-
-Restart/rebuild the bag recorder to apply its updated topic filter. Running only
-`record_hamr_test_bag` or `record_hamr_vicon_bag` records ROS topics; those scripts
-do not themselves open the ESP socket.
-
-In another terminal, after sourcing the same ROS workspace:
-
-```bash
-ros2 topic echo /caster_encoder/diagnostics --once
-ros2 topic echo /caster_encoder/metadata --once --qos-durability transient_local
-ros2 topic hz /caster_encoder/H1/joint_states
-ros2 topic echo /caster_encoder/CENTER/joint_states --once
-```
-
-Confirm all three roles are fresh and metadata has arrived before beginning a
-trial. Approximately 200 Hz valid JointStates per node is expected at the default
-sample rate; invalid measurements are deliberately absent from the display topic.
-An unchanged angle alone does not prove an incremental encoder is connected.
-Stop with Ctrl+C and let rosbag finalize, then check:
-
-```bash
-ros2 bag info "$HAMR_BAG_ROOT/$HAMR_BAG_NAME"
-```
-
-Use the printed suffixed path if the requested bag name already existed.
+The examples below select `front_left`; use `front_right` for the other wheel.
+Analysis/replay of a two-wheel bag requires a selector. Original v1 bags remain
+readable with `--wheel legacy` (replay `wheel:=legacy`) or single-topic automatic
+selection. To receive old firmware, explicitly set `mode:=legacy` in passive
+launch or `caster_encoder_mode:=legacy` in hardware bringup. That mode represents
+one unassigned wheel only. Old bind/port/timeout launch arguments apply only in
+legacy mode; dual mode uses the per-node YAML.
 
 ### Marked-rotation comparison: H1 versus H2
 
 Use this check to distinguish reported scale from the number of physical turns.
 Keep the existing bridge running and source the same ROS environment in another
-terminal. The script subscribes to `/caster_encoder/packets`; it does not bind the
+terminal. The script subscribes to `/caster_encoder/front_left/packets`; it does not bind the
 UDP port, command motors, change encoder settings, or need a firmware reflash.
 It uses raw integer counts and ESP acquisition timestamps, not JointState receipt
 timestamps, which can be identical for two samples in a packet.
@@ -145,8 +98,8 @@ timestamps, which can be identical for two samples in a packet.
 From the updated `hamr_control` repository directory:
 
 ```bash
-python3 hamr_bringup/scripts/record_caster_rotation.py record H1
-python3 hamr_bringup/scripts/record_caster_rotation.py record H2
+python3 hamr_bringup/scripts/record_caster_rotation.py record H1 --wheel front_left
+python3 hamr_bringup/scripts/record_caster_rotation.py record H2 --wheel front_left
 ```
 
 Run these sequentially. For each run:
@@ -200,28 +153,29 @@ and sufficient captured index snapshots to be interpreted as turns.
 
 No pip packages are needed beyond the existing ROS environment for recording;
 offline comparison uses only Python's standard library and the adjacent
-`caster_encoder_protocol.py`. Keep both scripts together if copying them to
+`caster_encoder_protocol.py` and `caster_encoder_selection.py`. Keep the script
+and both helper modules together if copying them to
 another computer. After rebuilding `hamr_bringup`, the same commands are available
-as `ros2 run hamr_bringup record_caster_rotation.py record H1` and `... compare ...`.
+as `ros2 run hamr_bringup record_caster_rotation.py record H1 --wheel front_left` and `... compare ...`.
 
 ## 4. What is in the bag
 
 | Topic | Type | Meaning |
 |---|---|---|
-| `/caster_encoder/packets` | `std_msgs/msg/String` | One validated JSON envelope per datagram, including metadata and every raw sample, duplicate, flag and counter |
-| `/caster_encoder/metadata` | `std_msgs/msg/String` | Latest per-node configuration cache; transient-local for late subscribers |
-| `/caster_encoder/diagnostics` | `std_msgs/msg/String` | Receiver health, stale/never-seen nodes and separate node/boot sequence tracking |
-| `/caster_encoder/H1/joint_states` | `sensor_msgs/msg/JointState` | Valid continuous H1 `angle_rad` and valid velocity |
-| `/caster_encoder/H2/joint_states` | `sensor_msgs/msg/JointState` | Valid continuous H2 `angle_rad` and valid velocity |
-| `/caster_encoder/CENTER/joint_states` | `sensor_msgs/msg/JointState` | Valid wrapped `calibrated_alpha_rad`; velocity only when independently valid |
+| `/caster_encoder/front_left/packets` | `std_msgs/msg/String` | One validated JSON envelope per datagram, including metadata and every raw sample, duplicate, flag and counter |
+| `/caster_encoder/front_left/metadata` | `std_msgs/msg/String` | Latest per-node configuration cache; transient-local for late subscribers |
+| `/caster_encoder/front_left/diagnostics` | `std_msgs/msg/String` | Receiver health, stale/never-seen nodes and separate node/boot sequence tracking |
+| `/caster_encoder/front_left/H1/joint_states` | `sensor_msgs/msg/JointState` | Valid continuous H1 `angle_rad` and valid velocity |
+| `/caster_encoder/front_left/H2/joint_states` | `sensor_msgs/msg/JointState` | Valid continuous H2 `angle_rad` and valid velocity |
+| `/caster_encoder/front_left/CENTER/joint_states` | `sensor_msgs/msg/JointState` | Valid wrapped `calibrated_alpha_rad`; velocity only when independently valid |
 
-Joint names are `caster_h1_rotation`, `caster_h2_rotation`, and
-`caster_center_alpha`. Angles are radians; angular velocities are radians/second.
+Joint names are `front_left_caster_h1_rotation`, `front_left_caster_h2_rotation`,
+and `front_left_caster_center_alpha`; the right branch uses `front_right_`. Angles are radians; angular velocities are radians/second.
 Raw counts stay decimal strings to preserve all int64 digits. Missing values
 remain null in JSON and empty in CSV. Invalid samples, duplicates and reordered
 samples remain in `/packets`, even when excluded from live angle display.
 
-Every packet envelope keeps `receive_epoch_ns`, `receive_monotonic_ns`, source IP
+Every v2 packet keeps `wheel_id` and permanent `device_id`, and every envelope keeps `receive_epoch_ns`, `receive_monotonic_ns`, source IP
 and port, and the original nested `packet`. Each original sample retains `seq`,
 `t_us`, and all firmware fields. `boot_id` separates restarts; never integrate
 different boots into one continuous angle.
@@ -245,7 +199,7 @@ No external reference CSV is needed for this replay. After recording a bag:
 source /opt/ros/jazzy/setup.bash
 source ~/hamster_ws/install/setup.bash
 ros2 launch hamr_bringup caster_encoder_replay.launch.py \
-  bag:="$HOME/hamr_recordings/bags/YOUR_RUN" rate:=0.5
+  bag:="$HOME/hamr_recordings/bags/YOUR_RUN" wheel:=front_left rate:=0.5
 ```
 
 This opens the existing CAD caster in RViz and drives its joints from the bag at
@@ -285,7 +239,7 @@ cp "$(ros2 pkg prefix hamr_bringup)/share/hamr_bringup/config/caster_encoder_rep
   "$HOME/caster_encoder_replay.yaml"
 # Edit the copy, then:
 ros2 launch hamr_bringup caster_encoder_replay.launch.py \
-  bag:="/path/to/YOUR_RUN" mapping_config:="$HOME/caster_encoder_replay.yaml"
+  bag:="/path/to/YOUR_RUN" wheel:=front_left mapping_config:="$HOME/caster_encoder_replay.yaml"
 ```
 
 The ROS YAML node is `replay_caster_encoder_joints`. Swap `h1_joint` and `h2_joint`
@@ -322,7 +276,7 @@ After rebuilding `hamr_bringup`, the equivalent installed entry point is:
 
 ```bash
 ros2 run hamr_bringup render_caster_encoder_video.py /path/to/bag \
-  --rate 1 --fps 30 --plots --output-dir "$HOME/Videos/hamr_sim/caster_encoder_replay_plots"
+  --wheel front_left --rate 1 --fps 30 --plots --output-dir "$HOME/Videos/hamr_sim/caster_encoder_replay_plots"
 ```
 
 With `--plots`, three H1/H2/CENTER angle-versus-time plots replace the opposite
@@ -365,12 +319,12 @@ Analyze a finalized bag without running playback:
 
 ```bash
 BAG="$HOME/hamr_recordings/bags/YOUR_RUN"
-ros2 run hamr_bringup analyze_caster_encoders.py "$BAG" \
+ros2 run hamr_bringup analyze_caster_encoders.py "$BAG" --wheel front_left \
   --output "$HOME/hamr_recordings/reports/YOUR_RUN"
 ```
 
 The report contains `samples.csv`, `metadata.jsonl`, `summary.json`, angle/velocity
-plots and quality plots per node/boot. It reports missing sequences between the
+plots and quality plots per wheel/device/node/boot. It reports missing sequences between the
 lowest and highest observed sequence numbers, separately lists earlier unobserved
 sequences, and reports duplicates, ordering, rates, validity and cumulative
 firmware counter maxima. Earlier unobserved samples may include pre-recording
@@ -389,7 +343,7 @@ python3 rosbags/analyze_caster_encoders.py \
 ```
 
 Open the MCAP directly in Foxglove and add Plot panels for
-`/caster_encoder/H1/joint_states.position[0]`, the corresponding H2/CENTER
+`/caster_encoder/front_left/H1/joint_states.position[0]`, the corresponding H2/CENTER
 positions, and `velocity[0]` where present. Plot the three channels separately:
 they describe different rotations. The standalone PNGs work without Foxglove.
 
@@ -399,9 +353,9 @@ sensor-topic list:
 
 ```bash
 ros2 bag play "$BAG" --clock --topics \
-  /caster_encoder/packets /caster_encoder/metadata /caster_encoder/diagnostics \
-  /caster_encoder/H1/joint_states /caster_encoder/H2/joint_states \
-  /caster_encoder/CENTER/joint_states
+  /caster_encoder/front_left/packets /caster_encoder/front_left/metadata /caster_encoder/front_left/diagnostics \
+  /caster_encoder/front_left/H1/joint_states /caster_encoder/front_left/H2/joint_states \
+  /caster_encoder/front_left/CENTER/joint_states
 ```
 
 The UDP bridge is a live receiver and rejects simulation time; it is not needed
@@ -416,16 +370,16 @@ Vicon body position alone does not independently observe H1/H2 shell phase or
 CENTER angle. Likewise, requested motor velocity is not a measured angle reference.
 
 Prepare a CSV from an independent calibrated angular fixture or valid camera
-measurements. Required columns are:
+measurements. For v2 measurements, include the exact wheel and device identity as well as the role and boot:
 
 ```csv
-node_id,boot_id,time_epoch_ns,angle_rad
-1,0123456789abcdef,1800000000000000000,0.10
-1,0123456789abcdef,1800000000010000000,0.12
-3,fedcba9876543210,1800000000000000000,3.13
+wheel_id,device_id,node_id,boot_id,time_epoch_ns,angle_rad
+front_left,aa:bb:cc:dd:ee:01,1,0123456789abcdef,1800000000000000000,0.10
+front_left,aa:bb:cc:dd:ee:01,1,0123456789abcdef,1800000000010000000,0.12
+front_left,aa:bb:cc:dd:ee:03,3,fedcba9876543210,1800000000000000000,3.13
 ```
 
-Those rows are format examples, not calibration. Copy the actual boot IDs from
+Those rows are format examples, not calibration. Legacy references may omit wheel/device fields; they cannot match v2 measurements. Copy the actual boot IDs from
 the run. Timestamps must be integer nanoseconds in the recording host's epoch
 clock domain. H1/H2 reference angles must be continuous/unwrapped and in the
 same relative coordinate as their encoders. CENTER uses wrapped alpha. A video
@@ -439,7 +393,7 @@ an optional `valid` column: use 1 for a usable reference row and 0 for an exclud
 row. No reference data or accuracy scores are fabricated when the template is empty.
 
 ```bash
-ros2 run hamr_bringup analyze_caster_encoders.py "$BAG" \
+ros2 run hamr_bringup analyze_caster_encoders.py "$BAG" --wheel front_left \
   --reference-csv /path/to/independent_angles.csv \
   --max-match-dt-s 0.02 \
   --output "$HOME/hamr_recordings/reports/YOUR_RUN_reference"
@@ -473,6 +427,8 @@ unavailable until the rate bound is verified. Keep these flags with the results.
 |---|---|
 | All nodes never seen | Compiled `RECEIVER_IPV4`, UDP port, receiving interface, AP isolation and firewall |
 | Address already in use | Stop the standalone logger or duplicate ROS bridge |
+| Rejected packets | Diagnostics `last_rejection`; physical label, wheel profile, expected MAC/IP and port |
+| Inventory unverified | Fill all six physical MACs in the Pi YAML and restart the receivers |
 | One missing role | Board power, flashed role, Wi-Fi connection and metadata |
 | Packets present but no H1/H2 angle | `ready`, `sample_valid`, `unwrap_continuous`, `continuity_lost`, raw count validity |
 | CENTER angle but no velocity | Valid wrapped position does not imply trusted unwrapping/rate |
@@ -480,7 +436,43 @@ unavailable until the rate bound is verified. Keep these flags with the results.
 | Bag has no caster packets | Updated recorder running, bridge topics present, same ROS domain, allow discovery before trial |
 | No reference error reported | Supply valid matching node/boot reference rows within the time tolerance |
 
-## 9. Implementation validation (2026-10-14)
+## 9. Two-wheel implementation validation (2026-10-24)
+
+The focused bridge, recording, analyzer, calibration, replay, video and hardware
+launch suites pass **189 tests**. These include v1 compatibility; six v2 devices
+sharing role/boot values without collisions; independent reboots and sequence
+tracking; wrong wheel/MAC/IP rejection before state changes; exact reference and
+clock-map identity; and preservation of wheel/device IDs in exports. A warning
+about this workstation's optional Matplotlib Axes3D installation does not affect
+the tested 2D plots.
+
+`test_dual_caster_pipeline.py` drives six synthetic UDP sources through two real
+ROS bridge processes, the production `record_hamr_test_bag` wrapper, MCAP, and
+the analyzer. All 12 caster topics are stored separately. Wrong-wheel, device
+and source-IP packets stay out of accepted recordings, and a left-H1 restart
+does not change right-H1 identity. Each exported CSV contains only the selected
+wheel and its three device IDs. The test waits for both diagnostic streams before
+stopping the recorder; DDS discovery is completed before sending test samples.
+
+An installed `caster_encoders.launch.xml` also loaded both named YAML profiles,
+bound their separate loopback ports, and shut down cleanly. Missing/misspelled
+configuration node keys fail before binding; runtime edits of routing parameters
+are rejected until restart. Executable permissions were corrected for the
+bridge, calibration, analyzer and replay entrypoints, including symlink installs.
+
+Execution validation used the workstation's ROS 2 Humble with a temporary ROS
+bag/launch overlay; the deployment guide targets Jazzy. Two additional tests in
+the unchanged `hamr_sim_ui` simulator encounter its existing Jazzy-only
+`TopicMetadata(id=...)` API when run under Humble. Those simulator failures are
+outside the two-wheel acquisition pipeline; its 189 focused tests all pass.
+
+Physical board assignment, actual Pi Wi-Fi delivery and encoder calibration
+still require the bench procedure in [the setup guide](DUAL_CASTER_SETUP.md).
+No connected ESP boards were flashed by this implementation work. Firmware build
+and serializer results are recorded separately in the encoder repository's
+`docs/validation.md`.
+
+## 10. Earlier single-wheel implementation validation (2026-10-14)
 
 The bridge's 39 focused tests cover wire validation, int64/nanosecond precision,
 boot separation, display validity, missing/duplicate/reordered samples, staleness,

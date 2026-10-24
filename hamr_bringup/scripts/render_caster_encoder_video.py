@@ -23,6 +23,8 @@ import xml.etree.ElementTree as ET
 import numpy as np
 
 from caster_replay_model import DEFAULT_MAPPING, ReplayModel, validate_playback
+from caster_encoder_protocol import decode_packet, parse_json
+from caster_encoder_selection import WHEELS, WheelIdentityError, WheelIdentityGuard, resolve_selection
 
 TOPIC = '/caster_encoder/packets'
 HIDDEN_MESHES = {'skate_bearing.stl', '4668k11_permanently_lubricated_stainless_steel_ball_bearing.stl',
@@ -38,7 +40,7 @@ def frame_times(start_ns, end_ns, fps, rate):
     return [start_ns + int(i * step) for i in range(count)]
 
 
-def read_bag(path):
+def read_bag(path, topic=None, wheel_id=None):
     import rosbag2_py
     from rclpy.serialization import deserialize_message
     from std_msgs.msg import String
@@ -46,15 +48,27 @@ def read_bag(path):
     reader = rosbag2_py.SequentialReader()
     reader.open(rosbag2_py.StorageOptions(uri=str(path), storage_id=''), rosbag2_py.ConverterOptions('', ''))
     topics = {t.name: t.type for t in reader.get_all_topics_and_types()}
-    if topics.get(TOPIC) != 'std_msgs/msg/String':
-        raise ValueError(f'{path} does not contain {TOPIC} as std_msgs/msg/String')
+    wheel_id, selected_topic = resolve_selection(wheel_id, topic, topics)
+    guard = WheelIdentityGuard(wheel_id)
+    if topics.get(selected_topic) != 'std_msgs/msg/String':
+        raise ValueError(f'{path} does not contain {selected_topic} as std_msgs/msg/String')
     events, start, end = [], None, None
     while reader.has_next():
         topic, data, stamp = reader.read_next()
         start = stamp if start is None else min(start, stamp)
         end = stamp if end is None else max(end, stamp)
-        if topic == TOPIC:
-            events.append((stamp, deserialize_message(data, String).data))
+        if topic == selected_topic:
+            message = deserialize_message(data, String).data
+            try:
+                envelope = parse_json(message)
+                packet = decode_packet(json.dumps(envelope['packet'], allow_nan=False).encode('utf-8'))
+            except (ValueError, KeyError, TypeError, OverflowError, RecursionError):
+                # The replay model counts malformed records and holds the last
+                # valid pose. Identity conflicts must instead stop the render.
+                pass
+            else:
+                guard.accept(packet)
+            events.append((stamp, message))
     del reader
     if not events or start == end:
         raise ValueError('Bag contains no replayable encoder interval')
@@ -62,14 +76,16 @@ def read_bag(path):
     return events, start, end
 
 
-def sample_frames(events, times, mapping=None, stale_timeout_s=1.):
-    model = ReplayModel(mapping, stale_timeout_s)
+def sample_frames(events, times, mapping=None, stale_timeout_s=1., wheel_id=None):
+    model = ReplayModel(mapping, stale_timeout_s, wheel_id)
     frames, index = [], 0
     for stamp in times:
         while index < len(events) and events[index][0] <= stamp:
             received, envelope = events[index]
             try:
                 model.receive(envelope, received)
+            except WheelIdentityError:
+                raise
             except ValueError:
                 pass  # The shared model counts/reports rejects and holds valid data.
             index += 1
@@ -286,21 +302,24 @@ def render(args):
         params=yaml.safe_load(args.mapping_config.read_text())['replay_caster_encoder_joints']['ros__parameters']
         mapping={key:params[key] for key in DEFAULT_MAPPING if key in params}
         stale=params.get('stale_timeout_s',1.)
-    events,start,end=read_bag(bag)
+    wheel_id, topic = resolve_selection(args.wheel, args.topic)
+    events,start,end=read_bag(bag, args.topic, args.wheel)
     times=frame_times(start,end,args.fps,rate)
-    frames=sample_frames(events,times,mapping,stale)
+    frames=sample_frames(events,times,mapping,stale,wheel_id)
+    wheel_id = frames[-1]["status"]["wheel_id"]
+    _, topic = resolve_selection(wheel_id, args.topic)
     output=args.output_dir.expanduser().resolve(); output.mkdir(parents=True,exist_ok=True)
     suffix='_plots' if args.plots else ''
-    video=output/f'{bag.stem}_{rate:g}x{suffix}.mp4'
+    video=output/f'{bag.stem}_{wheel_id}_{rate:g}x{suffix}.mp4'
     if video.exists() and args.preview_time is None:
         raise ValueError(f'Refusing to overwrite {video}; choose a new output directory')
     model=package_share('hamr_ball_caster')/'urdf/ball_caster.urdf'
     scene=Scene(model,args.width,args.width*9//16,args.full_detail)
-    overlay=Overlay(args.width,bag.stem,start,end,rate)
+    overlay=Overlay(args.width,f"{bag.stem} / {wheel_id}",start,end,rate)
     plots=None
     if args.plots:
         from caster_encoder_plots import EncoderPlots
-        plots=EncoderPlots(events,start,end,bag.stem,args.width,stale)
+        plots=EncoderPlots(events,start,end,f"{bag.stem} / {wheel_id}",args.width,stale,wheel_id)
     def draw_frame(frame):
         image=overlay.draw(scene.render(frame),frame)
         return plots.draw(image,frame) if plots else image
@@ -309,7 +328,7 @@ def render(args):
             if not 0 <= args.preview_time <= (end-start)/1e9:
                 raise ValueError('preview-time must lie inside the bag interval')
             frame=frames[min(len(frames)-1,int(args.preview_time*args.fps/rate))]
-            path=output/f'{bag.stem}{suffix}_preview.png'
+            path=output/f'{bag.stem}_{wheel_id}{suffix}_preview.png'
             draw_frame(frame).save(path); print(path,flush=True)
             return
         ffmpeg=shutil.which('ffmpeg')
@@ -326,12 +345,12 @@ def render(args):
             try:
                 with video.with_suffix('.frames.csv').open('w',newline='') as stream:
                     writer=csv.writer(stream)
-                    writer.writerow(['frame','video_time_s','bag_time_ns','elapsed_bag_s','h1_rad','h2_rad','center_rad','h1_state','h2_state','center_state'])
+                    writer.writerow(['frame','video_time_s','bag_time_ns','elapsed_bag_s','h1_rad','h2_rad','center_rad','h1_state','h2_state','center_state','wheel_id','h1_device_id','h2_device_id','center_device_id'])
                     for i,frame in enumerate(frames):
                         image=draw_frame(frame)
                         encoder.stdin.write(image.tobytes())
                         nodes=frame['status']['nodes']
-                        writer.writerow([i,i/args.fps,frame['stamp_ns'],(frame['stamp_ns']-start)/1e9]+[n['model_position_rad'] for n in nodes]+[n['display_state'] for n in nodes])
+                        writer.writerow([i,i/args.fps,frame['stamp_ns'],(frame['stamp_ns']-start)/1e9]+[n['model_position_rad'] for n in nodes]+[n['display_state'] for n in nodes]+[wheel_id]+[n['device_id'] for n in nodes])
                         if i in (min(len(frames)-1,args.fps),len(frames)//2,len(frames)-1):
                             image.save(output/f'{video.stem}_frame_{i:05d}.png')
                         if i%(args.fps*5)==0:print(f'{bag.stem}: {i}/{len(frames)} frames; wall {time.monotonic()-wall:.1f}s',flush=True)
@@ -341,7 +360,7 @@ def render(args):
                 if encoder.poll() is None:
                     encoder.terminate();encoder.wait(timeout=15)
         temporary.replace(video)
-        summary={'bag':str(bag),'video':str(video),'rate':rate,'fps':args.fps,'frames':len(frames),
+        summary={'bag':str(bag),'wheel_id':wheel_id,'packet_topic':topic,'video':str(video),'rate':rate,'fps':args.fps,'frames':len(frames),
                  'width':args.width,'height':args.width*9//16,'bag_start_ns':start,'bag_end_ns':end,
                  'bag_duration_s':(end-start)/1e9,'video_duration_s':len(frames)/args.fps,
                  'duration_padding_s':len(frames)/args.fps-(end-start)/1e9/rate,
@@ -369,6 +388,8 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('bag',type=Path)
     parser.add_argument('--output-dir',type=Path,default=Path.home()/'Videos/hamr_sim/caster_encoder_replay')
+    parser.add_argument('--wheel',choices=WHEELS,help='Required when the bag contains both wheels')
+    parser.add_argument('--topic',help='Packet topic; inferred from --wheel or a unique bag topic')
     parser.add_argument('--rate',type=float,default=1.)
     parser.add_argument('--fps',type=int,default=30)
     parser.add_argument('--width',type=int,default=1600)

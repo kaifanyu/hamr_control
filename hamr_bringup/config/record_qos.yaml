@@ -85,3 +85,65 @@
   durability: volatile
   history: keep_last
   depth: 1000
+
+/caster_encoder/front_left/packets:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 2000
+/caster_encoder/front_left/metadata:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 1
+/caster_encoder/front_left/diagnostics:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 100
+/caster_encoder/front_left/H1/joint_states:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 1000
+/caster_encoder/front_left/H2/joint_states:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 1000
+/caster_encoder/front_left/CENTER/joint_states:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 1000
+
+/caster_encoder/front_right/packets:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 2000
+/caster_encoder/front_right/metadata:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 1
+/caster_encoder/front_right/diagnostics:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 100
+/caster_encoder/front_right/H1/joint_states:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 1000
+/caster_encoder/front_right/H2/joint_states:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 1000
+/caster_encoder/front_right/CENTER/joint_states:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 1000

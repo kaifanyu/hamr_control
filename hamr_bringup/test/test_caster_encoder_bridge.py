@@ -243,7 +243,7 @@ def test_actual_udp_round_trip_exclusive_bind_and_bounded_drain():
         receiver.close()
 
 
-def load_bridge_with_fake_ros(monkeypatch, use_sim_time=False):
+def load_bridge_with_fake_ros(monkeypatch, use_sim_time=False, parameters=None):
     class FakePublisher:
         def __init__(self, topic, qos):
             self.topic, self.qos, self.messages = topic, qos, []
@@ -253,15 +253,20 @@ def load_bridge_with_fake_ros(monkeypatch, use_sim_time=False):
 
     class FakeNode:
         def __init__(self, name):
-            self.parameters = {"use_sim_time": use_sim_time}
+            self.parameters = {"use_sim_time": use_sim_time, **(parameters or {})}
             self.publishers = {}
+            self.descriptors = {}
             self.warnings = []
 
         def get_parameter(self, name):
             return SimpleNamespace(value=self.parameters[name])
 
-        def declare_parameter(self, name, default):
-            self.parameters[name] = default
+        def declare_parameter(self, name, default, descriptor=None):
+            self.parameters.setdefault(name, default)
+            self.descriptors[name] = descriptor
+
+        def set_descriptor(self, name, descriptor):
+            self.descriptors[name] = descriptor
 
         def create_publisher(self, message_type, topic, qos):
             publisher = FakePublisher(topic, qos)
@@ -297,6 +302,8 @@ def load_bridge_with_fake_ros(monkeypatch, use_sim_time=False):
             self.header = SimpleNamespace(stamp=None)
             self.name, self.position, self.velocity = [], [], []
 
+    monkeypatch.setitem(sys.modules, "rcl_interfaces.msg", SimpleNamespace(
+        ParameterDescriptor=SimpleNamespace, ParameterType=SimpleNamespace(PARAMETER_BOOL=1)))
     monkeypatch.setitem(sys.modules, "rclpy", SimpleNamespace())
     monkeypatch.setitem(sys.modules, "rclpy.node", SimpleNamespace(Node=FakeNode))
     monkeypatch.setitem(sys.modules, "rclpy.qos", SimpleNamespace(
@@ -317,7 +324,7 @@ def load_bridge_with_fake_ros(monkeypatch, use_sim_time=False):
 
 
 def test_actual_bridge_publishes_receipt_stamps_qos_and_all_raw_packets(monkeypatch):
-    module = load_bridge_with_fake_ros(monkeypatch)
+    module = load_bridge_with_fake_ros(monkeypatch, parameters={"wheel_id": "", "legacy_mode": True})
     node = module.CasterEncoderBridge()
     node.receiver.queue = [
         (encoded(packet(0, 1)), ("192.168.1.11", 1234), 11, 12),
@@ -349,3 +356,225 @@ def test_bridge_rejects_simulation_clock_at_startup_and_runtime(monkeypatch):
     node.parameters["use_sim_time"] = True
     with pytest.raises(RuntimeError, match="use_sim_time=true"):
         node.receive()
+
+
+def identified(value, wheel="front_left", device=None):
+    """Give a wire fixture the stable identity of one of six physical boards."""
+    value = json.loads(json.dumps(value))
+    value.update(v=2, wheel_id=wheel,
+                 device_id=device or f"02:00:00:00:{1 if wheel == 'front_left' else 2:02x}:{value['node_id']:02x}")
+    return value
+
+
+def metadata_for(node_id, wheel="front_left", boot_id=BOOT):
+    value = metadata(boot_id)
+    value.update(node_id=node_id, role=protocol.ROLES[node_id])
+    return identified(value, wheel)
+
+
+def test_all_six_shared_boot_ids_keep_metadata_loss_and_readings_independent():
+    # Deliberately reuse boot IDs and sequence ranges: only full identity separates these.
+    state = protocol.TelemetryState()
+    names = set()
+    for wheel in protocol.WHEELS:
+        for node in protocol.ROLES:
+            receive(state, metadata_for(node, wheel))
+            value = identified(packet(10, 12, node_id=node), wheel)
+            if node == 3:
+                for sample in value["samples"]:
+                    sample["calibrated_alpha_rad"] = 0.25
+            _, readings, _ = receive(state, value)
+            assert len(readings) == 2
+            names.add(readings[0]["name"])
+    assert len(names) == 6
+    assert len(state.streams) == len(state.current_boot) == len(state.metadata) == 6
+    report = state.diagnostics_snapshot(1000000000)
+    assert all(stream["missing_samples_in_recording"] == 1 for stream in report["streams"])
+    receive(state, identified(packet(11), "front_left"))
+    report = state.diagnostics_snapshot(1000000000)
+    recovered = [stream for stream in report["streams"] if stream["missing_samples_in_recording"] == 0]
+    assert len(recovered) == 1 and recovered[0]["wheel_id"] == "front_left" and recovered[0]["node_id"] == 1
+    # Reboot left H1; the five other metadata entries survive untouched.
+    receive(state, identified(packet(0, boot_id=NEXT_BOOT), "front_left"))
+    assert len(state.metadata) == 5
+    assert receive(state, identified(packet(13), "front_left"))[1] == []
+    assert len(receive(state, identified(packet(13), "front_right"))[1]) == 1
+    assert len(state.streams) == 7
+
+
+@pytest.mark.parametrize("edit", [
+    {"wheel_id": "rear_left"}, {"device_id": "02:00:00:00:AA:01"},
+    {"device_id": "bad"}, {"device_id": None}, {"wheel_id": None},
+])
+def test_v2_rejects_incomplete_or_noncanonical_identity(edit):
+    value = identified(packet())
+    value.update(edit)
+    with pytest.raises(ValueError):
+        protocol.decode_packet(encoded(value))
+
+
+def test_legacy_cannot_claim_an_identified_wheel():
+    value = identified(packet())
+    value["v"] = 1
+    with pytest.raises(ValueError, match="legacy"):
+        protocol.decode_packet(encoded(value))
+
+
+def test_live_route_rejections_leave_all_accepted_state_untouched():
+    device = "02:00:00:00:01:01"
+    state = protocol.TelemetryState(wheel_id="front_left",
+        expected_device_ids=[device, "", ""], expected_source_ips=["192.168.1.11", "", ""])
+    receive(state, metadata_for(1))
+    receive(state, identified(packet(100, 102)))
+    before = json.dumps(state.metadata_snapshot(), sort_keys=True)
+    stream_before = state.diagnostics_snapshot(1000000000)["streams"]
+    wrong_packets = [packet(200), identified(packet(200), "front_right"),
+                     identified(packet(200), device="02:00:00:00:01:99")]
+    for value in wrong_packets:
+        with pytest.raises(ValueError):
+            receive(state, value)
+    with pytest.raises(ValueError, match="source IP"):
+        state.receive(encoded(identified(packet(200))), ("192.168.1.99", 43210), 1, 1000000000)
+    assert json.dumps(state.metadata_snapshot(), sort_keys=True) == before
+    report = state.diagnostics_snapshot(1000000000)
+    assert report["streams"] == stream_before
+    assert report["valid_packets"] == 2
+    assert report["rejected_packets"] == report["invalid_packets"] == 4
+    assert report["nodes"][0]["inventory_verified"]
+    assert not report["inventory_verified"]  # H2 and CENTER still unconfigured
+    assert state.pinned_devices == {1: device}
+
+
+def test_commissioning_pins_first_device_per_role_and_detects_device_reuse():
+    state = protocol.TelemetryState(wheel_id="front_left")
+    receive(state, identified(packet()))
+    with pytest.raises(ValueError, match="duplicate device"):
+        receive(state, identified(packet(1), device="02:00:00:00:01:99"))
+    with pytest.raises(ValueError, match="already belongs"):
+        receive(state, identified(packet(1, node_id=2), device="02:00:00:00:01:01"))
+    assert len(receive(state, identified(packet(0, boot_id=NEXT_BOOT)))[1]) == 1
+    report = state.diagnostics_snapshot(1000000000)
+    assert not report["inventory_verified"]
+    assert len(report["streams"]) == 2
+
+
+def test_inventory_fully_verified_only_after_all_configured_devices_seen():
+    devices = [f"02:00:00:00:01:{node:02x}" for node in protocol.ROLES]
+    state = protocol.TelemetryState(wheel_id="front_left", expected_device_ids=devices)
+    for node in protocol.ROLES:
+        receive(state, metadata_for(node))
+    assert state.diagnostics_snapshot(1000000000)["inventory_verified"]
+
+
+@pytest.mark.parametrize("kwargs", [
+    {"wheel_id": "left"}, {"wheel_id": "front_left", "allow_legacy": True},
+    {"expected_device_ids": ["", ""]},
+    {"wheel_id": "front_left", "expected_device_ids": ["bad", "", ""]},
+    {"wheel_id": "front_left", "expected_device_ids": ["02:00:00:00:00:01"] * 3},
+    {"wheel_id": "front_left", "expected_source_ips": ["invalid", "", ""]},
+    {"expected_source_ips": ["192.168.1.1", "", ""]},
+])
+def test_invalid_receiver_inventory_fails_before_receiving(kwargs):
+    with pytest.raises(ValueError):
+        protocol.TelemetryState(**kwargs)
+
+
+def test_clock_maps_never_cross_wheel_device_or_legacy_identity():
+    base = {"node_id": 1, "boot_id": BOOT, "calibrated": True,
+            "slope_ns_per_us": "1000", "offset_ns": 1}
+    left = dict(base, wheel_id="front_left", device_id="02:00:00:00:01:01", offset_ns=2)
+    right = dict(base, wheel_id="front_right", device_id="02:00:00:00:02:01", offset_ns=3)
+    mapper = protocol.ClockMapper({"version": 1, "mappings": [base, left, right]})
+    assert mapper.map(1, BOOT, 10) == 10001
+    assert mapper.map(1, BOOT, 10, left["wheel_id"], left["device_id"]) == 10002
+    assert mapper.map(1, BOOT, 10, right["wheel_id"], right["device_id"]) == 10003
+    assert mapper.map(1, BOOT, 10, "front_left", right["device_id"]) is None
+    with pytest.raises(ValueError):
+        protocol.ClockMapper({"version": 1, "mappings": [dict(base, wheel_id="front_left")]})
+
+
+@pytest.mark.parametrize("wheel", protocol.WHEELS)
+def test_actual_bridge_namespaces_topics_and_joints_and_rejects_other_wheel(monkeypatch, wheel):
+    module = load_bridge_with_fake_ros(monkeypatch, parameters={"wheel_id": wheel})
+    node = module.CasterEncoderBridge()
+    other = "front_right" if wheel == "front_left" else "front_left"
+    node.receiver.queue = [
+        (encoded(identified(packet(), wheel)), ("192.168.1.11", 1234), 11, 12),
+        (encoded(identified(packet(1), other)), ("192.168.1.12", 1234), 13, 14),
+    ]
+    node.receive()
+    expected = {f"/caster_encoder/{wheel}/{topic}" for topic in
+                ("packets", "metadata", "diagnostics", "H1/joint_states", "H2/joint_states", "CENTER/joint_states")}
+    assert set(node.publishers) == expected
+    assert len(node.packets.messages) == 1
+    assert node.joints[1].messages[0].name == [f"{wheel}_caster_h1_rotation"]
+    assert node.state.rejected_packets == 1
+
+
+def test_explicit_legacy_bridge_rejects_v2(monkeypatch):
+    module = load_bridge_with_fake_ros(monkeypatch, parameters={"wheel_id": "", "legacy_mode": True})
+    node = module.CasterEncoderBridge()
+    node.receiver.queue = [(encoded(identified(packet())), ("192.168.1.11", 1), 1, 1)]
+    node.receive()
+    assert node.state.rejected_packets == 1
+    assert not node.packets.messages
+
+
+@pytest.mark.parametrize("configured_wheel", ["", "front_right"])
+def test_dual_launch_requires_a_matching_loaded_configuration(monkeypatch, configured_wheel):
+    module = load_bridge_with_fake_ros(monkeypatch, parameters={
+        "wheel_id": "front_left", "require_config": True,
+        "configured_wheel_id": configured_wheel,
+    })
+    with pytest.raises(ValueError, match="Missing or mismatched caster configuration"):
+        module.CasterEncoderBridge()
+
+
+def test_bridge_configuration_requires_restart_including_simulation_clock(monkeypatch):
+    module = load_bridge_with_fake_ros(monkeypatch, parameters={
+        "wheel_id": "front_left", "require_config": True,
+        "configured_wheel_id": "front_left",
+    })
+    node = module.CasterEncoderBridge()
+    assert all(descriptor.read_only for descriptor in node.descriptors.values())
+    assert "use_sim_time" in node.descriptors
+
+
+def test_packet_identity_rejects_partial_v2_fields_before_grouping():
+    with pytest.raises(ValueError):
+        protocol.packet_identity({"v": 2, "node_id": 1, "boot_id": BOOT})
+    with pytest.raises(ValueError):
+        protocol.packet_identity({"node_id": 1, "boot_id": BOOT, "wheel_id": "front_left"})
+
+
+def test_real_ros_named_configuration_and_read_only_parameters(monkeypatch):
+    rclpy = pytest.importorskip("rclpy")
+    from rclpy.parameter import Parameter
+
+    monkeypatch.setenv("ROS_LOCALHOST_ONLY", "1")
+    monkeypatch.setenv("ROS_DOMAIN_ID", "177")
+    monkeypatch.syspath_prepend(str(SCRIPTS))
+    loader = importlib.machinery.SourceFileLoader("caster_encoder_bridge_real_ros", str(SCRIPTS / "caster_encoder_bridge"))
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
+        probe.bind(("127.0.0.1", 0))
+        port = probe.getsockname()[1]
+    config = SCRIPTS.parent / "config/caster_encoders.yaml"
+    rclpy.init(args=["--ros-args", "-r", "__node:=caster_encoder_front_right",
+                     "--params-file", str(config), "-p", "require_config:=true",
+                     "-p", "bind_address:=127.0.0.1", "-p", f"udp_port:={port}"])
+    node = None
+    try:
+        node = module.CasterEncoderBridge()
+        assert node.state.wheel_id == "front_right"
+        assert node.get_parameter("use_sim_time").value is False
+        for name, value in (("wheel_id", "front_left"), ("udp_port", port), ("use_sim_time", True)):
+            result = node.set_parameters([Parameter(name, value=value)])[0]
+            assert result.successful is False
+            assert "read-only" in result.reason
+    finally:
+        if node is not None:
+            node.destroy_node()
+        rclpy.shutdown()

@@ -7,24 +7,27 @@ import numpy as np
 
 from caster_encoder_protocol import ROLES
 from caster_replay_model import ReplayModel
+from caster_encoder_selection import WheelIdentityError
 
 
 COLORS = {'H1': '#2879d8', 'H2': '#d36b1f', 'CENTER': '#209d94'}
 BACKGROUND = '#f6f8fb'
 
 
-def collect_readings(events, start_ns, stale_timeout_s=1.):
+def collect_readings(events, start_ns, stale_timeout_s=1., wheel_id=None):
     """Retain all accepted samples, including multiple samples in one packet.
 
     X is recorded packet time, not unsynchronized device acquisition time.
     Sequences, boots, validity and duplicates follow the CAD replay adapter.
     No zero shift, CAD sign mapping, smoothing or decimation is applied.
     """
-    model = ReplayModel(stale_timeout_s=stale_timeout_s)
+    model = ReplayModel(stale_timeout_s=stale_timeout_s, wheel_id=wheel_id)
     series = {role: [] for role in ROLES.values()}
     for stamp, envelope in events:
         try:
             readings = model.receive(envelope, stamp)
+        except WheelIdentityError:
+            raise
         except ValueError:
             continue
         for reading in readings:
@@ -32,7 +35,8 @@ def collect_readings(events, start_ns, stale_timeout_s=1.):
             rows = series[role]
             row = {'bag_time_ns': stamp, 'time_s': (stamp-start_ns)/1e9,
                    'role': role, 'angle_rad': reading['position'],
-                   'seq': reading['seq'], 'boot_id': model.state.current_boot[node],
+                   'seq': reading['seq'], 'boot_id': model.values[node]['boot_id'],
+                   'wheel_id': reading['wheel_id'], 'device_id': reading['device_id'],
                    'segment': 0}
             if rows:
                 last = rows[-1]
@@ -60,12 +64,12 @@ def curve_points(rows):
 
 class EncoderPlots:
     """Draw the full recording once; add a cursor and last valid value per frame."""
-    def __init__(self, events, start_ns, end_ns, bag_name, width, stale_timeout_s=1.):
+    def __init__(self, events, start_ns, end_ns, bag_name, width, stale_timeout_s=1., wheel_id=None):
         from matplotlib.backends.backend_agg import FigureCanvasAgg
         from matplotlib.figure import Figure
         from PIL import Image, ImageFont
 
-        self.series, rejected = collect_readings(events, start_ns, stale_timeout_s)
+        self.series, rejected = collect_readings(events, start_ns, stale_timeout_s, wheel_id)
         self.times = {role: [row['bag_time_ns'] for row in rows]
                       for role, rows in self.series.items()}
         self.start, self.duration = start_ns, (end_ns-start_ns)/1e9
@@ -73,6 +77,8 @@ class EncoderPlots:
         self.scale = width / 1600
         self.font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf', 17)
         self.metadata = {
+            'wheel_id': wheel_id or next((row['wheel_id'] for rows in self.series.values() for row in rows), None),
+            'devices': {role: sorted({row['device_id'] for row in rows}) for role, rows in self.series.items()},
             'quantity': 'Encoder angle in radians; H1/H2 multi-turn, CENTER calibrated wrapped alpha.',
             'time_basis': 'Seconds since bag start, using packet bag timestamps (host receipt; device clocks unsynchronized).',
             'processing': 'All accepted samples, no smoothing or decimation. Break curves at sequence gaps, reboots, stale gaps, and CENTER wraps.',
@@ -161,7 +167,7 @@ class EncoderPlots:
         from matplotlib.figure import Figure
         csv_path = video_path.with_suffix('.encoders.csv')
         with csv_path.open('w', newline='') as stream:
-            writer = csv.DictWriter(stream, fieldnames=['bag_time_ns', 'time_s', 'role', 'angle_rad', 'seq', 'boot_id', 'segment'])
+            writer = csv.DictWriter(stream, fieldnames=['bag_time_ns', 'time_s', 'role', 'angle_rad', 'seq', 'boot_id', 'wheel_id', 'device_id', 'segment'])
             writer.writeheader()
             writer.writerows(sorted((row for rows in self.series.values() for row in rows), key=lambda row: row['bag_time_ns']))
         figure = Figure(figsize=(12, 8), dpi=150, facecolor=BACKGROUND)

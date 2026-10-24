@@ -26,6 +26,7 @@
   <exec_depend>hamr_description</exec_depend>
   <exec_depend>hamr_ball_caster</exec_depend>
   <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>rcl_interfaces</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>launch_xml</exec_depend>

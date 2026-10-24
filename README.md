@@ -224,19 +224,22 @@ for speeds, saved routes, MP4 and replay commands.
 
 ## Caster encoder Wi-Fi recording and replay
 
-Hardware bringup now receives the H1/H2/CENTER ESP UDP stream and records raw
-telemetry, metadata, validity and live angle topics in the robot bag. For passive
-collection without the motor controller, use
-`ros2 launch hamr_bringup caster_encoders.launch.xml`.
-Replay recorded motion in the 3D CAD caster with
-`ros2 launch hamr_bringup caster_encoder_replay.launch.py bag:=/path/to/bag`.
-See [caster encoder setup and accuracy analysis](docs/CASTER_ENCODERS.md) for
-network settings, build steps, model calibration, plots and optional reference comparison.
-For an interactive one-turn H1/H2 count check, run
-`python3 hamr_bringup/scripts/record_caster_rotation.py record H1` from this
-repository with the bridge running; repeat with `H2`. See the
-[marked-rotation procedure](docs/CASTER_ENCODERS.md#marked-rotation-comparison-h1-versus-h2)
-for output files and the comparison command.
+Hardware bringup receives both front-left and front-right H1/H2/CENTER ESP
+streams. Every new firmware packet carries its wheel and permanent device
+identity; the Pi validates these and records separate topic branches in one bag.
+See [the complete two-wheel configuration and flashing guide](docs/DUAL_CASTER_SETUP.md)
+for the six board profiles and the Pi's `caster_encoders.yaml` inventory.
+
+```bash
+ros2 launch hamr_bringup caster_encoders.launch.xml config_file:="$HOME/caster_encoders.yaml"
+ros2 launch hamr_bringup caster_encoder_replay.launch.py bag:=/path/to/bag wheel:=front_left
+python3 hamr_bringup/scripts/record_caster_rotation.py record H1 --wheel front_left
+```
+
+The first command is passive acquisition without a motor controller. Select
+`front_right` for the other wheel. Saved legacy single-wheel bags remain readable.
+See [caster encoder measurement and accuracy analysis](docs/CASTER_ENCODERS.md)
+for calibration, model mapping, plots and independent reference comparisons.
 
 ## Hardware camera clips
 

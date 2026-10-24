@@ -103,3 +103,62 @@ def test_transform_composes_parent_mount_joint_axis_and_child_offset():
     result=link_transforms(robot,{'hinge':math.pi/2})
     np.testing.assert_allclose(result['b'][:3,3],[1,2,4],atol=1e-14)
     np.testing.assert_allclose(result['a'][:3,:3] @ [1,0,0],[0,1,0],atol=1e-14)
+
+
+def test_video_and_plot_refuse_cross_wheel_packets():
+    from test_caster_encoder_replay import wheel_envelope
+    events = [(100, wheel_envelope(node)) for node in (1, 2, 3)]
+    events.append((101, wheel_envelope(wheel="front_right")))
+    with pytest.raises(ValueError, match="Expected wheel front_left"):
+        sample_frames(events, [100, 101], wheel_id="front_left")
+    with pytest.raises(ValueError, match="Expected wheel front_left"):
+        collect_readings(events, 100)
+
+
+def test_v2_plots_preserve_identity_in_full_sample_rows():
+    from test_caster_encoder_replay import wheel_envelope
+    series, rejected = collect_readings([(100, wheel_envelope())], 100, wheel_id="front_left")
+    assert rejected == 0
+    assert series["H1"][0]["wheel_id"] == "front_left"
+    assert series["H1"][0]["device_id"] == "aa:bb:cc:dd:ee:01"
+
+
+def test_v2_plot_csv_export_preserves_physical_identity(tmp_path):
+    import csv
+    from test_caster_encoder_replay import wheel_envelope
+    events = [(100, wheel_envelope(node)) for node in (1, 2, 3)]
+    plots = EncoderPlots(events, 100, 200, "front_left", 1600, wheel_id="front_left")
+    plots.export(tmp_path / "front_left.mp4")
+    with (tmp_path / "front_left.encoders.csv").open() as handle:
+        rows = list(csv.DictReader(handle))
+    assert {row["wheel_id"] for row in rows} == {"front_left"}
+    assert {row["device_id"] for row in rows} == {f"aa:bb:cc:dd:ee:{n:02x}" for n in (1, 2, 3)}
+    assert plots.metadata["wheel_id"] == "front_left"
+    assert plots.metadata["devices"]["H1"] == ["aa:bb:cc:dd:ee:01"]
+
+
+def test_video_bag_scan_checks_every_identity_and_retains_malformed_records(monkeypatch):
+    import json
+    from types import SimpleNamespace
+    from render_caster_encoder_video import read_bag
+    from test_caster_encoder_replay import wheel_envelope
+    topic = "/caster_encoder/front_left/packets"
+    messages = [(topic, "malformed", 100),
+                (topic, json.dumps(wheel_envelope()), 200)]
+    class Reader:
+        def open(self, *args): pass
+        def get_all_topics_and_types(self):
+            return [SimpleNamespace(name=topic, type="std_msgs/msg/String")]
+        def has_next(self): return bool(messages)
+        def read_next(self): return messages.pop(0)
+    monkeypatch.setitem(sys.modules, "rosbag2_py", SimpleNamespace(
+        SequentialReader=Reader, StorageOptions=lambda **kw: kw,
+        ConverterOptions=lambda *args: args))
+    monkeypatch.setitem(sys.modules, "rclpy.serialization", SimpleNamespace(
+        deserialize_message=lambda value, _: SimpleNamespace(data=value)))
+    monkeypatch.setitem(sys.modules, "std_msgs.msg", SimpleNamespace(String=object))
+    events, start, end = read_bag("unused", wheel_id="front_left")
+    assert len(events) == 2 and (start, end) == (100, 200)
+    messages.append((topic, json.dumps(wheel_envelope(wheel="front_right")), 300))
+    with pytest.raises(ValueError, match="Expected wheel front_left"):
+        read_bag("unused", wheel_id="front_left")

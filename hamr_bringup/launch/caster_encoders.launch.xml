@@ -1,11 +1,39 @@
 <launch>
     <!-- Passive acquisition only: this launch never starts a motor controller. -->
+    <arg name="mode" default="dual" description="Dual identified v2 wheels, or one explicitly unassigned legacy v1 wheel.">
+        <choice value="dual" />
+        <choice value="legacy" />
+    </arg>
+    <arg name="config_file" default="$(find-pkg-share hamr_bringup)/config/caster_encoders.yaml"
+         description="Per-wheel ports, bind addresses, expected MAC addresses and optional source IPs." />
+    <!-- These compatibility arguments apply only in mode:=legacy. -->
     <arg name="bind_address" default="0.0.0.0" />
     <arg name="udp_port" default="5005" />
     <arg name="stale_timeout_s" default="1.0" />
     <arg name="record_bag" default="true" />
     <node pkg="hamr_bringup" exec="caster_encoder_bridge"
-          name="caster_encoder_bridge" output="screen">
+          name="caster_encoder_front_left" output="screen"
+          if="$(eval &quot;'$(var mode)' == 'dual'&quot;)">
+        <param from="$(var config_file)" />
+        <param name="wheel_id" value="front_left" />
+        <param name="legacy_mode" value="false" />
+        <param name="require_config" value="true" />
+        <param name="use_sim_time" value="false" />
+    </node>
+    <node pkg="hamr_bringup" exec="caster_encoder_bridge"
+          name="caster_encoder_front_right" output="screen"
+          if="$(eval &quot;'$(var mode)' == 'dual'&quot;)">
+        <param from="$(var config_file)" />
+        <param name="wheel_id" value="front_right" />
+        <param name="legacy_mode" value="false" />
+        <param name="require_config" value="true" />
+        <param name="use_sim_time" value="false" />
+    </node>
+    <node pkg="hamr_bringup" exec="caster_encoder_bridge"
+          name="caster_encoder_bridge" output="screen"
+          if="$(eval &quot;'$(var mode)' == 'legacy'&quot;)">
+        <param name="wheel_id" value="''" />
+        <param name="legacy_mode" value="true" />
         <param name="bind_address" value="$(var bind_address)" />
         <param name="udp_port" value="$(var udp_port)" />
         <param name="stale_timeout_s" value="$(var stale_timeout_s)" />

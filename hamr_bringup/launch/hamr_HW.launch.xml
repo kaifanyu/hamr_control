@@ -19,6 +19,9 @@
         value="$(find-pkg-share hamr_bringup)/config/hamr_uros_bridge.yaml" />
     <arg name="record_bag" default="true" />
     <arg name="caster_encoders" default="true" description="Receive the caster ESP UDP telemetry for live plots and bags." />
+    <arg name="caster_encoder_config" default="$(find-pkg-share hamr_bringup)/config/caster_encoders.yaml" />
+    <arg name="caster_encoder_mode" default="dual" />
+    <!-- The address/port/timeout overrides below apply only to legacy mode. -->
     <arg name="caster_encoder_bind_address" default="0.0.0.0" />
     <arg name="caster_encoder_udp_port" default="5005" />
     <arg name="caster_encoder_stale_timeout_s" default="1.0" />
@@ -130,6 +133,8 @@
     <!-- Record Vicon, onboard localization, commands, and encoder ticks for offline comparison. -->
     <include file="$(find-pkg-share hamr_bringup)/launch/caster_encoders.launch.xml"
              if="$(var caster_encoders)">
+        <arg name="config_file" value="$(var caster_encoder_config)" />
+        <arg name="mode" value="$(var caster_encoder_mode)" />
         <arg name="bind_address" value="$(var caster_encoder_bind_address)" />
         <arg name="udp_port" value="$(var caster_encoder_udp_port)" />
         <arg name="stale_timeout_s" value="$(var caster_encoder_stale_timeout_s)" />

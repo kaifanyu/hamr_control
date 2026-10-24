@@ -7,12 +7,13 @@ import sys
 import time
 
 import rclpy
+from rcl_interfaces.msg import ParameterDescriptor, ParameterType
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
 from sensor_msgs.msg import JointState
 from std_msgs.msg import String
 
-from caster_encoder_protocol import ROLES, TelemetryState, UDPReceiver
+from caster_encoder_protocol import ROLES, WHEELS, TelemetryState, UDPReceiver
 
 
 class CasterEncoderBridge(Node):
@@ -20,10 +21,19 @@ class CasterEncoderBridge(Node):
         super().__init__("caster_encoder_bridge")
         if self.get_parameter("use_sim_time").value:
             raise RuntimeError("caster_encoder_bridge requires use_sim_time=false for live receipt timestamps")
-        self.declare_parameter("bind_address", "0.0.0.0")
-        self.declare_parameter("udp_port", 5005)
-        self.declare_parameter("stale_timeout_s", 1.0)
-        self.declare_parameter("expected_node_ids", [1, 2, 3])
+        fixed_description = "Restart the bridge to apply configuration changes."
+        self.set_descriptor("use_sim_time", ParameterDescriptor(
+            type=ParameterType.PARAMETER_BOOL, read_only=True, description=fixed_description))
+        for name, default in (
+            ("wheel_id", "front_left"), ("legacy_mode", False),
+            ("require_config", False), ("configured_wheel_id", ""),
+            ("expected_device_ids", ["", "", ""]),
+            ("expected_source_ips", ["", "", ""]),
+            ("bind_address", "0.0.0.0"), ("udp_port", 5005),
+            ("stale_timeout_s", 1.0), ("expected_node_ids", [1, 2, 3]),
+        ):
+            self.declare_parameter(name, default, descriptor=ParameterDescriptor(
+                read_only=True, description=fixed_description))
         bind_address = self.get_parameter("bind_address").value
         udp_port = self.get_parameter("udp_port").value
         stale_timeout = self.get_parameter("stale_timeout_s").value
@@ -31,8 +41,30 @@ class CasterEncoderBridge(Node):
             raise RuntimeError("udp_port must be an integer in 1..65535")
         if not math.isfinite(stale_timeout) or stale_timeout <= 0:
             raise RuntimeError("stale_timeout_s must be finite and positive")
+        wheel_id = self.get_parameter("wheel_id").value
+        legacy_mode = self.get_parameter("legacy_mode").value
+        if type(legacy_mode) is not bool:
+            raise ValueError("legacy_mode must be a boolean")
+        if legacy_mode:
+            if wheel_id:
+                raise ValueError("legacy_mode requires an empty wheel_id")
+            wheel_id = None
+        elif wheel_id not in WHEELS:
+            raise ValueError("wheel_id must be front_left or front_right")
+        if self.get_parameter("require_config").value:
+            configured_wheel = self.get_parameter("configured_wheel_id").value
+            if configured_wheel != wheel_id:
+                raise ValueError(
+                    f"Missing or mismatched caster configuration: configured_wheel_id={configured_wheel!r}, "
+                    f"expected {wheel_id!r}. Check the node key in caster_encoders.yaml; "
+                    "dual launch requires /caster_encoder_front_left and /caster_encoder_front_right."
+                )
+        self.topic_prefix = "/caster_encoder" + ("/" + wheel_id if wheel_id else "")
         self.state = TelemetryState(
-            self.get_parameter("expected_node_ids").value, stale_timeout)
+            self.get_parameter("expected_node_ids").value, stale_timeout,
+            wheel_id=wheel_id, allow_legacy=legacy_mode,
+            expected_device_ids=self.get_parameter("expected_device_ids").value,
+            expected_source_ips=self.get_parameter("expected_source_ips").value)
         qos = QoSProfile(
             history=HistoryPolicy.KEEP_LAST, depth=1000,
             reliability=ReliabilityPolicy.RELIABLE,
@@ -43,11 +75,11 @@ class CasterEncoderBridge(Node):
             reliability=ReliabilityPolicy.RELIABLE,
             durability=DurabilityPolicy.TRANSIENT_LOCAL,
         )
-        self.packets = self.create_publisher(String, "/caster_encoder/packets", qos)
-        self.diagnostics = self.create_publisher(String, "/caster_encoder/diagnostics", qos)
-        self.metadata = self.create_publisher(String, "/caster_encoder/metadata", metadata_qos)
+        self.packets = self.create_publisher(String, f"{self.topic_prefix}/packets", qos)
+        self.diagnostics = self.create_publisher(String, f"{self.topic_prefix}/diagnostics", qos)
+        self.metadata = self.create_publisher(String, f"{self.topic_prefix}/metadata", metadata_qos)
         self.joints = {
-            node: self.create_publisher(JointState, f"/caster_encoder/{role}/joint_states", qos)
+            node: self.create_publisher(JointState, f"{self.topic_prefix}/{role}/joint_states", qos)
             for node, role in ROLES.items()
         }
         self.receiver = UDPReceiver(bind_address, udp_port)
@@ -58,8 +90,14 @@ class CasterEncoderBridge(Node):
         self.metadata.publish(self.json_message(self.state.metadata_snapshot()))
         self.get_logger().info(
             f"Listening on UDP {bind_address}:{udp_port}; ESP acquisition clocks are unsynchronized. "
-            "ROS headers use host receipt time; original samples and clocks are in /caster_encoder/packets."
+            f"ROS headers use host receipt time; original samples and clocks are in {self.topic_prefix}/packets."
         )
+        if not legacy_mode and not all(self.state.expected_device_ids):
+            self.get_logger().warning(
+                f"{wheel_id}: device inventory is incomplete; commissioning mode pins the first "
+                "device observed per role until restart. Set expected_device_ids in caster_encoders.yaml "
+                "after checking physical board labels; inventory_verified remains false."
+            )
 
     @staticmethod
     def json_message(value):
@@ -80,7 +118,7 @@ class CasterEncoderBridge(Node):
             except ValueError as error:
                 now = time.monotonic()
                 if now - self.last_invalid_warning >= 5.0:
-                    self.get_logger().warning(f"Rejected malformed caster encoder datagram: {error}")
+                    self.get_logger().warning(f"Rejected caster encoder datagram: {error}")
                     self.last_invalid_warning = now
                 continue
             self.packets.publish(self.json_message(envelope))

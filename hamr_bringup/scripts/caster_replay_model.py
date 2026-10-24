@@ -10,8 +10,10 @@ import math
 from pathlib import Path
 
 from caster_encoder_protocol import (
-    ROLES, TelemetryState, integer, parse_json,
+    ROLES, TelemetryState, decode_packet, integer, parse_json,
 )
+
+from caster_encoder_selection import WheelIdentityGuard, WheelIdentityError
 
 
 SHELL_JOINTS = (
@@ -48,7 +50,7 @@ def validate_playback(bag, rate):
 
 
 class ReplayModel:
-    def __init__(self, mapping=None, stale_timeout_s=1.0):
+    def __init__(self, mapping=None, stale_timeout_s=1.0, wheel_id=None):
         self.mapping = dict(DEFAULT_MAPPING)
         if mapping is not None:
             unknown = set(mapping) - set(self.mapping)
@@ -65,6 +67,8 @@ class ReplayModel:
                 raise ValueError(f"{role}_zero_rad must be finite")
         if type(self.mapping["mapping_verified"]) is not bool:
             raise ValueError("mapping_verified must be true or false")
+        self.guard = WheelIdentityGuard(wheel_id)
+        self.identity_error = None
         self.stale_timeout_s = stale_timeout_s
         self.state = TelemetryState(stale_timeout_s=stale_timeout_s)
         self.values = {}
@@ -99,6 +103,10 @@ class ReplayModel:
             integer(envelope.get("source_port"), "source_port", 0, 65535)
             if not isinstance(envelope.get("source_ip"), str) or not envelope["source_ip"]:
                 raise ValueError("Envelope requires source_ip")
+            packet = decode_packet(json.dumps(envelope["packet"], allow_nan=False).encode("utf-8"))
+            self.guard.accept(packet)
+            if self.identity_error:
+                raise WheelIdentityError(self.identity_error)
             previous_boots = dict(self.state.current_boot)
             _, readings, _ = self.state.receive(
                 json.dumps(envelope["packet"], allow_nan=False).encode("utf-8"),
@@ -107,7 +115,7 @@ class ReplayModel:
             )
             for node, boot in self.state.current_boot.items():
                 if node in previous_boots and previous_boots[node] != boot:
-                    self.boot_changes[node] += 1
+                    self.boot_changes[node[2]] += 1
             for reading in readings:
                 node = reading["node_id"]
                 role = ROLES[node].lower()
@@ -115,11 +123,18 @@ class ReplayModel:
                     reading["position"] - self.mapping[f"{role}_zero_rad"])
                 self.values[node] = {
                     "position": value, "source_angle_rad": reading["position"],
-                    "seq": reading["seq"], "boot_id": self.state.current_boot[node],
+                    "seq": reading["seq"],
+                    "wheel_id": reading["wheel_id"], "device_id": reading["device_id"],
+                    "boot_id": self.state.current_boot[(reading["wheel_id"], reading["device_id"], node)],
                     "last_valid_replay_ns": replay_ns,
                 }
             self.last_error = None
             return readings
+        except WheelIdentityError as error:
+            self.invalid_envelopes += 1
+            self.identity_error = self.last_error = str(error)
+            self.values.clear()
+            raise
         except (ValueError, TypeError, OverflowError, RecursionError) as error:
             self.invalid_envelopes += 1
             self.last_error = str(error)
@@ -129,11 +144,13 @@ class ReplayModel:
         self.advance_time(replay_ns)
         health = self.state.diagnostics_snapshot(replay_ns)
         nodes = []
-        for node in health["nodes"]:
+        for node in sorted(health["nodes"], key=lambda entry: entry["node_id"]):
             node = dict(node)
             identity = node["node_id"]
             value = self.values.get(identity)
-            stream = self.state.streams.get((identity, node["boot_id"]))
+            stream = self.state.streams.get((node["wheel_id"], node["device_id"], identity, node["boot_id"]))
+            if node["boot_id"] is None and self.guard.wheel_id:
+                node["wheel_id"] = self.guard.wheel_id
             highest = -1 if stream is None else stream["highest_display_seq"]
             if value is None:
                 condition = "unknown"
@@ -160,7 +177,8 @@ class ReplayModel:
         names = [self.mapping["h1_joint"], self.mapping["h2_joint"], CARRIER_JOINT, *ROLLER_JOINTS]
         positions = [self.values[node]["position"] for node in (1, 2, 3)] + [0.0, 0.0] if complete else []
         status = {
-            **health, "nodes": nodes, "mode": "measured_motion_kinematic_replay",
+            **health, "wheel_id": self.guard.wheel_id, "identity_error": self.identity_error,
+            "nodes": nodes, "mode": "measured_motion_kinematic_replay",
             "complete_pose_available": complete, "mapping": dict(self.mapping),
             "clock_resets": self.clock_resets, "invalid_envelopes": self.invalid_envelopes,
             "last_error": self.last_error,
@@ -175,7 +193,7 @@ class ReplayModel:
 
 def status_text(status):
     mapping = "user-calibrated CAD mapping" if status["mapping_calibration_current"] else "ILLUSTRATIVE mapping: signs / zeros unverified"
-    rows = ["Recorded caster motion | kinematic CAD replay", mapping]
+    rows = [f"Recorded {status.get('wheel_id') or 'caster'} motion | kinematic CAD replay", mapping]
     for node in status["nodes"]:
         value = node["model_position_rad"]
         angle = "unknown" if value is None else f"{value:.3f} rad"
@@ -191,6 +209,8 @@ def status_text(status):
     rows.append("Phase dots: illustrative | Accuracy: no independent reference")
     if status["clock_resets"]:
         rows.append(f"Playback clock resets: {status['clock_resets']}")
-    if status["last_error"]:
+    if status.get("identity_error"):
+        rows.append("Wheel/device identity conflict: replay stopped")
+    elif status["last_error"]:
         rows.append("Malformed replay packet rejected")
     return "\n".join(rows)

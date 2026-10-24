@@ -315,3 +315,78 @@ def test_plots_render_complete_output_when_matplotlib_available(tmp_path):
     assert len(outputs) == 3
     for name in outputs:
         assert (tmp_path / name).read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
+
+
+def v2(value, wheel="front_left", device="aa:bb:cc:dd:ee:01"):
+    value["packet"].update(v=2, wheel_id=wheel, device_id=device)
+    return value
+
+
+def test_v2_analysis_exports_identity_and_rejects_mixed_wheels_or_devices():
+    left = v2(envelope([sample(0)]))
+    rows, _, summary = analyze([left], wheel_id="front_left")
+    assert rows[0]["wheel_id"] == summary["wheel_id"] == "front_left"
+    assert rows[0]["device_id"] == summary["streams"][0]["device_id"] == "aa:bb:cc:dd:ee:01"
+    with pytest.raises(ValueError, match="Expected wheel front_left"):
+        analyze([left, v2(envelope([sample(0)]), wheel="front_right")])
+    with pytest.raises(ValueError, match="changed device identity"):
+        analyze([left, v2(envelope([sample(1)]), device="aa:bb:cc:dd:ee:02")])
+    with pytest.raises(ValueError, match="Expected wheel front_right"):
+        analyze([left], wheel_id="front_right")
+
+
+def test_v2_reference_and_clock_maps_require_the_entire_physical_identity(tmp_path):
+    packet = v2(envelope([sample(0, angle=.5)]))
+    path = tmp_path / "reference.csv"
+    path.write_text("wheel_id,device_id,node_id,boot_id,time_epoch_ns,angle_rad\n"
+                    f"front_right,aa:bb:cc:dd:ee:01,1,{BOOT},{EPOCH},.5\n"
+                    f"front_left,aa:bb:cc:dd:ee:01,1,{BOOT},{EPOCH},.25\n")
+    reference = MODULE.read_reference(path)
+    mapping = {"node_id": 1, "boot_id": BOOT, "calibrated": True,
+               "slope_ns_per_us": "1000", "offset_ns": EPOCH,
+               "valid_from_us": 0, "valid_to_us": 1000000}
+    mapper = MODULE.protocol.ClockMapper({"version": 1, "mappings": [mapping]})
+    rows, _, _ = analyze([packet], reference=reference, clock_mapper=mapper)
+    assert rows[0]["angle_error_rad"] == .25
+    assert rows[0]["mapped_epoch_ns"] is None
+    rows, _, _ = analyze([packet], reference={(1, BOOT): [(EPOCH, .5)]})
+    assert rows[0]["reference_angle_rad"] is None
+    mapping.update(wheel_id="front_left", device_id="aa:bb:cc:dd:ee:01")
+    rows, _, _ = analyze([packet], clock_mapper=MODULE.protocol.ClockMapper({"version": 1, "mappings": [mapping]}))
+    assert rows[0]["mapped_epoch_ns"] == EPOCH
+
+
+def test_v2_bag_reads_only_sibling_retained_metadata(monkeypatch, tmp_path):
+    packet_topic = "/caster_encoder/front_right/packets"
+    retained_topic = "/caster_encoder/front_right/metadata"
+    metadata = {"v": 2, "wheel_id": "front_right", "device_id": "aa:bb:cc:dd:ee:01",
+                "type": "metadata", "node_id": 1, "boot_id": BOOT, "role": "H1",
+                "firmware_version": "test", "idf_version": "test"}
+    messages = [
+        ("/caster_encoder/front_left/metadata", json.dumps({"nodes": {"1": {**metadata, "wheel_id": "front_left"}}}), EPOCH),
+        (retained_topic, json.dumps({"nodes": {"1": metadata}}), EPOCH),
+        (packet_topic, json.dumps(v2(envelope([sample(0)]), wheel="front_right")), EPOCH + 1),
+    ]
+    selected = []
+    class Reader:
+        def open(self, *args): pass
+        def get_all_topics_and_types(self):
+            return [SimpleNamespace(name=name, type="std_msgs/msg/String")
+                    for name in [packet_topic, retained_topic, "/caster_encoder/front_left/packets", "/caster_encoder/front_left/metadata"]]
+        def set_filter(self, value):
+            selected.extend(value["topics"])
+            messages[:] = [message for message in messages if message[0] in selected]
+        def has_next(self): return bool(messages)
+        def read_next(self): return messages.pop(0)
+    monkeypatch.setitem(sys.modules, "rosbag2_py", SimpleNamespace(
+        SequentialReader=Reader, StorageOptions=lambda **kw: kw,
+        ConverterOptions=lambda *args: args, StorageFilter=lambda **kw: kw))
+    monkeypatch.setitem(sys.modules, "rclpy.serialization", SimpleNamespace(
+        deserialize_message=lambda value, _: SimpleNamespace(data=value)))
+    monkeypatch.setitem(sys.modules, "std_msgs.msg", SimpleNamespace(String=object))
+    records = list(MODULE.read_bag(tmp_path, wheel_id="front_right"))
+    assert selected == [packet_topic, retained_topic]
+    rows, metadata_rows, summary = MODULE.analyze(records, wheel_id="front_right")
+    assert len(rows) == len(metadata_rows) == 1
+    assert metadata_rows[0]["metadata_source_topic"] == retained_topic
+    assert summary["streams"][0]["metadata_entries"] == 1

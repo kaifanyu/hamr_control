@@ -4,11 +4,13 @@
 Protocol parser, constants, SequenceTracker and ClockMapper vendored from
 caster-encoder-controller/host/logger.py at commit
 58381b32a11d4495076f8889a0864c6b13aa581c (2026-10-14).
+Extended here for identified v2 wheels while retaining legacy v1 decoding.
 Keep wire validation consistent with that repository's docs/protocol.md.
 No sibling repository or ROS installation is required to import this module.
 """
 
 from decimal import Decimal, InvalidOperation, localcontext
+import ipaddress
 import json
 import math
 import re
@@ -19,6 +21,8 @@ import time
 MAX_DATAGRAM = 65507
 INT64_MAX = (1 << 63) - 1
 UINT64_MAX = (1 << 64) - 1
+WHEELS = ("front_left", "front_right")
+DEVICE_ID = re.compile(r"(?:[0-9a-f]{2}:){5}[0-9a-f]{2}\Z")
 BOOT_ID = re.compile(r"[0-9a-fA-F]{16}\Z")
 INTEGER_TEXT = re.compile(r"-?(0|[1-9][0-9]*)\Z")
 SAMPLE_FIELDS = (
@@ -38,7 +42,7 @@ FLAG_NAMES = (
 )
 CSV_FIELDS = (
     "receive_epoch_ns", "receive_monotonic_ns", "source_ip", "source_port",
-    "node_id", "boot_id", *SAMPLE_FIELDS, *FLAG_NAMES,
+    "wheel_id", "device_id", "node_id", "boot_id", *SAMPLE_FIELDS, *FLAG_NAMES,
     "sequence_status", "mapped_epoch_ns", "mapped_clock_sync_valid",
     *DIAGNOSTIC_FIELDS,
 )
@@ -93,6 +97,22 @@ def identity(packet):
         raise ValueError("boot_id must be 16 hexadecimal characters")
 
 
+def wheel_device_identity(value):
+    """Validate the pair used by v2 packets and identity-scoped clock maps."""
+    if value.get("wheel_id") not in WHEELS:
+        raise ValueError("wheel_id must be front_left or front_right")
+    if not isinstance(value.get("device_id"), str) or not DEVICE_ID.fullmatch(value["device_id"]):
+        raise ValueError("device_id must be a lowercase colon-separated MAC address")
+
+
+def packet_identity(packet):
+    """Return a collision-free stream key; legacy captures have no wheel identity."""
+    if packet.get("v") == 2 or "wheel_id" in packet or "device_id" in packet:
+        wheel_device_identity(packet)
+    return (packet.get("wheel_id", "legacy"), packet.get("device_id", ""),
+            packet["node_id"], packet["boot_id"].lower())
+
+
 def count_text(value, name):
     if value is None:
         return
@@ -109,9 +129,13 @@ def decode_packet(data):
         packet = parse_json(data.decode("utf-8"))
         if not isinstance(packet, dict):
             raise ValueError("packet must be a JSON object")
-        if type(packet.get("v")) is not int or packet["v"] != 1:
+        if type(packet.get("v")) is not int or packet["v"] not in (1, 2):
             raise ValueError("unsupported protocol version")
         identity(packet)
+        if packet["v"] == 2:
+            wheel_device_identity(packet)
+        elif "wheel_id" in packet or "device_id" in packet:
+            raise ValueError("legacy v1 packets cannot declare v2 identity fields")
         if packet.get("type") == "metadata":
             expected_role = {1: "H1", 2: "H2", 3: "CENTER"}[packet["node_id"]]
             if packet.get("role") != expected_role:
@@ -226,13 +250,19 @@ class ClockMapper:
             offset = integer(entry.get("offset_ns"), "offset_ns", -(1 << 127), (1 << 127) - 1)
             start = integer(entry.get("valid_from_us", 0), "valid_from_us", 0, INT64_MAX)
             end = integer(entry.get("valid_to_us", INT64_MAX), "valid_to_us", start, INT64_MAX)
-            key = (entry["node_id"], entry["boot_id"].lower())
+            if "wheel_id" in entry or "device_id" in entry:
+                wheel_device_identity(entry)
+            key = packet_identity(entry)
             if key in self.maps:
-                raise ValueError("duplicate node/boot clock mapping")
+                raise ValueError("duplicate wheel/device/node/boot clock mapping")
             self.maps[key] = (entry["calibrated"], slope, offset, start, end)
 
-    def map(self, node_id, boot_id, timestamp_us):
-        mapping = self.maps.get((node_id, boot_id.lower()))
+    def map(self, node_id, boot_id, timestamp_us, wheel_id=None, device_id=None):
+        if wheel_id in (None, "legacy") and device_id in (None, ""):
+            wheel_id, device_id = "legacy", ""
+        else:
+            wheel_device_identity({"wheel_id": wheel_id, "device_id": device_id})
+        mapping = self.maps.get((wheel_id, device_id, node_id, boot_id.lower()))
         if mapping is None:
             return None
         calibrated, slope, offset, start, end = mapping
@@ -256,7 +286,7 @@ CONTINUITY_LOST = 1 << 8
 SPI_IO_ERROR = 1 << 12
 
 
-def display_reading(node_id, sample):
+def display_reading(node_id, sample, wheel_id="legacy", device_id=""):
     """Return a valid display value; CENTER needs no multi-turn continuity."""
     flags = sample["flags"]
     if flags & (READY | SAMPLE_VALID) != (READY | SAMPLE_VALID):
@@ -270,43 +300,110 @@ def display_reading(node_id, sample):
         return None
     velocity = sample["velocity_rad_s"] if flags & VELOCITY_VALID else None
     return {
-        "node_id": node_id, "role": ROLES[node_id], "name": JOINT_NAMES[node_id],
+        "node_id": node_id, "role": ROLES[node_id],
+        "wheel_id": wheel_id, "device_id": device_id,
+        "name": ("" if wheel_id == "legacy" else wheel_id + "_") + JOINT_NAMES[node_id],
         "position": position, "velocity": velocity, "seq": sample["seq"],
     }
 
 
 class TelemetryState:
-    """Keep all raw samples, with separate conservative live-display state.
+    """Keep raw and live state isolated by wheel, device, role and boot.
 
-    Packet reception time is deliberately never called acquisition time. Boot
-    IDs already superseded cannot reactivate an old display or old metadata.
+    A wheel-scoped live receiver rejects mismatches before touching stream state.
+    Without a wheel scope this class can inspect legacy and multi-wheel captures.
     """
 
-    def __init__(self, expected_node_ids=(1, 2, 3), stale_timeout_s=1.0):
+    def __init__(self, expected_node_ids=(1, 2, 3), stale_timeout_s=1.0,
+                 wheel_id=None, expected_device_ids=("", "", ""),
+                 expected_source_ips=("", "", ""), allow_legacy=False):
         if not math.isfinite(stale_timeout_s) or stale_timeout_s <= 0:
             raise ValueError("stale_timeout_s must be finite and positive")
         self.expected_node_ids = tuple(sorted(set(expected_node_ids)))
         if not self.expected_node_ids or any(type(n) is not int or n not in ROLES
                                              for n in self.expected_node_ids):
             raise ValueError("expected_node_ids must contain IDs 1, 2, or 3")
+        if wheel_id is not None and wheel_id not in WHEELS:
+            raise ValueError("wheel_id must be front_left or front_right")
+        if allow_legacy and wheel_id is not None:
+            raise ValueError("legacy mode cannot assign a wheel identity")
+        self.wheel_id = wheel_id
+        self.allow_legacy = allow_legacy
+        self.expected_device_ids = self._inventory(expected_device_ids, "expected_device_ids")
+        self.expected_source_ips = self._inventory(expected_source_ips, "expected_source_ips")
+        for value in self.expected_device_ids:
+            if value and not DEVICE_ID.fullmatch(value):
+                raise ValueError("expected_device_ids must contain lowercase MACs or empty strings")
+        configured = [value for value in self.expected_device_ids if value]
+        if len(configured) != len(set(configured)):
+            raise ValueError("each expected device must have a unique role")
+        for value in self.expected_source_ips:
+            if value:
+                try:
+                    ipaddress.IPv4Address(value)
+                except ipaddress.AddressValueError as error:
+                    raise ValueError("expected_source_ips must contain IPv4 addresses or empty strings") from error
+        if wheel_id is None and (any(self.expected_device_ids) or any(self.expected_source_ips)):
+            raise ValueError("device/source inventory requires a wheel_id")
+        self.pinned_devices = {}
         self.stale_timeout_s = stale_timeout_s
         self.streams = {}
         self.current_boot = {}
         self.metadata = {}
         self.valid_packets = 0
         self.invalid_packets = 0
+        self.rejected_packets = 0
+        self.last_rejection = None
+
+    @staticmethod
+    def _inventory(values, name):
+        if not isinstance(values, (list, tuple)) or len(values) != 3 or any(
+                not isinstance(value, str) for value in values):
+            raise ValueError(f"{name} must contain three strings in H1, H2, CENTER order")
+        return tuple(values)
+
+    def _validate_route(self, packet, source):
+        if self.wheel_id is None:
+            if self.allow_legacy and packet["v"] != 1:
+                raise ValueError("legacy bridge accepts only protocol v1")
+            return
+        if packet["v"] != 2:
+            raise ValueError("wheel-scoped bridge requires protocol v2")
+        if packet["wheel_id"] != self.wheel_id:
+            raise ValueError(f"wrong wheel_id: expected {self.wheel_id}, received {packet['wheel_id']}")
+        node, device = packet["node_id"], packet["device_id"]
+        if node not in self.expected_node_ids:
+            raise ValueError(f"unexpected node_id: {node}")
+        expected = self.expected_device_ids[node - 1]
+        if expected and device != expected:
+            raise ValueError(f"device_id mismatch for {ROLES[node]}: expected {expected}, received {device}")
+        expected_ip = self.expected_source_ips[node - 1]
+        if expected_ip and source[0] != expected_ip:
+            raise ValueError(f"source IP mismatch for {ROLES[node]}: expected {expected_ip}, received {source[0]}")
+        pinned = self.pinned_devices.get(node)
+        if pinned is not None and device != pinned:
+            raise ValueError(f"duplicate device for {ROLES[node]}: pinned {pinned}, received {device}")
+        for other_node, other_device in self.pinned_devices.items():
+            if other_node != node and other_device == device:
+                raise ValueError(f"device {device} already belongs to {ROLES[other_node]}")
+        for other_node, other_device in enumerate(self.expected_device_ids, start=1):
+            if other_node != node and other_device == device:
+                raise ValueError(f"device {device} is configured for {ROLES[other_node]}")
 
     def receive(self, data, source, receive_epoch_ns, receive_monotonic_ns,
                 receive_ros_ns=None):
-        """Return (raw envelope, display readings, metadata_changed).
-
-        Invalid input increments diagnostics and raises ValueError. The caller
-        must not publish it as valid encoder telemetry.
-        """
+        """Return (raw envelope, readings, metadata_changed), or reject atomically."""
         try:
             packet = decode_packet(data)
         except ValueError:
             self.invalid_packets += 1
+            raise
+        try:
+            self._validate_route(packet, source)
+        except ValueError as error:
+            self.invalid_packets += 1
+            self.rejected_packets += 1
+            self.last_rejection = str(error)
             raise
         self.valid_packets += 1
         envelope = {
@@ -316,98 +413,118 @@ class TelemetryState:
         }
         if receive_ros_ns is not None:
             envelope["receive_ros_ns"] = receive_ros_ns
-        node_id, boot_id = packet["node_id"], packet["boot_id"].lower()
-        key = (node_id, boot_id)
+        key = packet_identity(packet)
+        wheel, device, node_id, boot_id = key
+        device_key = key[:3]
+        if self.wheel_id is not None:
+            self.pinned_devices.setdefault(node_id, device)
         metadata_changed = False
         if key not in self.streams:
             self.streams[key] = {
                 "tracker": SequenceTracker(), "minimum_seq": None,
                 "last_packet_monotonic_ns": None, "last_sample_monotonic_ns": None,
                 "highest_display_seq": -1, "diagnostics": {}, "last_flags": None,
+                "source_ip": source[0],
             }
-            # A newly observed boot supersedes the previous stream. A delayed
-            # packet from a known old boot never changes this selection.
-            self.current_boot[node_id] = boot_id
-            if node_id in self.metadata:
-                del self.metadata[node_id]
+            # Delayed packets from an already observed old boot cannot reactivate it.
+            self.current_boot[device_key] = boot_id
+            if device_key in self.metadata:
+                del self.metadata[device_key]
                 metadata_changed = True
         stream = self.streams[key]
+        stream["source_ip"] = source[0]
         stream["last_packet_monotonic_ns"] = receive_monotonic_ns
-        is_current = self.current_boot[node_id] == boot_id
+        is_current = self.current_boot[device_key] == boot_id
         readings = []
         if packet["type"] == "metadata":
             if is_current:
-                self.metadata[node_id] = packet
+                self.metadata[device_key] = packet
                 metadata_changed = True
         else:
-            # Late packets cannot decrease cumulative per-boot counters. Their
-            # unmodified counter values are still preserved in the raw envelope.
             stream["diagnostics"] = {
                 name: max(stream["diagnostics"].get(name, 0), packet["diagnostics"][name])
                 for name in DIAGNOSTIC_FIELDS
             }
             for sample in packet["samples"]:
-                # Receiving old data does not prove acquisition is progressing.
-                # Duplicates or reordered packets must not hide a stalled node.
                 if sample["seq"] > stream["tracker"].highest_seq:
                     stream["last_sample_monotonic_ns"] = receive_monotonic_ns
                 stream["tracker"].observe(sample["seq"])
                 minimum = stream["minimum_seq"]
                 stream["minimum_seq"] = sample["seq"] if minimum is None else min(minimum, sample["seq"])
-                # Invalid new samples also advance this watermark. Otherwise a
-                # delayed older valid sample could make the display go backward.
                 if not is_current or sample["seq"] <= stream["highest_display_seq"]:
                     continue
                 stream["highest_display_seq"] = sample["seq"]
                 stream["last_flags"] = sample["flags"]
-                reading = display_reading(node_id, sample)
+                reading = display_reading(node_id, sample, wheel, device)
                 if reading is not None:
                     readings.append(reading)
         return envelope, readings, metadata_changed
 
     def metadata_snapshot(self):
-        return {
-            "version": 1,
-            "nodes": {str(node): packet for node, packet in sorted(self.metadata.items())},
-        }
+        nodes = {}
+        for (wheel, device, node), packet in sorted(self.metadata.items()):
+            # Preserve the historical single-wheel snapshot shape. An unscoped
+            # multi-wheel reader gets explicit composite keys instead of collisions.
+            key = str(node) if self.wheel_id is not None or wheel == "legacy" else f"{wheel}/{device}/{node}"
+            nodes[key] = packet
+        return {"version": 2, "wheel_id": self._snapshot_wheel(), "nodes": nodes}
+
+    def _snapshot_wheel(self):
+        if self.wheel_id is not None:
+            return self.wheel_id
+        wheels = {key[0] for key in self.current_boot}
+        return next(iter(wheels)) if len(wheels) == 1 else ("mixed" if wheels else "legacy")
 
     def diagnostics_snapshot(self, now_monotonic_ns):
         streams = []
-        for (node, boot), stream in sorted(self.streams.items()):
+        for (wheel, device, node, boot), stream in sorted(self.streams.items()):
             summary = stream["tracker"].summary()
             minimum = stream["minimum_seq"]
             summary["first_observed_sequence"] = minimum
-            # Unlike upstream missing_samples, this excludes samples sent before
-            # this receiver started. Late arrivals shrink/recover the range.
             summary["missing_samples_in_recording"] = (
                 0 if minimum is None else summary["highest_seq"] - minimum + 1 - summary["unique_samples"]
             )
             last_sample = stream["last_sample_monotonic_ns"]
             age = None if last_sample is None else max(0.0, (now_monotonic_ns - last_sample) / 1e9)
             streams.append({
+                "wheel_id": wheel, "device_id": device,
                 "node_id": node, "role": ROLES[node], "boot_id": boot,
-                "current_boot": self.current_boot[node] == boot,
+                "source_ip": stream["source_ip"],
+                "current_boot": self.current_boot[(wheel, device, node)] == boot,
                 "sample_age_s": age, "stale": age is None or age > self.stale_timeout_s,
                 "last_flags": stream["last_flags"],
                 "firmware_diagnostics": dict(stream["diagnostics"]), **summary,
             })
         nodes = []
-        for node in sorted(set(self.expected_node_ids) | set(self.current_boot)):
-            boot = self.current_boot.get(node)
-            stream = self.streams.get((node, boot))
+        identities = set(self.current_boot)
+        for node in self.expected_node_ids:
+            if not any(key[2] == node for key in identities):
+                identities.add((self.wheel_id or "legacy", self.expected_device_ids[node - 1], node))
+        for wheel, device, node in sorted(identities, key=lambda key: (key[0], key[2], key[1])):
+            key = (wheel, device, node)
+            boot = self.current_boot.get(key)
+            stream = self.streams.get((*key, boot))
             last_sample = None if stream is None else stream["last_sample_monotonic_ns"]
             age = None if last_sample is None else max(0.0, (now_monotonic_ns - last_sample) / 1e9)
             nodes.append({
+                "wheel_id": wheel, "device_id": device,
                 "node_id": node, "role": ROLES[node], "boot_id": boot,
+                "source_ip": None if stream is None else stream["source_ip"],
+                "expected_device_id": self.expected_device_ids[node - 1],
+                "expected_source_ip": self.expected_source_ips[node - 1],
+                "inventory_verified": bool(self.expected_device_ids[node - 1]) and boot is not None,
                 "expected": node in self.expected_node_ids,
                 "never_seen": last_sample is None, "sample_age_s": age,
                 "stale": age is None or age > self.stale_timeout_s,
-                "metadata_received": node in self.metadata,
+                "metadata_received": key in self.metadata,
             })
         return {
-            "version": 1, "timestamp_basis": "host_receive_unsynchronized",
+            "version": 2, "wheel_id": self._snapshot_wheel(),
+            "timestamp_basis": "host_receive_unsynchronized",
             "freshness_basis": "latest_advancing_sample_sequence",
             "valid_packets": self.valid_packets, "invalid_packets": self.invalid_packets,
+            "rejected_packets": self.rejected_packets, "last_rejection": self.last_rejection,
+            "inventory_verified": all(n["inventory_verified"] for n in nodes if n["expected"]),
             "stale_timeout_s": self.stale_timeout_s, "nodes": nodes, "streams": streams,
         }
 

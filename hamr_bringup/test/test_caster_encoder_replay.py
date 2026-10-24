@@ -231,8 +231,15 @@ def test_launch_whitelists_raw_packets_and_remaps_away_from_live_encoder_topics(
     cmd = next(keyword.value for keyword in calls[0].keywords if keyword.arg == "cmd")
     tokens = [value.value for value in cmd.elts if isinstance(value, ast.Constant)]
     start, end = tokens.index("--topics"), tokens.index("--remap")
-    assert tokens[start + 1:end] == ["/caster_encoder/packets"]
-    assert tokens[end + 1:] == ["/caster_encoder/packets:=/caster_replay/packets"]
+    # The one selected topic is resolved from wheel or explicit topic before launch.
+    topic_argument = next(i for i, value in enumerate(cmd.elts)
+                          if isinstance(value, ast.Constant) and value.value == "--topics")
+    assert isinstance(cmd.elts[topic_argument + 1], ast.Name)
+    assert cmd.elts[topic_argument + 1].id == "packet_topic"
+    remap = cmd.elts[-1]
+    assert isinstance(remap, ast.JoinedStr)
+    assert remap.values[-1].value == ":=/caster_replay/packets"
+    assert "resolve_selection(wheel_id, packet_topic, topics)" in source
     assert "--clock" in tokens and "--delay" in tokens
     assert '"/tf", "/caster_replay/tf"' in source
     assert '"/tf_static", "/caster_replay/tf_static"' in source
@@ -263,3 +270,67 @@ def test_rviz_markers_use_ros2_topic_property_for_visible_status_and_phase():
         assert display["Enabled"] is True
         assert display["Topic"]["Value"] == topic
         assert display["Topic"]["Durability Policy"] == "Transient Local"
+
+
+def wheel_envelope(node=1, wheel="front_left", device=None, **kwargs):
+    value = envelope(node, **kwargs)
+    value["packet"].update(v=2, wheel_id=wheel, device_id=device or f"aa:bb:cc:dd:ee:{node:02x}")
+    return value
+
+
+def test_v2_replay_pins_one_wheel_and_preserves_device_identity():
+    model = replay.ReplayModel(wheel_id="front_left")
+    for node in (1, 2, 3):
+        model.receive(wheel_envelope(node, angle=node / 10), 100)
+    _, positions, status = model.snapshot(100)
+    assert positions[:3] == [.1, .2, .3]
+    assert status["wheel_id"] == "front_left"
+    assert [node["device_id"] for node in status["nodes"]] == [f"aa:bb:cc:dd:ee:{n:02x}" for n in (1, 2, 3)]
+    with pytest.raises(ValueError, match="Expected wheel front_left"):
+        model.receive(wheel_envelope(wheel="front_right"), 101)
+    assert not model.snapshot(101)[0]
+    assert model.snapshot(101)[2]["identity_error"]
+    with pytest.raises(ValueError, match="Expected wheel front_left"):
+        model.receive(wheel_envelope(seq=1), 102)
+
+
+def test_v2_replay_device_replacement_rejected_but_reboot_is_independent():
+    model = replay.ReplayModel()
+    model.receive(wheel_envelope(1), 100)
+    model.receive(wheel_envelope(2), 100)
+    model.receive(wheel_envelope(1, boot=SECOND_BOOT), 101)
+    assert model.boot_changes == {1: 1, 2: 0, 3: 0}
+    with pytest.raises(ValueError, match="changed device identity"):
+        model.receive(wheel_envelope(1, device="aa:bb:cc:dd:ee:ff"), 102)
+
+
+def test_topic_selection_requires_choice_for_two_wheels_and_checks_conflicts():
+    from caster_encoder_selection import resolve_selection, metadata_topic
+    topics = ["/caster_encoder/front_left/packets", "/caster_encoder/front_right/packets"]
+    with pytest.raises(ValueError, match="Select --wheel"):
+        resolve_selection(available_topics=topics)
+    assert resolve_selection("front_right", available_topics=topics) == ("front_right", topics[1])
+    assert resolve_selection(available_topics=[topics[0]]) == ("front_left", topics[0])
+    assert resolve_selection(available_topics=["/caster_encoder/packets"]) == ("legacy", "/caster_encoder/packets")
+    assert metadata_topic(topics[1]) == "/caster_encoder/front_right/metadata"
+    with pytest.raises(ValueError, match="different wheels"):
+        resolve_selection("front_left", topics[1])
+
+
+def test_replay_rejects_one_mac_reused_for_two_roles_before_mutation():
+    model = replay.ReplayModel(wheel_id="front_left")
+    model.receive(wheel_envelope(1), 100)
+    streams_before = set(model.state.streams)
+    with pytest.raises(ValueError, match="assigned to multiple roles"):
+        model.receive(wheel_envelope(2, device="aa:bb:cc:dd:ee:01"), 101)
+    assert set(model.state.streams) == streams_before
+    assert not model.snapshot(101)[0]
+
+
+def test_selected_v2_wheel_rejects_legacy_first_packet_before_state_mutation():
+    model = replay.ReplayModel(wheel_id="front_right")
+    with pytest.raises(ValueError, match="Expected wheel front_right, received legacy"):
+        model.receive(envelope(1), 100)
+    assert model.state.valid_packets == 0
+    assert not model.state.streams
+    assert model.guard.wheel_id == "front_right"

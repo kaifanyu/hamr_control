@@ -42,6 +42,7 @@ install(
 install(FILES scripts/c920_controls.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_encoder_protocol.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_replay_model.py DESTINATION lib/${PROJECT_NAME})
+install(FILES scripts/caster_encoder_selection.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_encoder_plots.py DESTINATION lib/${PROJECT_NAME})
 
 # Keep the generic offline analyzers beside the concise operator wrapper so
@@ -68,6 +69,10 @@ if(BUILD_TESTING)
   )
   ament_add_pytest_test(caster_encoder_recording
     test/test_caster_encoder_recording.py
+  )
+  ament_add_pytest_test(dual_caster_pipeline
+    test/test_dual_caster_pipeline.py
+    TIMEOUT 90
   )
   ament_add_pytest_test(caster_encoder_replay
     test/test_caster_encoder_replay.py

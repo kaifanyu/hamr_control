@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Export caster telemetry, reception quality, and optional independent angle error.
 
-Reads /caster_encoder/packets (std_msgs/String) from sqlite3/MCAP ROS 2 bags,
-or the encoder logger's packets.jsonl without ROS. No clock, sign, or phase
+Reads one wheel's /caster_encoder/<wheel>/packets (std_msgs/String), or the
+legacy /caster_encoder/packets, from sqlite3/MCAP ROS 2 bags. Also accepts the
+encoder logger's packets.jsonl without ROS. No clock, sign, or phase
 alignment is estimated from the measurements being evaluated.
 """
 
@@ -29,12 +30,17 @@ except ModuleNotFoundError as error:
     import caster_encoder_protocol as protocol
 
 
+from caster_encoder_selection import (
+    WHEELS, WheelIdentityGuard, metadata_topic, resolve_selection,
+)
+
+
 TOPIC = "/caster_encoder/packets"
 METADATA_TOPIC = "/caster_encoder/metadata"
 ROLES = {1: "H1", 2: "H2", 3: "CENTER"}
 CSV_FIELDS = (
     "receive_epoch_ns", "receive_monotonic_ns", "source_ip", "source_port",
-    "bag_timestamp_ns", "node_id", "boot_id", *protocol.SAMPLE_FIELDS,
+    "bag_timestamp_ns", "wheel_id", "device_id", "node_id", "boot_id", *protocol.SAMPLE_FIELDS,
     *protocol.FLAG_NAMES, *protocol.DIAGNOSTIC_FIELDS,
     "sequence_status", "conflicting_duplicate", "segment_id",
     "mapped_epoch_ns", "mapped_clock_sync_valid", "comparison_time_basis",
@@ -50,7 +56,9 @@ def validate_envelope(value):
         raise ValueError("packet envelope must be an object")
     packet = value.get("packet")
     protocol.decode_packet(json.dumps(packet, allow_nan=False).encode("utf-8"))
-    if value.get("metadata_source_topic") == METADATA_TOPIC:
+    if value.get("metadata_source_topic") is not None:
+        if not isinstance(value["metadata_source_topic"], str) or not value["metadata_source_topic"].endswith("/metadata"):
+            raise ValueError("retained metadata requires a metadata source topic")
         if packet["type"] != "metadata":
             raise ValueError("retained metadata must not contain samples")
         protocol.integer(value.get("snapshot_bag_timestamp_ns"), "snapshot_bag_timestamp_ns", 0, (1 << 127) - 1)
@@ -90,7 +98,7 @@ def storage_id(path):
     return "mcap" if any(path.glob("*.mcap")) else "sqlite3"
 
 
-def read_bag(path, topic=TOPIC):
+def read_bag(path, topic=None, wheel_id=None):
     """Import ROS only when needed; the JSONL analysis path is portable."""
     try:
         import rosbag2_py
@@ -110,33 +118,39 @@ def read_bag(path, topic=TOPIC):
     reader.open(rosbag2_py.StorageOptions(uri=str(path), storage_id=storage_id(path)),
                 rosbag2_py.ConverterOptions("", ""))
     types = {item.name: item.type for item in reader.get_all_topics_and_types()}
+    wheel_id, topic = resolve_selection(wheel_id, topic, types)
+    retained_topic = metadata_topic(topic)
+    guard = WheelIdentityGuard(wheel_id)
     if topic not in types:
         raise ValueError(f"bag has no {topic}; enable caster encoder recording for a new run")
     if types[topic] != "std_msgs/msg/String":
         raise ValueError(f"{topic} has unexpected message type {types[topic]}")
     topics = [topic]
-    if METADATA_TOPIC in types:
-        if types[METADATA_TOPIC] != "std_msgs/msg/String":
-            raise ValueError(f"{METADATA_TOPIC} must be std_msgs/msg/String")
-        topics.append(METADATA_TOPIC)
+    if retained_topic in types:
+        if types[retained_topic] != "std_msgs/msg/String":
+            raise ValueError(f"{retained_topic} must be std_msgs/msg/String")
+        topics.append(retained_topic)
     reader.set_filter(rosbag2_py.StorageFilter(topics=topics))
     while reader.has_next():
         current_topic, data, timestamp = reader.read_next()
         try:
             decoded = protocol.parse_json(deserialize_message(data, String).data)
-            if current_topic == METADATA_TOPIC:
+            if current_topic == retained_topic:
                 if not isinstance(decoded, dict) or not isinstance(decoded.get("nodes"), dict):
                     raise ValueError("retained metadata requires nodes mapping")
                 for packet in decoded["nodes"].values():
                     envelope = {
                         "receive_epoch_ns": None, "receive_monotonic_ns": None,
                         "source_ip": None, "source_port": None, "packet": packet,
-                        "metadata_source_topic": METADATA_TOPIC,
+                        "metadata_source_topic": retained_topic,
                         "snapshot_bag_timestamp_ns": int(timestamp),
                     }
-                    yield validate_envelope(envelope), int(timestamp)
+                    validate_envelope(envelope)
+                    guard.accept(packet)
+                    yield envelope, int(timestamp)
                 continue
             envelope = validate_envelope(decoded)
+            guard.accept(envelope["packet"])
         except (ValueError, TypeError) as error:
             raise ValueError(f"invalid encoder envelope at bag timestamp {timestamp}: {error}") from error
         yield envelope, int(timestamp)
@@ -189,7 +203,13 @@ def read_reference(path, offset_s=0.0, signs=None, zeros=None):
                 if record.get("valid", "1") == "0":
                     continue
                 angle = finite(record["angle_rad"], "angle_rad")
-                key = (node, boot)
+                if record.get("wheel_id") or record.get("device_id"):
+                    identity_packet = {"v": 2, "wheel_id": record.get("wheel_id"),
+                                       "device_id": record.get("device_id"), "node_id": node, "boot_id": boot}
+                    protocol.wheel_device_identity(identity_packet)
+                    key = protocol.packet_identity(identity_packet)
+                else:
+                    key = (node, boot)
                 identity = (*key, timestamp)
                 if identity in seen:
                     raise ValueError("duplicate reference timestamp for one node/boot")
@@ -272,7 +292,7 @@ def index_consistency(rows, metadata):
 
 
 def analyze(envelopes, reference=None, clock_mapper=None, max_match_dt_s=.02,
-            max_continuity_gap_s=.1):
+            max_continuity_gap_s=.1, wheel_id=None):
     """Pure analysis entry point; returns rows, metadata envelopes, and summary."""
     if not math.isfinite(max_match_dt_s) or max_match_dt_s < 0:
         raise ValueError("max_match_dt_s must be finite and nonnegative")
@@ -284,10 +304,11 @@ def analyze(envelopes, reference=None, clock_mapper=None, max_match_dt_s=.02,
     rows = []
     seen, highest, conflicts = {}, {}, set()
     packet_counts = Counter()
+    guard = WheelIdentityGuard(wheel_id)
     for envelope, bag_timestamp_ns in envelopes:
         validate_envelope(envelope)
         packet = envelope["packet"]
-        key = (packet["node_id"], packet["boot_id"].lower())
+        key = guard.accept(packet)
         packet_counts[key] += 1
         groups[key]  # Retain metadata-only streams in the report.
         if packet["type"] == "metadata":
@@ -303,9 +324,11 @@ def analyze(envelopes, reference=None, clock_mapper=None, max_match_dt_s=.02,
                 status = "reordered" if sample["seq"] < highest.get(key, -1) else "in_order"
                 seen[sample_key] = sample
                 highest[key] = max(highest.get(key, -1), sample["seq"])
-            mapped = clock_mapper.map(*key, sample["t_us"])
+            mapped = clock_mapper.map(key[2], key[3], sample["t_us"],
+                                      wheel_id=key[0], device_id=key[1])
             row = {name: envelope[name] for name in CSV_FIELDS[:4]}
-            row.update(node_id=key[0], boot_id=key[1], bag_timestamp_ns=bag_timestamp_ns)
+            row.update(wheel_id=key[0], device_id=key[1], node_id=key[2],
+                       boot_id=key[3], bag_timestamp_ns=bag_timestamp_ns)
             row.update({name: sample[name] for name in protocol.SAMPLE_FIELDS})
             row.update({name: int(bool(sample["flags"] & (1 << bit)))
                         for bit, name in enumerate(protocol.FLAG_NAMES)})
@@ -342,6 +365,8 @@ def analyze(envelopes, reference=None, clock_mapper=None, max_match_dt_s=.02,
             row["segment_id"] = segment
             previous = row
         references = (reference or {}).get(key, [])
+        if key[0] == "legacy" and not references:
+            references = (reference or {}).get(key[2:], [])
         reference_times = [item[0] for item in references]
         matched = []
         for row in unique:
@@ -354,9 +379,9 @@ def analyze(envelopes, reference=None, clock_mapper=None, max_match_dt_s=.02,
             ref_time, ref_angle = references[index]
             if abs(ref_time - timestamp) > max_match_ns:
                 continue
-            angle = row["calibrated_alpha_rad"] if key[0] == 3 else row["angle_rad"]
+            angle = row["calibrated_alpha_rad"] if key[2] == 3 else row["angle_rad"]
             error = angle - ref_angle
-            if key[0] == 3:
+            if key[2] == 3:
                 error = math.atan2(math.sin(error), math.cos(error))
             row.update(reference_time_epoch_ns=ref_time, reference_angle_rad=ref_angle,
                        reference_match_dt_ns=ref_time - timestamp, angle_error_rad=error)
@@ -368,19 +393,19 @@ def analyze(envelopes, reference=None, clock_mapper=None, max_match_dt_s=.02,
         local_span = (max(row["t_us"] for row in unique) - min(row["t_us"] for row in unique)) * 1e-6 if unique else 0.0
         receive_span = (max(row["receive_monotonic_ns"] for row in unique) - min(row["receive_monotonic_ns"] for row in unique)) * 1e-9 if unique else 0.0
         stream_metadata = [item["packet"] for item in metadata if
-                           (item["packet"]["node_id"], item["packet"]["boot_id"].lower()) == key]
+                           protocol.packet_identity(item["packet"]) == key]
         comparison = error_statistics([row["angle_error_rad"] for row in matched])
         comparison.update(
             status="reference_agreement" if matched else "accuracy_unavailable",
             reason=("Independent angle reference matched; interpret calibration and timing qualifications below."
                     if matched else "No matching valid independent angle reference; reception/health quality alone cannot measure accuracy."),
-            angle_field="calibrated_alpha_rad" if key[0] == 3 else "angle_rad",
-            error_definition="circular encoder minus reference" if key[0] == 3 else "unwrapped relative encoder minus reference; missed turns retained",
+            angle_field="calibrated_alpha_rad" if key[2] == 3 else "angle_rad",
+            error_definition="circular encoder minus reference" if key[2] == 3 else "unwrapped relative encoder minus reference; missed turns retained",
             eligible_samples=sum(row["angle_eligible"] for row in unique),
             unmatched_eligible_samples=sum(row["angle_eligible"] for row in unique) - len(matched),
             unique_reference_points_matched=len({row["reference_time_epoch_ns"] for row in matched}),
             matched_with_physical_phase_verified=sum(row["phase_reference_valid"] for row in matched),
-            matched_with_ppr_verified=sum(row["ppr_verified"] for row in matched) if key[0] != 3 else None,
+            matched_with_ppr_verified=sum(row["ppr_verified"] for row in matched) if key[2] != 3 else None,
             matched_using_host_receive_time=sum(row["mapped_epoch_ns"] is None for row in matched),
             matched_using_calibrated_acquisition_time=sum(row["mapped_epoch_ns"] is not None for row in matched),
             absolute_accuracy_established=False,
@@ -388,7 +413,8 @@ def analyze(envelopes, reference=None, clock_mapper=None, max_match_dt_s=.02,
             timing_note="Host receipt includes unknown Wi-Fi/batching/scheduling latency; matching tolerance does not bound acquisition-time error. External clock maps retain their independently assessed uncertainty.",
         )
         summaries.append({
-            "node_id": key[0], "role": ROLES[key[0]], "boot_id": key[1],
+            "wheel_id": key[0], "device_id": key[1],
+            "node_id": key[2], "role": ROLES[key[2]], "boot_id": key[3],
             "packets_and_retained_metadata_entries": packet_counts[key], "metadata_entries": len(stream_metadata),
             "received_sample_rows": len(group), "unique_samples": len(unique),
             "duplicate_samples": len(group) - len(unique),
@@ -411,10 +437,10 @@ def analyze(envelopes, reference=None, clock_mapper=None, max_match_dt_s=.02,
             "firmware_counter_note": "Cumulative boot counters are maxima, never sums of repeated per-sample values; maxima can include events before recording.",
             "comparison_exclusion_counts": dict(Counter(row["comparison_exclusion"] for row in unique if row["comparison_exclusion"])),
             "reference_comparison": comparison,
-            "index_consistency": index_consistency(unique, stream_metadata) if key[0] != 3 else None,
+            "index_consistency": index_consistency(unique, stream_metadata) if key[2] != 3 else None,
         })
     summary = {
-        "schema_version": 1, "streams": summaries,
+        "schema_version": 2, "wheel_id": guard.wheel_id, "streams": summaries,
         "reference_supplied": reference is not None,
         "max_match_dt_s": max_match_dt_s,
         "max_continuity_gap_s": max_continuity_gap_s,
@@ -435,14 +461,14 @@ def plot_report(rows, output):
     groups = defaultdict(list)
     for row in rows:
         if row["sequence_status"] != "duplicate":
-            groups[(row["node_id"], row["boot_id"])].append(row)
+            groups[(row["wheel_id"], row["device_id"], row["node_id"], row["boot_id"])].append(row)
     outputs = []
-    for (node, boot), group in sorted(groups.items()):
+    for (wheel, device, node, boot), group in sorted(groups.items()):
         group.sort(key=lambda row: row["seq"])
         origin = min(row["t_us"] for row in group)
         x = [(row["t_us"] - origin) * 1e-6 for row in group]
-        stem = f"node{node}_{boot}"
-        title = f"{ROLES[node]} / boot {boot}"
+        stem = f"{wheel}_{device.replace(chr(58), chr(45))}_node{node}_{boot}"
+        title = f"{wheel} / {ROLES[node]} / {device} / boot {boot}"
 
         def series(ax, field, gate, label, wrap=False):
             sx, sy = [], []
@@ -542,8 +568,9 @@ def main(argv=None):
     parser.add_argument("bag", nargs="?", type=Path, help="ROS 2 bag directory or .mcap/.db3 file")
     parser.add_argument("--packets-jsonl", type=Path, help="logger packets.jsonl instead of a ROS bag")
     parser.add_argument("--output", type=Path, default=Path("caster_encoder_report"))
-    parser.add_argument("--topic", default=TOPIC)
-    parser.add_argument("--reference-csv", type=Path, help="independent reference: node_id,boot_id,time_epoch_ns,angle_rad; optional valid=0/1")
+    parser.add_argument("--topic", help="packet topic; inferred from --wheel or unique bag topic")
+    parser.add_argument("--wheel", choices=WHEELS, help="physical wheel; legacy selects old v1 recordings")
+    parser.add_argument("--reference-csv", type=Path, help="independent reference: node_id,boot_id,time_epoch_ns,angle_rad; v2 requires wheel_id,device_id; optional valid=0/1")
     parser.add_argument("--max-match-dt-s", type=float, default=.02)
     parser.add_argument("--reference-time-offset-s", type=float, default=0,
                         help="fixed independent offset ADDED to reference timestamps; never fitted")
@@ -565,11 +592,13 @@ def main(argv=None):
         reference = read_reference(args.reference_csv, args.reference_time_offset_s, signs, zeros) if args.reference_csv else None
         clock_document = protocol.parse_json(args.clock_map.read_text(encoding="utf-8")) if args.clock_map else None
         mapper = protocol.ClockMapper(clock_document)
-        source = read_jsonl(args.packets_jsonl) if args.packets_jsonl else read_bag(args.bag, args.topic)
+        wheel_id, selected_topic = resolve_selection(args.wheel, args.topic)
+        source = read_jsonl(args.packets_jsonl) if args.packets_jsonl else read_bag(args.bag, args.topic, args.wheel)
         # Preserve original envelopes, including extra metadata/configuration fields.
         packets = list(source)
-        rows, metadata, summary = analyze(packets, reference, mapper, args.max_match_dt_s, args.max_continuity_gap_s)
-        summary.update(source=str(args.packets_jsonl or args.bag), topic=args.topic,
+        rows, metadata, summary = analyze(packets, reference, mapper, args.max_match_dt_s, args.max_continuity_gap_s, wheel_id)
+        _, selected_topic = resolve_selection(summary["wheel_id"], args.topic)
+        summary.update(source=str(args.packets_jsonl or args.bag), topic=selected_topic,
                        reference_csv=str(args.reference_csv) if args.reference_csv else None,
                        reference_time_offset_s=args.reference_time_offset_s,
                        reference_sign_by_node=signs, reference_zero_rad_by_node=zeros,

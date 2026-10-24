@@ -1,0 +1,34 @@
+# Pi receiver configuration. Keep each firmware destination port in agreement.
+# Keep configured_wheel_id and the node keys as shown: dual launch checks these
+# markers so a misspelled/missing YAML node cannot silently use default settings.
+# The ESP32 IP is separate from bind_address, which is an interface on the Pi.
+# Firmware device_id is the stable Wi-Fi STA MAC printed on startup.
+# Fill expected_device_ids only after checking each board's physical wheel/role.
+# Arrays are always [H1, H2, CENTER]. Empty strings permit commissioning;
+# the first device per role is pinned until process restart, and diagnostics
+# report inventory_verified: false until every expected MAC is configured/seen.
+# Optional expected_source_ips can enforce DHCP reservations or static ESP IPs.
+# Set these only when addresses are stable; source IP is not device identity.
+/caster_encoder_front_left:
+  ros__parameters:
+    wheel_id: front_left
+    configured_wheel_id: front_left
+    bind_address: "0.0.0.0"
+    udp_port: 5005
+    stale_timeout_s: 1.0
+    expected_node_ids: [1, 2, 3]
+    expected_device_ids: ["", "", ""]
+    expected_source_ips: ["", "", ""]
+    use_sim_time: false
+
+/caster_encoder_front_right:
+  ros__parameters:
+    wheel_id: front_right
+    configured_wheel_id: front_right
+    bind_address: "0.0.0.0"
+    udp_port: 5006
+    stale_timeout_s: 1.0
+    expected_node_ids: [1, 2, 3]
+    expected_device_ids: ["", "", ""]
+    expected_source_ips: ["", "", ""]
+    use_sim_time: false
