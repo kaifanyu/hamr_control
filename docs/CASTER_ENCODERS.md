@@ -6,6 +6,10 @@ physical wheel and permanent device MAC in every packet. Two Pi receivers keep
 boots, metadata, loss counters and live measurements independent. Existing
 motor control, drive-wheel odometry and EKF inputs are unchanged.
 
+For Wi-Fi start/stop commands, onboard flash history and automatic verified
+download after a trajectory, see [commanded local recording](LOCAL_CASTER_RECORDING.md).
+The live UDP workflow below remains available outside those recordings.
+
 For the complete firmware configuration, six flashing commands and Pi inventory,
 follow [Front-left and front-right caster setup](DUAL_CASTER_SETUP.md).
 
@@ -28,9 +32,11 @@ the Pi firewall and disable Wi-Fi client isolation.
 A wheel-scoped bridge rejects mismatched wheel/device/source identity before
 publishing or changing live state. Empty inventory entries allow commissioning
 with process-lifetime device pinning; diagnostics report `inventory_verified:
-false`. Fill every expected MAC before experiments. UDP is best effort and there
-is no recovery of samples lost during a radio outage. Independent ESP clocks
-remain unsynchronized. Only one receiver may bind each port.
+false`. Fill every expected MAC before experiments. UDP is best effort and this
+live stream cannot recover packets lost during a radio outage. Commanded local
+recording retains a separate flash history. Independent ESP clocks remain
+unsynchronized; local recording saves pre/post exchanges for an estimated
+offline mapping. Only one live receiver may bind each UDP telemetry port.
 
 ## 2. Build on the ROS recording computer
 

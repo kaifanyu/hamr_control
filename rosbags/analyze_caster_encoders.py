@@ -29,6 +29,8 @@ except ModuleNotFoundError as error:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "hamr_bringup" / "scripts"))
     import caster_encoder_protocol as protocol
 
+from caster_recording_format import LOCAL_ORIGIN, validate_local_envelope
+
 
 from caster_encoder_selection import (
     WHEELS, WheelIdentityGuard, metadata_topic, resolve_selection,
@@ -47,6 +49,7 @@ CSV_FIELDS = (
     "angle_eligible", "velocity_eligible", "comparison_exclusion",
     "reference_time_epoch_ns", "reference_angle_rad", "reference_match_dt_ns",
     "angle_error_rad",
+    "origin", "timing_estimated", "diagnostics_known",
 )
 
 
@@ -56,6 +59,8 @@ def validate_envelope(value):
         raise ValueError("packet envelope must be an object")
     packet = value.get("packet")
     protocol.decode_packet(json.dumps(packet, allow_nan=False).encode("utf-8"))
+    if value.get("origin") == LOCAL_ORIGIN:
+        return validate_local_envelope(value)
     if value.get("metadata_source_topic") is not None:
         if not isinstance(value["metadata_source_topic"], str) or not value["metadata_source_topic"].endswith("/metadata"):
             raise ValueError("retained metadata requires a metadata source topic")
@@ -308,6 +313,11 @@ def analyze(envelopes, reference=None, clock_mapper=None, max_match_dt_s=.02,
     for envelope, bag_timestamp_ns in envelopes:
         validate_envelope(envelope)
         packet = envelope["packet"]
+        # A local run intentionally contains both casters. An explicit selector
+        # filters those exports; live single-topic captures still reject a
+        # conflicting identity instead of silently masking routing mistakes.
+        if envelope.get("origin") == LOCAL_ORIGIN and wheel_id is not None and packet["wheel_id"] != wheel_id:
+            continue
         key = guard.accept(packet)
         packet_counts[key] += 1
         groups[key]  # Retain metadata-only streams in the report.
@@ -326,16 +336,28 @@ def analyze(envelopes, reference=None, clock_mapper=None, max_match_dt_s=.02,
                 highest[key] = max(highest.get(key, -1), sample["seq"])
             mapped = clock_mapper.map(key[2], key[3], sample["t_us"],
                                       wheel_id=key[0], device_id=key[1])
+            local = envelope.get("origin") == LOCAL_ORIGIN
+            estimated = mapped is not None and key in getattr(clock_mapper, "estimated_keys", set())
+            if local and envelope.get("clock_mapping"):
+                if mapped is None:
+                    local_mapper = protocol.ClockMapper({"version": 1, "mappings": [envelope["clock_mapping"]]})
+                    mapped = local_mapper.map(key[2], key[3], sample["t_us"], key[0], key[1])
+                estimated = mapped is not None
+            diagnostics_known = envelope.get("diagnostics_known", True)
             row = {name: envelope[name] for name in CSV_FIELDS[:4]}
             row.update(wheel_id=key[0], device_id=key[1], node_id=key[2],
                        boot_id=key[3], bag_timestamp_ns=bag_timestamp_ns)
             row.update({name: sample[name] for name in protocol.SAMPLE_FIELDS})
             row.update({name: int(bool(sample["flags"] & (1 << bit)))
                         for bit, name in enumerate(protocol.FLAG_NAMES)})
-            row.update({name: packet["diagnostics"][name] for name in protocol.DIAGNOSTIC_FIELDS})
+            row.update({name: packet["diagnostics"][name] if diagnostics_known else None
+                        for name in protocol.DIAGNOSTIC_FIELDS})
             row.update(sequence_status=status, mapped_epoch_ns=mapped,
-                       mapped_clock_sync_valid=int(mapped is not None),
-                       comparison_time_basis="externally_calibrated_acquisition" if mapped is not None else "host_receive",
+                       mapped_clock_sync_valid=int(mapped is not None and not estimated),
+                       comparison_time_basis=("estimated_acquisition" if estimated else "externally_calibrated_acquisition")
+                           if mapped is not None else ("unmapped_local_acquisition" if local else "host_receive"),
+                       origin=LOCAL_ORIGIN if local else "udp_receive", timing_estimated=int(estimated),
+                       diagnostics_known=int(diagnostics_known),
                        conflicting_duplicate=0, segment_id=None,
                        reference_time_epoch_ns=None, reference_angle_rad=None,
                        reference_match_dt_ns=None, angle_error_rad=None)
@@ -373,6 +395,8 @@ def analyze(envelopes, reference=None, clock_mapper=None, max_match_dt_s=.02,
             if not row["angle_eligible"] or not references:
                 continue
             timestamp = row["mapped_epoch_ns"] if row["mapped_epoch_ns"] is not None else row["receive_epoch_ns"]
+            if timestamp is None:
+                continue
             insertion = bisect_left(reference_times, timestamp)
             candidates = [index for index in (insertion - 1, insertion) if 0 <= index < len(references)]
             index = min(candidates, key=lambda i: (abs(reference_times[i] - timestamp), reference_times[i]))
@@ -391,7 +415,8 @@ def analyze(envelopes, reference=None, clock_mapper=None, max_match_dt_s=.02,
         expected = sequence_max - sequence_min + 1 if unique else 0
         missing = expected - len(unique)
         local_span = (max(row["t_us"] for row in unique) - min(row["t_us"] for row in unique)) * 1e-6 if unique else 0.0
-        receive_span = (max(row["receive_monotonic_ns"] for row in unique) - min(row["receive_monotonic_ns"] for row in unique)) * 1e-9 if unique else 0.0
+        receive_times = [row["receive_monotonic_ns"] for row in unique if row["receive_monotonic_ns"] is not None]
+        receive_span = (max(receive_times) - min(receive_times)) * 1e-9 if receive_times else 0.0
         stream_metadata = [item["packet"] for item in metadata if
                            protocol.packet_identity(item["packet"]) == key]
         comparison = error_statistics([row["angle_error_rad"] for row in matched])
@@ -407,7 +432,8 @@ def analyze(envelopes, reference=None, clock_mapper=None, max_match_dt_s=.02,
             matched_with_physical_phase_verified=sum(row["phase_reference_valid"] for row in matched),
             matched_with_ppr_verified=sum(row["ppr_verified"] for row in matched) if key[2] != 3 else None,
             matched_using_host_receive_time=sum(row["mapped_epoch_ns"] is None for row in matched),
-            matched_using_calibrated_acquisition_time=sum(row["mapped_epoch_ns"] is not None for row in matched),
+            matched_using_calibrated_acquisition_time=sum(row["mapped_clock_sync_valid"] for row in matched),
+            matched_using_estimated_acquisition_time=sum(row["timing_estimated"] for row in matched),
             absolute_accuracy_established=False,
             calibration_note="No automatic sign/zero/clock fit. H1/H2 are relative angles. CENTER alpha requires a verified physical phase for an absolute claim. Reference and clock uncertainty require independent validation.",
             timing_note="Host receipt includes unknown Wi-Fi/batching/scheduling latency; matching tolerance does not bound acquisition-time error. External clock maps retain their independently assessed uncertainty.",
@@ -433,7 +459,7 @@ def analyze(envelopes, reference=None, clock_mapper=None, max_match_dt_s=.02,
             "continuity_segments": segment + 1 if unique else 0,
             "flag_counts_unique": {name: sum(row[name] for row in unique) for name in protocol.FLAG_NAMES},
             "flag_fraction_unique": {name: sum(row[name] for row in unique) / len(unique) if unique else None for name in protocol.FLAG_NAMES},
-            "firmware_counter_maxima": {name: max((row[name] for row in group), default=None) for name in protocol.DIAGNOSTIC_FIELDS},
+            "firmware_counter_maxima": {name: max((row[name] for row in group if row[name] is not None), default=None) for name in protocol.DIAGNOSTIC_FIELDS},
             "firmware_counter_note": "Cumulative boot counters are maxima, never sums of repeated per-sample values; maxima can include events before recording.",
             "comparison_exclusion_counts": dict(Counter(row["comparison_exclusion"] for row in unique if row["comparison_exclusion"])),
             "reference_comparison": comparison,
@@ -592,6 +618,9 @@ def main(argv=None):
         reference = read_reference(args.reference_csv, args.reference_time_offset_s, signs, zeros) if args.reference_csv else None
         clock_document = protocol.parse_json(args.clock_map.read_text(encoding="utf-8")) if args.clock_map else None
         mapper = protocol.ClockMapper(clock_document)
+        mapper.estimated_keys = {protocol.packet_identity(entry) for entry in
+                                 (clock_document or {}).get("mappings", [])
+                                 if entry.get("timing_estimated") or entry.get("accuracy_validated") is False}
         wheel_id, selected_topic = resolve_selection(args.wheel, args.topic)
         source = read_jsonl(args.packets_jsonl) if args.packets_jsonl else read_bag(args.bag, args.topic, args.wheel)
         # Preserve original envelopes, including extra metadata/configuration fields.

@@ -23,6 +23,7 @@ install(
     scripts/record_hamr_vicon_bag
     scripts/record_hamr_test_bag
     scripts/caster_encoder_bridge
+    scripts/caster_recording
     scripts/record_caster_rotation.py
     scripts/replay_caster_encoder_joints
     scripts/render_caster_encoder_video.py
@@ -44,6 +45,7 @@ install(FILES scripts/caster_encoder_protocol.py DESTINATION lib/${PROJECT_NAME}
 install(FILES scripts/caster_replay_model.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_encoder_selection.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_encoder_plots.py DESTINATION lib/${PROJECT_NAME})
+install(FILES scripts/caster_recording_client.py scripts/caster_recording_format.py DESTINATION lib/${PROJECT_NAME})
 
 # Keep the generic offline analyzers beside the concise operator wrapper so
 # `ros2 run` works from an installed workspace without relying on source paths.
@@ -58,6 +60,13 @@ install(
 
 if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(caster_recording_client
+    test/test_caster_recording_client.py
+    TIMEOUT 90
+  )
+  ament_add_pytest_test(caster_recording_format
+    test/test_caster_recording_format.py
+  )
   ament_add_pytest_test(caster_encoder_bridge
     test/test_caster_encoder_bridge.py
   )

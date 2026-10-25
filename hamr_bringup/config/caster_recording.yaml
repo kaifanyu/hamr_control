@@ -1,0 +1,13 @@
+# Optional inventory pinning for the six physical recorder boards.
+# UDP 5010 is discovery only. HTTP 8080 carries commands and stopped logs.
+version: 1
+discovery_address: 255.255.255.255
+discovery_port: 5010
+# Without pins the client still requires exactly one device for every selected
+# wheel/role, and refuses duplicate MACs or ambiguous role assignments.
+devices: []
+# devices:
+#   - wheel_id: front_left
+#     node_id: 1                 # H1=1, H2=2, CENTER=3
+#     device_id: aa:bb:cc:dd:ee:01
+#     host: 192.168.1.101        # optional IP pin

@@ -224,6 +224,20 @@ for speeds, saved routes, MP4 and replay commands.
 
 ## Caster encoder Wi-Fi recording and replay
 
+For commanded onboard storage with automatic download to the Pi after stopping,
+use the [local recording workflow](docs/LOCAL_CASTER_RECORDING.md):
+
+```bash
+ros2 run hamr_bringup caster_recording start trial_001 --duration 60
+# Start the trajectory after the command succeeds.
+ros2 run hamr_bringup caster_recording stop trial_001
+```
+
+Wi-Fi stays connected for commands, while samples are stored locally. The stop
+command saves verified binary logs, CSV/JSONL exports and estimated clock maps
+under the rosbag root for later merging. This requires updated firmware and its
+partition table. `--duration` checks planned capacity; it does not auto-stop.
+
 Hardware bringup receives both front-left and front-right H1/H2/CENTER ESP
 streams. Every new firmware packet carries its wheel and permanent device
 identity; the Pi validates these and records separate topic branches in one bag.
