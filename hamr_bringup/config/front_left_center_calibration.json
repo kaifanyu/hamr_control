@@ -1,0 +1,167 @@
+{
+  "version": 1,
+  "wheel_id": "front_left",
+  "device_id": "10:bd:a3:b2:14:a4",
+  "node_id": 3,
+  "role": "CENTER",
+  "counts_per_revolution": 16384,
+  "zero_position14": 1210,
+  "zero_absolute_angle_rad": 0.46402918833540646,
+  "direction_sign": 1,
+  "physical_direction_verified": false,
+  "accuracy_validated": false,
+  "angle_source": "position14 / absolute_angle_rad (raw, before firmware sign and zero)",
+  "direction_convention": "Increasing raw encoder counts are positive; physical clockwise/counterclockwise direction has not been established.",
+  "reference_pose": "User-designated H1 front, H2 back, both in floor contact, with the fork/yaw shaft upright.",
+  "quantity": "CENTER carrier orientation about its shaft relative to the fixed fork and the designated reference pose; not vertical-axis robot yaw or world orientation.",
+  "calibration_method": "Keep the native 16384-count full-turn scale. Use the first observation as zero; retain the opposite observation as a half-turn check, without fitting a scale correction.",
+  "reuse_conditions": [
+    "Use only this wheel, role, and device identity.",
+    "Recheck the reference if encoder mounting, shaft coupling, or the encoder's electronic raw zero changes.",
+    "A raw absolute reading identifies orientation modulo one revolution; it does not preserve the number of completed turns.",
+    "This reference does not calibrate H1/H2 shell spin phase, robot yaw, or timing."
+  ],
+  "provenance": {
+    "source": "Two ROS packet observations supplied by the user in chat; physical poses described by the user.",
+    "topic": "/caster_encoder/front_left/packets",
+    "capture_method": "ros2 topic echo --field data with CENTER samples filter and --once",
+    "samples_per_pose": 2,
+    "independent_angular_reference": null,
+    "reference_pose_repeatability_measured": false
+  },
+  "checks": {
+    "reference_raw_deg": 26.5869140625,
+    "opposite_raw_deg": 206.91650390625,
+    "increasing_modular_difference_counts": 8207,
+    "increasing_modular_difference_deg": 180.32958984375,
+    "ideal_half_turn_counts": 8192,
+    "half_turn_residual_counts": 15,
+    "half_turn_residual_deg": 0.32958984375,
+    "shortest_signed_endpoint_difference_deg": -179.67041015625,
+    "angle_resolution_deg_per_count": 0.02197265625,
+    "both_pose_samples_stationary": true,
+    "raw_and_firmware_calibrated_angles_equal_in_observations": true,
+    "sample_valid_in_observations": true,
+    "parity_or_spi_error_in_observations": false,
+    "continuity_lost_flag_in_observations": true,
+    "interpretation": "The residual is a two-pose consistency check, not an accuracy bound. Endpoint readings do not establish the physical direction, actual traveled angle, or completed turns. The continuity flag does not invalidate a valid single-turn absolute reading."
+  },
+  "observations": [
+    {
+      "pose": "H1 front, H2 back; fork/yaw shaft upright; both hemispheres in floor contact",
+      "nominal_reference_deg": 0.0,
+      "receive_epoch_ns": 1792978454428568858,
+      "receive_monotonic_ns": 8667454835790,
+      "receive_ros_ns": 1792978454428576413,
+      "source_ip": "10.42.0.102",
+      "source_port": 61516,
+      "packet": {
+        "v": 2,
+        "type": "samples",
+        "wheel_id": "front_left",
+        "device_id": "10:bd:a3:b2:14:a4",
+        "node_id": 3,
+        "boot_id": "6b24a8cb2e1298cd",
+        "samples": [
+          {
+            "seq": 476039,
+            "t_us": 2381520998,
+            "raw_count": null,
+            "raw_spi_word": 50362,
+            "position14": 1210,
+            "index_raw_count": null,
+            "angle_rad": null,
+            "absolute_angle_rad": 0.46402918833540646,
+            "calibrated_alpha_rad": 0.46402918833540646,
+            "velocity_rad_s": 0,
+            "filtered_velocity_rad_s": 0,
+            "index_event_count": 0,
+            "index_timestamp_us": 0,
+            "flags": 1347
+          },
+          {
+            "seq": 476040,
+            "t_us": 2381526047,
+            "raw_count": null,
+            "raw_spi_word": 50362,
+            "position14": 1210,
+            "index_raw_count": null,
+            "angle_rad": null,
+            "absolute_angle_rad": 0.46402918833540646,
+            "calibrated_alpha_rad": 0.46402918833540646,
+            "velocity_rad_s": 0,
+            "filtered_velocity_rad_s": 0,
+            "index_event_count": 0,
+            "index_timestamp_us": 0,
+            "flags": 1347
+          }
+        ],
+        "diagnostics": {
+          "acquisition_overruns": 440,
+          "queue_drops": 0,
+          "invalid_spi_responses": 0,
+          "index_queue_drops": 0,
+          "radio_failures": 141
+        }
+      }
+    },
+    {
+      "pose": "H2 front, H1 back; user-designated opposite floor-contact pose",
+      "nominal_reference_deg": 180.0,
+      "receive_epoch_ns": 1792978523820880515,
+      "receive_monotonic_ns": 8736847147189,
+      "receive_ros_ns": 1792978523820885515,
+      "source_ip": "10.42.0.102",
+      "source_port": 61516,
+      "packet": {
+        "v": 2,
+        "type": "samples",
+        "wheel_id": "front_left",
+        "device_id": "10:bd:a3:b2:14:a4",
+        "node_id": 3,
+        "boot_id": "6b24a8cb2e1298cd",
+        "samples": [
+          {
+            "seq": 489911,
+            "t_us": 2450880998,
+            "raw_count": null,
+            "raw_spi_word": 9417,
+            "position14": 9417,
+            "index_raw_count": null,
+            "angle_rad": null,
+            "absolute_angle_rad": 3.6113742698797706,
+            "calibrated_alpha_rad": 3.6113742698797706,
+            "velocity_rad_s": 0,
+            "filtered_velocity_rad_s": 0,
+            "index_event_count": 0,
+            "index_timestamp_us": 0,
+            "flags": 1347
+          },
+          {
+            "seq": 489912,
+            "t_us": 2450886046,
+            "raw_count": null,
+            "raw_spi_word": 9417,
+            "position14": 9417,
+            "index_raw_count": null,
+            "angle_rad": null,
+            "absolute_angle_rad": 3.6113742698797706,
+            "calibrated_alpha_rad": 3.6113742698797706,
+            "velocity_rad_s": 0,
+            "filtered_velocity_rad_s": 0,
+            "index_event_count": 0,
+            "index_timestamp_us": 0,
+            "flags": 1347
+          }
+        ],
+        "diagnostics": {
+          "acquisition_overruns": 440,
+          "queue_drops": 0,
+          "invalid_spi_responses": 0,
+          "index_queue_drops": 0,
+          "radio_failures": 141
+        }
+      }
+    }
+  ]
+}

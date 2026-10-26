@@ -239,66 +239,105 @@ This is measured caster motion visualization, including manual movements.
 Whole-robot trajectory reconstruction and physics simulation are separate.
 The original robot/Vicon bag is not needed for this caster video.
 
-### Start each replay with both hemispheres at the ground
+## Saved CENTER absolute-angle reference
 
-The local recording renderer now defaults to `--start-pose ground-contact` for
-pose experiments. It treats the **first complete, fresh H1/H2/CENTER pose** as
-an assumed reference, regardless of the encoder values at that instant:
+The front-left CENTER reference is stored in
+`hamr_bringup/config/front_left_center_calibration.json`, for device
+`10:bd:a3:b2:14:a4`. It includes the original packet observations, physical pose
+descriptions, sample flags, timestamps and calibration limitations:
 
-- The fork stays upright; H1 starts toward model-forward (+X) and H2 toward
-  model-back (-X), with the split axis horizontal.
-- Both shell bottoms start at a fixed visual ground plane. The plane is placed
-  from the actual CAD shell geometry, not an ideal full sphere.
-- H1/H2 start at the CAD's chosen zero spin phase; CENTER is offset to orient
-  the split axis. Subsequent motion uses the recorded changes and configured
-  signs: `q_model(t) = q_start + sign * (angle(t) - angle(reference))`.
+| Physical pose | Raw count | Raw angle | Angle from saved zero |
+| --- | ---: | ---: | ---: |
+| H1 front, H2 back; both at floor, fork upright | 1210 | 26.5869140625° | 0° |
+| H2 front, H1 back | 9417 | 206.91650390625° | 180.32958984375° |
 
-This is an **assumed simulation starting pose**, not a physical calibration.
-The source recordings, timestamps, encoder plots and CSV exports of source
-angles retain their original readings. The model-angle frame CSV and video
-JSON record the adjusted mapping; JSON also retains the reference angles,
-sample identities and timestamp. The video labels the assumed start.
+The increasing-count separation is 8207 counts, 15 counts (0.32958984375°)
+beyond an ideal half-turn. This is a consistency residual, not a measured
+accuracy bound. Two samples at each pose agree, but independent placement
+repeatability and direction have not been measured. The native scale remains
+16384 counts/revolution; the second pose is a check, not a scale correction.
+Increasing counts define positive provisionally. A known signed quarter-turn
+is still needed to establish the physical direction.
 
-Use the usual command; no per-run offsets need to be entered:
+For any future valid raw reading from that same encoder:
 
-```bash
-bash hamr_bringup/scripts/render_caster_recording.sh \
-  /path/to/encoder_YOUR_RUN
+```python
+orientation_deg = ((position14 - 1210) % 16384) * 360.0 / 16384
 ```
 
-To inspect the beginning quickly, create a PNG preview instead of an MP4:
+This gives the single-turn CENTER shaft phase relative to the saved pose.
+Robot vertical-axis yaw/world heading and H1/H2 shell spin phase are separate.
+Keep the fork's orientation fixed when establishing carrier reference poses.
+The saved reference survives a reboot as long as mounting, coupling and the
+encoder's electronic raw zero do not change; it cannot recover completed turns.
+
+### Read the saved-reference angle in ROS
+
+After building `hamr_bringup` and sourcing the workspace, enable the passive
+receiver if it is not already running:
 
 ```bash
-bash hamr_bringup/scripts/render_caster_recording.sh \
-  /path/to/encoder_YOUR_RUN --preview-time 0.1
+source ~/hamster_ws/install/setup.bash
+ros2 launch hamr_bringup caster_encoders.launch.xml record_bag:=false
 ```
 
-The preview also writes its mapping JSON and replay bag. Preview rendering does
-not need ffmpeg. The first few milliseconds may have an incomplete pose while
-the three streams become available; 0.1 seconds normally includes all three.
-
-To use the original encoder-to-CAD mapping, including a supplied calibration:
+In another sourced terminal:
 
 ```bash
-bash hamr_bringup/scripts/render_caster_recording.sh \
-  /path/to/encoder_YOUR_RUN --start-pose recorded \
-  --mapping-config /path/to/caster_encoder_replay.yaml
+ros2 run hamr_bringup caster_center_angle --once
+# Or monitor at up to two printed observations per second:
+ros2 run hamr_bringup caster_center_angle
 ```
 
-In ground-contact mode, a mapping file's side assignments and signs are kept,
-but its angle zeros are replaced for this rendering and `mapping_verified`
-becomes false. The assumption is applied once, not again after an encoder
-reboot. It anchors to the recording's first complete pose, **not** a detected
-trajectory trigger. Keep the caster in the intended reference pose between
-starting the recording and starting motion when that distinction matters.
+The JSON field `orientation_deg` is relative to the saved zero. The command
+reads raw absolute counts, checks wheel/device identity and sample validity,
+and reports direction/accuracy validation separately. It does not change
+firmware or ROS parameters. Firmware `calibrated_alpha_rad` changes do not
+affect this raw-count calculation. Single-turn data remain usable when
+`angle_rad` is null and unwrapped continuity is unavailable.
 
-CENTER is the horizontal carrier angle, not robot yaw about the vertical axis.
-This option does not infer or replay Vicon yaw. The ground remains fixed after
-initialization: there is no contact solver, automatic settling or forced
-two-hemisphere contact throughout the motion. H1/H2 spin zeros select a visual
-phase for holes/markers; they cannot independently change the split-axis tilt.
-The lower-level `render_caster_encoder_video.py` keeps its original `recorded`
-default; pass `--start-pose ground-contact` explicitly to use this mode there.
+Live UDP is suppressed during onboard recording. Use this command before
+starting the recording, or after stopping/finalizing it. It times out instead
+of indefinitely displaying an old observation. To calculate offline from a
+count in `samples.csv`, no ROS graph or hardware is required:
+
+```bash
+ros2 run hamr_bringup caster_center_angle --position14 9417
+# orientation_deg: 180.32958984375
+```
+
+The source helper can also run without ROS using Python and
+`--calibration /path/to/front_left_center_calibration.json --position14 COUNT`.
+Save/copy the calibration with the recordings when moving them to a workstation.
+
+### Preserve absolute starting orientation in the video
+
+Use the fixed CENTER replay mapping explicitly:
+
+```bash
+cd ~/hamster_ws/src/hamr_control
+bash hamr_bringup/scripts/render_caster_recording.sh \
+  /path/to/encoder_YOUR_RUN --wheel front_left \
+  --start-pose recorded \
+  --mapping-config hamr_bringup/config/caster_encoder_replay_front_left_center.yaml
+```
+
+This keeps a different CENTER starting reading different in the video. The
+experimental `ground-contact` mode deliberately resets the first complete pose
+of every run and would override the fixed reference. Normal recording commands
+do not need to change, and the firmware does not need reflashing.
+
+The current CAD's H1-positive, model-+X-forward reference has a carrier joint
+angle of 3.620181390266952 rad. Consequently the YAML uses
+`center_zero_rad: -3.1561522019315458`; this is a CAD mapping offset, **not** the
+physical raw zero of 0.46402918833540646 rad. H1/H2 shell phases and the CAD
+direction/side assumptions remain unverified, so `mapping_verified` stays false.
+
+The existing video mapper consumes firmware `calibrated_alpha_rad`. The supplied
+YAML therefore requires firmware CENTER sign +1 and zero 0, as in these two
+observations where raw and calibrated angles are equal. If firmware sign/zero
+changes, adapt that YAML before reuse; the raw-count calibration JSON and
+`caster_center_angle` command continue to use the original absolute reference.
 
 ## Interrupted commands and recordings
 
