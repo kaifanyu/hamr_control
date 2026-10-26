@@ -9,5 +9,7 @@ hamr_uros_bridge:
     # Measurement variances; changing them changes fusion trust, not sensor bias.
     # Effective fusion variance includes the measured ~3 Hz payload refresh,
     # repeated messages and lag. This is not the stationary sensor noise floor.
-    imu_gyro_z_variance: 0.04      # (rad/s)^2; calibrated wheel/gyro profile
+    # October 25 six-run tune, promoted to the hardware default October 26.
+    # See rosbags/ekf_tuning/calibration_20261025/REPORT.md for validation.
+    imu_gyro_z_variance: 0.001     # (rad/s)^2; calibrated wheel/gyro profile
     imu_yaw_variance: 0.0009       # rad^2, orientation_covariance[8]

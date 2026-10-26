@@ -55,3 +55,19 @@ def test_covariance_yaml_remains_numeric_when_replay_profile_is_saved(tmp_path):
         assert all(type(value) in (int, float) for value in parameters[key])
     original = read('ekf.yaml')['/**']['ros__parameters']
     assert parameters['initial_estimate_covariance'] == original['initial_estimate_covariance']
+
+
+def test_october_calibration_is_default_and_matches_named_replay_profile():
+    """Default launches and replay must select the promoted gyro weighting."""
+    tree = ET.parse(ROOT / 'hamr_bringup/launch/hamr_HW.launch.xml')
+    bridge_arg = next(x for x in tree.findall('arg') if x.get('name') == 'bridge_config')
+    assert bridge_arg.get('default') == '$(var bridge_config_path)'
+    bridge_node = next(x for x in tree.findall('node') if x.get('pkg') == 'hamr_uros_bridge')
+    assert bridge_node.find('param').get('from') == '$(var bridge_config)'
+    default = read('hamr_uros_bridge.yaml')['hamr_uros_bridge']['ros__parameters']
+    tuned = read('hamr_uros_bridge_calibration_20261025.yaml')['hamr_uros_bridge']['ros__parameters']
+    assert default['imu_gyro_z_variance'] == 0.001
+    assert tuned == default
+    profile = read('offline_calibration_20261025.yaml')
+    default_profile = read('offline_calibrated_replay.yaml')
+    assert profile == default_profile

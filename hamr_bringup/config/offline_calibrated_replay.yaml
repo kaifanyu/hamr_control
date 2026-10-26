@@ -2,6 +2,7 @@
 # wheel_odometry_calibration.yaml AS WELL AS these covariance settings.
 # For future bags already recorded with calibrated live odometry, use
 # set_replay_covariances.py instead, so calibration is not applied twice.
+# Matches the October 26 hardware default: October 25 six-run gyro weighting.
 base_ekf_config: ekf_calibrated.yaml
 ekf:
   two_d_mode: true
@@ -95,7 +96,7 @@ covariances:
     - 0
   - - 0
     - 0
-    - 0.04
+    - 0.001
   imu_linear_acceleration:
   - - 0.01
     - 0

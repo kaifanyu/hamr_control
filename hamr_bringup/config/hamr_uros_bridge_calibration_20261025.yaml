@@ -1,0 +1,18 @@
+# Named copy of the default encoder/gyro EKF weighting from October 25 runs.
+# Fit: fast/slow repeats 1 and 2; held out: fast/slow repeat 3.
+# Improves these 0.10/0.15 m/s runs, but regresses two older waypoint routes.
+# Promoted to the hardware default October 26 at the user's request for
+# waypoint validation. Q, P0, wheel calibration and wheel variances are unchanged.
+# See rosbags/ekf_tuning/calibration_20261025/REPORT.md for scope and metrics.
+hamr_uros_bridge:
+  ros__parameters:
+    serial_port: /dev/ttyUSB0
+    baud: 460800
+    tx_rate_hz: 100.0
+    command_timeout_s: 0.25
+    shutdown_zero_packets: 10
+    turret_command_sign: -1.0
+    # Effective fusion variance for the currently repeated/delayed gyro data;
+    # this is a fitted weighting, not an independent-sample sensor noise floor.
+    imu_gyro_z_variance: 0.001  # (rad/s)^2; recorded baseline was 0.04
+    imu_yaw_variance: 0.0009

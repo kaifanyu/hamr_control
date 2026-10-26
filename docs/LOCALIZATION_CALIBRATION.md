@@ -53,7 +53,8 @@ a named bag:
 ```bash
 HAMR_BAG_NAME=hamr_hw_calib_fast_01 \
 ros2 launch hamr_bringup hamr_HW.launch.xml \
-  record_bag:=true record_camera:=false use_mag:=false use_orientation:=false
+  record_bag:=true record_camera:=false use_mag:=false use_orientation:=false \
+  controller_odom_timeout_s:=0.20
 ```
 
 This retains the current wheel calibration and EKF configuration. The recorder
@@ -63,6 +64,9 @@ translation does not reset the EKF. Keep the same calibration for all repeats.
 Camera recording is disabled for this collection to reduce CPU/disk load; the
 Vicon, encoder and IMU topics are still recorded. This may reduce scheduling
 pressure but does not guarantee that Vicon receipt gaps will disappear.
+The `controller_odom_timeout_s:=0.20` override matches the calibration
+publisher's 200 ms Vicon limit. Without it, the normal 120 ms controller
+timeout would stop first, so the calibration preflight rejects that mismatch.
 
 To align the EKF's initial XY/yaw with Vicon, keep the robot stationary and run
 the existing initialization helper in terminal 2 before the trajectory:
@@ -91,9 +95,11 @@ Wait for `Calibration complete, including final hold`, then stop terminal 1 to
 finish the bag. If feedback becomes stale or invalid, the reference publisher
 aborts and stays stopped; it does not skip ahead or restart automatically.
 The controller's existing watchdog stops the wheels on reference loss.
-The 80 ms trajectory feedback guard and 120 ms controller watchdogs remain in
-force. If a run aborts, save that bag, then make another explicitly started
-attempt; do not treat the partial bag as a completed repeat.
+The trajectory and the above controller launch use a **200 ms** Vicon feedback
+timeout. Reference callback gaps still have an independent **80 ms** limit,
+and the controller's reference
+watchdog is **120 ms**. If a run aborts, save that bag, then make another
+explicitly started attempt; do not treat the partial bag as a completed repeat.
 
 To stop early, Ctrl-C terminal 2, or use:
 
@@ -126,13 +132,23 @@ matrices, IMU settings, or watchdog thresholds.
 
 ## Timing aborts
 
-`Odometry became stale` means the trajectory node has gone more than 80 ms
+`Odometry became stale` means the trajectory node has gone more than 200 ms
 without a processed Vicon pose on `/HAMR_base/odom`. This is the trajectory's
 feedback, not `/local_HAMR/odom` from the EKF. A receipt/source timestamp gap
 can also abort when the next pose arrives. `Reference callback gap exceeded
 timeout` means trajectory execution missed its own 80 ms deadline. These
 conditions require investigating delivery or scheduling; changing EKF Q/R
 does not correct them.
+
+The calibration profile's `odom_timeout_s` was raised to 0.20 seconds
+on October 25. This applies to feedback age, receipt gaps and source-stamp
+gaps, and is recorded in each run's metadata. Runtime validation requires
+the controller's odometry timeout to be at least as long. The ordinary
+`waypoint_traj_simple` publisher has no additional Vicon freshness check;
+with `hamr_HW.launch.xml`, its controller defaults to 120 ms unless overridden.
+The calibration launch above explicitly selects 200 ms. This tolerates the
+observed 97 ms and 117 ms interruptions, but does not prevent delays or allow
+gaps longer than 200 ms. Earlier bags retain their recorded timeout settings.
 
 Timeout reasons include the measured duration and configured limit. Status
 messages also record `last_graph_query_ms` and `last_reference_callback_ms`
@@ -204,3 +220,33 @@ matrix; the trajectory command does not automatically modify the live EKF.
 
 Wheel+IMU calibration can substantially improve local odometry. It does not
 provide an absolute XY reference or guarantee bounded long-term global drift.
+
+## October 25 six-run analysis
+
+All six complete runs were analyzed; the usable first fast recording ends in
+`fast_01_003`. Fast/slow runs 1 and 2 were used for fitting, and both run 3
+recordings were held out. Lowering the effective gyro Z measurement variance
+from 0.04 to 0.001 reduced held-out XY RMSE from 55.6 to 28.6 cm (fast) and
+49.3 to 21.9 cm (slow). Actual ROS EKF replay confirmed the result.
+
+On October 26, this weighting was promoted to the **default hardware profile**
+at the user's request for a new ordinary waypoint validation run.
+`hamr_bringup/config/hamr_uros_bridge.yaml` now sets
+`imu_gyro_z_variance: 0.001`; no `bridge_config` override is needed. Restart
+the hardware launch after sourcing the rebuilt workspace to load the change.
+Apply the same stationary Vicon `/set_pose` initialization before the trajectory
+and record the bag for comparison. Control still uses Vicon; the onboard EKF
+is evaluated separately against it.
+
+The tune regresses two older waypoint recordings, so the new run is needed
+to assess its behavior on an ordinary waypoint path. The maintained wheel
+calibration, Q, P0 and wheel covariances remain unchanged.
+
+The default offline covariance profile,
+`hamr_bringup/config/offline_calibrated_replay.yaml`, now matches this weighting.
+The dated bridge and offline `calibration_20261025` profiles retain matching
+named copies. These October inputs already contain wheel calibration; apply
+covariance overrides only. The recorded baseline used gyro variance 0.04;
+preserve that value when replaying the baseline for before/after comparisons.
+See [the full report](../rosbags/ekf_tuning/calibration_20261025/REPORT.md) for
+all six scores, plots, IMU freshness/lag findings, and the older-route checks.

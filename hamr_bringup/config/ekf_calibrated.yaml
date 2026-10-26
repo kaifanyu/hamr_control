@@ -1,8 +1,9 @@
-# Calibrated encoder + gyro EKF, validated on all three 2026-09-16 bags.
-# Requires wheel_odometry_calibration.yaml and imu_gyro_z_variance=0.04.
+# Calibrated encoder + gyro EKF with October 25 six-run gyro weighting.
+# Requires wheel_odometry_calibration.yaml and imu_gyro_z_variance=0.001.
+# This weighting became the hardware default October 26 for waypoint validation.
 # Vicon is evaluation only; no pose or magnetic heading is fused.
 # Q and P0 are unchanged from the original gyro configuration.
-# See rosbags/ekf_tuning/report/REPORT.md for metrics and held-out tests.
+# See rosbags/ekf_tuning/calibration_20261025/REPORT.md for metrics and limits.
 /**:
   ros__parameters:
     frequency: 50.0

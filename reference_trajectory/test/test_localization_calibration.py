@@ -135,6 +135,57 @@ def test_full_execution_waits_ten_seconds_and_holds_end(cfg, speed_order):
     assert session.step(1000.0) is None
 
 
+@pytest.fixture
+def armed_session(cfg, plan):
+    """Start the calibration with stationary, valid feedback."""
+    session = ContinuousExecution(cfg, plan)
+    for k in range(40):
+        t = k * 0.01
+        session.observe(Feedback(3.0, -2.0, 0.0, t + 1000.0, t, 'mocap'))
+    assert session.start(0.39, subscribers=1, publishers=1)[0]
+    return session
+
+
+@pytest.mark.parametrize('gap_s', [0.097405, 0.117145, 0.15, 0.199])
+def test_vicon_gaps_below_limit_are_tolerated(armed_session, gap_s):
+    """Allow delivery gaps below 200 ms while callbacks stay timely."""
+    session = armed_session
+    before = session.feedback
+    for k in range(1, math.ceil(gap_s / 0.01)):
+        assert session.step(before.received_s + k * 0.01) is not None
+    now = before.received_s + gap_s
+    assert session.observe(
+        Feedback(3.0, -2.0, 0.0, now + 1000.0, now, 'mocap')
+    )
+    assert session.step(now) is not None
+    assert session.active
+
+
+@pytest.mark.parametrize('fault', ['age', 'receipt', 'source', 'callback'])
+def test_calibration_still_aborts_on_longer_gaps(armed_session, fault):
+    """Retain the 200 ms feedback and independent 80 ms callback guards."""
+    session = armed_session
+    before = session.feedback
+    t = before.received_s
+    if fault == 'age':
+        for delta in (0.04, 0.08, 0.12, 0.16, 0.199):
+            assert session.step(t + delta) is not None
+        assert session.step(t + 0.201) is None
+    elif fault == 'callback':
+        for k in range(1, 10):
+            now = t + k * 0.01
+            session.observe(Feedback(3.0, -2.0, 0.0, now + 1000.0, now, 'mocap'))
+        assert session.step(t + 0.09) is None
+        assert session.reason.startswith('Reference callback gap')
+    else:
+        receive_delta = 0.201 if fault == 'receipt' else 0.01
+        assert not session.observe(
+            Feedback(3.0, -2.0, 0.0, before.source_stamp_s + 0.201,
+                     t + receive_delta, 'mocap')
+        )
+    assert session.state == 'aborted'
+
+
 @pytest.mark.parametrize(
     'bad',
     [
@@ -148,6 +199,8 @@ def test_full_execution_waits_ten_seconds_and_holds_end(cfg, speed_order):
         {'segment_hold_s': 20.0},
         {'odom_topic': '/local_HAMR/odom'},
         {'origin_mode': 'vicon_absolute'},
+        {'odom_timeout_s': 0.201},
+        {'max_publish_gap_s': 0.12},
         {'speed_order': []},
         {'speed_order': 'fast'},
         {'speed_order': ['fast', 'fast']},
@@ -211,7 +264,8 @@ def test_selected_speed_preview_is_complete_and_recorded(
         == 10.0
     )
     assert doc['execution']['loop'] is False
-    assert doc['config']['odom_timeout_s'] == 0.08
+    assert doc['config']['odom_timeout_s'] == 0.20
+    assert doc['config']['max_publish_gap_s'] == 0.08
 
 
 def test_legacy_slow_first_profile_is_still_supported(cfg):
@@ -222,12 +276,13 @@ def test_legacy_slow_first_profile_is_still_supported(cfg):
     assert plan.stages[-1]['name'] == 'fast_cw'
 
 
-def runtime_snapshot():
-    """Read the actual checked-in hardware defaults."""
+def runtime_snapshot(odom_timeout_s=0.20):
+    """Read hardware defaults with the calibration launch timeout override."""
     repo = Path(__file__).resolve().parents[2]
     controller = yaml.safe_load(
         (repo / 'hamr_bringup/config/hamr_hw_control_params.yaml').read_text()
     )['/hamr_controller_node']['ros__parameters']
+    controller['odom_timeout_s'] = odom_timeout_s
     ekf = yaml.safe_load(
         (repo / 'hamr_bringup/config/ekf_calibrated.yaml').read_text()
     )['/**']['ros__parameters']
@@ -235,8 +290,17 @@ def runtime_snapshot():
 
 
 def test_current_hardware_parameters_match_plan(cfg):
-    """Allow the existing standard hardware setup."""
+    """Allow hardware with the matching 200 ms Vicon timeout override."""
     validate_runtime(cfg, runtime_snapshot())
+
+
+def test_default_controller_needs_matching_timeout_override(cfg):
+    """Catch a launch left at 120 ms before arming a 200 ms trajectory."""
+    with pytest.raises(ValueError, match='controller_odom_timeout_s:=0.20'):
+        validate_runtime(cfg, runtime_snapshot(odom_timeout_s=0.12))
+    # Existing 120 ms calibration profiles still work with normal hardware.
+    validate_runtime(dict(cfg, odom_timeout_s=0.12),
+                     runtime_snapshot(odom_timeout_s=0.12))
 
 
 @pytest.mark.parametrize(
@@ -247,6 +311,9 @@ def test_current_hardware_parameters_match_plan(cfg):
         ('simulating', True),
         ('vicon_pose_guard_enabled', False),
         ('odom_timeout_s', 0.0),
+        ('odom_timeout_s', 0.10),
+        ('odom_timeout_s', 0.21),
+        ('reference_timeout_s', 0.20),
         ('xy_velocity_source', 'odom_twist_body'),
     ],
 )

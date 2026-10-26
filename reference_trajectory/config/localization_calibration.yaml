@@ -27,3 +27,6 @@ localization_calibration:
     fixed_yaw_rad: 0.0
     origin_mode: start_translated_vicon
     odom_topic: /HAMR_base/odom
+    # Launch hardware with controller_odom_timeout_s:=0.20 to match this limit.
+    # Reference callback timing remains a separate 80 ms limit.
+    odom_timeout_s: 0.20

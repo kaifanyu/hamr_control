@@ -17,6 +17,8 @@
         value="$(find-pkg-share hamr_bringup)/config/ekf_orientation.yaml" />
     <let name="bridge_config_path"
         value="$(find-pkg-share hamr_bringup)/config/hamr_uros_bridge.yaml" />
+    <arg name="bridge_config" default="$(var bridge_config_path)"
+         description="Serial bridge and IMU covariance profile." />
     <arg name="record_bag" default="true" />
     <arg name="caster_encoders" default="true" description="Receive the caster ESP UDP telemetry for live plots and bags." />
     <arg name="caster_encoder_config" default="$(find-pkg-share hamr_bringup)/config/caster_encoders.yaml" />
@@ -124,7 +126,7 @@
          ESP USB-CDC (logs) is /dev/ttyACM0 @ 115200.
          Serial0 data UART is typically /dev/ttyUSB0 @ 460800 — verify with: ls /dev/ttyUSB* -->
     <node pkg="hamr_uros_bridge" exec="relay_node">
-        <param from="$(var bridge_config_path)" />
+        <param from="$(var bridge_config)" />
     </node>
 
     <!-- Waypoint trajectory publisher — loops the hardcoded path in waypoint_traj_simple.py -->

@@ -82,7 +82,8 @@ def validate_config(overrides):
             key: value
             for key, value in overrides.items()
             if key not in EXTRA_DEFAULTS
-        }
+        },
+        odom_timeout_limit_s=0.20,
     )
     if not 0.05 <= extras['slow_speed_m_s'] < cfg['speed_m_s'] <= 0.15:
         raise ValueError('Require 0.05 <= slow_speed_m_s < speed_m_s <= 0.15')
@@ -380,9 +381,15 @@ def validate_runtime(cfg, snapshot):
         )
     if not controller.get('vicon_pose_guard_enabled'):
         raise ValueError('Use the normal hardware Vicon validity guard')
-    for key in ('reference_timeout_s', 'odom_timeout_s'):
-        if not 0 < controller.get(key, 0) <= 0.12:
-            raise ValueError(f'Use the normal hardware {key} <= 0.12 s')
+    if not 0 < controller.get('reference_timeout_s', 0) <= 0.12:
+        raise ValueError('Use the normal hardware reference_timeout_s <= 0.12 s')
+    if not 0 < controller.get('odom_timeout_s', 0) <= 0.20:
+        raise ValueError('Calibration requires controller odom_timeout_s <= 0.20 s')
+    if cfg['odom_timeout_s'] > controller['odom_timeout_s']:
+        raise ValueError(
+            'Calibration odom_timeout_s must not exceed the controller timeout; '
+            f'launch with controller_odom_timeout_s:={cfg["odom_timeout_s"]:.2f}'
+        )
     cap = controller.get('wheel_speed_limit_rad_s', 0)
     if not math.isfinite(cap) or cap < cfg['max_wheel_rate_rad_s'] - 1e-9:
         raise ValueError(

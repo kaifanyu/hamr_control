@@ -1,0 +1,107 @@
+# Named copy of the October 25 weighting, now the October 26 hardware default.
+# Inputs already contain wheel calibration: override covariances only.
+# See rosbags/ekf_tuning/calibration_20261025/REPORT.md.
+base_ekf_config: ekf_calibrated.yaml
+ekf:
+  two_d_mode: true
+  odom0_config:
+  - false
+  - false
+  - false
+  - false
+  - false
+  - false
+  - true
+  - true
+  - false
+  - false
+  - false
+  - true
+  - false
+  - false
+  - false
+  imu0_config:
+  - false
+  - false
+  - false
+  - false
+  - false
+  - false
+  - false
+  - false
+  - false
+  - false
+  - false
+  - true
+  - false
+  - false
+  - false
+covariances:
+  wheel_pose: null
+  wheel_twist:
+  - - 0.0002
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+  - - 0
+    - 0.0002
+    - 0
+    - 0
+    - 0
+    - 0
+  - - 0
+    - 0
+    - 1.0e-09
+    - 0
+    - 0
+    - 0
+  - - 0
+    - 0
+    - 0
+    - 1.0e-09
+    - 0
+    - 0
+  - - 0
+    - 0
+    - 0
+    - 0
+    - 1.0e-09
+    - 0
+  - - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0.004
+  imu_orientation:
+  - - 0.0003
+    - 0
+    - 0
+  - - 0
+    - 0.0003
+    - 0
+  - - 0
+    - 0
+    - 0.0009
+  imu_angular_velocity:
+  - - 0.0002
+    - 0
+    - 0
+  - - 0
+    - 0.0002
+    - 0
+  - - 0
+    - 0
+    - 0.001
+  imu_linear_acceleration:
+  - - 0.01
+    - 0
+    - 0
+  - - 0
+    - 0.01
+    - 0
+  - - 0
+    - 0
+    - 0.01

@@ -66,8 +66,8 @@ def angle_difference(first, second):
     return math.atan2(math.sin(first - second), math.cos(first - second))
 
 
-def validate_config(overrides):
-    """Validate hardware playback parameters, retaining conservative guards."""
+def validate_config(overrides, *, odom_timeout_limit_s=0.10):
+    """Validate playback using the caller's controller-compatible odom limit."""
     unknown = set(overrides) - set(DEFAULTS)
     if unknown:
         raise ValueError(f'Unknown continuous planner parameters: {unknown}')
@@ -112,9 +112,9 @@ def validate_config(overrides):
         raise ValueError(
             'max_publish_gap_s must cover 2 periods and be <= 0.10'
         )
-    if cfg['odom_timeout_s'] > 0.10:
+    if cfg['odom_timeout_s'] > odom_timeout_limit_s:
         raise ValueError(
-            'odom_timeout_s must be <= 0.10 for the 0.12 s watchdog'
+            f'odom_timeout_s must be <= {odom_timeout_limit_s:.2f} s'
         )
     if cfg['startup_hold_s'] > 30 or cfg['final_hold_s'] > 30:
         raise ValueError('startup/final holds must be <= 30 s')

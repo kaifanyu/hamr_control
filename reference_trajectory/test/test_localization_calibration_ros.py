@@ -40,6 +40,8 @@ def run_smoke():
     cfg = yaml.safe_load(
         (repo / 'hamr_bringup/config/hamr_hw_control_params.yaml').read_text()
     )['/hamr_controller_node']['ros__parameters']
+    # Mirror controller_odom_timeout_s:=0.20 on the calibration hardware launch.
+    cfg['odom_timeout_s'] = 0.20
     snapshots = {
         'hamr_controller_node': cfg,
         'holonomic_odom_node': {'yaw_scale': 0.813},
@@ -163,6 +165,10 @@ def run_smoke():
         assert len(captured_ekf['process_noise_covariance']) == 225
         assert placed[-1]['placement']['translation_m'] == [4.0, -3.0]
         assert placed[-1]['config']['speed_order'] == ['fast']
+        assert placed[-1]['config']['odom_timeout_s'] == 0.20
+        captured_controller = placed[-1]['runtime_parameters']['hamr_controller_node']
+        assert captured_controller['odom_timeout_s'] == 0.20
+        assert captured_controller['reference_timeout_s'] == 0.12
         assert placed[-1]['continuous_plan']['speed_order'] == ['fast']
         assert {s['state'] for s in statuses} >= {'startup_hold', 'motion'}
         assert statuses[-1]['stage'] == 'fast_forward'

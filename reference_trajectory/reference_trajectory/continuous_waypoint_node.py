@@ -76,6 +76,56 @@ def plan_document(cfg, plan):
     }
 
 
+def runtime_document(cfg, plan):
+    """Keep live metadata small without altering the dense offline export."""
+    document = plan_document(cfg, plan)
+    # metadata() is cached and also supplies the preview. Copy its mapping
+    # before removing dense samples so offline exports retain every sample.
+    metadata = dict(document['continuous_plan'])
+    samples = metadata.pop('samples')
+    metadata['sample_export'] = {
+        'omitted_from_live_metadata': True,
+        'sample_count': len(samples),
+        'full_export_command': (
+            'continuous_waypoint --config PROFILE.yaml --plan-only OUTPUT.json'
+        ),
+    }
+    return dict(document, continuous_plan=metadata)
+
+
+def build_preview_path(plan):
+    """Allocate the display poses before arming, preserving their base offsets."""
+    from geometry_msgs.msg import PoseStamped
+    from nav_msgs.msg import Path
+
+    metadata = plan.metadata()
+    # Display every ~5 cm; the execution uses the analytic plan.
+    stride = max(1, int(0.05 / metadata['max_sample_spacing_m']))
+    samples = metadata['samples'][::stride]
+    if samples[-1] is not metadata['samples'][-1]:
+        samples = samples + [metadata['samples'][-1]]
+    offsets = tuple(tuple(sample['position_m']) for sample in samples)
+    path = Path()
+    for x, y in offsets:
+        pose = PoseStamped()
+        pose.header = path.header
+        pose.pose.position.x = x
+        pose.pose.position.y = y
+        pose.pose.orientation.w = 1.0
+        path.poses.append(pose)
+    return path, offsets
+
+
+def place_preview_path(path, offsets, translation, frame_id, stamp):
+    """Reuse allocated poses; each start translates original offsets once."""
+    path.header.frame_id = frame_id
+    path.header.stamp = stamp
+    tx, ty = translation
+    for pose, (x, y) in zip(path.poses, offsets):
+        pose.pose.position.x = x + tx
+        pose.pose.position.y = y + ty
+
+
 def finite_feedback(msg, received_s, cfg):
     """Extract a normalized, plausible Vicon pose or raise ValueError."""
     p, q = msg.pose.pose.position, msg.pose.pose.orientation
@@ -116,9 +166,8 @@ def finite_feedback(msg, received_s, cfg):
 
 def create_node(parameter_overrides=None, *, node_name='continuous_waypoint',
                 config_defaults=None, config_validator=validate_config,
-                plan_builder=build_plan, document_builder=plan_document):
+                plan_builder=build_plan, document_builder=runtime_document):
     """Construct the ROS node lazily so dry planning needs no ROS runtime."""
-    from geometry_msgs.msg import PoseStamped
     from hamr_interfaces.msg import ReferenceTraj
     from nav_msgs.msg import Odometry, Path
     from rcl_interfaces.msg import ParameterDescriptor
@@ -152,6 +201,11 @@ def create_node(parameter_overrides=None, *, node_name='continuous_waypoint',
             self.plan = plan_builder(self.cfg)
             self.execution = ContinuousExecution(self.cfg, self.plan)
             self.document = document_builder(self.cfg, self.plan)
+            # Long routes can contain thousands of display poses. Construct
+            # them while idle so on_start stays inside the playback watchdog.
+            self.preview_path, self.preview_offsets = build_preview_path(
+                self.plan
+            )
             self.reference_topic = '/reference_trajectory'
             # Volatile depth 1 avoids replaying stale references to a new
             # controller.
@@ -293,24 +347,11 @@ def create_node(parameter_overrides=None, *, node_name='continuous_waypoint',
                         )
                     )
                 )
-                path = Path()
-                path.header.frame_id = self.execution.feedback.frame_id
-                path.header.stamp = self.get_clock().now().to_msg()
-                # Display every ~5 cm; the execution uses the analytic plan.
-                stride = max(
-                    1, int(0.05 / self.plan.metadata()['max_sample_spacing_m'])
+                place_preview_path(
+                    self.preview_path, self.preview_offsets, (tx, ty),
+                    feedback.frame_id, self.get_clock().now().to_msg(),
                 )
-                samples = self.plan.metadata()['samples'][::stride]
-                if samples[-1] is not self.plan.metadata()['samples'][-1]:
-                    samples = samples + [self.plan.metadata()['samples'][-1]]
-                for sample in samples:
-                    pose = PoseStamped()
-                    pose.header = path.header
-                    pose.pose.position.x = sample['position_m'][0] + tx
-                    pose.pose.position.y = sample['position_m'][1] + ty
-                    pose.pose.orientation.w = 1.0
-                    path.poses.append(pose)
-                self.path_pub.publish(path)
+                self.path_pub.publish(self.preview_path)
             self.publish_status()
             return response
 

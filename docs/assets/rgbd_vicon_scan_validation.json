@@ -1,0 +1,581 @@
+{
+  "schema_version": 1,
+  "config": {
+    "points_m_flat": [
+      1.2,
+      1.8,
+      1.2,
+      4.4,
+      -1.2,
+      4.4,
+      -1.2,
+      5.6,
+      1.2,
+      5.6,
+      1.2,
+      9.2,
+      -1.2,
+      9.2,
+      -1.2,
+      0.8,
+      1.2,
+      0.8,
+      1.2,
+      1.8,
+      1.2,
+      9.2,
+      0.4,
+      9.2,
+      0.4,
+      0.8,
+      -0.4,
+      0.8,
+      -0.4,
+      9.2,
+      -1.2,
+      9.2,
+      -1.2,
+      0.8,
+      1.2,
+      0.8,
+      1.2,
+      1.8
+    ],
+    "speed_m_s": 0.1,
+    "corner_deviation_m": 0.1,
+    "wheel_radius_m": 0.122,
+    "half_track_m": 0.35,
+    "base_ahead_of_axle_m": 0.301,
+    "max_wheel_rate_rad_s": 2.9321531433504737,
+    "planning_wheel_rate_fraction": 0.65,
+    "planning_wheel_acceleration_rad_s2": 2.0,
+    "planning_max_translation_acceleration_m_s2": 0.1,
+    "planning_max_jerk_m_s3": 0.2,
+    "fixed_yaw_rad": 0.0,
+    "origin_mode": "vicon_absolute",
+    "odom_topic": "/HAMR_base/odom",
+    "reference_timer_hz": 100.0,
+    "startup_hold_s": 10.0,
+    "final_hold_s": 10.0,
+    "odom_timeout_s": 0.08,
+    "max_publish_gap_s": 0.08,
+    "odom_stable_s": 0.25,
+    "odom_recovery_samples": 10,
+    "start_position_tolerance_m": 0.03,
+    "nominal_start_base_yaw_rad": 0.0,
+    "start_yaw_tolerance_rad": 0.15,
+    "start_speed_max_m_s": 0.03,
+    "start_yaw_rate_max_rad_s": 0.1,
+    "odom_max_position_jump_m": 0.08,
+    "odom_max_yaw_jump_rad": 0.35,
+    "odom_min_z_m": 0.25,
+    "odom_max_z_m": 0.4,
+    "odom_max_tilt_rad": 0.35
+  },
+  "planner_sha256": "27895ac7cce20e4d1ec2b382cd90dba1966abd54fdc306e9a50026857e5f14b9",
+  "continuous_plan": {
+    "schema_version": 1,
+    "profile": "continuous",
+    "duration_s": 628.7331569824931,
+    "trajectory_duration_s": 628.7331569824931,
+    "length_m": 62.6858156982493,
+    "points_m": [
+      [
+        1.2,
+        1.8
+      ],
+      [
+        1.2,
+        4.4
+      ],
+      [
+        -1.2,
+        4.4
+      ],
+      [
+        -1.2,
+        5.6
+      ],
+      [
+        1.2,
+        5.6
+      ],
+      [
+        1.2,
+        9.2
+      ],
+      [
+        -1.2,
+        9.2
+      ],
+      [
+        -1.2,
+        0.8
+      ],
+      [
+        1.2,
+        0.8
+      ],
+      [
+        1.2,
+        1.8
+      ],
+      [
+        1.2,
+        9.2
+      ],
+      [
+        0.4,
+        9.2
+      ],
+      [
+        0.4,
+        0.8
+      ],
+      [
+        -0.4,
+        0.8
+      ],
+      [
+        -0.4,
+        9.2
+      ],
+      [
+        -1.2,
+        9.2
+      ],
+      [
+        -1.2,
+        0.8
+      ],
+      [
+        1.2,
+        0.8
+      ],
+      [
+        1.2,
+        1.8
+      ]
+    ],
+    "waypoint_pass_times_s": [
+      0.0,
+      26.168006168607587,
+      48.629018505822756,
+      59.09003084303791,
+      81.55104318025306,
+      116.01205551746821,
+      138.4730678546834,
+      220.93408019189854,
+      243.51532594026878,
+      252.8660655200314,
+      326.34665718384156,
+      333.3078405114618,
+      416.269023839082,
+      423.23020716670226,
+      506.1913904943225,
+      513.1525738219427,
+      595.8636716543604,
+      618.4449174027304,
+      628.7331569824931
+    ],
+    "interior_motion_interval_s": [
+      1.875,
+      626.8581569824931
+    ],
+    "max_acceleration_m_s2": 0.1,
+    "max_sample_interval_s": 0.00999989116303368,
+    "max_sample_spacing_m": 0.0009999891163033682,
+    "linear_chord_error_bound_m": 1.2499727909064888e-06,
+    "corners": [
+      {
+        "waypoint_index": 1,
+        "start_time_s": 21.60416666666667,
+        "end_time_s": 30.731845670548502,
+        "closest_pass_time_s": 26.168006168607587,
+        "planned_waypoint_miss_m": 0.14142135623730953,
+        "max_intended_deviation_m": 0.1,
+        "setback_m": 0.5333333333333333,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 3.9774756441783077,
+        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "entry_m": [
+          1.2,
+          3.866666666666667
+        ],
+        "exit_m": [
+          0.6666666666666666,
+          4.4
+        ]
+      },
+      {
+        "waypoint_index": 2,
+        "start_time_s": 44.06517900388184,
+        "end_time_s": 53.19285800776367,
+        "closest_pass_time_s": 48.629018505822756,
+        "planned_waypoint_miss_m": 0.14142135623730953,
+        "max_intended_deviation_m": 0.1,
+        "setback_m": 0.5333333333333333,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 3.9774756441783077,
+        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "entry_m": [
+          -0.6666666666666666,
+          4.4
+        ],
+        "exit_m": [
+          -1.2,
+          4.933333333333334
+        ]
+      },
+      {
+        "waypoint_index": 3,
+        "start_time_s": 54.526191341097,
+        "end_time_s": 63.65387034497883,
+        "closest_pass_time_s": 59.09003084303791,
+        "planned_waypoint_miss_m": 0.14142135623730953,
+        "max_intended_deviation_m": 0.1,
+        "setback_m": 0.5333333333333333,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 3.9774756441783077,
+        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "entry_m": [
+          -1.2,
+          5.066666666666666
+        ],
+        "exit_m": [
+          -0.6666666666666666,
+          5.6
+        ]
+      },
+      {
+        "waypoint_index": 4,
+        "start_time_s": 76.98720367831216,
+        "end_time_s": 86.11488268219398,
+        "closest_pass_time_s": 81.55104318025306,
+        "planned_waypoint_miss_m": 0.14142135623730953,
+        "max_intended_deviation_m": 0.1,
+        "setback_m": 0.5333333333333333,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 3.9774756441783077,
+        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "entry_m": [
+          0.6666666666666666,
+          5.6
+        ],
+        "exit_m": [
+          1.2,
+          6.133333333333333
+        ]
+      },
+      {
+        "waypoint_index": 5,
+        "start_time_s": 111.44821601552731,
+        "end_time_s": 120.57589501940913,
+        "closest_pass_time_s": 116.01205551746821,
+        "planned_waypoint_miss_m": 0.14142135623730953,
+        "max_intended_deviation_m": 0.1,
+        "setback_m": 0.5333333333333333,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 3.9774756441783077,
+        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "entry_m": [
+          1.2,
+          8.666666666666666
+        ],
+        "exit_m": [
+          0.6666666666666666,
+          9.2
+        ]
+      },
+      {
+        "waypoint_index": 6,
+        "start_time_s": 133.90922835274247,
+        "end_time_s": 143.0369073566243,
+        "closest_pass_time_s": 138.4730678546834,
+        "planned_waypoint_miss_m": 0.14142135623730953,
+        "max_intended_deviation_m": 0.1,
+        "setback_m": 0.5333333333333333,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 3.9774756441783077,
+        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "entry_m": [
+          -0.6666666666666666,
+          9.2
+        ],
+        "exit_m": [
+          -1.2,
+          8.666666666666666
+        ]
+      },
+      {
+        "waypoint_index": 7,
+        "start_time_s": 216.37024068995763,
+        "end_time_s": 225.49791969383946,
+        "closest_pass_time_s": 220.93408019189854,
+        "planned_waypoint_miss_m": 0.14142135623730953,
+        "max_intended_deviation_m": 0.1,
+        "setback_m": 0.5333333333333333,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 3.9774756441783077,
+        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "entry_m": [
+          -1.2,
+          1.3333333333333335
+        ],
+        "exit_m": [
+          -0.6666666666666666,
+          0.8
+        ]
+      },
+      {
+        "waypoint_index": 8,
+        "start_time_s": 239.66458636050612,
+        "end_time_s": 247.3660655200314,
+        "closest_pass_time_s": 243.51532594026878,
+        "planned_waypoint_miss_m": 0.11932426932522991,
+        "max_intended_deviation_m": 0.084375,
+        "setback_m": 0.45,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 4.714045207915031,
+        "curvature_derivative_bound_m_inv2": 20.790461289833747,
+        "entry_m": [
+          0.75,
+          0.8
+        ],
+        "exit_m": [
+          1.2,
+          1.25
+        ]
+      },
+      {
+        "waypoint_index": 10,
+        "start_time_s": 323.2660655200314,
+        "end_time_s": 329.42724884765164,
+        "closest_pass_time_s": 326.34665718384156,
+        "planned_waypoint_miss_m": 0.09545941546018392,
+        "max_intended_deviation_m": 0.0675,
+        "setback_m": 0.36,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 5.892556509893789,
+        "curvature_derivative_bound_m_inv2": 32.48509576536523,
+        "entry_m": [
+          1.2,
+          8.84
+        ],
+        "exit_m": [
+          0.84,
+          9.2
+        ]
+      },
+      {
+        "waypoint_index": 11,
+        "start_time_s": 330.22724884765165,
+        "end_time_s": 336.3884321752719,
+        "closest_pass_time_s": 333.3078405114618,
+        "planned_waypoint_miss_m": 0.09545941546018392,
+        "max_intended_deviation_m": 0.0675,
+        "setback_m": 0.36,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 5.892556509893789,
+        "curvature_derivative_bound_m_inv2": 32.48509576536523,
+        "entry_m": [
+          0.76,
+          9.2
+        ],
+        "exit_m": [
+          0.4,
+          8.84
+        ]
+      },
+      {
+        "waypoint_index": 12,
+        "start_time_s": 413.1884321752719,
+        "end_time_s": 419.3496155028921,
+        "closest_pass_time_s": 416.269023839082,
+        "planned_waypoint_miss_m": 0.09545941546018392,
+        "max_intended_deviation_m": 0.0675,
+        "setback_m": 0.36000000000000004,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 5.892556509893788,
+        "curvature_derivative_bound_m_inv2": 32.48509576536522,
+        "entry_m": [
+          0.4,
+          1.1600000000000001
+        ],
+        "exit_m": [
+          0.03999999999999998,
+          0.8
+        ]
+      },
+      {
+        "waypoint_index": 13,
+        "start_time_s": 420.1496155028921,
+        "end_time_s": 426.31079883051234,
+        "closest_pass_time_s": 423.23020716670226,
+        "planned_waypoint_miss_m": 0.09545941546018392,
+        "max_intended_deviation_m": 0.0675,
+        "setback_m": 0.36000000000000004,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 5.892556509893788,
+        "curvature_derivative_bound_m_inv2": 32.48509576536522,
+        "entry_m": [
+          -0.03999999999999998,
+          0.8
+        ],
+        "exit_m": [
+          -0.4,
+          1.1600000000000001
+        ]
+      },
+      {
+        "waypoint_index": 14,
+        "start_time_s": 503.11079883051235,
+        "end_time_s": 509.2719821581326,
+        "closest_pass_time_s": 506.1913904943225,
+        "planned_waypoint_miss_m": 0.09545941546018392,
+        "max_intended_deviation_m": 0.0675,
+        "setback_m": 0.36,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 5.892556509893789,
+        "curvature_derivative_bound_m_inv2": 32.48509576536523,
+        "entry_m": [
+          -0.4,
+          8.84
+        ],
+        "exit_m": [
+          -0.76,
+          9.2
+        ]
+      },
+      {
+        "waypoint_index": 15,
+        "start_time_s": 510.0719821581326,
+        "end_time_s": 516.2331654857528,
+        "closest_pass_time_s": 513.1525738219427,
+        "planned_waypoint_miss_m": 0.09545941546018392,
+        "max_intended_deviation_m": 0.0675,
+        "setback_m": 0.36,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 5.892556509893789,
+        "curvature_derivative_bound_m_inv2": 32.48509576536523,
+        "entry_m": [
+          -0.84,
+          9.2
+        ],
+        "exit_m": [
+          -1.2,
+          8.84
+        ]
+      },
+      {
+        "waypoint_index": 16,
+        "start_time_s": 591.2998321524194,
+        "end_time_s": 600.4275111563012,
+        "closest_pass_time_s": 595.8636716543604,
+        "planned_waypoint_miss_m": 0.14142135623730953,
+        "max_intended_deviation_m": 0.1,
+        "setback_m": 0.5333333333333333,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 3.9774756441783077,
+        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "entry_m": [
+          -1.2,
+          1.3333333333333335
+        ],
+        "exit_m": [
+          -0.6666666666666666,
+          0.8
+        ]
+      },
+      {
+        "waypoint_index": 17,
+        "start_time_s": 614.5941778229678,
+        "end_time_s": 622.2956569824931,
+        "closest_pass_time_s": 618.4449174027304,
+        "planned_waypoint_miss_m": 0.11932426932522991,
+        "max_intended_deviation_m": 0.084375,
+        "setback_m": 0.45,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 4.714045207915031,
+        "curvature_derivative_bound_m_inv2": 20.790461289833747,
+        "entry_m": [
+          0.75,
+          0.8
+        ],
+        "exit_m": [
+          1.2,
+          1.25
+        ]
+      }
+    ],
+    "limits": {
+      "requested_peak_speed_m_s": 0.1,
+      "peak_speed_m_s": 0.1,
+      "max_acceleration_m_s2": 0.1,
+      "max_jerk_m_s3": 0.2,
+      "planning_wheel_rate_rad_s": 1.905899543177808,
+      "planning_wheel_acceleration_rad_s2": 2.0,
+      "max_intended_deviation_m": 0.1,
+      "wheel_speed_gain_rad_m": 12.5709013296207,
+      "radius_m": 0.122,
+      "half_track_m": 0.35,
+      "offset_m": 0.301
+    },
+    "certification": {
+      "method": "Analytic quintic velocity extrema, analytic deviation envelope, interval bounds on curvature and arc-length curvature derivative",
+      "curvature_interval_count": 1024,
+      "max_speed_m_s": 0.1,
+      "max_acceleration_m_s2": 0.1,
+      "max_jerk_m_s3": 0.16422407656949356,
+      "max_wheel_rate_rad_s": 1.25709013296207,
+      "max_wheel_acceleration_rad_s2": 1.6747280508896683,
+      "max_intended_deviation_m": 0.1,
+      "wheel_acceleration_formula": "K*(abs(v_dot)+v^2*(abs(curvature)+1/offset))",
+      "scope": "Nominal reference for any initial chassis heading; feedback, traction and motor dynamics require simulation/hardware validation"
+    }
+  },
+  "placement": {
+    "origin_mode": "vicon_absolute",
+    "rotation_rad": 0.0,
+    "translation_m": [
+      0.0,
+      0.0
+    ],
+    "axes": "Vicon world axes; start translation, no rotation"
+  },
+  "execution": {
+    "requires_explicit_start": true,
+    "loop": false,
+    "freshness_clock": "local monotonic receipt time",
+    "source_stamps": "strictly increasing, not compared to host clock",
+    "stop": "reference silence; controller watchdog zeros outputs",
+    "wheel_acceleration": "planning assumption; requires calibration",
+    "yaw": "turret world yaw; base_yaw_offset belongs to controller"
+  },
+  "artifact_note": "Compact export: dense samples omitted. Regenerate the full plan with continuous_waypoint --config rgbd_vicon_scan.yaml --plan-only OUTPUT.json.",
+  "sample_validation": {
+    "sample_count": 62926,
+    "xy_bounds_m": {
+      "x": [
+        -1.2,
+        1.2
+      ],
+      "y": [
+        0.8,
+        9.2
+      ]
+    },
+    "all_sampled_positions_within_inset": true,
+    "start_position_m": [
+      1.2,
+      1.8
+    ],
+    "end_position_m": [
+      1.2,
+      1.8
+    ],
+    "start_and_end_stationary": true,
+    "max_sampled_speed_m_s": 0.10000000000000003,
+    "planned_duration_with_holds_s": 648.7331569824931
+  }
+}
