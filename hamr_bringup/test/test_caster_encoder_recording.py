@@ -64,6 +64,18 @@ def test_recorders_select_encoder_payloads_and_qos(tmp_path, script):
     for wheel in ("", "front_left/", "front_right/"):
         assert qos[f"/caster_encoder/{wheel}metadata"]["durability"] == "transient_local"
     assert not regex.fullmatch("/caster_encoder/rear_left/packets")
+    if script == "record_hamr_test_bag":
+        marker = json.loads((tmp_path / ".latest_hamr_bag.json").read_text())
+        assert marker["bag_path"] == args[args.index("--output") + 1]
+        # A reused requested name must publish the suffixed actual output path.
+        (tmp_path / "bag with spaces").mkdir()
+        repeated = subprocess.run(
+            ["bash", str(PACKAGE / "scripts" / script), "fixture", str(tmp_path / "bag with spaces")],
+            env=env, text=True, capture_output=True, check=True,
+        )
+        args = json.loads(repeated.stdout.splitlines()[-1])
+        marker = json.loads((tmp_path / ".latest_hamr_bag.json").read_text())
+        assert marker["bag_path"] == args[args.index("--output") + 1] == str(tmp_path / "bag with spaces_001")
 
 
 def test_encoder_only_launch_is_passive_and_hw_does_not_duplicate_bag():

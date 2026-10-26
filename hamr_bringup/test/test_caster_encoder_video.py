@@ -1,5 +1,6 @@
 """Check video timing and measured CAD poses without rendering or hardware."""
 import math
+import copy
 from pathlib import Path
 import sys
 import xml.etree.ElementTree as ET
@@ -9,9 +10,60 @@ import pytest
 
 SCRIPTS = Path(__file__).resolve().parents[1] / 'scripts'
 sys.path.insert(0, str(SCRIPTS))
-from render_caster_encoder_video import frame_times, link_transforms, sample_frames
+from render_caster_encoder_video import frame_times, link_transforms, sample_frames, ground_start_mapping
 from caster_encoder_plots import collect_readings, curve_points, EncoderPlots
 from test_caster_encoder_replay import envelope, SECOND_BOOT
+
+
+@pytest.mark.parametrize('swap', [False, True])
+@pytest.mark.parametrize('sign', [-1, 1])
+def test_ground_start_puts_h1_forward_and_preserves_signed_recorded_changes(swap, sign):
+    from caster_replay_model import DEFAULT_MAPPING
+    robot = ET.parse(SCRIPTS.parents[1] / 'hamr_ball_caster/urdf/ball_caster.urdf').getroot()
+    mapping = dict(DEFAULT_MAPPING, h1_sign=sign, h2_sign=sign, center_sign=sign,
+                   h1_zero_rad=77., center_zero_rad=-33., mapping_verified=True)
+    if swap:
+        mapping['h1_joint'], mapping['h2_joint'] = mapping['h2_joint'], mapping['h1_joint']
+    events = [(100, envelope(1, angle=12.3)), (101, envelope(2, angle=-9.4)), (102, envelope(3, angle=6.2)),
+              (200, envelope(1, seq=1, angle=13.)), (200, envelope(2, seq=1, angle=-10.)),
+              (200, envelope(3, seq=1, angle=.01))]
+    original = copy.deepcopy(events)
+    effective, reference = ground_start_mapping(events, robot, mapping)
+    assert events == original
+    assert reference['reference_stamp_ns'] == 102
+    assert reference['reference_encoder_rad'] == {'h1': 12.3, 'h2': -9.4, 'center': 6.2}
+    assert reference['assumed'] is True and effective['mapping_verified'] is False
+    frames = sample_frames(events, [101, 102, 200], effective)
+    assert not frames[0]['status']['complete_pose_available']
+    initial = frames[1]['joints']
+    assert initial[mapping['h1_joint']] == initial[mapping['h2_joint']] == 0.
+    transforms = link_transforms(robot, initial)
+    for role, desired in (('h1', [1, 0, 0]), ('h2', [-1, 0, 0])):
+        joint = robot.find(f"./joint[@name='{mapping[role + '_joint']}']")
+        axis = transforms[joint.find('child').get('link')][:3, :3] @ np.fromstring(joint.find('axis').get('xyz'), sep=' ')
+        np.testing.assert_allclose(axis, desired, atol=1e-12)
+    moved = frames[2]['joints']
+    assert moved[mapping['h1_joint']] == pytest.approx(sign * .7)
+    assert moved[mapping['h2_joint']] == pytest.approx(sign * -.6)
+    assert moved['caster_carrier_joint'] - initial['caster_carrier_joint'] == pytest.approx(sign * (.01 - 6.2))
+
+
+def test_ground_reference_waits_for_valid_fresh_pose_and_does_not_hide_reboots():
+    robot = ET.parse(SCRIPTS.parents[1] / 'hamr_ball_caster/urdf/ball_caster.urdf').getroot()
+    events = [(100, envelope(1, angle=12.3)), (101, envelope(2, angle=-9.4)),
+              (102, envelope(3, angle=1., valid=False)), (103, envelope(3, seq=1, angle=2.))]
+    with pytest.raises(ValueError, match='complete fresh'):
+        ground_start_mapping(events[:3], robot)
+    effective, reference = ground_start_mapping(events, robot)
+    assert reference['reference_stamp_ns'] == 103
+    rebooted = events + [(200, envelope(1, angle=99., boot=SECOND_BOOT))]
+    frame = sample_frames(rebooted, [200], effective)[0]
+    assert frame['status']['nodes'][0]['boot_changes'] == 1
+    assert frame['joints'][effective['h1_joint']] == pytest.approx(99. - 12.3)
+    # No fresh common reference if the H1/H2 samples have already gone stale.
+    stale_events = events[:2] + [(2_000_000_000, envelope(3, angle=2.))]
+    with pytest.raises(ValueError, match='complete fresh'):
+        ground_start_mapping(stale_events, robot)
 
 
 @pytest.mark.parametrize('rate', [.5, 1., 2.])

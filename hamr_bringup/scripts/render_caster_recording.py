@@ -150,7 +150,7 @@ def write_replay_bag(destination, events, provenance):
     (destination / PROVENANCE_FILE).write_text(json.dumps(provenance, indent=2) + "\n")
 
 
-def check_dependencies(plots):
+def check_dependencies(plots, video=True):
     missing = []
     for module in ("rosbag2_py", "rclpy", "std_msgs.msg", "numpy", "PIL", "vtk", "yaml") + (
             ("matplotlib",) if plots else ()):
@@ -158,7 +158,7 @@ def check_dependencies(plots):
             importlib.import_module(module)
         except ImportError:
             missing.append(module)
-    if not shutil.which("ffmpeg"):
+    if video and not shutil.which("ffmpeg"):
         missing.append("ffmpeg")
     if missing:
         raise RuntimeError(
@@ -178,6 +178,9 @@ def main():
     parser.add_argument("--width", type=int, default=1600)
     parser.add_argument("--no-plots", action="store_true", help="Render the caster without the angle plots")
     parser.add_argument("--mapping-config", type=Path)
+    parser.add_argument("--start-pose", choices=("ground-contact", "recorded"), default="ground-contact",
+                        help="default: assume H1 forward/H2 back at ground at the first complete pose; recorded uses the original CAD angle mapping")
+    parser.add_argument("--preview-time", type=float, help="Render one PNG at this elapsed recording time instead of a video")
     parser.add_argument("--full-detail", action="store_true")
     args = parser.parse_args()
     try:
@@ -185,6 +188,8 @@ def main():
             raise ValueError("Require a positive finite --rate and --fps in 1..120")
         if args.width < 800 or args.width % 32:
             raise ValueError("--width must be >=800 and divisible by 32")
+        if args.preview_time is not None and (not math.isfinite(args.preview_time) or args.preview_time < 0):
+            raise ValueError("--preview-time must be finite and nonnegative")
         source = args.recording.expanduser().resolve()
         if not (source / "packets.jsonl").is_file():
             raise ValueError(f"Missing {source / 'packets.jsonl'}; pass the downloaded encoder_<run> folder")
@@ -199,7 +204,7 @@ def main():
             args.mapping_config = args.mapping_config.expanduser().resolve()
             if not args.mapping_config.is_file():
                 raise ValueError(f"Mapping config does not exist: {args.mapping_config}")
-        check_dependencies(not args.no_plots)
+        check_dependencies(not args.no_plots, video=args.preview_time is None)
         from render_caster_encoder_video import render
 
         print(f"Reading local recording: {source}", flush=True)
@@ -210,11 +215,12 @@ def main():
         bag.parent.mkdir(parents=True, exist_ok=True)
         write_replay_bag(bag, events, provenance)
         del events
-        print(f"Replay bag: {bag}\nRendering video in: {output}", flush=True)
+        kind = "preview" if args.preview_time is not None else "video"
+        print(f"Replay bag: {bag}\nRendering {kind} in: {output}", flush=True)
         render(argparse.Namespace(
             bag=bag, wheel=wheel, topic=None, rate=args.rate, fps=args.fps,
             width=args.width, plots=not args.no_plots, mapping_config=args.mapping_config,
-            full_detail=args.full_detail, preview_time=None, output_dir=output))
+            full_detail=args.full_detail, preview_time=args.preview_time, start_pose=args.start_pose, output_dir=output))
     except (ValueError, OSError, RuntimeError, ImportError) as error:
         parser.exit(2, f"render_caster_recording: {error}\n")
 

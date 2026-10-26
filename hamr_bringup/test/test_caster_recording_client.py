@@ -3,6 +3,7 @@
 from contextlib import ExitStack
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+import os
 from pathlib import Path
 import sys
 import threading
@@ -16,6 +17,129 @@ SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 import caster_recording_client as client
 import caster_recording_format as binary
+
+
+def saved_run(root, name, created, wheel="front_left"):
+    run = client.Session.create(root, name, [Recorder(wheel=wheel).device])
+    run.manifest["created_epoch_ns"] = created
+    run.save()
+    return run
+
+
+def test_latest_uses_creation_time_including_failed_attempts_and_wheel_scope(tmp_path):
+    old = saved_run(tmp_path, "trial_999", 100)
+    new = saved_run(tmp_path, "trial_001", 200)
+    new.phase("start_failed")
+    saved_run(tmp_path, "other_wheel", 300, "front_right")
+    os.utime(old.directory / "manifest.json", (time.time() + 1000,) * 2)
+    assert client.latest_run(tmp_path) == "other_wheel"
+    assert client.latest_run(tmp_path, "front_left") == "trial_001"
+
+
+def test_latest_refuses_empty_corrupt_or_ambiguous_selection(tmp_path):
+    with pytest.raises(client.RecordingError, match="No saved"):
+        client.latest_run(tmp_path)
+    saved_run(tmp_path, "one", 100)
+    bad = tmp_path / "encoder_bad"
+    bad.mkdir()
+    with pytest.raises(client.RecordingError, match="specify a run ID"):
+        client.latest_run(tmp_path)
+    bad.rmdir()
+    saved_run(tmp_path, "two", 100)
+    with pytest.raises(client.RecordingError, match="ambiguous"):
+        client.latest_run(tmp_path)
+
+
+@pytest.mark.parametrize("command", ["stop", "fetch"])
+def test_omitted_run_uses_latest_manifest_without_new_discovery_for_complete_runs(tmp_path, monkeypatch, command):
+    saved_run(tmp_path, "old", 100)
+    new = saved_run(tmp_path, "new", 200)
+    new.manifest["devices"][0]["acknowledged"] = True
+    new.save()
+    monkeypatch.setattr(client, "discover", lambda *a, **kw: pytest.fail("unexpected discovery"))
+    monkeypatch.setattr(client, "load_config", lambda path: {})
+    selected = []
+    monkeypatch.setattr(client.Session, command, lambda self: selected.append(self.manifest["run_id"]))
+    assert client.main(["--root", str(tmp_path), command]) == 0
+    assert selected == ["new"]
+
+
+def test_latest_cli_is_offline_and_shows_bag(tmp_path, monkeypatch, capsys):
+    run = saved_run(tmp_path, "new", 100)
+    monkeypatch.setattr(client, "load_config", lambda *a: pytest.fail("offline command loaded network config"))
+    assert client.main(["--root", str(tmp_path), "latest"]) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["run_id"] == "new"
+    assert report["directory"] == str(run.directory)
+
+
+def test_automatic_start_associates_latest_actual_bag_path(tmp_path, monkeypatch):
+    bag = tmp_path / "bag with spaces_001"
+    bag.mkdir()
+    (bag / "recording.mcap").touch()
+    client.write_json(tmp_path / ".latest_hamr_bag.json", {"version": 1, "bag_path": str(bag)})
+    devices = [Recorder(number).device for number in (1, 2, 3)]
+    monkeypatch.setattr(client, "discover", lambda *a, **kw: devices)
+    monkeypatch.setattr(client, "load_config", lambda path: {})
+    selected = []
+    monkeypatch.setattr(client.Session, "start", lambda self: selected.append(self.manifest))
+    for _ in range(2):
+        assert client.main(["--root", str(tmp_path), "--wheel", "front_left", "start", "--bag", "latest"]) == 0
+    assert selected[0]["run_id"] != selected[1]["run_id"]
+    assert all(item["bag_path"] == str(bag) for item in selected)
+    assert all(client.run_id(item["run_id"]) for item in selected)
+
+
+def test_latest_bag_does_not_fall_back_to_older_bag_if_latest_launch_failed(tmp_path):
+    old = tmp_path / "old"
+    old.mkdir()
+    (old / "metadata.yaml").touch()
+    with pytest.raises(client.RecordingError, match="No latest robot bag marker"):
+        client.resolve_bag(tmp_path, Path("latest"))
+    latest = tmp_path / "failed"
+    client.write_json(tmp_path / ".latest_hamr_bag.json", {"version": 1, "bag_path": str(latest)})
+    with pytest.raises(client.RecordingError, match="not ready"):
+        client.resolve_bag(tmp_path, Path("latest"))
+    latest.mkdir()
+    with pytest.raises(client.RecordingError, match="not ready"):
+        client.resolve_bag(tmp_path, Path("latest"))
+    (latest / "bag.db3").touch()
+    assert client.resolve_bag(tmp_path, Path("latest")) == latest
+
+
+@pytest.mark.parametrize("reference_count", [0, 100])
+def test_timing_reports_estimates_without_claiming_synchronization(tmp_path, monkeypatch, capsys, reference_count):
+    run = saved_run(tmp_path, "trial", 100)
+    bag = tmp_path / "robot"
+    bag.mkdir()
+    run.manifest["bag_path"] = str(bag)
+    run.save()
+    # JSON is also YAML; keep fixture data small and independent of ROS.
+    client.write_json(bag / "metadata.yaml", {"rosbag2_bagfile_information": {
+        "topics_with_message_count": [{"topic_metadata": {"name": "/reference_trajectory"},
+                                       "message_count": reference_count}]}})
+    mapping = dict(run.manifest["devices"][0], calibrated=True, uncertainty_ns=16000000,
+                   max_probe_residual_ns=30000000, accuracy_validated=False)
+    client.write_json(run.directory / "clock-map.json", {"mappings": [mapping], "clock_errors": []})
+    monkeypatch.setattr(client, "load_config", lambda *a: pytest.fail("offline command loaded network config"))
+    assert client.main(["--root", str(tmp_path), "timing"]) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["reference_message_count"] == reference_count
+    assert report["accuracy_validated"] is False
+    assert report["devices"][0]["uncertainty_indicator_ms"] == 16
+    assert report["devices"][0]["max_probe_residual_ms"] == 30
+    assert any("No /reference_trajectory" in item for item in report["warnings"]) == (reference_count == 0)
+    assert "does not prove full time coverage" in report["timing_note"]
+
+
+def test_timing_handles_missing_exports_and_unfinalized_bag(tmp_path):
+    run = saved_run(tmp_path, "trial", 100)
+    run.manifest["bag_path"] = str(tmp_path / "active_bag")
+    report = client.timing_report(run)
+    assert report["reference_message_count"] is None
+    assert report["devices"][0]["clock_estimate_available"] is False
+    assert report["devices"][0]["uncertainty_indicator_ms"] is None
+    assert len(report["warnings"]) == 2
 
 
 def make_log(device, run="trial"):

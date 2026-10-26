@@ -114,6 +114,93 @@ def default_root():
     return Path(os.environ.get("HAMR_BAG_ROOT", str(Path.home() / "hamster_ws/src/hamr_control/rosbags")))
 
 
+def latest_run(root, wheel="both"):
+    """Select by creation time: downloads and exports can change file mtimes."""
+    candidates = []
+    for directory in Path(root).expanduser().resolve().glob("encoder_*"):
+        if not directory.is_dir():
+            continue
+        try:
+            session = Session.load(root, directory.name[len("encoder_"):])
+            created = session.manifest.get("created_epoch_ns")
+            if type(created) is not int or created <= 0:
+                raise ValueError("missing creation timestamp")
+            if wheel != "both" and {item["wheel_id"] for item in session.manifest["devices"]} != {wheel}:
+                continue
+            candidates.append((created, session.manifest["run_id"]))
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            raise RecordingError(f"Cannot select latest: invalid manifest in {directory}; specify a run ID explicitly ({error})") from error
+    if not candidates:
+        raise RecordingError(f"No saved encoder runs for {wheel} in {root}")
+    candidates.sort(reverse=True)
+    if len(candidates) > 1 and candidates[0][0] == candidates[1][0]:
+        raise RecordingError("Latest encoder run is ambiguous; specify a run ID explicitly")
+    return candidates[0][1]
+
+
+def resolve_bag(root, bag):
+    if bag is None:
+        return None
+    if str(bag) == "latest":
+        marker = Path(root).expanduser().resolve() / ".latest_hamr_bag.json"
+        if not marker.is_file():
+            raise RecordingError("No latest robot bag marker; launch the updated hardware recorder first or pass --bag /exact/bag/path")
+        value = json.loads(marker.read_text(encoding="utf-8"))
+        if value.get("version") != 1 or not isinstance(value.get("bag_path"), str):
+            raise ValueError(f"Invalid latest bag marker: {marker}")
+        bag = Path(value["bag_path"])
+        if not bag.is_absolute():
+            raise ValueError(f"Latest bag marker must contain an absolute path: {marker}")
+        if not bag.is_dir() or not (any(bag.glob("*.mcap")) or any(bag.glob("*.db3")) or (bag / "metadata.yaml").is_file()):
+            raise RecordingError(f"Latest robot bag is not ready at {bag}; wait for recording to start or pass an exact bag path")
+    bag = Path(bag).expanduser().resolve()
+    if not bag.is_dir():
+        raise ValueError("--bag must identify an existing robot bag directory")
+    return bag
+
+
+def timing_report(session):
+    """Offline quality indicators, never a claim of validated synchronization."""
+    manifest = session.manifest
+    report = {"run_id": manifest["run_id"], "state": manifest["state"],
+              "directory": str(session.directory), "bag_path": manifest.get("bag_path"),
+              "accuracy_validated": False, "devices": [], "warnings": []}
+    clock_path = session.directory / "clock-map.json"
+    clock = json.loads(clock_path.read_text(encoding="utf-8")) if clock_path.is_file() else {}
+    mappings = {(item["wheel_id"], item["node_id"], item["device_id"], item["boot_id"]): item
+                for item in clock.get("mappings", [])}
+    for device in manifest["devices"]:
+        mapping = mappings.get((device["wheel_id"], device["node_id"], device["device_id"], device["boot_id"]))
+        valid = bool(mapping and mapping.get("calibrated"))
+        report["devices"].append({"wheel": device["wheel_id"], "role": ROLES[device["node_id"]],
+                                  "clock_estimate_available": valid,
+                                  "uncertainty_indicator_ms": mapping["uncertainty_ns"] / 1e6 if valid and "uncertainty_ns" in mapping else None,
+                                  "max_probe_residual_ms": mapping["max_probe_residual_ns"] / 1e6 if valid and "max_probe_residual_ns" in mapping else None})
+    if not all(item["clock_estimate_available"] for item in report["devices"]):
+        report["warnings"].append("Missing clock estimates; stop/fetch must finish successfully before alignment analysis.")
+    report["clock_errors"] = clock.get("clock_errors", [])
+    report["reference_message_count"] = None
+    if manifest.get("bag_path"):
+        metadata = Path(manifest["bag_path"]) / "metadata.yaml"
+        if metadata.is_file():
+            import yaml
+            info = yaml.safe_load(metadata.read_text(encoding="utf-8"))["rosbag2_bagfile_information"]
+            count = sum(item["message_count"] for item in info["topics_with_message_count"]
+                        if item["topic_metadata"]["name"] == "/reference_trajectory")
+            report["reference_message_count"] = count
+            if count == 0:
+                report["warnings"].append("No /reference_trajectory messages in the robot bag; commanded-trajectory alignment cannot be checked.")
+        else:
+            report["warnings"].append("Robot bag metadata is unavailable; stop the robot bag cleanly before checking trajectory messages.")
+    else:
+        report["warnings"].append("No robot bag is associated with this encoder run.")
+    report["timing_note"] = ("These are estimated host-clock mappings, not validated accuracy bounds. "
+                             "Trajectory message count does not prove full time coverage or synchronization. "
+                             "Compare samples.csv mapped_epoch_ns with bag receipt timestamps; "
+                             "ReferenceTraj has no source timestamp. Independently measure a shared event to validate accuracy.")
+    return report
+
+
 def config_path():
     source = Path(__file__).resolve().parent.parent / "config/caster_recording.yaml"
     if source.is_file():
@@ -604,20 +691,34 @@ def main(argv=None):
     commands.add_parser("discover", aliases=["discovery"])
     commands.add_parser("status")
     start = commands.add_parser("start")
-    start.add_argument("run_id", nargs="?", default=None)
-    start.add_argument("--bag", type=Path, help="associate an existing robot bag without modifying it")
+    start.add_argument("run_id", nargs="?", default=None, help="omit for a unique UTC timestamp ID")
+    start.add_argument("--bag", type=Path, help="existing robot bag path, or latest for the most recently launched hardware recorder")
     start.add_argument("--duration", type=float, default=None, help="planned total recording seconds, including startup and stop delay; preflight capacity check only")
     start.add_argument("--discard-existing", action="store_true",
                        help="erase selected boards' existing logs, including unread/corrupt data; stop active logs first; requires updated firmware")
-    for name in ("stop", "fetch"):
+    commands.add_parser("latest", help="show the newest saved encoder run without contacting boards")
+    for name in ("stop", "fetch", "timing"):
         command = commands.add_parser(name)
-        command.add_argument("run_id")
+        command.add_argument("run_id", nargs="?", default=None, help="omit to select the newest saved encoder run")
     args = parser.parse_args(argv)
     try:
         if not 1 <= args.sync_samples <= 100 or not 1 <= args.retries <= 20:
             raise ValueError("sync-samples must be 1..100 and retries 1..20")
         if not all(0 < item <= 300 for item in (args.discovery_timeout, args.http_timeout, args.prepare_timeout)):
             raise ValueError("timeouts must be positive and at most 300 seconds")
+        if args.command in ("latest", "timing", "stop", "fetch"):
+            selected_run = getattr(args, "run_id", None) or latest_run(args.root, args.wheel)
+            if args.command in ("latest", "timing"):
+                session = Session.load(args.root, selected_run)
+                report = timing_report(session) if args.command == "timing" else {
+                    "run_id": selected_run, "directory": str(session.directory),
+                    "state": session.manifest["state"], "bag_path": session.manifest.get("bag_path")}
+                print(json.dumps(report, indent=2))
+                return 0
+            args.run_id = selected_run
+            print(f"Selected encoder run: {selected_run}", flush=True)
+        if args.command == "start":
+            args.bag = resolve_bag(args.root, args.bag)
         configuration = load_config(args.config)
         transport = Transport(args.http_timeout, args.prepare_timeout, args.retries)
         options = {"transport": transport, "sync_samples": args.sync_samples}
@@ -654,11 +755,11 @@ def main(argv=None):
         run = args.run_id or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ_") + uuid.uuid4().hex[:8]
         if args.duration is not None and (not math.isfinite(args.duration) or args.duration <= 0):
             raise ValueError("--duration must be finite and positive")
-        if args.bag and not args.bag.exists():
-            raise ValueError("--bag must identify an existing robot bag path")
         session = Session.create(args.root, run, devices, bag=args.bag, discard_existing=args.discard_existing,
                                  planned_duration=args.duration, **options)
         print(f"Recording run {run}; recovery manifest: {session.directory / 'manifest.json'}", flush=True)
+        if args.bag:
+            print(f"Associated robot bag: {args.bag}", flush=True)
         if args.discard_existing:
             print("Discard mode: existing onboard logs on the selected boards will be erased; saved host files are retained.", flush=True)
         with run_lock(session.directory):

@@ -58,6 +58,28 @@ TOPIC_REGEX="${TOPIC_REGEX}|^/localization_calibration/(metadata|status|path)$"
 
 mkdir -p "$(dirname "${BAG_DIR}")"
 
+# Publish the actual path (including any collision suffix) for other terminals.
+# This marks the latest launch, not recorder readiness; the client checks that
+# rosbag has created its output before using --bag latest.
+python3 - "${BAG_DIR}" <<'PY'
+import json
+import os
+from pathlib import Path
+import sys
+import tempfile
+import time
+
+bag = Path(sys.argv[1]).expanduser().resolve()
+marker = bag.parent / ".latest_hamr_bag.json"
+with tempfile.NamedTemporaryFile(mode="w", dir=bag.parent, prefix=marker.name + ".", delete=False) as handle:
+    temporary = handle.name
+    json.dump({"version": 1, "bag_path": str(bag), "created_epoch_ns": time.time_ns()}, handle)
+    handle.write("\n")
+    handle.flush()
+    os.fsync(handle.fileno())
+os.replace(temporary, marker)
+PY
+
 echo "Recording HAMR localization test bag:"
 echo "  output:  ${BAG_DIR}"
 echo "  storage: ${STORAGE_ID}"

@@ -139,6 +139,51 @@ def link_transforms(robot, angles):
     return transforms
 
 
+def ground_start_mapping(events, robot, mapping=None, stale_timeout_s=1., wheel_id=None):
+    """Assume a physical reference pose once; retain all subsequent angle changes."""
+    model = ReplayModel(mapping, stale_timeout_s, wheel_id)
+    reference = None
+    for stamp, envelope in events:
+        try:
+            model.receive(envelope, stamp)
+        except WheelIdentityError:
+            raise
+        except ValueError:
+            continue
+        status = model.snapshot(stamp)[2]
+        if status['complete_pose_available'] and all(n['display_state'] == 'fresh' for n in status['nodes']):
+            reference = {role: model.values[node]['source_angle_rad'] for node, role in ((1, 'h1'), (2, 'h2'), (3, 'center'))}
+            reference_stamp = stamp
+            break
+    if reference is None:
+        raise ValueError('Ground-contact start needs a complete fresh H1/H2/CENTER reference pose')
+    effective = dict(model.mapping)
+    transforms = link_transforms(robot, {})
+    carrier = robot.find("./joint[@name='caster_carrier_joint']")
+    shell = robot.find(f"./joint[@name='{effective['h1_joint']}']")
+    if carrier is None or shell is None:
+        raise ValueError('Ground-contact start requires the standalone caster CAD joints')
+    carrier_axis = transforms[carrier.find('child').get('link')][:3, :3] @ np.fromstring(carrier.find('axis').get('xyz'), sep=' ')
+    shell_axis = transforms[shell.find('child').get('link')][:3, :3] @ np.fromstring(shell.find('axis').get('xyz'), sep=' ')
+    if not np.allclose(carrier_axis, [0, -1, 0], atol=1e-8) or abs(shell_axis[1]) > 1e-8:
+        raise ValueError('Ground-contact reference requires the upright fork with a -Y carrier axle')
+    # Rotate H1's outward split axis onto +X (forward), leaving H2 at -X.
+    # Zero shell spin is a chosen visual phase, not a measured hole/index zero.
+    targets = {'h1': 0., 'h2': 0., 'center': math.atan2(-shell_axis[2], shell_axis[0]) % (2 * math.pi)}
+    for role in targets:
+        effective[f'{role}_zero_rad'] = reference[role] - targets[role] / effective[f'{role}_sign']
+    effective['mapping_verified'] = False
+    return effective, {
+        'mode': 'ground-contact', 'assumed': True, 'reference_stamp_ns': reference_stamp,
+        'reference_encoder_rad': reference, 'target_model_rad': targets,
+        'reference_devices': {role: {key: model.values[node][key] for key in ('wheel_id', 'device_id', 'boot_id', 'seq')}
+                              for node, role in ((1, 'H1'), (2, 'H2'), (3, 'CENTER'))},
+        'note': 'Assumed initial pose: upright fork, H1 forward (+X), H2 back (-X), split axis horizontal. '
+                'First complete fresh encoder pose is the reference; subsequent signed angle changes are retained. '
+                'No robot yaw, contact dynamics, or physical phase calibration is inferred.',
+    }
+
+
 def package_share(name):
     source = Path(__file__).resolve().parents[2] / name
     if (source / 'package.xml').is_file():
@@ -148,7 +193,7 @@ def package_share(name):
 
 
 class Scene:
-    def __init__(self, model_path, width, height, full_detail=False):
+    def __init__(self, model_path, width, height, full_detail=False, ground_pose=None):
         import vtk
         from vtk.util.numpy_support import vtk_to_numpy
         self.vtk, self.to_numpy = vtk, vtk_to_numpy
@@ -157,7 +202,9 @@ class Scene:
         self.window = vtk.vtkRenderWindow()
         self.window.SetOffScreenRendering(1)
         self.window.SetSize(width, height)
-        self.window.SetMultiSamples(4)
+        # Some onboard GPU drivers cannot compile VTK's MSAA resolve shader.
+        # FXAA smooths the rendered edges without requiring that shader.
+        self.window.SetMultiSamples(0)
         background = vtk.vtkRenderer()
         background.SetBackground(.925, .945, .965)
         self.window.AddRenderer(background)
@@ -168,6 +215,7 @@ class Scene:
             ((.70, .49, .985, .80), (-.48, .66, .23), (0., 0., .025), .165),
         ]:
             renderer = vtk.vtkRenderer()
+            renderer.UseFXAAOn()
             renderer.SetViewport(*viewport)
             renderer.SetBackground(.925, .945, .965)
             self.window.AddRenderer(renderer)
@@ -217,6 +265,37 @@ class Scene:
             mapper = vtk.vtkPolyDataMapper(); mapper.SetInputConnection(sphere.GetOutputPort())
             item = vtk.vtkActor(); item.SetMapper(mapper); item.GetProperty().SetColor(1., 1., .96)
             self.add(item, link, np.eye(4))
+        self.ground_z = None
+        if ground_pose is not None:
+            # The floor is fixed at the reference shell height. It provides
+            # context, never moves to force contact during measured replay.
+            transforms = link_transforms(self.robot, ground_pose)
+            bottoms = []
+            for actor, link, local in self.actors:
+                if link not in ('caster_positive_hemisphere_link', 'caster_negative_hemisphere_link'):
+                    continue
+                actor.GetMapper().Update()
+                points = self.to_numpy(actor.GetMapper().GetInput().GetPoints().GetData())
+                pose = transforms[link] @ local
+                bottoms.append(float(np.min(points @ pose[2, :3] + pose[2, 3])))
+            self.ground_z = min(bottoms)
+            plane = vtk.vtkPlaneSource()
+            plane.SetOrigin(-.24, -.24, self.ground_z)
+            plane.SetPoint1(.24, -.24, self.ground_z)
+            plane.SetPoint2(-.24, .24, self.ground_z)
+            mapper = vtk.vtkPolyDataMapper(); mapper.SetInputConnection(plane.GetOutputPort())
+            floor = vtk.vtkActor(); floor.SetMapper(mapper)
+            floor.GetProperty().SetColor(.70, .74, .77)
+            for renderer in self.renderers:
+                renderer.AddActor(floor)
+            for coordinate in np.arange(-.20, .201, .05):
+                for a, b in [((coordinate, -.24), (coordinate, .24)), ((-.24, coordinate), (.24, coordinate))]:
+                    line = vtk.vtkLineSource()
+                    line.SetPoint1(*a, self.ground_z + .0001); line.SetPoint2(*b, self.ground_z + .0001)
+                    mapper = vtk.vtkPolyDataMapper(); mapper.SetInputConnection(line.GetOutputPort())
+                    grid = vtk.vtkActor(); grid.SetMapper(mapper); grid.GetProperty().SetColor(.48, .53, .58)
+                    for renderer in self.renderers:
+                        renderer.AddActor(grid)
         self.capture = vtk.vtkWindowToImageFilter(); self.capture.SetInput(self.window)
         self.capture.SetInputBufferTypeToRGB(); self.capture.ReadFrontBufferOff()
 
@@ -280,7 +359,10 @@ class Overlay:
         if not frame['status']['complete_pose_available']:
             text(180,698,'Waiting for H1 + H2 + CENTER','label')
         calibrated=frame['status']['mapping_calibration_current']
-        text(40,795,'Measured-motion visualization  |  CAD mapping '+('user-verified' if calibrated else 'illustrative: signs / zeros unverified'), 'small','#d9e5ef')
+        if frame['status'].get('start_pose', {}).get('assumed'):
+            text(40,795,'Assumed start: H1 forward (+X), H2 back (-X), both at ground  |  Recorded angle changes', 'small','#d9e5ef')
+        else:
+            text(40,795,'Measured-motion visualization  |  CAD mapping '+('user-verified' if calibrated else 'illustrative: signs / zeros unverified'), 'small','#d9e5ef')
         text(40,824,'White dots: visual phase marks  |  Polar rollers: unmeasured, held at zero  |  Bag timing; no interpolation','small','#aebfd0')
         box((40,873,1560,879),'#344c63')
         box((40,873,40+1520*min(1,elapsed/self.duration),879),'#90e2cc')
@@ -306,8 +388,17 @@ def render(args):
         stale=params.get('stale_timeout_s',1.)
     wheel_id, topic = resolve_selection(args.wheel, args.topic)
     events,start,end=read_bag(bag, args.topic, args.wheel)
+    model=package_share('hamr_ball_caster')/'urdf/ball_caster.urdf'
+    start_pose = {'mode': 'recorded', 'assumed': False}
+    ground_pose = None
+    if getattr(args, 'start_pose', 'recorded') == 'ground-contact':
+        mapping, start_pose = ground_start_mapping(events, ET.parse(model).getroot(), mapping, stale, wheel_id)
+        ground_pose = {mapping['h1_joint']: 0., mapping['h2_joint']: 0.,
+                       'caster_carrier_joint': start_pose['target_model_rad']['center']}
     times=frame_times(start,end,args.fps,rate)
     frames=sample_frames(events,times,mapping,stale,wheel_id)
+    for frame in frames:
+        frame['status']['start_pose'] = start_pose
     wheel_id = frames[-1]["status"]["wheel_id"]
     _, topic = resolve_selection(wheel_id, args.topic)
     output=args.output_dir.expanduser().resolve(); output.mkdir(parents=True,exist_ok=True)
@@ -315,8 +406,7 @@ def render(args):
     video=output/f'{bag.stem}_{wheel_id}_{rate:g}x{suffix}.mp4'
     if video.exists() and args.preview_time is None:
         raise ValueError(f'Refusing to overwrite {video}; choose a new output directory')
-    model=package_share('hamr_ball_caster')/'urdf/ball_caster.urdf'
-    scene=Scene(model,args.width,args.width*9//16,args.full_detail)
+    scene=Scene(model,args.width,args.width*9//16,args.full_detail,ground_pose)
     overlay=Overlay(args.width,f"{bag.stem} / {wheel_id}",start,end,rate)
     plots=None
     if args.plots:
@@ -333,7 +423,12 @@ def render(args):
                 raise ValueError('preview-time must lie inside the bag interval')
             frame=frames[min(len(frames)-1,int(args.preview_time*args.fps/rate))]
             path=output/f'{bag.stem}_{wheel_id}{suffix}_preview.png'
-            draw_frame(frame).save(path); print(path,flush=True)
+            draw_frame(frame).save(path)
+            path.with_suffix('.json').write_text(json.dumps({
+                'start_pose': start_pose, 'mapping': frames[-1]['status']['mapping'],
+                'ground_z_m': scene.ground_z, 'local_recording': local_recording,
+                'preview_stamp_ns': frame['stamp_ns']}, indent=2) + '\n')
+            print(path,flush=True)
             return
         ffmpeg=shutil.which('ffmpeg')
         if not ffmpeg: raise RuntimeError('ffmpeg is required; source hamr_ball_caster/scripts/env.sh')
@@ -373,6 +468,7 @@ def render(args):
                  'renderer_sha256':digest(__file__),'replay_model_sha256':digest(Path(__file__).with_name('caster_replay_model.py')),
                  'video_sha256':digest(video),'packet_messages':len(events),
                  'mapping':frames[-1]['status']['mapping'],'full_visual_detail':args.full_detail,
+                 'start_pose':start_pose,'ground_z_m':scene.ground_z,
                  'hidden_internal_visual_meshes':[] if args.full_detail else sorted(HIDDEN_MESHES),
                  'display_states':{role:dict(Counter(f['status']['nodes'][j]['display_state'] for f in frames)) for j,role in enumerate(['H1','H2','CENTER'])},
                  'final_rendered_status':frames[-1]['status'],'wall_render_s':time.monotonic()-wall}
@@ -402,6 +498,8 @@ def main():
     parser.add_argument('--fps',type=int,default=30)
     parser.add_argument('--width',type=int,default=1600)
     parser.add_argument('--mapping-config',type=Path)
+    parser.add_argument('--start-pose',choices=('recorded','ground-contact'),default='recorded',
+                        help='ground-contact assumes the first complete pose has H1 forward and H2 back at the floor; applies measured changes thereafter')
     parser.add_argument('--plots',action='store_true',help='Show synchronized H1/H2/CENTER angle plots; also export PNG, PDF and full-sample CSV')
     parser.add_argument('--full-detail',action='store_true',help='Also render dense internal bearing and fastener visuals')
     parser.add_argument('--preview-time',type=float,help='Render one preview PNG at this elapsed bag time instead of a video')

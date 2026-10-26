@@ -239,6 +239,67 @@ This is measured caster motion visualization, including manual movements.
 Whole-robot trajectory reconstruction and physics simulation are separate.
 The original robot/Vicon bag is not needed for this caster video.
 
+### Start each replay with both hemispheres at the ground
+
+The local recording renderer now defaults to `--start-pose ground-contact` for
+pose experiments. It treats the **first complete, fresh H1/H2/CENTER pose** as
+an assumed reference, regardless of the encoder values at that instant:
+
+- The fork stays upright; H1 starts toward model-forward (+X) and H2 toward
+  model-back (-X), with the split axis horizontal.
+- Both shell bottoms start at a fixed visual ground plane. The plane is placed
+  from the actual CAD shell geometry, not an ideal full sphere.
+- H1/H2 start at the CAD's chosen zero spin phase; CENTER is offset to orient
+  the split axis. Subsequent motion uses the recorded changes and configured
+  signs: `q_model(t) = q_start + sign * (angle(t) - angle(reference))`.
+
+This is an **assumed simulation starting pose**, not a physical calibration.
+The source recordings, timestamps, encoder plots and CSV exports of source
+angles retain their original readings. The model-angle frame CSV and video
+JSON record the adjusted mapping; JSON also retains the reference angles,
+sample identities and timestamp. The video labels the assumed start.
+
+Use the usual command; no per-run offsets need to be entered:
+
+```bash
+bash hamr_bringup/scripts/render_caster_recording.sh \
+  /path/to/encoder_YOUR_RUN
+```
+
+To inspect the beginning quickly, create a PNG preview instead of an MP4:
+
+```bash
+bash hamr_bringup/scripts/render_caster_recording.sh \
+  /path/to/encoder_YOUR_RUN --preview-time 0.1
+```
+
+The preview also writes its mapping JSON and replay bag. Preview rendering does
+not need ffmpeg. The first few milliseconds may have an incomplete pose while
+the three streams become available; 0.1 seconds normally includes all three.
+
+To use the original encoder-to-CAD mapping, including a supplied calibration:
+
+```bash
+bash hamr_bringup/scripts/render_caster_recording.sh \
+  /path/to/encoder_YOUR_RUN --start-pose recorded \
+  --mapping-config /path/to/caster_encoder_replay.yaml
+```
+
+In ground-contact mode, a mapping file's side assignments and signs are kept,
+but its angle zeros are replaced for this rendering and `mapping_verified`
+becomes false. The assumption is applied once, not again after an encoder
+reboot. It anchors to the recording's first complete pose, **not** a detected
+trajectory trigger. Keep the caster in the intended reference pose between
+starting the recording and starting motion when that distinction matters.
+
+CENTER is the horizontal carrier angle, not robot yaw about the vertical axis.
+This option does not infer or replay Vicon yaw. The ground remains fixed after
+initialization: there is no contact solver, automatic settling or forced
+two-hemisphere contact throughout the motion. H1/H2 spin zeros select a visual
+phase for holes/markers; they cannot independently change the split-axis tilt.
+The lower-level `render_caster_encoder_video.py` keeps its original `recorded`
+default; pass `--start-pose ground-contact` explicitly to use this mode there.
+
 ## Interrupted commands and recordings
 
 ```bash
