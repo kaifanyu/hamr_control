@@ -10,7 +10,8 @@ Usage: bash render_caster_simulation.sh RECORDING_FOLDER [OUTPUT_FOLDER] [OPTION
 
 Render the caster animation from a downloaded encoder_<run> folder containing
 packets.jsonl. Starts with the fork vertical, H1 forward (+X), H2 back (-X),
-and both hemispheres at floor level. Subsequent recorded angle changes are kept.
+and both hemispheres at floor level. CENTER rotation is reversed; H1/H2 retain
+their recorded directions. Subsequent angle changes use these directions.
 The first complete fresh encoder pose defines this assumed starting reference.
 
 The video has no angle plots. Defaults: 1x speed, 30 fps, 1600x900.
@@ -27,7 +28,8 @@ Options:
   -h, --help                     Show this help
 
 Uses render_caster_recording.sh and its Ubuntu/ROS rendering dependencies.
-The ground-contact starting pose and no-plots mode are fixed by this preset.
+The ground-contact start, reversed CENTER mapping, and no-plots mode are fixed
+by this preset.
 See docs/LOCAL_CASTER_RECORDING.md for dependency installation.
 
 Example (from the repository root):
@@ -46,7 +48,13 @@ for argument in "$@"; do
   fi
 done
 
-# Append the preset so it cannot accidentally inherit a recorded absolute pose
-# or enable plots. All path handling, validation and rendering stay shared.
+# Locate the mapping in a source checkout or a CMake-installed ROS package.
+mapping_config="$script_dir/../config/caster_encoder_replay_simulation.yaml"
+if [[ ! -f "$mapping_config" ]]; then
+  mapping_config="$script_dir/../../share/hamr_bringup/config/caster_encoder_replay_simulation.yaml"
+fi
+
+# Apply the negative CENTER sign before ground-contact computes its reference
+# zero, keeping the initial alignment while reversing subsequent rotation.
 exec bash "$script_dir/render_caster_recording.sh" "$@" \
-  --no-plots --start-pose ground-contact
+  --no-plots --start-pose ground-contact --mapping-config "$mapping_config"

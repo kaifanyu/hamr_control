@@ -1,0 +1,16 @@
+# Upright animation preset used by render_caster_simulation.sh.
+# Reverse CENTER to match observed forward motion; retain H1/H2 directions.
+# --start-pose ground-contact recomputes all zeros from the first fresh pose:
+# q_center(t) = q_upright - (encoder_center(t) - encoder_center(reference)).
+replay_caster_encoder_joints:
+  ros__parameters:
+    h1_joint: caster_positive_hemisphere_joint
+    h2_joint: caster_negative_hemisphere_joint
+    h1_sign: 1.0
+    h2_sign: 1.0
+    center_sign: -1.0
+    h1_zero_rad: 0.0
+    h2_zero_rad: 0.0
+    center_zero_rad: 0.0
+    mapping_verified: false
+    stale_timeout_s: 1.0
