@@ -29,6 +29,7 @@ install(
     scripts/replay_caster_encoder_joints
     scripts/render_caster_encoder_video.py
     scripts/render_caster_recording.sh
+    scripts/render_caster_simulation.sh
     scripts/render_caster_recording.py
     scripts/record_camera_clip
     scripts/record_dual_cameras

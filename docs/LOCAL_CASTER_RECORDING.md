@@ -239,6 +239,29 @@ This is measured caster motion visualization, including manual movements.
 Whole-robot trajectory reconstruction and physics simulation are separate.
 The original robot/Vicon bag is not needed for this caster video.
 
+### Animation-only shortcut with an upright starting pose
+
+To render the caster without angle plots, with the fork vertical, H1 forward
+(+X), H2 back (-X), and both hemispheres at floor level, use:
+
+```bash
+cd /path/to/hamr_control
+bash hamr_bringup/scripts/render_caster_simulation.sh \
+  "/path/to/encoder_YOUR_RUN"
+```
+
+Pass an optional new output folder after the recording folder. Add
+`--wheel front_left` or `--wheel front_right` if the recording contains both
+wheels. The shortcut uses the same dependencies as the renderer above and
+defaults to 1x speed, 30 fps, and 1600x900. Run it with `--help` for options.
+
+This preset always uses `--no-plots --start-pose ground-contact`: the first
+complete fresh H1/H2/CENTER pose becomes the upright reference, with zero
+initial shell spin, and later signed angle changes are preserved. The video
+retains the CAD views, joint-angle readouts, and timing/status labels. It is
+recorded-motion visualization with an assumed starting pose; use the original
+renderer and the fixed mapping below when absolute starting orientation matters.
+
 ## Saved CENTER absolute-angle reference
 
 The front-left CENTER reference is stored in
