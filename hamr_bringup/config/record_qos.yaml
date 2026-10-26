@@ -53,6 +53,21 @@
   durability: transient_local
   history: keep_last
   depth: 1
+/localization_calibration/metadata:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 1
+/localization_calibration/status:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 1
+/localization_calibration/path:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 1
 
 # This protects the ROS-to-bag hop; it cannot recover ESP UDP packet loss.
 /caster_encoder/packets:

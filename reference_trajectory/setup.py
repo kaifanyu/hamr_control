@@ -35,6 +35,8 @@ setup(
             'reference_trajectory.waypoint_traj_simple:main',
             'continuous_waypoint = '
             'reference_trajectory.continuous_waypoint_node:main',
+            'localization_calibration = '
+            'reference_trajectory.localization_calibration:main',
             'study_trajectory = '
             'reference_trajectory.study_trajectory:main',
         ],

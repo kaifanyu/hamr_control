@@ -103,11 +103,30 @@ def test_callback_gap_aborts_without_catching_up(session):
         observe(session, now + index * 0.01)
     assert session.step(now + 0.09) is None
     assert session.state == 'aborted'
+    assert session.reason == (
+        'Reference callback gap exceeded timeout: 90.0 ms > 80.0 ms'
+    )
     for index in range(42, 75):
         observe(session, index * 0.01)
         assert session.step(index * 0.01) is None
     assert session.start(0.74, subscribers=1, publishers=1)[0]
     assert session.step(0.74)[3:] == (0.0, 0.0, 0.0)
+
+
+@pytest.mark.parametrize(
+    'elapsed,reason',
+    [
+        (-0.01, 'Reference monotonic clock moved backwards: -10.0 ms'),
+        (math.nan, 'Reference monotonic clock is nonfinite'),
+        (math.inf, 'Reference monotonic clock is nonfinite'),
+    ],
+)
+def test_clock_fault_is_distinct_from_a_callback_delay(session, elapsed, reason):
+    """Report clock faults separately from ordinary scheduling delays."""
+    now = arm(session)
+    assert session.step(now + elapsed) is None
+    assert session.state == 'aborted'
+    assert session.reason == reason
 
 
 def test_stale_odom_aborts_and_new_feedback_never_auto_restarts(session):
@@ -117,6 +136,7 @@ def test_stale_odom_aborts_and_new_feedback_never_auto_restarts(session):
         result = session.step(now + dt)
     assert result is None
     assert session.state == 'aborted'
+    assert session.reason == 'Odometry became stale: age 81.0 ms; limit 80.0 ms'
     observe(session, now + 0.09)
     assert session.step(now + 0.09) is None
 

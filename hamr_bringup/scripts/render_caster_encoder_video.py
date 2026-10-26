@@ -294,6 +294,8 @@ def digest(path):
 
 def render(args):
     bag, rate = validate_playback(args.bag,args.rate); bag=Path(bag)
+    provenance_path = bag / 'local-recording-replay.json' if bag.is_dir() else bag.parent / 'local-recording-replay.json'
+    local_recording = json.loads(provenance_path.read_text()) if provenance_path.is_file() else None
     if args.width < 800 or args.width % 32:
         raise ValueError('width must be >=800 and divisible by 32 for even 16:9 output')
     mapping, stale = None, 1.
@@ -320,6 +322,8 @@ def render(args):
     if args.plots:
         from caster_encoder_plots import EncoderPlots
         plots=EncoderPlots(events,start,end,f"{bag.stem} / {wheel_id}",args.width,stale,wheel_id)
+        if local_recording:
+            plots.metadata['time_basis'] = local_recording['time_basis']
     def draw_frame(frame):
         image=overlay.draw(scene.render(frame),frame)
         return plots.draw(image,frame) if plots else image
@@ -374,6 +378,10 @@ def render(args):
                  'final_rendered_status':frames[-1]['status'],'wall_render_s':time.monotonic()-wall}
         inputs=[bag] if bag.is_file() else sorted(p for p in bag.iterdir() if p.suffix in ('.mcap','.db3','.yaml'))
         summary['input_sha256']={p.name:digest(p) for p in inputs}
+        if local_recording:
+            summary['local_recording'] = local_recording
+            summary['timing'] = local_recording['time_basis'] + ' Last valid sample at each frame; no interpolation.'
+            summary['input_sha256'][provenance_path.name] = digest(provenance_path)
         if plots:
             plots.export(video)
             summary['encoder_plots']=plots.metadata

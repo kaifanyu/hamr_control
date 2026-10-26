@@ -27,6 +27,8 @@ install(
     scripts/record_caster_rotation.py
     scripts/replay_caster_encoder_joints
     scripts/render_caster_encoder_video.py
+    scripts/render_caster_recording.sh
+    scripts/render_caster_recording.py
     scripts/record_camera_clip
     scripts/record_dual_cameras
     scripts/run_waypoint_test
@@ -88,6 +90,9 @@ if(BUILD_TESTING)
   )
   ament_add_pytest_test(caster_encoder_video
     test/test_caster_encoder_video.py
+  )
+  ament_add_pytest_test(render_caster_recording
+    test/test_render_caster_recording.py
   )
   ament_add_pytest_test(c920_controls
     test/test_c920_controls.py

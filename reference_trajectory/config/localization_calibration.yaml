@@ -1,0 +1,29 @@
+# Runs once after invoking localization_calibration: 10 s initial hold,
+# forward/reverse and rounded CCW/CW loops, then 10 s final hold.
+# Fast first by default; use --speed-set fast or --speed-set slow for short,
+# separately recorded repeats with a fresh stationary start for each run.
+# Relative footprint x=[-1.5,0], y=[0,2] m; allow room for the entire robot.
+# Uses Vicon XY for control/evaluation; does not feed Vicon into the local EKF.
+localization_calibration:
+  ros__parameters:
+    speed_order: [fast, slow]
+    straight_distance_m: 1.5
+    loop_width_m: 1.5
+    loop_height_m: 2.0
+    slow_speed_m_s: 0.10
+    speed_m_s: 0.15
+    segment_hold_s: 3.0
+    startup_hold_s: 10.0
+    final_hold_s: 10.0
+    corner_deviation_m: 0.05
+    wheel_radius_m: 0.122
+    half_track_m: 0.35
+    base_ahead_of_axle_m: 0.301
+    max_wheel_rate_rad_s: 2.9321531433504737
+    planning_wheel_rate_fraction: 0.65
+    planning_wheel_acceleration_rad_s2: 2.0
+    planning_max_translation_acceleration_m_s2: 0.1
+    planning_max_jerk_m_s3: 0.2
+    fixed_yaw_rad: 0.0
+    origin_mode: start_translated_vicon
+    odom_topic: /HAMR_base/odom

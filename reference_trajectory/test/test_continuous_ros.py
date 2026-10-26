@@ -122,6 +122,47 @@ def run_smoke():
         pump(0.03)
         assert planner.execution.active
         assert call(stop).success
+
+        # A graph query can block after callback entry. Both arming and
+        # playback must check freshness using the time AFTER that query.
+        pump(0.35)
+        original_subscribers = planner.controller_subscribers
+
+        def delayed_subscribers():
+            count = original_subscribers()
+            time.sleep(0.10)
+            return count
+
+        planner.controller_subscribers = delayed_subscribers
+        try:
+            response = planner.on_start(Trigger.Request(), Trigger.Response())
+            assert not response.success, 'Armed using pre-query feedback age'
+            assert response.message == 'Fresh odometry is required'
+        finally:
+            planner.controller_subscribers = original_subscribers
+        pump(0.4)
+        assert call(start).success
+        pump(0.03)
+        # Drain the subscriber before directly invoking a stalled callback.
+        planner.timer.cancel()
+        pump(0.02)
+        references.clear()
+        planner.controller_subscribers = delayed_subscribers
+        try:
+            planner.on_timer()
+            assert planner.execution.state == 'aborted', (
+                'Stalled callback published before noticing its timing gap'
+            )
+            assert planner.last_graph_query_ms >= 100.0
+            assert (
+                planner.last_reference_callback_ms >= planner.last_graph_query_ms
+            )
+        finally:
+            planner.controller_subscribers = original_subscribers
+            planner.timer.reset()
+        pump(0.35)
+        assert references == [], 'A stale reference escaped the callback guard'
+
         competitor = observer.create_publisher(
             ReferenceTraj, '/reference_trajectory', 1
         )
@@ -140,6 +181,8 @@ def run_smoke():
                         'stale feedback abort',
                         'no automatic resume',
                         'explicit restart',
+                        'delayed graph query blocks stale start',
+                        'delayed graph query aborts before publishing',
                         'competing publisher rejected',
                     ],
                 }

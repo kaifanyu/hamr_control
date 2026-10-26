@@ -302,7 +302,7 @@ class Session:
         self.planned_duration = planned_duration
 
     @classmethod
-    def create(cls, root, run, devices, bag=None, **options):
+    def create(cls, root, run, devices, bag=None, discard_existing=False, **options):
         run_id(run)
         root = Path(root).expanduser().resolve()
         root.mkdir(parents=True, exist_ok=True)
@@ -317,6 +317,7 @@ class Session:
             entry["log_path"] = f"{device['wheel_id']}_{ROLES[device['node_id']]}_{device['device_id'].replace(':', '')}.bin"
             entries.append(entry)
         manifest = {"version": 1, "run_id": run, "bag_path": str(Path(bag).expanduser().resolve()) if bag else None,
+                    "discard_existing": discard_existing,
                     "state": "created", "created_epoch_ns": time.time_ns(), "devices": entries, "errors": []}
         session = cls(directory, manifest, **options)
         session.save()
@@ -378,7 +379,15 @@ class Session:
         return errors
 
     def command(self, item, action, required_state=None, same_boot=False):
-        status = self.transport.request(item, "/api/" + action, {"run_id": self.manifest["run_id"]})
+        body = {"run_id": self.manifest["run_id"]}
+        if action == "prepare" and self.manifest.get("discard_existing", False):
+            # Bind destructive preparation to the physical board, its boot and
+            # the old run observed during preflight. A changed endpoint or a
+            # competing session must not turn this into an unrelated erase.
+            body.update(discard_existing=True, expected_device_id=item["device_id"],
+                        expected_boot_id=item["boot_id"],
+                        expected_run_id=item["preflight_status"].get("run_id"))
+        status = self.transport.request(item, "/api/" + action, body)
         check_identity(status, item, same_boot=same_boot)
         if status.get("run_id") != self.manifest["run_id"]:
             raise ValueError(f"{action} response has wrong run_id")
@@ -401,13 +410,32 @@ class Session:
         if self.manifest["state"] != "created":
             raise RecordingError("this run already exists; use stop/fetch to recover, or choose a new run_id")
         self.phase("preflight")
+        discard = self.manifest.get("discard_existing", False)
         def inspect(item):
             status = self.transport.request(item, "/api/status")
             check_identity(status, item, same_boot=True)
+            # Retain the actual device diagnosis even when preflight fails.
+            item["preflight_status"] = status
+            state, previous_run = status.get("state"), status.get("run_id")
+            if state not in ("idle", "prepared", "recording", "stopped", "error"):
+                raise ValueError(f"unrecognized recorder state {state!r}")
             if status.get("run_id") == self.manifest["run_id"]:
                 raise ValueError("device already retains this run_id; recover it instead of restarting")
-            if status.get("state") != "idle" and not (status.get("state") in ("stopped", "error") and status.get("acknowledged")):
-                raise ValueError("device has an active or unread recording; stop/fetch that run first")
+            if discard:
+                if status.get("supports_discard_existing") is not True:
+                    raise ValueError("firmware does not support --discard-existing; flash the updated recorder firmware first")
+                if state == "error" and status.get("stop_reason") in (
+                        "missing_log_partition", "journal_unavailable", "journal_read_error"):
+                    raise ValueError(f"recording storage is unavailable ({status['stop_reason']}); repair it before discarding")
+                if previous_run is not None:
+                    run_id(previous_run)
+                if (state in ("prepared", "recording") or status.get("finalizing", False)) and previous_run is None:
+                    raise ValueError("active recorder has no valid run_id; cannot stop it before discarding")
+            elif (state != "idle" and not (state in ("stopped", "error") and status.get("acknowledged"))) or status.get("finalizing", False):
+                raise ValueError(
+                    f"device is not ready (state={state}, stop_reason={status.get('stop_reason')!r}, "
+                    f"run_id={previous_run!r}); stop/fetch an existing run, or use --discard-existing "
+                    "with updated firmware to erase its onboard data")
             return {"status": status}
         errors = self.parallel(inspect)
         if not errors:
@@ -426,6 +454,31 @@ class Session:
             self.manifest["errors"].extend(errors)
             self.phase("start_failed")
             raise RecordingError("recording preflight failed before prepare/start: " + "; ".join(errors))
+        if discard:
+            # All devices have passed identity, capability and capacity checks
+            # before even stopping an old run. Never erase while its writer is
+            # active, and do not download data the operator chose to discard.
+            active = [item for item in self.manifest["devices"]
+                      if item["status"]["state"] in ("prepared", "recording")
+                      or item["status"].get("finalizing", False)]
+            if active:
+                self.phase("stopping_previous")
+                def stop_previous(item):
+                    previous_run = item["preflight_status"]["run_id"]
+                    status = self.transport.request(item, "/api/stop", {
+                        "run_id": previous_run, "expected_device_id": item["device_id"],
+                        "expected_boot_id": item["boot_id"]})
+                    check_identity(status, item, same_boot=True)
+                    if (status.get("run_id") != previous_run or
+                            status.get("state") not in ("stopped", "error") or
+                            status.get("finalizing", False)):
+                        raise ValueError("previous recording did not finish stopping; refusing to erase")
+                    return {"status": status}
+                errors = self.parallel(stop_previous, active)
+                if errors:
+                    self.manifest["errors"].extend(errors)
+                    self.phase("start_failed")
+                    raise RecordingError("could not stop previous recordings; no prepare/erase was requested: " + "; ".join(errors))
         self.phase("preparing")
         errors = self.parallel(lambda item: self.command(item, "prepare", "prepared", same_boot=True))
         if not errors:
@@ -440,7 +493,9 @@ class Session:
             cleanup = self.parallel(lambda item: self.command(item, "stop", "stopped"))
             self.manifest["errors"].extend(cleanup)
             self.phase("start_failed")
-            raise RecordingError("recording start failed; stop was attempted on every selected device. Run stop again to recover/download. " + "; ".join(errors))
+            discarded = " Existing onboard logs may already have been erased." if discard else ""
+            raise RecordingError("recording start failed; stop was attempted on every selected device."
+                                 + discarded + " Run stop again to recover/download. " + "; ".join(errors))
         self.phase("recording")
 
     def stop(self):
@@ -552,6 +607,8 @@ def main(argv=None):
     start.add_argument("run_id", nargs="?", default=None)
     start.add_argument("--bag", type=Path, help="associate an existing robot bag without modifying it")
     start.add_argument("--duration", type=float, default=None, help="planned total recording seconds, including startup and stop delay; preflight capacity check only")
+    start.add_argument("--discard-existing", action="store_true",
+                       help="erase selected boards' existing logs, including unread/corrupt data; stop active logs first; requires updated firmware")
     for name in ("stop", "fetch"):
         command = commands.add_parser(name)
         command.add_argument("run_id")
@@ -599,8 +656,11 @@ def main(argv=None):
             raise ValueError("--duration must be finite and positive")
         if args.bag and not args.bag.exists():
             raise ValueError("--bag must identify an existing robot bag path")
-        session = Session.create(args.root, run, devices, bag=args.bag, planned_duration=args.duration, **options)
+        session = Session.create(args.root, run, devices, bag=args.bag, discard_existing=args.discard_existing,
+                                 planned_duration=args.duration, **options)
         print(f"Recording run {run}; recovery manifest: {session.directory / 'manifest.json'}", flush=True)
+        if args.discard_existing:
+            print("Discard mode: existing onboard logs on the selected boards will be erased; saved host files are retained.", flush=True)
         with run_lock(session.directory):
             session.start()
         print(f"All {len(devices)} recorders are recording locally. Stop/download: caster_recording --root {args.root} stop {run}")

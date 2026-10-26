@@ -54,6 +54,7 @@ TOPIC_REGEX="${TOPIC_REGEX}|^/wheel_encoder/diagnostics$"
 TOPIC_REGEX="${TOPIC_REGEX}|^/caster_encoder/((front_left|front_right)/)?(packets|metadata|diagnostics|(H1|H2|CENTER)/joint_states)$"
 TOPIC_REGEX="${TOPIC_REGEX}|^/hamr_test/trajectory_metadata$"
 TOPIC_REGEX="${TOPIC_REGEX}|^/continuous_waypoint/(metadata|status|path)$"
+TOPIC_REGEX="${TOPIC_REGEX}|^/localization_calibration/(metadata|status|path)$"
 
 mkdir -p "$(dirname "${BAG_DIR}")"
 

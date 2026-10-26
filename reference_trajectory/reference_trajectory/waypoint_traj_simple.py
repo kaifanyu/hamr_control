@@ -10,6 +10,7 @@ from geometry_msgs.msg import PoseStamped
 from hamr_interfaces.msg import StateError
 from hamr_interfaces.msg import ReferenceTraj
 from nav_msgs.msg import Path
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy
@@ -724,9 +725,17 @@ class WaypointTraj(object):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = TrajectoryNode()
-    rclpy.spin(node)
-    rclpy.shutdown()
+    node = None
+    try:
+        node = TrajectoryNode()
+        rclpy.spin(node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
+    finally:
+        if node is not None:
+            node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
     
     
 if __name__ == "__main__":

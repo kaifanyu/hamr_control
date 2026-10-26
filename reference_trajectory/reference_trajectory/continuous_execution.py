@@ -256,9 +256,17 @@ class ContinuousExecution:
             if sample.frame_id != previous.frame_id:
                 reason = 'Odometry frame changed'
             elif receive_dt > self.cfg['odom_timeout_s']:
-                reason = 'Odometry receipt gap exceeded timeout'
+                reason = (
+                    'Odometry receipt gap exceeded timeout: '
+                    f'{receive_dt * 1000:.1f} ms > '
+                    f'{self.cfg["odom_timeout_s"] * 1000:.1f} ms'
+                )
             elif dt > self.cfg['odom_timeout_s']:
-                reason = 'Odometry source timestamp gap exceeded timeout'
+                reason = (
+                    'Odometry source timestamp gap exceeded timeout: '
+                    f'{dt * 1000:.1f} ms > '
+                    f'{self.cfg["odom_timeout_s"] * 1000:.1f} ms'
+                )
             elif position_delta > self.cfg['odom_max_position_jump_m']:
                 reason = 'Odometry position jumped'
             elif (
@@ -350,20 +358,36 @@ class ContinuousExecution:
         """Return XY/yaw and world velocity, or None to publish nothing."""
         if not self.active:
             return None
-        if (
-            not math.isfinite(now_s)
-            or not 0
-            <= now_s - self.last_step_s
-            <= self.cfg['max_publish_gap_s']
-        ):
-            self.stop('Reference callback gap or backwards clock', fault=True)
+        gap = now_s - self.last_step_s
+        if not math.isfinite(gap):
+            self.stop('Reference monotonic clock is nonfinite', fault=True)
+            return None
+        if gap < 0:
+            self.stop(
+                f'Reference monotonic clock moved backwards: {gap * 1000:.1f} ms',
+                fault=True,
+            )
+            return None
+        if gap > self.cfg['max_publish_gap_s']:
+            self.stop(
+                'Reference callback gap exceeded timeout: '
+                f'{gap * 1000:.1f} ms > '
+                f'{self.cfg["max_publish_gap_s"] * 1000:.1f} ms',
+                fault=True,
+            )
             return None
         sample = self.feedback
+        age = now_s - sample.received_s if sample is not None else None
         if (
-            sample is None
-            or not 0 <= now_s - sample.received_s <= self.cfg['odom_timeout_s']
+            age is None
+            or not 0 <= age <= self.cfg['odom_timeout_s']
         ):
-            self.stop('Odometry became stale', fault=True)
+            detail = 'no feedback' if age is None else f'age {age * 1000:.1f} ms'
+            self.stop(
+                f'Odometry became stale: {detail}; '
+                f'limit {self.cfg["odom_timeout_s"] * 1000:.1f} ms',
+                fault=True,
+            )
             return None
         if subscribers != 1 or publishers != 1:
             self.stop(
