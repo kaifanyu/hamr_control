@@ -162,3 +162,63 @@
   durability: volatile
   history: keep_last
   depth: 1000
+
+/ordinary_caster/front_left/packets:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 2000
+
+/ordinary_caster/front_left/metadata:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 1
+
+/ordinary_caster/front_left/diagnostics:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 2000
+
+/ordinary_caster/front_left/swivel/joint_states:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 2000
+
+/ordinary_caster/front_left/wheel/joint_states:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 2000
+
+/ordinary_caster/front_right/packets:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 2000
+
+/ordinary_caster/front_right/metadata:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 1
+
+/ordinary_caster/front_right/diagnostics:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 2000
+
+/ordinary_caster/front_right/swivel/joint_states:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 2000
+
+/ordinary_caster/front_right/wheel/joint_states:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 2000

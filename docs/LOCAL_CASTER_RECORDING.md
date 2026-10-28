@@ -1,5 +1,9 @@
 # Commanded local caster recording
 
+This guide retains the ball-caster defaults. For the four-board ordinary setup,
+use `--caster-type ordinary` and follow
+[ordinary recording, analysis and replay](ORDINARY_CASTER_RECORDING.md).
+
 Each ESP32 stores samples in its own flash only between the Pi's `start` and
 `stop` commands. Wi-Fi stays connected for control; live sample UDP is suppressed
 while preparing/recording. A temporary Wi-Fi outage does not discard the local

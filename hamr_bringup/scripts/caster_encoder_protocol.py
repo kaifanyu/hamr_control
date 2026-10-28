@@ -18,6 +18,20 @@ import socket
 import time
 
 
+def ordinary_protocol():
+    """Load the separate ordinary contract in source or installed layouts."""
+    try:
+        from ordinary_caster import protocol
+    except ModuleNotFoundError as error:
+        if error.name != "ordinary_caster":
+            raise
+        from pathlib import Path
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+        from ordinary_caster import protocol
+    return protocol
+
+
 MAX_DATAGRAM = 65507
 INT64_MAX = (1 << 63) - 1
 UINT64_MAX = (1 << 64) - 1
@@ -92,6 +106,11 @@ def parse_json(data):
 
 
 def identity(packet):
+    if packet.get("caster_type") == "ordinary":
+        ordinary_protocol().identity(packet)
+        return
+    if packet.get("caster_type", "ball") != "ball":
+        raise ValueError("unknown caster family")
     integer(packet.get("node_id"), "node_id", 1, 3)
     if not isinstance(packet.get("boot_id"), str) or not BOOT_ID.fullmatch(packet["boot_id"]):
         raise ValueError("boot_id must be 16 hexadecimal characters")
@@ -107,6 +126,8 @@ def wheel_device_identity(value):
 
 def packet_identity(packet):
     """Return a collision-free stream key; legacy captures have no wheel identity."""
+    if packet.get("node_id") in (4, 5, 6) or packet.get("caster_type") == "ordinary":
+        return ordinary_protocol().identity(packet)
     if packet.get("v") == 2 or "wheel_id" in packet or "device_id" in packet:
         wheel_device_identity(packet)
     return (packet.get("wheel_id", "legacy"), packet.get("device_id", ""),
@@ -129,8 +150,12 @@ def decode_packet(data):
         packet = parse_json(data.decode("utf-8"))
         if not isinstance(packet, dict):
             raise ValueError("packet must be a JSON object")
+        if type(packet.get("v")) is int and packet["v"] in (3, 4):
+            return ordinary_protocol().decode_packet(data)
         if type(packet.get("v")) is not int or packet["v"] not in (1, 2):
             raise ValueError("unsupported protocol version")
+        if packet.get("caster_type", "ball") != "ball" or packet.get("node_id") in (4, 5, 6):
+            raise ValueError("v1/v2 telemetry is reserved for ball casters")
         identity(packet)
         if packet["v"] == 2:
             wheel_device_identity(packet)
@@ -363,6 +388,8 @@ class TelemetryState:
         return tuple(values)
 
     def _validate_route(self, packet, source):
+        if packet["v"] in (3, 4):
+            raise ValueError("ordinary telemetry requires the ordinary caster bridge")
         if self.wheel_id is None:
             if self.allow_legacy and packet["v"] != 1:
                 raise ValueError("legacy bridge accepts only protocol v1")

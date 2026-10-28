@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+"""Analyze a downloaded ordinary caster recording."""
+import caster_encoder_protocol
+caster_encoder_protocol.ordinary_protocol()
+from ordinary_caster.analysis import main
+
+if __name__ == "__main__":
+    raise SystemExit(main())

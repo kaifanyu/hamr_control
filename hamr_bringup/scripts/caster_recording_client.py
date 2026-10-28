@@ -25,6 +25,7 @@ import zlib
 
 
 ROLES = {1: "H1", 2: "H2", 3: "CENTER"}
+FAMILY_ROLES = {"ball": ROLES, "ordinary": {4: "ORDINARY", 5: "SWIVEL", 6: "WHEEL"}}
 WHEELS = ("front_left", "front_right")
 RUN_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,63}\Z")
 MAC = re.compile(r"(?:[0-9a-f]{2}:){5}[0-9a-f]{2}\Z")
@@ -44,13 +45,24 @@ def run_id(value):
 def identity(value):
     if not isinstance(value, dict) or value.get("wheel_id") not in WHEELS:
         raise ValueError("invalid recorder wheel identity")
-    if type(value.get("node_id")) is not int or value["node_id"] not in ROLES:
+    if type(value.get("node_id")) is not int or value["node_id"] not in FAMILY_ROLES[family(value)]:
         raise ValueError("invalid recorder node identity")
     if not isinstance(value.get("device_id"), str) or not MAC.fullmatch(value["device_id"]):
         raise ValueError("invalid recorder MAC identity")
     if not isinstance(value.get("boot_id"), str) or not BOOT.fullmatch(value["boot_id"]):
         raise ValueError("invalid recorder boot identity")
     return value["wheel_id"], value["node_id"], value["device_id"]
+
+
+def family(value):
+    result = value.get("caster_type", "ball")
+    if result not in FAMILY_ROLES:
+        raise ValueError("invalid recorder caster_type")
+    return result
+
+
+def role_name(node):
+    return FAMILY_ROLES["ordinary"][node] if node >= 4 else ROLES[node]
 
 
 def check_identity(actual, expected, same_boot=False):
@@ -114,7 +126,7 @@ def default_root():
     return Path(os.environ.get("HAMR_BAG_ROOT", str(Path.home() / "hamster_ws/src/hamr_control/rosbags")))
 
 
-def latest_run(root, wheel="both"):
+def latest_run(root, wheel="both", caster_type="ball"):
     """Select by creation time: downloads and exports can change file mtimes."""
     candidates = []
     for directory in Path(root).expanduser().resolve().glob("encoder_*"):
@@ -122,6 +134,8 @@ def latest_run(root, wheel="both"):
             continue
         try:
             session = Session.load(root, directory.name[len("encoder_"):])
+            if family(session.manifest) != caster_type:
+                continue
             created = session.manifest.get("created_epoch_ns")
             if type(created) is not int or created <= 0:
                 raise ValueError("missing creation timestamp")
@@ -172,7 +186,7 @@ def timing_report(session):
     for device in manifest["devices"]:
         mapping = mappings.get((device["wheel_id"], device["node_id"], device["device_id"], device["boot_id"]))
         valid = bool(mapping and mapping.get("calibrated"))
-        report["devices"].append({"wheel": device["wheel_id"], "role": ROLES[device["node_id"]],
+        report["devices"].append({"wheel": device["wheel_id"], "role": role_name(device["node_id"]),
                                   "clock_estimate_available": valid,
                                   "uncertainty_indicator_ms": mapping["uncertainty_ns"] / 1e6 if valid and "uncertainty_ns" in mapping else None,
                                   "max_probe_residual_ms": mapping["max_probe_residual_ns"] / 1e6 if valid and "max_probe_residual_ns" in mapping else None})
@@ -201,13 +215,14 @@ def timing_report(session):
     return report
 
 
-def config_path():
-    source = Path(__file__).resolve().parent.parent / "config/caster_recording.yaml"
+def config_path(caster_type="ball"):
+    relative = "config/ordinary_caster/recording.yaml" if caster_type == "ordinary" else "config/caster_recording.yaml"
+    source = Path(__file__).resolve().parent.parent / relative
     if source.is_file():
         return source
     try:
         from ament_index_python.packages import get_package_share_directory
-        return Path(get_package_share_directory("hamr_bringup")) / "config/caster_recording.yaml"
+        return Path(get_package_share_directory("hamr_bringup")) / relative
     except (ImportError, LookupError):
         return None
 
@@ -222,14 +237,20 @@ def load_config(path):
     return value
 
 
-def validate_inventory(devices, wheels=WHEELS, inventory=(), require_all=True):
-    selected = [dict(item) for item in devices if item.get("wheel_id") in wheels]
+def validate_inventory(devices, wheels=WHEELS, inventory=(), require_all=True, caster_type="ball", ordinary_layout="split"):
+    role_set = FAMILY_ROLES[caster_type]
+    if ordinary_layout not in ("split", "combined"):
+        raise ValueError("ordinary_layout must be split or combined")
+    required_nodes = ((5, 6) if ordinary_layout == "split" else (4,)) if caster_type == "ordinary" else tuple(role_set)
+    # Filter before role/MAC checks: both families share the discovery port.
+    selected = [dict(item) for item in devices
+                if item.get("caster_type", "ball") == caster_type and item.get("wheel_id") in wheels]
     roles, macs = {}, {}
     for item in selected:
         wheel, node, mac = identity(item)
         key = wheel, node
         if key in roles and roles[key]["device_id"] != mac:
-            raise ValueError(f"ambiguous devices for {wheel}/{ROLES[node]}")
+            raise ValueError(f"ambiguous devices for {wheel}/{role_name(node)}")
         if mac in macs and macs[mac] != key:
             raise ValueError(f"device {mac} advertises multiple wheel/role identities")
         if key in roles and (roles[key]["host"], roles[key]["http_port"]) != (item["host"], item["http_port"]):
@@ -237,20 +258,27 @@ def validate_inventory(devices, wheels=WHEELS, inventory=(), require_all=True):
         if key in roles and roles[key]["boot_id"].lower() != item["boot_id"].lower():
             raise ValueError(f"device {mac} rebooted during discovery; discover again")
         roles[key], macs[mac] = item, key
+    if caster_type == "ordinary":
+        for wheel in wheels:
+            if (wheel, 4) in roles and ((wheel, 5) in roles or (wheel, 6) in roles):
+                raise ValueError("overlapping combined/split ordinary sensor assignments")
+        if require_all and any(node not in required_nodes for _, node in roles):
+            raise ValueError("ordinary board layout differs from selected --ordinary-layout")
     configured_keys = set()
     for expected in inventory:
         wheel, node = expected.get("wheel_id"), expected.get("node_id")
-        if wheel not in WHEELS or node not in ROLES or (wheel, node) in configured_keys:
+        if (wheel not in WHEELS or type(node) is not int or node not in role_set or
+                expected.get("caster_type", caster_type) != caster_type or (wheel, node) in configured_keys):
             raise ValueError("inventory has an invalid or duplicate wheel/role")
         configured_keys.add((wheel, node))
         actual = roles.get((wheel, node))
         if actual is None:
             continue
         if expected.get("device_id") and expected["device_id"] != actual["device_id"]:
-            raise ValueError(f"MAC inventory mismatch for {wheel}/{ROLES[node]}")
+            raise ValueError(f"MAC inventory mismatch for {wheel}/{role_name(node)}")
         if expected.get("host") and expected["host"] != actual["host"]:
-            raise ValueError(f"host inventory mismatch for {wheel}/{ROLES[node]}")
-    missing = [(wheel, ROLES[node]) for wheel in wheels for node in ROLES if (wheel, node) not in roles]
+            raise ValueError(f"host inventory mismatch for {wheel}/{role_name(node)}")
+    missing = [(wheel, role_set[node]) for wheel in wheels for node in required_nodes if (wheel, node) not in roles]
     if missing and require_all:
         raise ValueError("missing recorders: " + ", ".join(f"{wheel}/{role}" for wheel, role in missing))
     return [roles[key] for key in sorted(roles)]
@@ -304,6 +332,14 @@ class Transport:
         return f"http://{host}:{port}{path}"
 
     def request(self, device, path, body=None):
+        if body is not None and family(device) == "ordinary":
+            # A saved IP can belong to a different board after DHCP changes.
+            # Validate the endpoint before sending a mutating recovery command.
+            current = self.request(device, "/api/status")
+            check_identity(current, device, same_boot=path in ("/api/prepare", "/api/start"))
+            if path == "/api/stop":
+                body = {"expected_device_id": current["device_id"],
+                        "expected_boot_id": current["boot_id"], **body}
         payload = None if body is None else json.dumps(body, allow_nan=False).encode()
         request = urllib.request.Request(self.url(device, path), data=payload,
                                          headers={"Content-Type": "application/json"})
@@ -389,8 +425,11 @@ class Session:
         self.planned_duration = planned_duration
 
     @classmethod
-    def create(cls, root, run, devices, bag=None, discard_existing=False, **options):
+    def create(cls, root, run, devices, bag=None, discard_existing=False, caster_type="ball", **options):
         run_id(run)
+        if not devices or any(family(item) != caster_type for item in devices):
+            raise ValueError("recording devices must belong to the selected caster family")
+        devices = validate_inventory(devices, require_all=False, caster_type=caster_type)
         root = Path(root).expanduser().resolve()
         root.mkdir(parents=True, exist_ok=True)
         directory = root / ("encoder_" + run)
@@ -401,17 +440,20 @@ class Session:
         for device in devices:
             entry = dict(device)
             entry.update(sync_pre=[], sync_post=[], errors=[], acknowledged=False)
-            entry["log_path"] = f"{device['wheel_id']}_{ROLES[device['node_id']]}_{device['device_id'].replace(':', '')}.bin"
+            entry["log_path"] = f"{device['wheel_id']}_{role_name(device['node_id'])}_{device['device_id'].replace(':', '')}.bin"
             entries.append(entry)
         manifest = {"version": 1, "run_id": run, "bag_path": str(Path(bag).expanduser().resolve()) if bag else None,
                     "discard_existing": discard_existing,
                     "state": "created", "created_epoch_ns": time.time_ns(), "devices": entries, "errors": []}
+        if caster_type == "ordinary":
+            manifest["caster_type"] = caster_type
+            manifest["ordinary_layout"] = "split" if all(item["node_id"] in (5, 6) for item in devices) else "combined"
         session = cls(directory, manifest, **options)
         session.save()
         return session
 
     @classmethod
-    def load(cls, root, run, **options):
+    def load(cls, root, run, caster_type=None, **options):
         directory = Path(root).expanduser().resolve() / ("encoder_" + run_id(run))
         manifest = json.loads((directory / "manifest.json").read_text(encoding="utf-8"))
         if manifest.get("version") != 1 or manifest.get("run_id") != run:
@@ -419,7 +461,12 @@ class Session:
         devices = manifest.get("devices", [])
         if not devices:
             raise ValueError("manifest has no devices")
-        validate_inventory(devices, require_all=False)
+        saved_family = family(manifest)
+        if caster_type is not None and saved_family != caster_type:
+            raise ValueError("saved run belongs to a different caster family")
+        if any(family(item) != saved_family for item in devices):
+            raise ValueError("manifest mixes caster families")
+        validate_inventory(devices, require_all=False, caster_type=saved_family)
         for device in devices:
             filename = device.get("log_path", "")
             if not filename or Path(filename).name != filename or "\\" in filename:
@@ -431,7 +478,7 @@ class Session:
         write_json(self.directory / "manifest.json", self.manifest)
 
     def refresh_endpoints(self, discovered):
-        available = validate_inventory(discovered, require_all=False)
+        available = validate_inventory(discovered, require_all=False, caster_type=family(self.manifest))
         by_role = {(item["wheel_id"], item["node_id"]): item for item in available}
         for item in self.manifest["devices"]:
             if item.get("acknowledged") and item.get("verified"):
@@ -459,7 +506,7 @@ class Session:
                     if result is not None:
                         item.update(result)
                 except Exception as error:
-                    message = f"{item['wheel_id']}/{ROLES[item['node_id']]}: {error}"
+                    message = f"{item['wheel_id']}/{role_name(item['node_id'])}: {error}"
                     item.setdefault("errors", []).append(message)
                     errors.append(message)
                 self.save()
@@ -530,11 +577,11 @@ class Session:
                 status = item["status"]
                 hz, capacity = status.get("sample_hz"), status.get("capacity_samples")
                 if type(hz) not in (int, float) or not math.isfinite(hz) or hz <= 0 or type(capacity) is not int or capacity <= 0:
-                    errors.append(f"{item['wheel_id']}/{ROLES[item['node_id']]}: missing valid sample_hz/capacity_samples")
+                    errors.append(f"{item['wheel_id']}/{role_name(item['node_id'])}: missing valid sample_hz/capacity_samples")
                     continue
                 duration = capacity / hz
                 item["capacity_duration_s"] = duration
-                print(f"{item['wheel_id']}/{ROLES[item['node_id']]}: {capacity} samples at {hz:g} Hz; maximum {duration:.1f} s", flush=True)
+                print(f"{item['wheel_id']}/{role_name(item['node_id'])}: {capacity} samples at {hz:g} Hz; maximum {duration:.1f} s", flush=True)
                 if self.planned_duration is not None and self.planned_duration >= duration:
                     errors.append(f"planned {self.planned_duration:g} s recording does not fit {duration:.1f} s capacity")
         if errors:
@@ -634,7 +681,7 @@ class Session:
             if reason and reason not in ("command", "requested", "user", "stopped", "api"):
                 # Retain/download the trace, but do not advertise a capacity,
                 # acquisition or storage failure as a successful commanded run.
-                errors.append(f"{item['wheel_id']}/{ROLES[item['node_id']]} stopped early: {reason}")
+                errors.append(f"{item['wheel_id']}/{role_name(item['node_id'])} stopped early: {reason}")
         try:
             from caster_recording_format import export_run
             self.manifest["exports"] = export_run(self.directory, self.manifest)
@@ -650,26 +697,26 @@ class Session:
         return self.manifest
 
 
-def explicit_nodes(specifications, transport):
+def explicit_nodes(specifications, transport, caster_type="ball"):
     devices = []
     for specification in specifications:
         try:
             identity_text, endpoint = specification.split("@", 1)
             wheel, role = identity_text.split(":", 1)
             host, separator, port = endpoint.partition(":")
-            node = next(key for key, value in ROLES.items() if value == role.upper())
+            node = next(key for key, value in FAMILY_ROLES[caster_type].items() if value == role.upper())
             if wheel not in WHEELS:
                 raise ValueError()
             endpoint_data = {"host": host, "http_port": int(port) if separator else 8080}
         except (ValueError, StopIteration):
-            raise ValueError("--node requires front_left:H1@192.168.1.20[:8080] (or H2/CENTER/front_right)") from None
+            raise ValueError("--node requires WHEEL:ROLE@HOST[:PORT]; use H1/H2/CENTER for ball or SWIVEL/WHEEL for ordinary") from None
         # No expected MAC exists until initial discovery/status; explicitly check
         # the physical role requested instead of accepting a response silently.
         request = urllib.request.Request(transport.url(endpoint_data, "/api/status"))
         with urllib.request.urlopen(request, timeout=transport.timeout) as response:
             status = json.loads(response.read(65537))
         identity(status)
-        if status.get("v") != 1 or (status["wheel_id"], status["node_id"]) != (wheel, node):
+        if status.get("v") != 1 or family(status) != caster_type or (status["wheel_id"], status["node_id"]) != (wheel, node):
             raise ValueError("explicit endpoint returned a different wheel/role")
         devices.append(dict(status, **endpoint_data))
     return devices
@@ -677,8 +724,11 @@ def explicit_nodes(specifications, transport):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--root", type=Path, default=default_root(), help="Pi rosbag root; creates encoder_RUN_ID sidecar")
-    parser.add_argument("--config", type=Path, default=config_path())
+    parser.add_argument("--root", type=Path, default=None, help="Pi rosbag root; creates encoder_RUN_ID sidecar")
+    parser.add_argument("--caster-type", choices=tuple(FAMILY_ROLES), default="ball")
+    parser.add_argument("--ordinary-layout", choices=("split", "combined"), default="split",
+                        help="ordinary defaults to separate SWIVEL/WHEEL boards; combined is legacy node 4 hardware")
+    parser.add_argument("--config", type=Path, default=None)
     parser.add_argument("--wheel", choices=("both", *WHEELS), default="both")
     parser.add_argument("--node", action="append", default=[], metavar="WHEEL:ROLE@HOST[:PORT]", help="explicit endpoint; repeat for every selected role")
     parser.add_argument("--discovery-address", default=None)
@@ -701,15 +751,20 @@ def main(argv=None):
         command = commands.add_parser(name)
         command.add_argument("run_id", nargs="?", default=None, help="omit to select the newest saved encoder run")
     args = parser.parse_args(argv)
+    default_data_root = args.root is None
+    if args.root is None:
+        args.root = default_root() / "ordinary_caster" if args.caster_type == "ordinary" else default_root()
+    if args.config is None:
+        args.config = config_path(args.caster_type)
     try:
         if not 1 <= args.sync_samples <= 100 or not 1 <= args.retries <= 20:
             raise ValueError("sync-samples must be 1..100 and retries 1..20")
         if not all(0 < item <= 300 for item in (args.discovery_timeout, args.http_timeout, args.prepare_timeout)):
             raise ValueError("timeouts must be positive and at most 300 seconds")
         if args.command in ("latest", "timing", "stop", "fetch"):
-            selected_run = getattr(args, "run_id", None) or latest_run(args.root, args.wheel)
+            selected_run = getattr(args, "run_id", None) or latest_run(args.root, args.wheel, args.caster_type)
             if args.command in ("latest", "timing"):
-                session = Session.load(args.root, selected_run)
+                session = Session.load(args.root, selected_run, caster_type=args.caster_type)
                 report = timing_report(session) if args.command == "timing" else {
                     "run_id": selected_run, "directory": str(session.directory),
                     "state": session.manifest["state"], "bag_path": session.manifest.get("bag_path")}
@@ -718,19 +773,24 @@ def main(argv=None):
             args.run_id = selected_run
             print(f"Selected encoder run: {selected_run}", flush=True)
         if args.command == "start":
-            args.bag = resolve_bag(args.root, args.bag)
+            # The robot recorder's latest marker stays at the common bag root;
+            # only the ordinary encoder sidecars get a separate default folder.
+            bag_root = default_root() if default_data_root else args.root
+            args.bag = resolve_bag(bag_root, args.bag)
         configuration = load_config(args.config)
+        if configuration.get("caster_type", args.caster_type) != args.caster_type:
+            raise ValueError("recorder config belongs to a different caster family")
         transport = Transport(args.http_timeout, args.prepare_timeout, args.retries)
         options = {"transport": transport, "sync_samples": args.sync_samples}
         if args.command in ("stop", "fetch"):
             directory = Path(args.root).expanduser().resolve() / ("encoder_" + run_id(args.run_id))
             with run_lock(directory):
-                session = Session.load(args.root, args.run_id, **options)
+                session = Session.load(args.root, args.run_id, caster_type=args.caster_type, **options)
                 # Reuse local complete data without contacting recorders that
                 # may have moved on to a different recording session.
                 if not all(item.get("acknowledged") for item in session.manifest["devices"]):
                     if args.node:
-                        available = explicit_nodes(args.node, transport)
+                        available = explicit_nodes(args.node, transport, args.caster_type)
                     else:
                         try:
                             available = discover(args.discovery_address or configuration.get("discovery_address", "255.255.255.255"),
@@ -742,11 +802,12 @@ def main(argv=None):
                 getattr(session, args.command)()
             print(f"Saved encoder recording: {session.directory}")
             return 0
-        raw = explicit_nodes(args.node, transport) if args.node else discover(
+        raw = explicit_nodes(args.node, transport, args.caster_type) if args.node else discover(
             args.discovery_address or configuration.get("discovery_address", "255.255.255.255"),
             configuration.get("discovery_port", 5010), args.discovery_timeout)
         wheels = WHEELS if args.wheel == "both" else (args.wheel,)
-        devices = validate_inventory(raw, wheels, configuration.get("devices", []), require_all=args.command == "start")
+        devices = validate_inventory(raw, wheels, configuration.get("devices", []), require_all=args.command == "start",
+                                     caster_type=args.caster_type, ordinary_layout=args.ordinary_layout)
         if args.command in ("discover", "discovery", "status"):
             if args.command == "status":
                 devices = [dict(transport.request(item, "/api/status"), host=item["host"], http_port=item["http_port"]) for item in devices]
@@ -756,7 +817,7 @@ def main(argv=None):
         if args.duration is not None and (not math.isfinite(args.duration) or args.duration <= 0):
             raise ValueError("--duration must be finite and positive")
         session = Session.create(args.root, run, devices, bag=args.bag, discard_existing=args.discard_existing,
-                                 planned_duration=args.duration, **options)
+                                 planned_duration=args.duration, caster_type=args.caster_type, **options)
         print(f"Recording run {run}; recovery manifest: {session.directory / 'manifest.json'}", flush=True)
         if args.bag:
             print(f"Associated robot bag: {args.bag}", flush=True)
@@ -764,7 +825,7 @@ def main(argv=None):
             print("Discard mode: existing onboard logs on the selected boards will be erased; saved host files are retained.", flush=True)
         with run_lock(session.directory):
             session.start()
-        print(f"All {len(devices)} recorders are recording locally. Stop/download: caster_recording --root {args.root} stop {run}")
+        print(f"All {len(devices)} recorders are recording locally. Stop/download: caster_recording --caster-type {args.caster_type} --root {args.root} stop {run}")
         return 0
     except (RecordingError, OSError, ValueError, KeyError, TypeError, http.client.HTTPException) as error:
         print(f"caster_recording: {error}", file=sys.stderr)

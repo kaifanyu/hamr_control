@@ -31,6 +31,29 @@ CSV_FIELDS = (*protocol.CSV_FIELDS, "origin", "run_id", "timing_estimated",
               "timing_uncertainty_ns", "diagnostics_known")
 
 
+def ordinary_recording():
+    protocol.ordinary_protocol()  # Makes the source/installed package available.
+    from ordinary_caster import recording
+    return recording
+
+
+def _layout(metadata):
+    if metadata["packet"].get("caster_type") == "ordinary":
+        ordinary = ordinary_recording()
+        return ordinary.RECORD, ordinary.decode_record
+    return RECORD, decode_record
+
+
+def _timestamps(sample):
+    return (sample["t_us"], sample["wheel"]["t_us"]) if "wheel" in sample else (sample["t_us"],)
+
+
+def _check_order(previous, sample):
+    if previous is not None and (sample["seq"] <= previous["seq"] or any(
+            now <= before for now, before in zip(_timestamps(sample), _timestamps(previous)))):
+        raise ValueError("sample sequence and each channel acquisition time must strictly increase")
+
+
 def _json(value):
     return json.dumps(value, allow_nan=False, separators=(",", ":"))
 
@@ -46,7 +69,10 @@ def read_header(handle):
     if len(data) != HEADER_BYTES:
         raise ValueError("truncated recording header")
     magic, version, record_size, length, checksum = HEADER.unpack_from(data)
-    if magic != MAGIC or version != 1 or record_size != RECORD.size:
+    ordinary = ordinary_recording()
+    ball_layout = magic == MAGIC and version == 1 and record_size == RECORD.size
+    ordinary_layout = magic == ordinary.MAGIC and version == ordinary.VERSION and record_size == ordinary.RECORD.size
+    if not ball_layout and not ordinary_layout:
         raise ValueError("unsupported recording magic/version/record size")
     if not 0 < length <= HEADER_BYTES - HEADER.size:
         raise ValueError("invalid metadata length")
@@ -61,8 +87,8 @@ def read_header(handle):
             raise ValueError("recording metadata must be an object")
         _run_id(metadata.get("run_id"))
         packet = protocol.decode_packet(_json(metadata.get("packet")).encode())
-        if packet["v"] != 2 or packet["type"] != "metadata":
-            raise ValueError("recording header requires v2 metadata packet")
+        if packet["v"] not in ((3, 4) if ordinary_layout else (2,)) or packet["type"] != "metadata":
+            raise ValueError("recording header version must match its metadata packet")
     except (UnicodeError, TypeError) as error:
         raise ValueError(f"invalid recording metadata: {error}") from error
     return metadata
@@ -100,12 +126,11 @@ def iter_samples(path):
     """Yield samples after header/record validation, retaining exact int64 values."""
     with Path(path).open("rb") as handle:
         metadata = read_header(handle)
+        record, decoder = _layout(metadata)
         previous = None
-        while data := handle.read(RECORD.size):
-            sample = decode_record(data, metadata["packet"]["node_id"])
-            if previous is not None and (sample["seq"] <= previous["seq"] or
-                                         sample["t_us"] <= previous["t_us"]):
-                raise ValueError("sample sequence and acquisition time must strictly increase")
+        while data := handle.read(record.size):
+            sample = decoder(data, metadata["packet"]["node_id"])
+            _check_order(previous, sample)
             previous = sample
             yield sample
 
@@ -117,23 +142,31 @@ def verify_log(path, expected_status=None, expected_run_id=None):
     not be zero: acquisition runs while local recording is idle.
     """
     count, checksum, missing, gaps, max_gap_us = 0, 0, 0, [], 0
-    flag_counts = {name: 0 for name in protocol.FLAG_NAMES}
     first = previous = None
     with Path(path).open("rb") as handle:
         metadata = read_header(handle)
         packet = metadata["packet"]
+        record, decoder = _layout(metadata)
+        is_ordinary = packet.get("caster_type") == "ordinary"
+        flag_names = protocol.ordinary_protocol().FLAG_NAMES if is_ordinary else protocol.FLAG_NAMES
+        flag_counts = ({channel: {name: 0 for name in flag_names} for channel in protocol.ordinary_protocol().channels(packet)}
+                       if is_ordinary else {name: 0 for name in flag_names})
         if expected_run_id is not None and metadata["run_id"] != expected_run_id:
             raise ValueError("recording run_id mismatch")
-        while data := handle.read(RECORD.size):
-            sample = decode_record(data, packet["node_id"])
+        while data := handle.read(record.size):
+            sample = decoder(data, packet["node_id"])
             checksum = zlib.crc32(data, checksum)
             count += 1
-            for bit, name in enumerate(protocol.FLAG_NAMES):
-                flag_counts[name] += int(bool(sample["flags"] & (1 << bit)))
+            for bit, name in enumerate(flag_names):
+                if is_ordinary:
+                    for channel in protocol.ordinary_protocol().channels(packet):
+                        flag_counts[channel][name] += int(bool(sample[channel]["flags"] & (1 << bit)))
+                else:
+                    flag_counts[name] += int(bool(sample["flags"] & (1 << bit)))
+            _check_order(previous, sample)
             if previous is not None:
-                if sample["seq"] <= previous["seq"] or sample["t_us"] <= previous["t_us"]:
-                    raise ValueError("sample sequence and acquisition time must strictly increase")
-                max_gap_us = max(max_gap_us, sample["t_us"] - previous["t_us"])
+                max_gap_us = max(max_gap_us, *(now - before for now, before in
+                                             zip(_timestamps(sample), _timestamps(previous))))
                 if sample["seq"] > previous["seq"] + 1:
                     gap = [previous["seq"] + 1, sample["seq"] - 1]
                     gaps.append(gap)
@@ -143,17 +176,29 @@ def verify_log(path, expected_status=None, expected_run_id=None):
             previous = sample
     result = {"metadata": metadata, "run_id": metadata["run_id"],
               **{key: packet[key] for key in ("wheel_id", "device_id", "node_id", "boot_id")},
-              "sample_count": count, "data_bytes": HEADER_BYTES + count * RECORD.size,
+              "sample_count": count, "data_bytes": HEADER_BYTES + count * record.size,
               "crc32": checksum, "missing_samples": missing, "gaps": gaps,
               "max_acquisition_gap_us": max_gap_us, "flag_counts": flag_counts,
               "integrity_note": "Byte integrity and observed sequence gaps do not prove uninterrupted acquisition; inspect overrun flags and acquisition time gaps.",
               "first_seq": first["seq"] if first else None,
               "last_seq": previous["seq"] if previous else None,
-              "first_t_us": first["t_us"] if first else None,
-              "last_t_us": previous["t_us"] if previous else None}
+              "first_t_us": min(_timestamps(first)) if first else None,
+              "last_t_us": max(_timestamps(previous)) if previous else None}
+    if is_ordinary:
+        result.update(caster_type="ordinary", record_version=2, record_bytes=record.size,
+                      first_swivel_t_us=first["t_us"] if first and "swivel" in first else None,
+                      first_wheel_t_us=first["wheel"]["t_us"] if first and "wheel" in first else None,
+                      last_swivel_t_us=previous["t_us"] if previous and "swivel" in previous else None,
+                      last_wheel_t_us=previous["wheel"]["t_us"] if previous and "wheel" in previous else None)
     if expected_status is not None:
         if not isinstance(expected_status, dict):
             raise ValueError("expected recording status must be an object")
+        if expected_status.get("caster_type", "ball") != packet.get("caster_type", "ball"):
+            raise ValueError("recording caster_type differs from device status")
+        if is_ordinary:
+            for name, value in (("record_version", 2), ("record_bytes", record.size)):
+                if name in expected_status and expected_status[name] != value:
+                    raise ValueError(f"recording {name} differs from device status")
         for name in ("sample_count", "data_bytes", "crc32"):
             protocol.integer(expected_status.get(name), name)
             if expected_status[name] != result[name]:
@@ -176,9 +221,9 @@ def verify_log(path, expected_status=None, expected_run_id=None):
                 bounds[name] = value
         if "start_us" in bounds and "stop_us" in bounds and bounds["stop_us"] < bounds["start_us"]:
             raise ValueError("recording stop_us precedes start_us")
-        if first is not None and "start_us" in bounds and first["t_us"] < bounds["start_us"]:
+        if first is not None and "start_us" in bounds and min(_timestamps(first)) < bounds["start_us"]:
             raise ValueError("recording sample precedes requested start_us")
-        if previous is not None and "stop_us" in bounds and previous["t_us"] > bounds["stop_us"]:
+        if previous is not None and "stop_us" in bounds and max(_timestamps(previous)) > bounds["stop_us"]:
             raise ValueError("recording sample exceeds requested stop_us")
     return result
 
@@ -267,6 +312,8 @@ def fit_clock_map(sync_pre, sync_post, identity, valid_from_us, valid_to_us,
                    "max_probe_residual_ns": int(residual.to_integral_value()),
                    "pre_anchor_rtt_ns": left["rtt_ns"], "post_anchor_rtt_ns": right["rtt_ns"],
                    "uncertainty_note": "RTT midpoint estimate; asymmetric transport, clock wander and host clock discipline need independent validation. This is not a proven accuracy bound."}
+        if identity.get("caster_type") == "ordinary":
+            mapping["caster_type"] = "ordinary"
         protocol.ClockMapper({"version": 1, "mappings": [mapping]})
         return mapping
 
@@ -289,8 +336,8 @@ def validate_local_envelope(value):
         if type(value.get(name)) is not bool:
             raise ValueError(f"local recording requires explicit {name}")
     packet = protocol.decode_packet(_json(value.get("packet")).encode())
-    if packet["v"] != 2:
-        raise ValueError("local recording requires identified v2 packets")
+    if packet["v"] not in (2, 3, 4):
+        raise ValueError("local recording requires identified v2/v3/v4 packets")
     mapping = value.get("clock_mapping")
     if mapping is not None:
         if not isinstance(mapping, dict):
@@ -328,6 +375,7 @@ def export_run(run_directory, manifest):
     if not isinstance(devices, list):
         raise ValueError("manifest requires devices array")
     prepared, identities, clock_errors, mappings, incomplete = [], set(), [], [], []
+    ordinary_guard = protocol.ordinary_protocol().IdentityGuard()
     for device in devices:
         if not device.get("log_path"):
             incomplete.append({"device_id": device.get("device_id"), "error": "no downloaded log path"})
@@ -344,6 +392,10 @@ def export_run(run_directory, manifest):
             incomplete.append({"device_id": device.get("device_id"), "error": f"log verification failed: {error}"})
             continue
         packet = verified["metadata"]["packet"]
+        if packet.get("caster_type", "ball") != manifest.get("caster_type", "ball"):
+            raise ValueError("manifest caster_type differs from recording")
+        if packet.get("caster_type") == "ordinary":
+            ordinary_guard.accept(packet)
         key = protocol.packet_identity(packet)
         if key in identities:
             raise ValueError("duplicate device/boot recording in manifest")
@@ -363,17 +415,23 @@ def export_run(run_directory, manifest):
     if not prepared:
         detail = "; ".join(item["error"] for item in incomplete)
         raise ValueError(f"no verified downloaded local recordings to export: {detail}")
+    is_ordinary = manifest.get("caster_type") == "ordinary"
+    csv_fields = ((*protocol.ordinary_protocol().CSV_FIELDS, "mapped_epoch_ns", "mapped_clock_sync_valid",
+                   "origin", "run_id", "timing_estimated", "timing_uncertainty_ns", "diagnostics_known")
+                  if is_ordinary else CSV_FIELDS)
     names = ("packets.jsonl", "metadata.jsonl", "samples.csv")
     temporary_paths = [root / (name + ".tmp") for name in names]
     try:
         with temporary_paths[0].open("w", encoding="utf-8", newline="\n") as packets, \
                 temporary_paths[1].open("w", encoding="utf-8", newline="\n") as metadata_output, \
                 temporary_paths[2].open("w", encoding="utf-8", newline="") as csv_output:
-            writer = csv.DictWriter(csv_output, fieldnames=CSV_FIELDS)
+            writer = csv.DictWriter(csv_output, fieldnames=csv_fields)
             writer.writeheader()
             for device, path, verified, mapping in prepared:
                 metadata = verified["metadata"]["packet"]
                 identity = {name: metadata[name] for name in ("v", "wheel_id", "device_id", "node_id", "boot_id")}
+                if is_ordinary:
+                    identity["caster_type"] = "ordinary"
                 raw_diagnostics = (device.get("status") or {}).get("diagnostics", {})
                 known = (device.get("status") or {}).get("diagnostics_known", True) is True and all(
                     type(raw_diagnostics.get(name)) is int and raw_diagnostics[name] >= 0
@@ -391,18 +449,21 @@ def export_run(run_directory, manifest):
                 batch = []
                 for sample in iter_samples(path):
                     batch.append(sample)
-                    mapped = mapper.map(metadata["node_id"], metadata["boot_id"], sample["t_us"],
-                                        metadata["wheel_id"], metadata["device_id"])
-                    row = {**{name: None for name in protocol.CSV_FIELDS[:4]},
-                           **{name: metadata[name] for name in ("wheel_id", "device_id", "node_id", "boot_id")},
-                           **sample, **{name: int(bool(sample["flags"] & (1 << bit)))
-                                       for bit, name in enumerate(protocol.FLAG_NAMES)},
-                           **{name: diagnostics[name] if known else None for name in protocol.DIAGNOSTIC_FIELDS},
-                           "sequence_status": "in_order", "mapped_epoch_ns": mapped,
-                           "mapped_clock_sync_valid": 0, "timing_estimated": int(mapped is not None),
-                           "timing_uncertainty_ns": mapping["uncertainty_ns"] if mapping else None,
-                           "origin": LOCAL_ORIGIN, "run_id": run_id, "diagnostics_known": int(known)}
-                    writer.writerow(row)
+                    rows = (protocol.ordinary_protocol().channel_rows({**metadata, "diagnostics": diagnostics}, sample)
+                            if is_ordinary else [{
+                                **{name: metadata[name] for name in ("wheel_id", "device_id", "node_id", "boot_id")},
+                                **sample, **{name: int(bool(sample["flags"] & (1 << bit)))
+                                            for bit, name in enumerate(protocol.FLAG_NAMES)}}])
+                    for row in rows:
+                        mapped = mapper.map(metadata["node_id"], metadata["boot_id"], row["t_us"],
+                                            metadata["wheel_id"], metadata["device_id"])
+                        row.update({**{name: None for name in protocol.CSV_FIELDS[:4]},
+                                    **{name: diagnostics[name] if known else None for name in protocol.DIAGNOSTIC_FIELDS},
+                                    "sequence_status": "in_order", "mapped_epoch_ns": mapped,
+                                    "mapped_clock_sync_valid": 0, "timing_estimated": int(mapped is not None),
+                                    "timing_uncertainty_ns": mapping["uncertainty_ns"] if mapping else None,
+                                    "origin": LOCAL_ORIGIN, "run_id": run_id, "diagnostics_known": int(known)})
+                        writer.writerow(row)
                     if len(batch) == 32:
                         packets.write(_json({**base, "packet": {**identity, "type": "samples", "samples": batch,
                                                               "diagnostics": diagnostics}}) + "\n")

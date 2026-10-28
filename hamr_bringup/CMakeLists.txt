@@ -23,6 +23,10 @@ install(
     scripts/record_hamr_vicon_bag
     scripts/record_hamr_test_bag
     scripts/caster_encoder_bridge
+    scripts/ordinary_caster_bridge
+    scripts/analyze_ordinary_caster
+    scripts/replay_ordinary_caster_joints
+    scripts/render_ordinary_caster_recording
     scripts/caster_recording
     scripts/caster_center_angle
     scripts/record_caster_rotation.py
@@ -51,6 +55,9 @@ install(FILES scripts/caster_encoder_selection.py DESTINATION lib/${PROJECT_NAME
 install(FILES scripts/caster_encoder_plots.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_recording_client.py scripts/caster_recording_format.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_center_calibration.py DESTINATION lib/${PROJECT_NAME})
+install(DIRECTORY ordinary_caster DESTINATION lib/${PROJECT_NAME}
+  PATTERN "__pycache__" EXCLUDE)
+install(FILES ../docs/ORDINARY_CASTER_RECORDING.md DESTINATION share/${PROJECT_NAME}/docs)
 
 # Keep the generic offline analyzers beside the concise operator wrapper so
 # `ros2 run` works from an installed workspace without relying on source paths.
@@ -65,6 +72,15 @@ install(
 
 if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(ordinary_live test/test_ordinary_live.py)
+  ament_add_pytest_test(ordinary_split test/test_ordinary_split.py TIMEOUT 90)
+  ament_add_pytest_test(ordinary_integration test/test_ordinary_integration.py)
+  ament_add_pytest_test(ordinary_protocol test/test_ordinary_protocol.py)
+  ament_add_pytest_test(ordinary_recording_format test/test_ordinary_recording_format.py)
+  ament_add_pytest_test(ordinary_recording_client test/test_ordinary_recording_client.py TIMEOUT 90)
+  ament_add_pytest_test(ordinary_history test/test_ordinary_history.py)
+  ament_add_pytest_test(ordinary_analysis test/test_ordinary_analysis.py)
+  ament_add_pytest_test(ordinary_replay test/test_ordinary_replay.py)
   ament_add_pytest_test(caster_center_calibration
     test/test_caster_center_calibration.py
   )

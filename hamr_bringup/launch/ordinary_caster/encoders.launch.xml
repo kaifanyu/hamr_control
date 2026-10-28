@@ -1,0 +1,18 @@
+<launch>
+  <!-- Passive acquisition only. Firmware destination ports must match YAML. -->
+  <arg name="config_file" default="$(find-pkg-share hamr_bringup)/config/ordinary_caster/encoders.yaml" />
+  <arg name="record_bag" default="true" />
+  <node pkg="hamr_bringup" exec="ordinary_caster_bridge" name="ordinary_caster_front_left" output="screen">
+    <param from="$(var config_file)" />
+    <param name="wheel_id" value="front_left" />
+    <param name="require_config" value="true" />
+    <param name="use_sim_time" value="false" />
+  </node>
+  <node pkg="hamr_bringup" exec="ordinary_caster_bridge" name="ordinary_caster_front_right" output="screen">
+    <param from="$(var config_file)" />
+    <param name="wheel_id" value="front_right" />
+    <param name="require_config" value="true" />
+    <param name="use_sim_time" value="false" />
+  </node>
+  <node pkg="hamr_bringup" exec="record_hamr_test_bag" output="screen" if="$(var record_bag)" />
+</launch>

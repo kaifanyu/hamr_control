@@ -25,6 +25,8 @@
   <exec_depend>hamr_control</exec_depend>
   <exec_depend>hamr_description</exec_depend>
   <exec_depend>hamr_ball_caster</exec_depend>
+  <exec_depend>hamr_swivel_caster</exec_depend>
+  <exec_depend>rosgraph_msgs</exec_depend>
   <exec_depend>ament_index_python</exec_depend>
   <exec_depend>rcl_interfaces</exec_depend>
   <exec_depend>launch</exec_depend>

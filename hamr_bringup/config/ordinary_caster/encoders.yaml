@@ -1,0 +1,24 @@
+# Two boards per caster. Arrays are [SWIVEL, WHEEL]. Replace MACs after
+# commissioning. Blank MAC pins the first observed board per role and is NOT verified.
+/ordinary_caster_front_left:
+  ros__parameters:
+    wheel_id: front_left
+    configured_wheel_id: front_left
+    bind_address: "0.0.0.0"
+    udp_port: 5007
+    stale_timeout_s: 1.0
+    ordinary_layout: split
+    expected_device_ids: ["", ""]
+    expected_source_ips: ["", ""]
+    use_sim_time: false
+/ordinary_caster_front_right:
+  ros__parameters:
+    wheel_id: front_right
+    configured_wheel_id: front_right
+    bind_address: "0.0.0.0"
+    udp_port: 5008
+    stale_timeout_s: 1.0
+    ordinary_layout: split
+    expected_device_ids: ["", ""]
+    expected_source_ips: ["", ""]
+    use_sim_time: false

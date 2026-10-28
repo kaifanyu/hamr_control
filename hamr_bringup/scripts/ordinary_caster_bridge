@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+"""Receive one ordinary caster's independent wheel and swivel channels."""
+import json
+import math
+from pathlib import Path
+import sys
+import time
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+import rclpy
+from rcl_interfaces.msg import ParameterDescriptor, ParameterType
+from rclpy.node import Node
+from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
+from sensor_msgs.msg import JointState
+from std_msgs.msg import String
+from caster_encoder_protocol import UDPReceiver
+from ordinary_caster.live import LiveState, SplitLiveState
+
+
+class OrdinaryCasterBridge(Node):
+    def __init__(self):
+        super().__init__("ordinary_caster_bridge")
+        if self.get_parameter("use_sim_time").value:
+            raise ValueError("live bridge requires use_sim_time=false")
+        self.set_descriptor("use_sim_time", ParameterDescriptor(type=ParameterType.PARAMETER_BOOL, read_only=True))
+        for name, default in (("wheel_id", "front_left"), ("configured_wheel_id", ""),
+                ("ordinary_layout", "split"), ("expected_device_ids", ["", ""]), ("expected_source_ips", ["", ""]),
+                ("require_config", False), ("expected_device_id", ""), ("expected_source_ip", ""),
+                ("bind_address", "0.0.0.0"), ("udp_port", 5007), ("stale_timeout_s", 1.0)):
+            self.declare_parameter(name, default, descriptor=ParameterDescriptor(read_only=True))
+        get = lambda name: self.get_parameter(name).value
+        wheel = get("wheel_id")
+        if get("require_config") and get("configured_wheel_id") != wheel:
+            raise ValueError("missing/mismatched ordinary caster YAML node configuration")
+        port = get("udp_port")
+        if type(port) is not int or not 1 <= port <= 65535:
+            raise ValueError("udp_port must be in 1..65535")
+        layout = get("ordinary_layout")
+        if layout not in ("split", "combined"):
+            raise ValueError("ordinary_layout must be split or combined")
+        if layout == "split":
+            self.state = SplitLiveState(wheel, get("stale_timeout_s"), get("expected_device_ids"), get("expected_source_ips"))
+        else:
+            self.state = LiveState(wheel, get("stale_timeout_s"), get("expected_device_id"), get("expected_source_ip"))
+        prefix = f"/ordinary_caster/{wheel}"
+        qos = QoSProfile(depth=2000, reliability=ReliabilityPolicy.RELIABLE)
+        self.packets = self.create_publisher(String, prefix + "/packets", qos)
+        self.diagnostics = self.create_publisher(String, prefix + "/diagnostics", 100)
+        self.metadata = self.create_publisher(String, prefix + "/metadata", QoSProfile(
+            depth=1, reliability=ReliabilityPolicy.RELIABLE, durability=DurabilityPolicy.TRANSIENT_LOCAL))
+        self.joints = {channel: self.create_publisher(JointState, prefix + f"/{channel}/joint_states", qos)
+                       for channel in ("swivel", "wheel")}
+        self.receiver = UDPReceiver(get("bind_address"), port)
+        self.last_warning = -math.inf
+        self.create_timer(0.002, self.receive)
+        self.create_timer(1.0, self.publish_diagnostics)
+        self.metadata.publish(self.message(self.state.metadata_snapshot()))
+        self.get_logger().info(f"{wheel}: UDP {port}; JointState stamps are host receipt time. "
+                               "Use local recorder logs and clock maps for acquisition-time history.")
+        if not (all(get("expected_device_ids")) if layout == "split" else get("expected_device_id")):
+            self.get_logger().warning("Commissioning mode: first MAC per sensor role is pinned until restart; configure inventory after checking board labels.")
+
+    @staticmethod
+    def message(value):
+        message = String()
+        message.data = json.dumps(value, separators=(",", ":"), allow_nan=False)
+        return message
+
+    def receive(self):
+        for data, source, epoch_ns, monotonic_ns in self.receiver.drain():
+            stamp = self.get_clock().now()
+            try:
+                envelope, readings, changed = self.state.receive(data, source, epoch_ns, monotonic_ns, stamp.nanoseconds)
+            except ValueError as error:
+                if time.monotonic() - self.last_warning > 5:
+                    self.get_logger().warning(str(error))
+                    self.last_warning = time.monotonic()
+                continue
+            self.packets.publish(self.message(envelope))
+            if changed:
+                self.metadata.publish(self.message(self.state.metadata_snapshot()))
+            for reading in readings:
+                message = JointState()
+                message.header.stamp = stamp.to_msg()
+                message.name, message.position = [reading["name"]], [float(reading["position"]) ]
+                if reading["velocity"] is not None:
+                    message.velocity = [float(reading["velocity"])]
+                self.joints[reading["channel"]].publish(message)
+
+    def publish_diagnostics(self):
+        self.diagnostics.publish(self.message(self.state.diagnostics_snapshot(time.monotonic_ns())))
+
+    def destroy_node(self):
+        if hasattr(self, "receiver"):
+            self.receiver.close()
+        return super().destroy_node()
+
+
+def main():
+    rclpy.init()
+    node = None
+    try:
+        node = OrdinaryCasterBridge()
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    except (ValueError, RuntimeError, OSError) as error:
+        print(f"ordinary_caster_bridge: {error}", file=sys.stderr)
+        return 2
+    finally:
+        if node is not None:
+            node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

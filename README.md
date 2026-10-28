@@ -22,6 +22,7 @@ platform:
 
 | Task | Guide / entry point |
 |---|---|
+| Measured ordinary caster wheel/swivel history: four ESP32-C6 boards, local recording, analysis and replay | [Ordinary caster acquisition guide](docs/ORDINARY_CASTER_RECORDING.md) |
 | Gazebo UI and experiment runner: ball/swivel casters, live waypoints, WASD, optional cameras, replay and encoder logs | [Simulation Studio](hamr_sim_ui/README.md) · `bash hamr_sim_ui/scripts/start.sh` |
 | Two ordinary front swivel casters: physical trajectory test + overview/close-up MP4s | [Swivel-caster simulator](hamr_swivel_caster/README.md) |
 | 23 terrain maps plus a flat floor, for ball or swivel casters | [Map files](maps/README.md) · [Terrain launcher](hamr_terrain/README.md) |

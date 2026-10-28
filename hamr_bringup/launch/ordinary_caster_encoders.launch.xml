@@ -1,0 +1,8 @@
+<launch>
+  <arg name="config_file" default="$(find-pkg-share hamr_bringup)/config/ordinary_caster/encoders.yaml" />
+  <arg name="record_bag" default="true" />
+  <include file="$(find-pkg-share hamr_bringup)/launch/ordinary_caster/encoders.launch.xml">
+    <arg name="config_file" value="$(var config_file)" />
+    <arg name="record_bag" value="$(var record_bag)" />
+  </include>
+</launch>

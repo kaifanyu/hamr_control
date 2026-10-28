@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+"""Render an ordinary caster recording without a running ROS graph."""
+import caster_encoder_protocol
+caster_encoder_protocol.ordinary_protocol()
+from ordinary_caster.render import main
+
+if __name__ == "__main__":
+    raise SystemExit(main())

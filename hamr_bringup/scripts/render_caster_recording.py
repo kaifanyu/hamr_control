@@ -140,8 +140,13 @@ def write_replay_bag(destination, events, provenance):
                 rosbag2_py.ConverterOptions("", ""))
     try:
         topic = topic_for_wheel(provenance["wheel_id"])
-        writer.create_topic(rosbag2_py.TopicMetadata(
-            id=0, name=topic, type="std_msgs/msg/String", serialization_format="cdr"))
+        fields = dict(name=topic, type="std_msgs/msg/String", serialization_format="cdr")
+        try:
+            metadata = rosbag2_py.TopicMetadata(id=0, **fields)
+        except TypeError:
+            # Humble assigns topic IDs internally; Jazzy accepts an explicit ID.
+            metadata = rosbag2_py.TopicMetadata(**fields)
+        writer.create_topic(metadata)
         for stamp, envelope in events:
             message = String(data=json.dumps(envelope, allow_nan=False, separators=(",", ":")))
             writer.write(topic, serialize_message(message), stamp)
