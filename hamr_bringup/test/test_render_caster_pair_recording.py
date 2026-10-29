@@ -29,8 +29,10 @@ def test_default_pair_references_preserve_each_wheels_absolute_phase():
     left, right = mappings['front_left'], mappings['front_right']
     assert left['center_reference_count'] == 1210
     assert right['center_reference_count'] == 16183
-    assert left['center_sign'] == -1
-    assert right['center_sign'] == -1
+    assert left['center_sign'] == 1
+    assert right['center_sign'] == 1
+    assert left['center_reference_model_rad'] == 3.620181390266952
+    assert right['center_reference_model_rad'] == 5.190977717061848
     assert left['center_reference_device_id'] != right['center_reference_device_id']
     assert all(ref['mode'] == 'absolute-center-reference' for ref in refs.values())
     for wheel, mapping in mappings.items():
@@ -76,16 +78,23 @@ def test_pair_mapping_rejects_wrong_wheel_reference(tmp_path):
         paired_mappings({}, arguments(left_mapping_config=path))
 
 
-def test_left_center_direction_reverses_about_saved_reference():
-    mapping = paired_mappings({}, arguments())[0]['front_left']
-    model = ReplayModel(mapping, wheel_id='front_left')
+@pytest.mark.parametrize('wheel', ['front_left', 'front_right'])
+def test_center_direction_reverses_about_saved_reference(wheel):
+    mapping = paired_mappings({}, arguments())[0][wheel]
+    model = ReplayModel(mapping, wheel_id=wheel)
     reference = mapping['center_reference_model_rad']
     positions = []
-    for seq, count in enumerate((1210, 1210 + 1024)):
-        event = wheel_envelope(3, device=mapping['center_reference_device_id'], seq=seq)
+    for seq, offset in enumerate((0, 1024)):
+        count = (mapping['center_reference_count'] + offset) % 16384
+        event = wheel_envelope(3, wheel=wheel, device=mapping['center_reference_device_id'], seq=seq)
         sample = event['packet']['samples'][0]
-        sample.update(position14=count, absolute_angle_rad=count * math.tau / 16384)
+        sample.update(position14=count, absolute_angle_rad=count * math.tau / 16384,
+                      calibrated_alpha_rad=.123)
         model.receive(event, 1_000_000_000 + seq * 5_000_000)
         positions.append(model.values[3]['position'])
     assert positions[0] == pytest.approx(reference)
-    assert positions[1] - positions[0] == pytest.approx(-math.tau / 16)
+    assert positions[1] - positions[0] == pytest.approx(math.tau / 16)
+    # Starting a new run at this phase must retain the absolute orientation.
+    restarted = ReplayModel(mapping, wheel_id=wheel)
+    restarted.receive(event, 2_000_000_000)
+    assert restarted.values[3]['position'] == pytest.approx(positions[1])

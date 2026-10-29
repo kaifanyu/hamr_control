@@ -81,6 +81,11 @@ validity, and saved raw CENTER references. Missing measurements are not fabricat
 
 Paired replay uses `compa_ball_caster_recording.urdf.xacro`, with unchanged native
 mounts and dimensions. Each wheel has its own saved CENTER reference and mapping.
+The paired defaults use `center_sign: +1` for both wheels. Rotation is reversed
+about the existing anchors: left raw count 1210 at model angle 3.620181390266952 rad,
+right raw count 16183 at 5.190977717061848 rad. Each run's initial orientation
+comes from its first valid raw `position14` relative to that wheel's anchor;
+there is no per-run zero reset or second application of firmware alpha offsets.
 Use `--center-reference none` for other devices without those references, or
 `--left-mapping-config` / `--right-mapping-config` for independently verified
 mappings. An identity mismatch stops rendering instead of applying another
