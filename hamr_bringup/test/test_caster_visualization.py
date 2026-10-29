@@ -1,5 +1,4 @@
 """Real MCAP coverage for the one-command report and source preservation."""
-import csv
 import hashlib
 import json
 from pathlib import Path
@@ -24,11 +23,17 @@ def full_bag(path, include_packets=True, include_forks=True):
     from sensor_msgs.msg import JointState, Imu, MagneticField
     from std_msgs.msg import String, Float64, Float64MultiArray, MultiArrayDimension, Int32
     writer = rosbag.SequentialWriter()
+    path.parent.mkdir(parents=True, exist_ok=True)
     writer.open(rosbag.StorageOptions(uri=str(path), storage_id="mcap"), rosbag.ConverterOptions("", ""))
     created, messages = set(), []
     def add(topic, kind, message, stamp):
         if topic not in created:
-            writer.create_topic(rosbag.TopicMetadata(id=len(created), name=topic, type=kind, serialization_format="cdr"))
+            fields = dict(name=topic, type=kind, serialization_format="cdr")
+            try:
+                metadata = rosbag.TopicMetadata(id=len(created), **fields)
+            except TypeError:  # Humble does not expose Jazzy's topic ID argument.
+                metadata = rosbag.TopicMetadata(**fields)
+            writer.create_topic(metadata)
             created.add(topic)
         messages.append((stamp, topic, message if isinstance(message, bytes) else serialize_message(message)))
     subjects = ["HAMR_base", "HAMR_turret"] + (["Left_Caster", "Right_Caster"] if include_forks else [])
@@ -85,7 +90,9 @@ def full_bag(path, include_packets=True, include_forks=True):
                 add(prefix+f"/{role}/joint_states", "sensor_msgs/msg/JointState", joint, stamp)
     for stamp, topic, data in sorted(messages, key=lambda item: item[0]):
         writer.write(topic, data, stamp)
-    writer.close()
+    if hasattr(writer, "close"):
+        writer.close()
+    del writer
     return next(path.glob("*.mcap"))
 
 
@@ -111,24 +118,22 @@ def test_full_combined_bag_and_bare_mcap_read_all_channels_without_sidecars(tmp_
     assert hashlib.sha256(source.read_bytes()).hexdigest() == original
 
 
-def test_one_command_exports_both_wheels_and_estimates_with_exact_time(tmp_path):
+def test_one_command_writes_only_requested_plots_and_five_html_sections(tmp_path):
     source = full_bag(tmp_path / "bag")
     target = tmp_path / "report"
     before = source.read_bytes()
-    assert main([str(source), "--output", str(target), "--no-plots"]) == 0
+    assert main([str(source), "--output", str(target), "--render", "none"]) == 0
     report = json.loads((target / "report.json").read_text())
-    assert report["stages"]["fork_comparison"]["status"] == "complete"
-    assert (target / "index.html").exists()
-    with (target / "comparison/front_right_aligned.csv").open() as stream:
-        rows = list(csv.DictReader(stream))
-    assert int(rows[1]["epoch_ns"]) == EPOCH+270_000_000
-    assert any(row["fork_estimate_valid"] == "True" for row in rows)
-    for wheel in ("front_left", "front_right"):
-        with (target / "analysis/encoder_packets" / wheel / "samples.csv").open() as stream:
-            packets = list(csv.DictReader(stream))
-        assert len(packets) == 603
-        assert packets[0]["seq"] == str(2**53+1)
-        assert {p["wheel_id"] for p in packets} == {wheel}
+    assert report["status"] == "complete"
+    assert report["stages"]["robot_ekf"]["alignment"]["rms_difference_m"] < 1e-8
+    assert set(p.name for p in target.iterdir()) == {
+        "index.html", "report.json", "caster_encoder_angles.png", "robot_trajectory.png",
+        "robot_casters_trajectory.png", "robot_ekf_aligned.png",
+    }
+    page = (target / "index.html").read_text()
+    assert page.count("<section>") == 5
+    assert page.count("<img ") == 4
+    assert "fork_comparison" not in page and "all_plots" not in page
     assert source.read_bytes() == before
     with pytest.raises(SystemExit):
         main([str(source), "--output", str(target)])
@@ -137,11 +142,12 @@ def test_one_command_exports_both_wheels_and_estimates_with_exact_time(tmp_path)
 def test_missing_forks_or_packets_keeps_available_reports_and_explains_omissions(tmp_path):
     source = full_bag(tmp_path / "partial", include_packets=False, include_forks=False)
     target = tmp_path / "report"
-    assert main([str(source), "--output", str(target), "--no-plots"]) == 0
+    assert main([str(source), "--output", str(target), "--render", "none"]) == 0
     report = json.loads((target / "report.json").read_text())
-    assert report["stages"]["fork_comparison"]["status"] == "unavailable"
-    assert (target / "analysis/encoder_signals.csv").is_file()
-    assert len(json.loads((target / "analysis/summary.json").read_text())["encoders"]) == 6
+    assert report["stages"]["robot_casters"]["status"] == "unavailable"
+    assert report["stages"]["encoder_angles"]["status"] == "complete"
+    assert (target / "caster_encoder_angles.png").is_file()
+    assert not (target / "robot_casters_trajectory.png").exists()
     with pytest.raises(ValueError, match="packet history"):
         replay_events(read_recording(source))
 
@@ -171,3 +177,52 @@ def test_mixing_local_and_live_packet_clocks_is_not_silently_replayed(tmp_path):
     recording.packets["/caster_recording/front_right/packets"][0][0]["origin"] = "udp"
     with pytest.raises(ValueError, match="Cannot mix"):
         replay_events(recording)
+
+
+def test_default_output_uses_recording_root_for_folder_combined_and_shard(tmp_path, monkeypatch):
+    import caster_visualization as app
+    root = tmp_path / "encoder_example"
+    bag = root / "bags/combined"
+    source = full_bag(bag)
+    checkout = tmp_path / "hamr_control"
+    monkeypatch.setattr(app, "repository_root", lambda: checkout)
+    for input_path in (root, bag, source):
+        args = app.parser().parse_args([str(input_path)])
+        app.validate_args(args)
+        assert args.output == checkout / "analysis/encoder_example"
+        assert args.render == "video"
+    plain = full_bag(tmp_path / "ordinary_rosbag")
+    args = app.parser().parse_args([str(plain)])
+    app.validate_args(args)
+    assert args.output == checkout / "analysis/ordinary_rosbag"
+
+
+def test_alignment_removes_frame_rotation_and_translation_but_preserves_drift():
+    import numpy as np
+    from caster_focused_report import align_ekf
+    t = np.arange(0., 5., .02)
+    points = np.column_stack((t, np.sin(t)))
+    ekf = dict(topic="/local_HAMR/odom", frame="odom", t=t, xy=points, yaw=t*.1)
+    rot = np.array([[0., -1.], [1., 0.]])
+    base = dict(topic="/HAMR_base/pose", frame="mocap", t=t,
+                xy=points @ rot.T + [3., 4.], yaw=ekf["yaw"] + np.pi/2)
+    for method in ("initial-pose", "rigid-fit"):
+        aligned, metrics = align_ekf(base, ekf, method)
+        assert np.allclose(aligned["xy"], base["xy"])
+        assert metrics["rotation_deg"] == pytest.approx(90.)
+        assert metrics["translation_m"] == pytest.approx([3., 4.])
+        assert metrics["rms_difference_m"] < 1e-12
+    drifted = dict(ekf, xy=points + np.column_stack((t*.1, t*0.)))
+    _, metrics = align_ekf(base, drifted)
+    assert metrics["final_difference_m"] > .49
+
+
+def test_alignment_excludes_gaps_and_rejects_no_overlap():
+    import numpy as np
+    from caster_focused_report import align_ekf, interpolate_pose
+    t = np.array([0., .1, 2., 2.1])
+    pose = dict(topic="pose", frame="odom", t=t, xy=np.column_stack((t, t*0)), yaw=t*0)
+    _, _, valid = interpolate_pose(pose, np.array([.05, 1., 2.05]))
+    assert valid.tolist() == [True, False, True]
+    with pytest.raises(ValueError, match="shared time"):
+        align_ekf(pose, dict(pose, t=t+10))

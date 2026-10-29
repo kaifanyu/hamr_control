@@ -218,9 +218,9 @@ ros2 run hamr_bringup visualize_caster_bag /path/to/combined_0.mcap \
   --output "$HOME/Videos/hamr_sim/my_run"
 ```
 
-This one command analyzes both wheels, plots robot/fork trajectories and every
-supported numeric bag channel, and renders both casters. Open the output
-`index.html`. Use `--render none` for graphs only or `--preview-time 5` for a
+This command produces the simulation video, caster encoder angles, robot path,
+robot with both casters, and robot with aligned EKF. Open the output `index.html`.
+Without `--output`, it writes to `hamr_control/analysis/<recording-name>/`. Use `--render none` for graphs only or `--preview-time 5` for a
 single CAD frame. A recording folder or rosbag directory also works. See the
 [unified workflow guide](COMBINED_CASTER_ANALYSIS.md) for dependencies and outputs.
 
@@ -235,7 +235,7 @@ ros2 launch hamr_bringup caster_encoder_replay.launch.py \
 ```
 
 The unified command accepts `--wheel front_left` / `front_right` for a single
-caster, or `--wheel legacy` for older unassigned v1 recordings. CSV/JSON outputs
-retain wheel, device and boot identities, and inconsistent identities are
+caster, or `--wheel legacy` for older unassigned v1 recordings. Packet processing
+retains wheel, device and boot identities, and inconsistent identities are
 rejected. Independent reference CSVs and clock maps must match those identities.
 Mixed-wheel local JSONL exports are supported without merging the wheel axes.

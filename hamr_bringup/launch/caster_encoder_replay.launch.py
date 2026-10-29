@@ -117,6 +117,6 @@ def generate_launch_description():
         DeclareLaunchArgument("mapping_config", default_value=str(share / "config/caster_encoder_replay.yaml"),
                               description="Physical side/sign/zero to CAD mapping YAML"),
         DeclareLaunchArgument("center_reference", default_value="auto",
-                              description="auto selects saved right CENTER reference; none disables auto selection; or a reference mapping YAML"),
+                              description="auto selects the saved reference for either front CENTER; none disables auto selection; or a reference mapping YAML"),
         OpaqueFunction(function=_start),
     ])

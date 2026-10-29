@@ -81,6 +81,7 @@ gazebo_log/
 /hamr_ball_caster/docs/corner_analysis/*.npz
 
 # Generated recording/output directories; retain source meshes and curated plots.
+/analysis/
 /artifacts/
 /recordings/
 /videos/

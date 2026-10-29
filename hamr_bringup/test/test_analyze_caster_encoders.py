@@ -234,13 +234,14 @@ def test_index_count_consistency_uses_integer_subtraction():
     assert result["mean_abs_delta_minus_configured_cpr"] == 0
 
 
-def test_jsonl_cli_roundtrip_preserves_raw_and_integer_precision(tmp_path):
-    from caster_visualization import main
+def test_jsonl_packet_export_preserves_raw_and_integer_precision(tmp_path):
+    from caster_bag_reader import read_recording
+    from caster_bag_report import packet_reports
     packet = envelope([sample(0), sample(1, None, flags=0)])
     source, output = tmp_path / "packets.jsonl", tmp_path / "report"
     source.write_text(json.dumps(packet) + "\n", encoding="utf-8")
-    assert main([str(source), "--output", str(output), "--no-plots"]) == 0
-    packet_output = output / "analysis/encoder_packets/legacy"
+    packet_reports(read_recording(source), output, plots=False)
+    packet_output = output / "encoder_packets/legacy"
     with (packet_output / "samples.csv").open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     assert rows[0]["raw_count"] == str(2 ** 53 + 123)
@@ -250,14 +251,13 @@ def test_jsonl_cli_roundtrip_preserves_raw_and_integer_precision(tmp_path):
     assert json.loads((packet_output / "packets.jsonl").read_text()) == packet
     report = json.loads((packet_output / "summary.json").read_text())
     assert report["accuracy_status"] == "accuracy_unavailable"
-    with pytest.raises(SystemExit):
-        main([str(source), "--output", str(output), "--no-plots"])
+    assert json.loads(source.read_text()) == packet
 
 
 def test_help_runs_without_ros():
     result = subprocess.run([sys.executable, str(SCRIPT.with_name("caster_visualization.py")), "--help"], capture_output=True, text=True)
     assert result.returncode == 0
-    assert "--reference-csv" in result.stdout
+    assert "--ekf-alignment" in result.stdout
 
 
 def test_missing_ros_has_actionable_error(monkeypatch, tmp_path):

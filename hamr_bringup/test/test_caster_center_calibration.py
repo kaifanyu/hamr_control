@@ -10,7 +10,6 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 import pytest
-import yaml
 
 
 PACKAGE = Path(__file__).resolve().parents[1]
@@ -22,8 +21,9 @@ from caster_replay_model import ReplayModel
 from render_caster_encoder_video import link_transforms
 
 
-CALIBRATION_PATH = PACKAGE / "config/front_left_center_calibration.json"
-MAPPING_PATH = PACKAGE / "config/caster_encoder_replay_front_left_center.yaml"
+# Historical two-pose evidence remains a fixture for the raw-angle reader.
+# Active references and their physical CAD mapping are tested separately.
+CALIBRATION_PATH = PACKAGE / "test/fixtures/front_left_center_calibration_legacy.json"
 
 
 @pytest.fixture
@@ -177,14 +177,15 @@ def test_executable_offline_cli_prints_json_and_finds_saved_default():
     result = json.loads(process.stdout)
     assert result["input"] == "manual_position14"
     assert result["device_id"] == "10:bd:a3:b2:14:a4"
-    assert result["orientation_deg"] == 180.32958984375
+    assert result["orientation_deg"] == (9417 - 7792) * 360 / 16384
     assert result["accuracy_validated"] is False
 
 
-def test_saved_replay_mapping_preserves_both_starting_poses_in_cad(calibration):
-    mapping = yaml.safe_load(MAPPING_PATH.read_text())["replay_caster_encoder_joints"]["ros__parameters"]
-    stale_timeout_s = mapping.pop("stale_timeout_s")
-    model = ReplayModel(mapping, stale_timeout_s, calibration["wheel_id"])
+def test_legacy_reference_preserves_its_historical_pose_convention(calibration):
+    mapping = {"h1_joint": "caster_positive_hemisphere_joint",
+               "center_zero_rad": calibration["zero_absolute_angle_rad"] - 3.620181390266952,
+               "mapping_verified": False}
+    model = ReplayModel(mapping, wheel_id=calibration["wheel_id"])
     robot = ET.parse(PACKAGE.parent / "hamr_ball_caster/urdf/ball_caster.urdf").getroot()
     carrier_positions = []
     h1_axes = []

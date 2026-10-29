@@ -1,20 +1,12 @@
-# Fixed CENTER reference for front_left, device 10:bd:a3:b2:14:a4.
-# Raw observations and limitations: front_left_center_calibration.json.
-# Use with --start-pose recorded; ground-contact resets the first pose every run.
-#
-# Replay currently consumes calibrated_alpha_rad, which equals absolute_angle_rad
-# in the supplied observations. This mapping requires firmware CENTER sign +1
-# and zero 0 (modulo 2*pi). Adapt it if firmware calibration changes; do not apply
-# the same physical zero twice. It does not change firmware or recorded data.
-#
-# q_model = sign * (q_encoder - zero_rad).
-# Physical zero: raw 1210 counts = 0.46402918833540646 rad, H1 front/H2 back.
-# Assume H1 is the positive CAD hemisphere and forward is model +X. The existing
-# CAD puts that ground-contact pose at carrier joint 3.620181390266952 rad.
-# Thus center_zero_rad = 0.46402918833540646 - 3.620181390266952.
-# Increasing raw counts are provisionally positive; physical direction and CAD
-# side assignment need verification. H1/H2 shell phases/signs remain uncalibrated.
-# CENTER describes the carrier shaft rotation, not vertical-axis robot yaw.
+# Measured left CENTER reference: front_left_center_calibration.json.
+# center_left_turn_04: initial stationary mean 7792.4688, rounded to 7792 counts.
+# Reference: H1 toward the mounting block (+Z).
+# User corrected the rendered direction to +1; the original physical observations
+# in the calibration JSON are retained as provenance.
+# q_model = reference_model_rad + center_sign * wrap(raw - reference_raw).
+# Raw counts bypass firmware alpha offsets; each run retains its measured start.
+# This fixed reference takes precedence over an assumed ground-contact start.
+# H1/H2 shell phases and angular accuracy remain uncalibrated.
 replay_caster_encoder_joints:
   ros__parameters:
     h1_joint: caster_positive_hemisphere_joint
@@ -24,6 +16,12 @@ replay_caster_encoder_joints:
     center_sign: 1.0
     h1_zero_rad: 0.0
     h2_zero_rad: 0.0
-    center_zero_rad: -3.1561522019315458
+    center_zero_rad: 0.0
+    center_reference_enabled: true
+    center_reference_count: 7792
+    center_reference_model_rad: 5.190977717061848
+    center_reference_wheel_id: front_left
+    center_reference_device_id: 10:bd:a3:b2:14:a4
+    center_reference_h1_joint: caster_positive_hemisphere_joint
     mapping_verified: false
     stale_timeout_s: 1.0

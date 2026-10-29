@@ -2,7 +2,9 @@
 # q_model = reference_model_rad + center_sign * wrap(raw - reference_raw).
 # Change center_sign between -1 and +1 to reverse motion while preserving the reference pose.
 # CENTER uses raw counts; firmware calibrated alpha and center_zero_rad are not reapplied.
-# H1 is up (+Z) at raw 16183 in the upright fork; increasing raw counts move H1 toward +X.
+# H1 is up (+Z) at raw 16183 in the upright fork.
+# User corrected the rendered direction to +1; the original physical observations
+# in the calibration JSON are retained as provenance.
 # H1/H2 spin phases and full mapping accuracy remain unverified.
 replay_caster_encoder_joints:
   ros__parameters:
@@ -12,7 +14,7 @@ replay_caster_encoder_joints:
     h2_sign: 1.0
     h1_zero_rad: 0.0
     h2_zero_rad: 0.0
-    center_sign: -1.0
+    center_sign: 1.0
     center_zero_rad: 0.0
     center_reference_enabled: true
     center_reference_count: 16183

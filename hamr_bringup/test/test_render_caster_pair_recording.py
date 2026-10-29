@@ -27,11 +27,11 @@ def arguments(**kwargs):
 def test_default_pair_references_preserve_each_wheels_absolute_phase():
     mappings, refs = paired_mappings({}, arguments())
     left, right = mappings['front_left'], mappings['front_right']
-    assert left['center_reference_count'] == 1210
+    assert left['center_reference_count'] == 7792
     assert right['center_reference_count'] == 16183
     assert left['center_sign'] == 1
     assert right['center_sign'] == 1
-    assert left['center_reference_model_rad'] == 3.620181390266952
+    assert left['center_reference_model_rad'] == 5.190977717061848
     assert right['center_reference_model_rad'] == 5.190977717061848
     assert left['center_reference_device_id'] != right['center_reference_device_id']
     assert all(ref['mode'] == 'absolute-center-reference' for ref in refs.values())

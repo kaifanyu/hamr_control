@@ -1,0 +1,84 @@
+{
+  "source": "/home/para/center_left_turn_04.jsonl",
+  "source_sha256": "bf0705dc2bc434221e2bce4aeff05d78f3f5bb6d569459752e2a93ff0b8aea4a",
+  "samples": 6032,
+  "invalid_envelopes": 0,
+  "raw_signed_turn_deg": 360.26809215973736,
+  "cad_joint_signed_turn_deg": -360.2680921597375,
+  "max_rotation_tracking_residual_deg": 5.088887490341627e-14,
+  "left_reference_rounding_deg": 0.010301408759096908,
+  "native_simulation_model_axis_checks": {
+    "front_left": {
+      "h1_axis_at_reference_in_fork": [
+        8.983971659315661e-16,
+        -5.6516578430981e-15,
+        1.0000000000000033
+      ],
+      "h1_axis_after_positive_quarter_turn_in_fork": [
+        1.0000000000000033,
+        -5.6516578430981e-15,
+        -7.873748634690505e-16
+      ]
+    },
+    "front_right": {
+      "h1_axis_at_reference_in_fork": [
+        8.983971659315661e-16,
+        -5.6516578430981e-15,
+        1.0000000000000033
+      ],
+      "h1_axis_after_positive_quarter_turn_in_fork": [
+        1.0000000000000033,
+        -5.6516578430981e-15,
+        -7.873748634690505e-16
+      ]
+    }
+  },
+  "tested_initial_phase_offsets_deg": [
+    0,
+    90,
+    180,
+    270
+  ],
+  "tests": {
+    "calibration_and_replay": {
+      "passed": 118
+    },
+    "rendering_and_report": {
+      "passed": 47,
+      "skipped": 1,
+      "skip_reason": "ros2bag is not installed; dual_caster_pipeline module skipped."
+    }
+  },
+  "limitations": [
+    "CENTER orientation relative to fork only; H1/H2 spin phases and angular accuracy remain unvalidated.",
+    "Applying the reference to earlier recordings assumes unchanged encoder mounting, coupling and electronic raw zero."
+  ],
+  "example_recording": "encoder_20261029T065650Z_7f3140ba",
+  "first_common_fresh_frame": {
+    "front_left": {
+      "elapsed_s": 0.033333333,
+      "center_phase_from_h1_up_deg": -90.19775390624999
+    },
+    "front_right": {
+      "elapsed_s": 0.033333333,
+      "center_phase_from_h1_up_deg": -91.93359375
+    }
+  },
+  "first_pose_interpretation": "Both H1 axes point approximately backward (-X), with H2 forward; this is reconstructed from the recorded raw values, not imposed as a start pose.",
+  "rendered_report": "/home/para/hamr_control/analysis/encoder_20261029T065650Z_7f3140ba_center_calibrated_before_direction_reversal/index.html",
+  "video_verification": {
+    "width": 1600,
+    "height": 900,
+    "avg_frame_rate": "30/1",
+    "duration": "65.566667",
+    "nb_frames": "1967",
+    "sha256": "9cb1b874b983308f36b3d9ae260caa959d14f7bd5e4166c8910afaac28f5d6a6",
+    "report_links_valid": true
+  },
+  "superseded_visualization_direction": {
+    "previous_center_sign": -1,
+    "current_center_sign": 1,
+    "reason": "User reviewed playback and requested reversing both CENTER directions.",
+    "current_report": "/home/para/hamr_control/analysis/encoder_20261029T065650Z_7f3140ba_center_calibrated/index.html"
+  }
+}

@@ -1,13 +1,16 @@
 # Saved physical CENTER references for the paired visualization. Raw position14
 # avoids applying firmware alpha offsets twice. Recheck after encoder remounting.
-# Both CENTER directions reversed for visualization; physical reference poses stay fixed.
+# Both references put H1 toward the mounting block (+Z).
+# User corrected the rendered direction: reverse both CENTER signs to +1.
+# This visualization override preserves the measured reference counts and poses.
+# Keep these entries consistent with the per-wheel CENTER reference YAMLs.
 # q_model = reference_model_rad + center_sign * wrap(raw_angle - reference_raw_angle).
 # H1/H2 phases and PPR remain unverified.
 front_left:
   center_sign: 1.0
   center_reference_enabled: true
-  center_reference_count: 1210
-  center_reference_model_rad: 3.620181390266952
+  center_reference_count: 7792
+  center_reference_model_rad: 5.190977717061848
   center_reference_wheel_id: front_left
   center_reference_device_id: "10:bd:a3:b2:14:a4"
   center_reference_h1_joint: caster_positive_hemisphere_joint

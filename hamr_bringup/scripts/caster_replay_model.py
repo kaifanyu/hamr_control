@@ -45,9 +45,9 @@ def select_center_reference(wheel_id, mapping=None, selection="auto"):
     if result.get("center_reference_enabled") or selection == "none":
         return result, None
     if selection == "auto":
-        if wheel_id != "front_right":
+        if wheel_id not in ("front_left", "front_right"):
             return result, None
-        filename = "caster_encoder_replay_front_right_center.yaml"
+        filename = f"caster_encoder_replay_{wheel_id}_center.yaml"
         path = Path(__file__).resolve().parent.parent / "config" / filename
         if not path.is_file():
             from ament_index_python.packages import get_package_share_directory

@@ -262,7 +262,7 @@ firmware's calibration and do not change the stored data. Leave
 `mapping_verified: false` until you have checked the actual side/sign/phase
 mapping. A visually aligned model still does not measure encoder accuracy.
 
-### Export replay and all rosbag plots
+### Export the focused recording report
 
 Use the same command for a downloaded recording, bag directory or MCAP file:
 
@@ -273,11 +273,11 @@ ros2 run hamr_bringup visualize_caster_bag /path/to/combined_0.mcap \
 
 The source-checkout equivalent is
 `bash hamr_bringup/scripts/visualize_caster_bag ...`. Open the output `index.html`
-for the paired native-size CAD replay, all six source-angle plots, robot/fork
-trajectories, telemetry, timing/quality plots, one PDF and CSV downloads.
-`--render none` produces all graphs without CAD. `--preview-time 5` produces
-one CAD frame plus the complete graphs. The default creates MP4 when FFmpeg is
-available, otherwise a PNG preview; use `--render video` to require MP4.
+for the simulation video, six encoder angles, robot trajectory, robot with both
+casters, and robot with aligned EKF. Omitting `--output` writes to
+`hamr_control/analysis/<recording-name>/`. `--render none` produces the four plots
+without CAD; `--preview-time 5` replaces the video with one CAD frame. Video is
+the default; `--render auto` permits a preview when FFmpeg is absent.
 
 Both wheels are selected by default. Use `--wheel front_left`, `front_right`,
 or `legacy` for a standalone caster. `--left-mapping-config` and
@@ -300,17 +300,11 @@ ros2 run hamr_bringup visualize_caster_bag "$BAG" --wheel front_left \
   --output "$HOME/hamr_recordings/reports/YOUR_RUN"
 ```
 
-The `analysis/encoder_packets/<wheel>/` folder contains `samples.csv`,
-`metadata.jsonl`, `summary.json`, angle/velocity plots and quality plots per
-wheel/device/node/boot. Open `index.html` for the complete report. It reports missing sequences between the
-lowest and highest observed sequence numbers, separately lists earlier unobserved
-sequences, and reports duplicates, ordering, rates, validity and cumulative
-firmware counter maxima. Earlier unobserved samples may include pre-recording
-activity or acquisition/network/recording loss; their cause is not established. No
-reference means **accuracy unavailable**, not zero error. Existing bags recorded
-before this change do not contain the new ESP measurements and cannot recover them.
-Choose a new or empty output directory for each report; the analyzer refuses to
-mix results from different runs. `packets.jsonl` also exports the raw envelopes.
+Open `index.html` for the five-section report. The focused command exports only
+the requested media and `report.json`; it does not generate packet-quality CSVs
+or independent-reference error plots. Missing robot or caster streams are
+identified in the corresponding section. Choose a new or empty output directory
+for each report; existing reports are not overwritten.
 
 You can also process the encoder repository's original logger output:
 
@@ -370,27 +364,12 @@ A header-only template is installed at
 an optional `valid` column: use 1 for a usable reference row and 0 for an excluded
 row. No reference data or accuracy scores are fabricated when the template is empty.
 
-```bash
-ros2 run hamr_bringup visualize_caster_bag "$BAG" --wheel front_left \
-  --reference-csv /path/to/independent_angles.csv \
-  --max-match-dt-s 0.02 \
-  --output "$HOME/hamr_recordings/reports/YOUR_RUN_reference"
-```
-
-The report adds matched error plots and RMSE, MAE, bias, p95 and maximum absolute error.
-CENTER residuals wrap across 0/2pi; H1/H2 retain full-turn errors. Nearest matches
-outside the time tolerance are excluded. It never silently fits a clock offset,
-phase zero or sign to make the error smaller. When independently measured,
-explicit reference corrections can be supplied using
-`--reference-time-offset-s`, `--reference-sign NODE=1` (or `NODE=-1`) and
-`--reference-zero-rad NODE=VALUE`. Check `--help` for their exact convention.
-
-By default comparison uses host receive times and must be interpreted with
-unknown Wi-Fi and batching delay. A 20 ms matching window is an acceptance
-window, not a measured timing accuracy. An independently calibrated per-node/boot
-affine clock mapping can be supplied with `--clock-map measured-clock-map.json`,
-using the format in `caster-encoder-controller/docs/protocol.md`. Recalibrate
-after a reboot; do not mark a mapping calibrated based only on packet arrival.
+Independent-reference matching is not part of the focused visualization command.
+The reusable `caster_packet_analysis.py` module retains `read_reference`,
+`ClockMapper` and `analyze` for dedicated calibration workflows. Its CENTER
+residuals wrap across 0/2π; H1/H2 retain full-turn errors. Match tolerance,
+measured clock corrections and reference signs/zeros must be supplied explicitly;
+the focused report's EKF alignment is not an encoder calibration.
 
 Before claiming physical accuracy, verify H1/H2 PPR/counts per revolution, signs,
 physical zero and time alignment. The tentative configuration is 2048 PPR at x4

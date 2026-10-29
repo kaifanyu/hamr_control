@@ -296,7 +296,7 @@ def test_reboot_unknown_diagnostics_override_zero_placeholder_values(tmp_path):
     assert rows[0]["queue_drops"] == "" and rows[0]["diagnostics_known"] == "0"
 
 
-def test_analyzer_cli_external_estimated_map_cannot_claim_sync_valid(tmp_path, capsys):
+def test_analyzer_external_estimated_map_cannot_claim_sync_valid(tmp_path):
     path = tmp_path / "log.bin"
     recording.export_run(tmp_path, manifest(path, write_log(path)))
     envelopes = [json.loads(line) for line in (tmp_path / "packets.jsonl").read_text().splitlines()]
@@ -305,12 +305,16 @@ def test_analyzer_cli_external_estimated_map_cannot_claim_sync_valid(tmp_path, c
         envelope["timing_estimated"] = False
     (tmp_path / "packets.jsonl").write_text("\n".join(json.dumps(item) for item in envelopes) + "\n")
     output = tmp_path / "analysis"
-    from caster_visualization import main
-    result = main([str(tmp_path / "packets.jsonl"),
-                                  "--clock-map", str(tmp_path / "clock-map.json"),
-                                  "--output", str(output), "--no-plots"])
-    assert result == 0
-    rows = list(csv.DictReader((output / "analysis/encoder_packets/front_left/samples.csv").open(newline="")))
+    from caster_bag_reader import read_recording
+    from caster_bag_report import packet_reports
+    import caster_encoder_protocol as protocol
+    clock = protocol.parse_json((tmp_path / "clock-map.json").read_bytes())
+    mapper = protocol.ClockMapper(clock)
+    mapper.estimated_keys = {protocol.packet_identity(entry) for entry in clock["mappings"]
+                             if entry.get("timing_estimated") or entry.get("accuracy_validated") is False}
+    packet_reports(read_recording(tmp_path / "packets.jsonl", clock_mapper=mapper), output,
+                   plots=False, mapper=mapper)
+    rows = list(csv.DictReader((output / "encoder_packets/front_left/samples.csv").open(newline="")))
     assert rows[0]["mapped_clock_sync_valid"] == "0"
     assert rows[0]["timing_estimated"] == "1"
 

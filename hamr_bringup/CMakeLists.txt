@@ -73,6 +73,7 @@ install(FILES scripts/caster_pair_recording.py scripts/caster_pair_scene.py
   scripts/caster_pair_trajectory.py scripts/caster_pair_trajectory_plot.py
   scripts/caster_vicon_trajectory.py
   scripts/caster_visualization.py scripts/caster_bag_reader.py scripts/caster_bag_report.py
+  scripts/caster_focused_report.py
   scripts/caster_packet_analysis.py scripts/caster_local_recording.py
   scripts/caster_vicon_comparison.py scripts/render_caster_encoder_video.py
   DESTINATION lib/${PROJECT_NAME})
@@ -135,6 +136,7 @@ if(BUILD_TESTING)
   )
   ament_add_pytest_test(center_turn_check test/test_center_turn_check.py)
   ament_add_pytest_test(right_center_reconstruction test/test_right_center_reconstruction.py)
+  ament_add_pytest_test(front_center_references test/test_front_center_references.py)
   ament_add_pytest_test(caster_recording_client
     test/test_caster_recording_client.py
     TIMEOUT 90

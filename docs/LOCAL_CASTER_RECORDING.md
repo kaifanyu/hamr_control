@@ -323,12 +323,12 @@ bash hamr_bringup/scripts/visualize_caster_bag \
   --output "$HOME/Videos/hamr_sim/YOUR_RUN"
 ```
 
-Open the output `index.html` for both casters, six encoder histories, robot/fork
-trajectories, telemetry and timing plots, the combined PDF and raw CSV downloads.
-The command sources ROS automatically and uses native Simulation Studio geometry.
-An MP4 is generated when FFmpeg is available, otherwise a PNG preview is used.
-Add `--render none` for all analysis/plots without CAD, or `--preview-time 5` for
-one CAD frame plus every plot. The input and prior reports are never overwritten.
+Open the output `index.html` for the simulation video, six encoder angles, robot
+trajectory, robot with left/right casters, and robot with aligned EKF. Omitting
+`--output` writes to `hamr_control/analysis/<recording-name>/`. The command sources
+ROS automatically and generates an MP4 using native Simulation Studio geometry.
+Add `--render none` for the four plots without CAD, or `--preview-time 5` for
+one CAD frame plus the plots. The input and prior reports are never overwritten.
 
 The [unified workflow guide](COMBINED_CASTER_ANALYSIS.md) contains dependencies,
 input formats, output layout and calibration limits. Both wheels share one
@@ -344,28 +344,30 @@ the same run; unrelated recordings are never shifted onto its timeline.
 
 ## Saved CENTER absolute-angle reference
 
-The front-left CENTER reference is stored in
-`hamr_bringup/config/front_left_center_calibration.json`, for device
-`10:bd:a3:b2:14:a4`. It includes the original packet observations, physical pose
-descriptions, sample flags, timestamps and calibration limitations:
+The CENTER references are stored in
+`hamr_bringup/config/front_left_center_calibration.json` and
+`front_right_center_calibration.json`. Both use the user-confirmed upright-fork
+pose: H1 toward the mounting block (+Z), initially moving toward front (+X) as
+raw counts increase. Each file includes packet observations, physical pose and
+direction descriptions, source provenance and calibration limitations.
 
-| Physical pose | Raw count | Raw angle | Angle from saved zero |
-| --- | ---: | ---: | ---: |
-| H1 front, H2 back; both at floor, fork upright | 1210 | 26.5869140625° | 0° |
-| H2 front, H1 back | 9417 | 206.91650390625° | 180.32958984375° |
+| Wheel | CENTER device | Raw reference count | Full-turn return difference |
+| --- | --- | ---: | ---: |
+| Front left | `10:bd:a3:b2:14:a4` | 7792 | +0.268092° |
+| Front right | `10:bd:a3:af:f3:30` | 16183 | -0.152986° |
 
-The increasing-count separation is 8207 counts, 15 counts (0.32958984375°)
-beyond an ideal half-turn. This is a consistency residual, not a measured
-accuracy bound. Two samples at each pose agree, but independent placement
-repeatability and direction have not been measured. The native scale remains
-16384 counts/revolution; the second pose is a check, not a scale correction.
-Increasing counts define positive provisionally. A known signed quarter-turn
-is still needed to establish the physical direction.
+The left reference uses the first two seconds of `center_left_turn_04`: circular
+mean 7792.4688 counts over 401 samples, rounded to 7792. It supersedes the old
+1210-count H1-front reference, retained in
+`hamr_bringup/test/fixtures/front_left_center_calibration_legacy.json`.
+Both full-turn checks passed, conditional on the supplied 60 RPM bound and the
+physical starting mark. They check return repeatability, not angular accuracy.
+The native scale remains 16384 counts/revolution without a fitted correction.
 
 For any future valid raw reading from that same encoder:
 
 ```python
-orientation_deg = ((position14 - 1210) % 16384) * 360.0 / 16384
+orientation_deg = ((position14 - 7792) % 16384) * 360.0 / 16384  # front left
 ```
 
 This gives the single-turn CENTER shaft phase relative to the saved pose.
@@ -406,7 +408,7 @@ count in `samples.csv`, no ROS graph or hardware is required:
 
 ```bash
 ros2 run hamr_bringup caster_center_angle --position14 9417
-# orientation_deg: 180.32958984375
+# orientation_deg: 35.70556640625
 ```
 
 The source helper can also run without ROS using Python and
@@ -415,8 +417,10 @@ Save/copy the calibration with the recordings when moving them to a workstation.
 
 ### Preserve absolute starting orientation in the video
 
-Paired replay automatically selects each saved raw CENTER reference. To select
-an explicit wheel mapping:
+Paired and single-wheel replay automatically select the saved raw CENTER
+reference for each wheel, with CAD `center_sign: +1` for both after the user's
+rendered-direction correction. The measured reference poses stay fixed. To select an
+explicit wheel mapping:
 
 ```bash
 bash hamr_bringup/scripts/visualize_caster_bag \

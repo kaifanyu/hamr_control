@@ -1,0 +1,18 @@
+{
+  "report": "/home/para/hamr_control/analysis/encoder_20261029T065650Z_7f3140ba_center_calibrated/index.html",
+  "video": {
+    "width": 1600,
+    "height": 900,
+    "avg_frame_rate": "30/1",
+    "duration": "65.566667",
+    "nb_frames": "1967"
+  },
+  "video_sha256": "066f4a680c1cee6bc199b787d891fbb6e284a27a4084035195b267f81ec66caa",
+  "center_signs": {
+    "front_left": 1.0,
+    "front_right": 1.0
+  },
+  "reference_poses_preserved": true,
+  "regression_tests_passed": 31,
+  "previous_report": "/home/para/hamr_control/analysis/encoder_20261029T065650Z_7f3140ba_center_calibrated_before_direction_reversal/index.html"
+}

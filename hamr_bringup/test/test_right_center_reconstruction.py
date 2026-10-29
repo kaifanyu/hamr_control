@@ -64,13 +64,14 @@ def test_saved_reference_uses_initial_pose_and_retains_native_scale():
     assert CAL["physical_direction_verified"] is True
     assert CAL["accuracy_validated"] is False
     assert CAL["checks"]["signed_rotation_deg"] == pytest.approx(359.84701360003305)
-    assert CAL["cad_reference"]["center_sign"] == MAPPING["center_sign"] == -1
+    assert CAL["cad_reference"]["center_sign"] == -1  # Original calibration evidence.
+    assert MAPPING["center_sign"] == 1  # User-corrected visualization direction.
     assert CAL["cad_reference"]["center_reference_model_rad"] == MAPPING["center_reference_model_rad"]
     assert "H1 up" in orientation(16183, CAL)["angle_definition"]
 
 
-@pytest.mark.parametrize("counts,expected", [(0, [0, 0, 1]), (4096, [1, 0, 0]),
-                                             (8192, [0, 0, -1]), (12288, [-1, 0, 0])])
+@pytest.mark.parametrize("counts,expected", [(0, [0, 0, 1]), (4096, [-1, 0, 0]),
+                                             (8192, [0, 0, -1]), (12288, [1, 0, 0])])
 def test_any_recording_starts_at_measured_absolute_phase(counts, expected):
     model = ReplayModel(MAPPING, wheel_id="front_right")
     seed_shells(model)
@@ -87,12 +88,12 @@ def test_any_recording_starts_at_measured_absolute_phase(counts, expected):
 
 
 def test_reversing_sign_preserves_reference_pose():
-    model = ReplayModel({**MAPPING, "center_sign": 1.})
+    model = ReplayModel({**MAPPING, "center_sign": -1.})
     seed_shells(model)
     model.receive(envelope(16183), 1_000_000_000)
     np.testing.assert_allclose(h1_axis(model, 1_000_000_000)[0], [0, 0, 1], atol=1e-12)
     model.receive(envelope((16183 + 4096) % 16384, seq=2), 1_010_000_000)
-    np.testing.assert_allclose(h1_axis(model, 1_010_000_000)[0], [-1, 0, 0], atol=1e-12)
+    np.testing.assert_allclose(h1_axis(model, 1_010_000_000)[0], [1, 0, 0], atol=1e-12)
 
 
 def test_raw_wrap_reboot_firmware_zero_and_invalid_reads():
@@ -103,7 +104,7 @@ def test_raw_wrap_reboot_firmware_zero_and_invalid_reads():
     sample = envelope(0, seq=2)
     sample["packet"]["samples"][0]["calibrated_alpha_rad"] = None
     model.receive(sample, 1_010_000_000)
-    assert model.values[3]["position"] - before == pytest.approx(-math.tau / 16384)
+    assert model.values[3]["position"] - before == pytest.approx(math.tau / 16384)
     prior = model.values[3]["position"]
     sample = envelope(6000, seq=3)
     sample["packet"]["samples"][0]["flags"] |= 1 << 7
@@ -139,16 +140,20 @@ def test_reference_never_resets_to_first_pose_or_mixes_with_old_offset():
         ReplayModel({**MAPPING, "h1_joint": MAPPING["h2_joint"], "h2_joint": MAPPING["h1_joint"]})
 
 
-def test_auto_selection_preserves_left_behavior_and_explicit_direction():
+def test_auto_selection_handles_both_wheels_and_explicit_direction():
     left, path = select_center_reference("front_left", {"center_sign": -1.})
-    assert left == {"center_sign": -1.} and path is None
+    assert left["center_reference_enabled"] and left["center_sign"] == 1
+    assert left["center_reference_count"] == 7792
+    assert path.endswith("caster_encoder_replay_front_left_center.yaml")
     right, path = select_center_reference("front_right", {"center_sign": 1.})
-    assert right["center_reference_enabled"] and right["center_sign"] == -1
+    assert right["center_reference_enabled"] and right["center_sign"] == 1
     assert path.endswith("caster_encoder_replay_front_right_center.yaml")
-    explicit, _ = select_center_reference("front_right", {**right, "center_sign": 1.})
-    assert explicit["center_sign"] == 1.
+    explicit, _ = select_center_reference("front_right", {**right, "center_sign": -1.})
+    assert explicit["center_sign"] == -1.
     disabled, _ = select_center_reference("front_right", {}, "none")
     assert not disabled
+    legacy, path = select_center_reference("legacy", {})
+    assert legacy == {} and path is None
 
 
 def test_sample_frames_uses_reference_for_full_pose():
@@ -157,7 +162,7 @@ def test_sample_frames_uses_reference_for_full_pose():
     events.append((1_010_000_000, envelope((16183 + 4096) % 16384, seq=2)))
     frames = sample_frames(events, [1_000_000_000, 1_010_000_000], MAPPING, wheel_id="front_right")
     assert frames[0]["joints"]["caster_carrier_joint"] == pytest.approx(MAPPING["center_reference_model_rad"])
-    assert frames[1]["joints"]["caster_carrier_joint"] == pytest.approx(MAPPING["center_reference_model_rad"] - math.pi/2)
+    assert frames[1]["joints"]["caster_carrier_joint"] == pytest.approx(MAPPING["center_reference_model_rad"] + math.pi/2)
 
 
 @pytest.mark.parametrize("wheel_selector", [None, "front_right"])
@@ -175,7 +180,7 @@ def test_renderer_auto_reference_overrides_assumed_start(tmp_path, monkeypatch, 
         def __init__(self, *args):
             self.ground_z = -.1
             self.window = SimpleNamespace(Finalize=lambda: None)
-            assert args[-1]["caster_carrier_joint"] == pytest.approx(MAPPING["center_reference_model_rad"] + math.pi)
+            assert args[-1]["caster_carrier_joint"] == pytest.approx(MAPPING["center_reference_model_rad"] - math.pi)
         def render(self, frame):
             drawn.append(frame)
             return Image.new("RGB", (16, 16))
@@ -187,4 +192,4 @@ def test_renderer_auto_reference_overrides_assumed_start(tmp_path, monkeypatch, 
                                     preview_time=0., full_detail=False, output_dir=tmp_path / "output"))
     assert drawn[0]["status"]["start_pose"]["mode"] == "absolute-center-reference"
     assert drawn[0]["status"]["center_absolute_reference"]
-    assert drawn[0]["joints"]["caster_carrier_joint"] == pytest.approx(MAPPING["center_reference_model_rad"] + math.pi)
+    assert drawn[0]["joints"]["caster_carrier_joint"] == pytest.approx(MAPPING["center_reference_model_rad"] - math.pi)

@@ -256,24 +256,26 @@ The first command is passive acquisition without a motor controller. Select
 See [caster encoder measurement and accuracy analysis](docs/CASTER_ENCODERS.md)
 for calibration, model mapping, plots and independent reference comparisons.
 
-To visualize a downloaded six-encoder recording, animate both casters on a
-stationary Simulation Studio HAMR model with synchronized H1/H2/CENTER plots and a progressive
-Vicon trajectory inset:
+To generate the focused recording report:
 
 ```bash
-bash hamr_bringup/scripts/visualize_caster_bag \
-  /path/to/combined_0.mcap --output "$HOME/Videos/hamr_sim/my_run"
+bash hamr_bringup/scripts/visualize_caster_bag /path/to/encoder_YOUR_RUN
 ```
 
-Open the output `index.html` for the replay, all trajectory/telemetry plots,
-`all_plots.pdf`, and CSV downloads. A recording folder or rosbag directory also
-works. Add `--render none` for plots only. Missing data is listed explicitly. See the [rendering guide](docs/LOCAL_CASTER_RECORDING.md#render-a-recording-on-ubuntu)
-for the simulation model, clock-recovery assumptions, per-wheel references and exports.
+Open `analysis/encoder_YOUR_RUN/index.html` in this checkout. The report contains
+only the simulation video, six caster encoder angles, robot trajectory,
+robot trajectory with left/right casters, and robot trajectory with aligned EKF.
+A rosbag directory or `.mcap`/`.db3` file also works; a file inside
+`encoder_YOUR_RUN/bags/combined/` keeps the `encoder_YOUR_RUN` output name.
 
-The [combined-bag analysis and Vicon comparison workflow](docs/COMBINED_CASTER_ANALYSIS.md)
-includes the recorded report/plots, portable analysis code, and segmented
-fork-marker trajectory/velocity estimates alongside all six encoder histories.
-The comparison retains explicit tracking-quality masks and remains uncalibrated.
+EKF alignment uses the first shared position and heading by default, preserving
+subsequent drift. `--ekf-alignment rigid-fit` instead fits one rotation and
+translation over the shared recording, with no scale or clock shift. Add
+`--render none` for the four plots only. Use `--output /path/to/new/report`
+for an alternate destination; existing reports are not overwritten.
+See the [focused analysis guide](docs/COMBINED_CASTER_ANALYSIS.md) for output files,
+dependencies and alignment details, and the [rendering guide](docs/LOCAL_CASTER_RECORDING.md#render-a-recording-on-ubuntu)
+for the simulation model and per-wheel references.
 
 ## Hardware camera clips
 

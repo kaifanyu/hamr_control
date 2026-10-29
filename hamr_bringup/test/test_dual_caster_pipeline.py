@@ -196,14 +196,14 @@ def test_six_devices_remain_separate_through_mcap_and_csv(tmp_path, monkeypatch)
             assert envelope["packet"]["wheel_id"] == topic.split("/")[2]
             assert all(sample["seq"] < 9000 for sample in envelope["packet"].get("samples", []))
     assert set(messages) <= recorded, sorted(set(messages) - recorded)
+    sys.path.insert(0, str(PACKAGE / "scripts"))
+    from caster_bag_reader import read_recording
+    from caster_bag_report import packet_reports
+    decoded = read_recording(tmp_path / "dual")
     for wheel in WHEELS:
         report = tmp_path / wheel
-        result = subprocess.run([sys.executable, str(PACKAGE / "scripts/caster_visualization.py"),
-                                 str(tmp_path / "dual"), "--wheel", wheel,
-                                 "--output", str(report), "--no-plots"],
-                                text=True, capture_output=True, timeout=15)
-        assert result.returncode == 0, result.stderr + result.stdout
-        rows = list(csv.DictReader((report / "analysis/encoder_packets" / wheel / "samples.csv").open()))
+        packet_reports(decoded, report, plots=False, wheel=wheel)
+        rows = list(csv.DictReader((report / "encoder_packets" / wheel / "samples.csv").open()))
         assert rows and {row["wheel_id"] for row in rows} == {wheel}
         assert {row["device_id"] for row in rows} == {device(wheel, r) for r in ROLES}
         h1_boots = {row["boot_id"] for row in rows if row["node_id"] == "1"}

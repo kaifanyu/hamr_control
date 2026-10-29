@@ -131,7 +131,7 @@ def test_bash_wrapper_handles_help_and_paths_from_another_directory(tmp_path):
     result = subprocess.run(["bash", str(wrapper), "--help"], cwd=tmp_path, capture_output=True, text=True)
     assert result.returncode == 0
     assert "source" in result.stdout
-    assert "--render {auto,video,preview,none}" in result.stdout
+    assert "--render {video,auto,preview,none}" in result.stdout
     assert "--preview-time" in result.stdout
     missing = tmp_path / "missing folder"
     result = subprocess.run([sys.executable, str(SCRIPTS / "caster_visualization.py"), str(missing)],
