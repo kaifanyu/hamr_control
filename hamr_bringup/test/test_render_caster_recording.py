@@ -11,7 +11,7 @@ SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from caster_encoder_protocol import ROLES
-from render_caster_recording import load_recording, write_replay_bag, PROVENANCE_FILE, TIME_BASIS
+from caster_local_recording import load_recording, write_replay_bag, PROVENANCE_FILE, TIME_BASIS
 from test_caster_encoder_replay import wheel_envelope
 
 EPOCH = 1_800_000_000_000_000_001
@@ -127,15 +127,15 @@ def test_mcap_round_trip_is_accepted_by_existing_renderer(tmp_path):
 
 
 def test_bash_wrapper_handles_help_and_paths_from_another_directory(tmp_path):
-    wrapper = SCRIPTS / "render_caster_recording.sh"
+    wrapper = SCRIPTS / "visualize_caster_bag"
     result = subprocess.run(["bash", str(wrapper), "--help"], cwd=tmp_path, capture_output=True, text=True)
     assert result.returncode == 0
-    assert "recording [output_dir]" in result.stdout
-    assert "--start-pose {ground-contact,recorded}" in result.stdout
+    assert "source" in result.stdout
+    assert "--render {auto,video,preview,none}" in result.stdout
     assert "--preview-time" in result.stdout
     missing = tmp_path / "missing folder"
-    result = subprocess.run([sys.executable, str(SCRIPTS / "render_caster_recording.py"), str(missing)],
+    result = subprocess.run([sys.executable, str(SCRIPTS / "caster_visualization.py"), str(missing)],
                             cwd=tmp_path, capture_output=True, text=True)
     assert result.returncode == 2
-    assert str(missing / "packets.jsonl") in result.stderr
+    assert str(missing) in result.stderr
     assert not list(tmp_path.iterdir())

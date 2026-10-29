@@ -12,7 +12,7 @@ from types import SimpleNamespace
 import pytest
 
 
-SCRIPT = Path(__file__).resolve().parents[2] / "rosbags" / "analyze_caster_encoders.py"
+SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "caster_packet_analysis.py"
 SPEC = spec_from_file_location("analyze_caster_encoders", SCRIPT)
 MODULE = module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
@@ -235,32 +235,34 @@ def test_index_count_consistency_uses_integer_subtraction():
 
 
 def test_jsonl_cli_roundtrip_preserves_raw_and_integer_precision(tmp_path):
+    from caster_visualization import main
     packet = envelope([sample(0), sample(1, None, flags=0)])
     source, output = tmp_path / "packets.jsonl", tmp_path / "report"
     source.write_text(json.dumps(packet) + "\n", encoding="utf-8")
-    assert MODULE.main(["--packets-jsonl", str(source), "--output", str(output), "--no-plots"]) == 0
-    with (output / "samples.csv").open(newline="", encoding="utf-8") as handle:
+    assert main([str(source), "--output", str(output), "--no-plots"]) == 0
+    packet_output = output / "analysis/encoder_packets/legacy"
+    with (packet_output / "samples.csv").open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     assert rows[0]["raw_count"] == str(2 ** 53 + 123)
     assert rows[0]["receive_epoch_ns"] == str(EPOCH + 10_000_000)
     assert rows[1]["angle_rad"] == ""
     assert rows[1]["sample_valid"] == "0"
-    assert json.loads((output / "packets.jsonl").read_text()) == packet
-    report = json.loads((output / "summary.json").read_text())
+    assert json.loads((packet_output / "packets.jsonl").read_text()) == packet
+    report = json.loads((packet_output / "summary.json").read_text())
     assert report["accuracy_status"] == "accuracy_unavailable"
     with pytest.raises(SystemExit):
-        MODULE.main(["--packets-jsonl", str(source), "--output", str(output), "--no-plots"])
+        main([str(source), "--output", str(output), "--no-plots"])
 
 
 def test_help_runs_without_ros():
-    result = subprocess.run([sys.executable, str(SCRIPT), "--help"], capture_output=True, text=True)
+    result = subprocess.run([sys.executable, str(SCRIPT.with_name("caster_visualization.py")), "--help"], capture_output=True, text=True)
     assert result.returncode == 0
     assert "--reference-csv" in result.stdout
 
 
 def test_missing_ros_has_actionable_error(monkeypatch, tmp_path):
     monkeypatch.setitem(sys.modules, "rosbag2_py", None)
-    with pytest.raises(RuntimeError, match="--packets-jsonl"):
+    with pytest.raises(RuntimeError, match="packets.jsonl --render none"):
         list(MODULE.read_bag(tmp_path))
 
 

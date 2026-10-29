@@ -9,7 +9,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from caster_vicon_trajectory import estimate_trajectories, estimation_settings, linear_fit
-from prepare_caster_vicon_comparison import DEFAULT_QUALITY, ROLES, WHEELS
+from caster_vicon_comparison import DEFAULT_QUALITY, ROLES, WHEELS
 
 
 def histories():
@@ -112,6 +112,18 @@ def test_fit_preserves_integer_epoch_precision():
     offset, slope = linear_fit([epoch, epoch+10, epoch+20], [0., 1., 2.], epoch+10)
     assert offset == pytest.approx(1.)
     assert slope == pytest.approx(1e8)
+
+
+def test_encoder_segment_reset_never_creates_a_rate_across_reset():
+    rows, streams = histories()
+    for i, sample in enumerate(streams["front_left", "H1"]):
+        sample["segment"] = 0 if i < 100 else 1
+        if i >= 100:
+            sample["change_rad"] -= .5
+    estimate(rows, streams)
+    assert rows["front_left"][50]["h1_estimated_rate_rad_s"] is None
+    assert rows["front_left"][30]["h1_estimated_rate_rad_s"] == pytest.approx(1.)
+    assert rows["front_left"][70]["h1_estimated_rate_rad_s"] == pytest.approx(1.)
 
 
 @pytest.mark.parametrize("settings", [dict(window_s=0), dict(min_samples=2),

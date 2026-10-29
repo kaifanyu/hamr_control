@@ -49,12 +49,7 @@ install(
     scripts/center_turn_check
     scripts/record_caster_rotation.py
     scripts/replay_caster_encoder_joints
-    scripts/render_caster_encoder_video.py
-    scripts/render_caster_recording.sh
-    scripts/render_caster_simulation.sh
-    scripts/render_caster_recording.py
-    scripts/analyze_combined_caster_bag.py
-    scripts/prepare_caster_vicon_comparison.py
+    scripts/visualize_caster_bag
     scripts/record_camera_clip
     scripts/record_dual_cameras
     scripts/run_waypoint_test
@@ -77,6 +72,9 @@ install(FILES scripts/caster_pair_recording.py scripts/caster_pair_scene.py
   scripts/caster_pair_plots.py scripts/render_caster_pair_recording.py
   scripts/caster_pair_trajectory.py scripts/caster_pair_trajectory_plot.py
   scripts/caster_vicon_trajectory.py
+  scripts/caster_visualization.py scripts/caster_bag_reader.py scripts/caster_bag_report.py
+  scripts/caster_packet_analysis.py scripts/caster_local_recording.py
+  scripts/caster_vicon_comparison.py scripts/render_caster_encoder_video.py
   DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_recording_client.py scripts/caster_recording_format.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_recording_session.py scripts/caster_recording_bag.py DESTINATION lib/${PROJECT_NAME})
@@ -97,7 +95,6 @@ install(
   PROGRAMS
     ../rosbags/analyze_hamr_vicon_straight.py
     ../rosbags/plot_hamr_actuators.py
-    ../rosbags/analyze_caster_encoders.py
     ../rosbags/analyze_hamr_study.py
   DESTINATION lib/${PROJECT_NAME}
 )
@@ -112,6 +109,7 @@ if(BUILD_TESTING)
   ament_add_pytest_test(caster_pair_trajectory_plot test/test_caster_pair_trajectory_plot.py TIMEOUT 90)
   ament_add_pytest_test(render_caster_pair_recording test/test_render_caster_pair_recording.py TIMEOUT 90)
   ament_add_pytest_test(combined_caster_analysis test/test_combined_caster_analysis.py TIMEOUT 90)
+  ament_add_pytest_test(caster_visualization test/test_caster_visualization.py TIMEOUT 180)
   ament_add_pytest_test(caster_vicon_comparison test/test_caster_vicon_comparison.py TIMEOUT 90)
   ament_add_pytest_test(caster_vicon_trajectory test/test_caster_vicon_trajectory.py TIMEOUT 90)
   ament_add_pytest_test(caster_vicon_recording test/test_caster_vicon_recording.py TIMEOUT 90)

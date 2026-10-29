@@ -22,8 +22,7 @@ def test_caster_entrypoints_are_executable_for_symlink_install():
         PACKAGE / "scripts/caster_encoder_bridge",
         PACKAGE / "scripts/record_caster_rotation.py",
         PACKAGE / "scripts/replay_caster_encoder_joints",
-        PACKAGE / "scripts/render_caster_encoder_video.py",
-        PACKAGE.parent / "rosbags/analyze_caster_encoders.py",
+        PACKAGE / "scripts/visualize_caster_bag",
     ):
         assert path.stat().st_mode & 0o111, f"Missing executable permission: {path}"
 

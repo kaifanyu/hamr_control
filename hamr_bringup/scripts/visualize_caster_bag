@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# The single public entry point for offline caster/robot bag visualization.
+set -eo pipefail
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+for argument in "$@"; do
+  if [[ "$argument" == --help || "$argument" == -h ]]; then
+    exec /usr/bin/python3 "$script_dir/caster_visualization.py" "$@"
+  fi
+done
+if (( $# == 0 )); then
+  exec /usr/bin/python3 "$script_dir/caster_visualization.py" "$@"
+fi
+ros_distro="${ROS_DISTRO:-}"
+if [[ -z "$ros_distro" ]]; then
+  for candidate in jazzy humble; do
+    if [[ -f "/opt/ros/$candidate/setup.bash" ]]; then
+      ros_distro="$candidate"
+      break
+    fi
+  done
+fi
+if [[ -f "/opt/ros/${ros_distro}/setup.bash" ]]; then
+  source "/opt/ros/${ros_distro}/setup.bash"
+fi
+exec /usr/bin/python3 "$script_dir/caster_visualization.py" "$@"

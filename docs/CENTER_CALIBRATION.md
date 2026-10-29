@@ -282,10 +282,9 @@ reference_model_rad = 5.190977717061848
 ```
 
 The renderer and RViz launcher automatically select this reference for
-`front_right`. In particular, `render_caster_simulation.sh ... --wheel front_right`
+`front_right`. In particular, `visualize_caster_bag ... --wheel front_right`
 now starts from the actual recorded raw count, instead of assuming the first
-frame is H1-front. The saved reference takes precedence over a requested
-`ground-contact` reset. The same absolute orientation is recovered across boots
+frame is H1-front. The unified renderer does not reset the initial pose separately for each run. The same absolute orientation is recovered across boots
 if the encoder mounting and electronic zero have not changed. This does not
 recover turns during missing data. Raw counts are used independently of firmware
 `calibrated_alpha_rad`, avoiding a second sign/zero correction. A wrong wheel or

@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-29",
+  "scope": "Unified offline visualization. This does not establish physical encoder accuracy or calibrated Vicon-to-fork transforms.",
+  "build": {
+    "command": "colcon build --packages-select hamr_bringup --symlink-install",
+    "result": "passed"
+  },
+  "focused_regressions": {
+    "passed": 217,
+    "failed": 0,
+    "skipped": 0,
+    "junit_sha256": "05c0deace9af5a5d961c7249cacf0821e71f82f98428b5686041701d07ecb52b",
+    "junit_path": "/home/hamr/analysis/unified-caster-check/regressions.xml"
+  },
+  "cases": {
+    "combined_mcap": {
+      "source_kind": "Generated deterministic combined MCAP fixture from test_caster_visualization.full_bag; not a physical recording",
+      "source_sha256": {
+        "/home/hamr/analysis/unified-caster-check/synthetic-combined/synthetic-combined_0.mcap": "5525031339d4768249573044fd017590a23279d5ab1bbb8175ed2ed642285b97"
+      },
+      "messages": 3529,
+      "topics": 21,
+      "stage_statuses": {
+        "bag_analysis": "complete",
+        "fork_comparison": "complete",
+        "cad_replay": "complete"
+      },
+      "output_directory": "/home/hamr/analysis/unified-caster-check/video-report"
+    },
+    "older_encoder_bag": {
+      "source_kind": "Physical passive legacy encoder recording",
+      "source_sha256": {
+        "/home/hamr/hamr_recordings/caster_passive_20261020_202114/bag/bag_0.mcap": "dfb8a2b2b8802f3d336acc13df1a7e44e27a1739061d7aecb635b7ba2ff336e7"
+      },
+      "messages": 39368,
+      "topics": 6,
+      "stage_statuses": {
+        "bag_analysis": "complete",
+        "fork_comparison": "unavailable",
+        "cad_replay": "complete"
+      },
+      "output_directory": "/home/hamr/analysis/unified-caster-check/real-passive-preview"
+    },
+    "installed_command": {
+      "source_kind": "Physical partial Vicon recording, run through ros2 run from /tmp",
+      "source_sha256": {
+        "/home/hamr/hamr_recordings/caster_vicon_check_20261029_g9lvk2la/record_hamr_test_bag/record_hamr_test_bag_0.mcap": "c8adcce5af8331aec0b6d4e9b58c5a0b8ea05214b2381f3b44ecfc2167d14741"
+      },
+      "messages": 5013,
+      "topics": 12,
+      "stage_statuses": {
+        "bag_analysis": "complete",
+        "fork_comparison": "unavailable",
+        "cad_replay": "disabled"
+      },
+      "output_directory": "/home/hamr/analysis/unified-caster-check/real-vicon-report"
+    }
+  },
+  "video": {
+    "frame_count": 11,
+    "fps": 10,
+    "width": 960,
+    "height": 540,
+    "duration_s": 1.1,
+    "both_casters": true,
+    "same_run_base_trajectory": true,
+    "validation": "ffprobe and rendered frame inspection"
+  },
+  "report": {
+    "pdf_pages": 32,
+    "html_local_links_verified": 117
+  },
+  "limitations": [
+    "The full physical combined source MCAP archived on another host was not available on this workstation.",
+    "Missing streams are reported as unavailable while available plots remain usable.",
+    "The two physical smoke-test bags are partial recordings, not six-encoder/four-pose calibration evidence."
+  ]
+}

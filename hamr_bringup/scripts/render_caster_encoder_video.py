@@ -517,31 +517,3 @@ def render(args):
         print(video,flush=True)
     finally:
         scene.window.Finalize()
-
-
-def main():
-    parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('bag',type=Path)
-    parser.add_argument('--output-dir',type=Path,default=Path.home()/'Videos/hamr_sim/caster_encoder_replay')
-    parser.add_argument('--wheel',choices=WHEELS,help='Required when the bag contains both wheels')
-    parser.add_argument('--topic',help='Packet topic; inferred from --wheel or a unique bag topic')
-    parser.add_argument('--rate',type=float,default=1.)
-    parser.add_argument('--fps',type=int,default=30)
-    parser.add_argument('--width',type=int,default=1600)
-    parser.add_argument('--mapping-config',type=Path)
-    parser.add_argument('--center-reference',default='auto',
-                        help='auto uses saved right CENTER reference; none disables auto selection; or specify a reference mapping YAML')
-    parser.add_argument('--start-pose',choices=('recorded','ground-contact'),default='recorded',
-                        help='ground-contact assumes the first complete pose has H1 forward and H2 back at the floor; applies measured changes thereafter')
-    parser.add_argument('--plots',action='store_true',help='Show synchronized H1/H2/CENTER angle plots; also export PNG, PDF and full-sample CSV')
-    parser.add_argument('--full-detail',action='store_true',help='Also render dense internal bearing and fastener visuals')
-    parser.add_argument('--preview-time',type=float,help='Render one preview PNG at this elapsed bag time instead of a video')
-    args=parser.parse_args()
-    try:
-        render(args)
-    except (ValueError,RuntimeError,OSError) as exc:
-        parser.exit(2,f'{exc}\n')
-
-
-if __name__=='__main__':
-    main()

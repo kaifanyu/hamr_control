@@ -223,7 +223,7 @@ def manifest(path, status, sync=True):
 
 
 def load_analyzer():
-    path = SCRIPTS.parents[1] / "rosbags/analyze_caster_encoders.py"
+    path = SCRIPTS / "caster_packet_analysis.py"
     spec = importlib.util.spec_from_file_location("local_recording_analyzer", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -305,11 +305,12 @@ def test_analyzer_cli_external_estimated_map_cannot_claim_sync_valid(tmp_path, c
         envelope["timing_estimated"] = False
     (tmp_path / "packets.jsonl").write_text("\n".join(json.dumps(item) for item in envelopes) + "\n")
     output = tmp_path / "analysis"
-    result = load_analyzer().main(["--packets-jsonl", str(tmp_path / "packets.jsonl"),
+    from caster_visualization import main
+    result = main([str(tmp_path / "packets.jsonl"),
                                   "--clock-map", str(tmp_path / "clock-map.json"),
                                   "--output", str(output), "--no-plots"])
     assert result == 0
-    rows = list(csv.DictReader((output / "samples.csv").open(newline="")))
+    rows = list(csv.DictReader((output / "analysis/encoder_packets/front_left/samples.csv").open(newline="")))
     assert rows[0]["mapped_clock_sync_valid"] == "0"
     assert rows[0]["timing_estimated"] == "1"
 

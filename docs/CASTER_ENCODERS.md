@@ -262,67 +262,33 @@ firmware's calibration and do not change the stored data. Leave
 `mapping_verified: false` until you have checked the actual side/sign/phase
 mapping. A visually aligned model still does not measure encoder accuracy.
 
-### Export an MP4 at recorded speed
+### Export replay and all rosbag plots
 
-`render_caster_encoder_video.py` reads the bag directly and renders the same
-CAD joint mapping to a 1600 × 900 H.264 MP4. A fixed view, opposite view,
-joint-angle readouts, and elapsed bag time are included. `--rate 1` means one
-second of recorded time per video second, regardless of how long rendering
-takes. The default is 30 fps. No live receiver, motor controller, Gazebo physics
-process, or real-time screen capture is used.
-
-From this repository on the simulation workstation:
+Use the same command for a downloaded recording, bag directory or MCAP file:
 
 ```bash
-cd ~/hamr_control
-source hamr_ball_caster/scripts/env.sh
-for bag_name in hamr_hw_20261014_222059 hamr_hw_20261014_222511 hamr_hw_20261014_222540; do
-  /usr/bin/python3 hamr_bringup/scripts/render_caster_encoder_video.py \
-    "rosbags/$bag_name" --rate 1 --fps 30 --plots \
-    --output-dir "$HOME/Videos/hamr_sim/caster_encoder_replay_plots"
-done
+ros2 run hamr_bringup visualize_caster_bag /path/to/combined_0.mcap \
+  --output "$HOME/Videos/hamr_sim/my_run"
 ```
 
-After rebuilding `hamr_bringup`, the equivalent installed entry point is:
+The source-checkout equivalent is
+`bash hamr_bringup/scripts/visualize_caster_bag ...`. Open the output `index.html`
+for the paired native-size CAD replay, all six source-angle plots, robot/fork
+trajectories, telemetry, timing/quality plots, one PDF and CSV downloads.
+`--render none` produces all graphs without CAD. `--preview-time 5` produces
+one CAD frame plus the complete graphs. The default creates MP4 when FFmpeg is
+available, otherwise a PNG preview; use `--render video` to require MP4.
 
-```bash
-ros2 run hamr_bringup render_caster_encoder_video.py /path/to/bag \
-  --wheel front_left --rate 1 --fps 30 --plots --output-dir "$HOME/Videos/hamr_sim/caster_encoder_replay_plots"
-```
+Both wheels are selected by default. Use `--wheel front_left`, `front_right`,
+or `legacy` for a standalone caster. `--left-mapping-config` and
+`--right-mapping-config` select explicit side/sign/zero mappings. The saved
+raw CENTER references remain device-specific; use `--center-reference none`
+for other devices. Rendering retains validity, duplicate, stale-data and reboot
+handling, and holds the last valid measured pose. Unknown roller motion is not
+inferred. `--rate 1 --fps 30` retains recorded speed regardless of rendering time.
 
-With `--plots`, three H1/H2/CENTER angle-versus-time plots replace the opposite
-view and readout panel. A moving cursor and current values follow the same bag
-clock as the CAD pose. Each video also gets standalone `.encoders.png` and
-`.encoders.pdf` plots plus `.encoders.csv` with every accepted reading. Angles
-are in radians: H1/H2 use their recorded multi-turn angles, and CENTER uses
-calibrated alpha in [0, 2π). The plot uses source angles before any CAD
-sign/zero mapping, without smoothing or decimation. Curves break at CENTER
-wraps, reboots, sequence gaps and stale gaps. Time is seconds since bag start,
-using recorded packet receipt timestamps; device clocks are unsynchronized.
-Samples batched in the same packet share its bag timestamp.
-
-The filenames are `<bag_name>_1x_plots.mp4` with `--plots`, or
-`<bag_name>_1x.mp4` without it. Existing videos are never overwritten;
-choose another output directory to repeat a completed export. Each MP4 has a
-JSON sidecar containing input hashes, rate, frame count, duration and mapping,
-plus a CSV that ties every video frame to its integer bag timestamp and joint
-values. The duration is rounded up by less than one frame. The final partial
-frame interval holds the last sampled pose; no extra start/end pause is added.
-
-The exporter reuses the RViz adapter's validity, duplicate, stale-data and reboot
-handling. It holds the last valid measured pose without interpolating or
-unwrapping across resets. Missing streams are labeled, and an export with no
-complete H1/H2/CENTER pose is rejected. Polar roller motion remains unmeasured.
-Use `--mapping-config /path/to/caster_encoder_replay.yaml` for the same explicit
-side/sign/zero calibration as RViz. `--full-detail` includes internal bearings
-and fasteners hidden by the default exterior view. `--preview-time 5` writes a
-single preview PNG at five seconds of bag time.
-
-Dependencies are ROS Jazzy's `rosbag2_py` and MCAP storage plugin, NumPy, PyYAML,
-VTK (`python3-vtk9`), Pillow (`python3-pil`), Matplotlib (`python3-matplotlib`),
-DejaVu fonts, and FFmpeg. The
-workstation's WSLg display supports offscreen VTK rendering. An X11-only VTK
-build on a machine without a display can run through `xvfb-run -a`.
+The [unified workflow guide](COMBINED_CASTER_ANALYSIS.md) describes dependencies,
+all output files, clock assumptions and the uncalibrated Vicon comparison.
 
 ## 6. Export plots and replay raw ROS topics
 
@@ -330,12 +296,13 @@ Analyze a finalized bag without running playback:
 
 ```bash
 BAG="$HOME/hamr_recordings/bags/YOUR_RUN"
-ros2 run hamr_bringup analyze_caster_encoders.py "$BAG" --wheel front_left \
+ros2 run hamr_bringup visualize_caster_bag "$BAG" --wheel front_left \
   --output "$HOME/hamr_recordings/reports/YOUR_RUN"
 ```
 
-The report contains `samples.csv`, `metadata.jsonl`, `summary.json`, angle/velocity
-plots and quality plots per wheel/device/node/boot. It reports missing sequences between the
+The `analysis/encoder_packets/<wheel>/` folder contains `samples.csv`,
+`metadata.jsonl`, `summary.json`, angle/velocity plots and quality plots per
+wheel/device/node/boot. Open `index.html` for the complete report. It reports missing sequences between the
 lowest and highest observed sequence numbers, separately lists earlier unobserved
 sequences, and reports duplicates, ordering, rates, validity and cumulative
 firmware counter maxima. Earlier unobserved samples may include pre-recording
@@ -348,8 +315,8 @@ mix results from different runs. `packets.jsonl` also exports the raw envelopes.
 You can also process the encoder repository's original logger output:
 
 ```bash
-python3 rosbags/analyze_caster_encoders.py \
-  --packets-jsonl /path/to/recordings/run-.../packets.jsonl \
+bash hamr_bringup/scripts/visualize_caster_bag \
+  /path/to/recordings/run-.../packets.jsonl \
   --output /path/to/report
 ```
 
@@ -404,7 +371,7 @@ an optional `valid` column: use 1 for a usable reference row and 0 for an exclud
 row. No reference data or accuracy scores are fabricated when the template is empty.
 
 ```bash
-ros2 run hamr_bringup analyze_caster_encoders.py "$BAG" --wheel front_left \
+ros2 run hamr_bringup visualize_caster_bag "$BAG" --wheel front_left \
   --reference-csv /path/to/independent_angles.csv \
   --max-match-dt-s 0.02 \
   --output "$HOME/hamr_recordings/reports/YOUR_RUN_reference"

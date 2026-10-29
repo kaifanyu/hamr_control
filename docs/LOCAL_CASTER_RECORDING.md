@@ -295,12 +295,12 @@ directory:
   two-way clock exchanges before and after recording.
 - `export-summary.json`: sample coverage, timing results, and incomplete devices.
 
-The existing analyzer accepts the exported packet file:
+The unified visualization command accepts the exported packet file:
 
 ```bash
-python3 rosbags/analyze_caster_encoders.py \
-  --packets-jsonl "$HAMR_BAG_ROOT/encoder_trial_001/packets.jsonl" \
-  --wheel front_left --output "$HAMR_BAG_ROOT/encoder_trial_001/analysis_front_left"
+bash hamr_bringup/scripts/visualize_caster_bag \
+  "$HAMR_BAG_ROOT/encoder_trial_001/packets.jsonl" \
+  --render none --output "$HOME/hamr_analysis/trial_001"
 ```
 
 Mapped time is an **estimate**, with RTT/residual information retained. The
@@ -314,168 +314,33 @@ bridge uses arrival time for its ROS messages.
 
 ## Render a recording on Ubuntu
 
-Copy the downloaded `encoder_<run>` folder and this updated repository to your
-Ubuntu workstation. The script uses the Python helpers and CAD meshes in the
-repository, so keep the checkout together. It does not need the Pi, connected
-encoders, a running ROS graph, or Gazebo.
-
-Use Ubuntu 24.04 with ROS 2 Jazzy, or Ubuntu 22.04 with ROS 2 Humble installed.
-The wrapper detects an installed Jazzy/Humble setup or honors `ROS_DISTRO`.
-Install the renderer dependencies once if they are not already present (use
-`ros-humble-*` package names on Humble):
+Use the single offline visualization command for the downloaded folder, a
+combined bag directory, or its MCAP file:
 
 ```bash
-sudo apt install ffmpeg python3-numpy python3-matplotlib python3-pil \
-  python3-vtk9 python3-yaml fonts-dejavu-core \
-  ros-jazzy-rosbag2-py ros-jazzy-rosbag2-storage-mcap \
-  ros-jazzy-rclpy ros-jazzy-std-msgs ros-jazzy-xacro
+bash hamr_bringup/scripts/visualize_caster_bag \
+  /path/to/encoder_YOUR_RUN \
+  --output "$HOME/Videos/hamr_sim/YOUR_RUN"
 ```
 
-From your workstation checkout, pass the **encoder recording folder**, followed
-optionally by a new output folder:
+Open the output `index.html` for both casters, six encoder histories, robot/fork
+trajectories, telemetry and timing plots, the combined PDF and raw CSV downloads.
+The command sources ROS automatically and uses native Simulation Studio geometry.
+An MP4 is generated when FFmpeg is available, otherwise a PNG preview is used.
+Add `--render none` for all analysis/plots without CAD, or `--preview-time 5` for
+one CAD frame plus every plot. The input and prior reports are never overwritten.
 
-```bash
-cd /path/to/hamr_control
-bash hamr_bringup/scripts/render_caster_recording.sh \
-  /path/to/encoder_trial_002 \
-  "$HOME/Videos/hamr_sim/trial_002"
-```
+The [unified workflow guide](COMBINED_CASTER_ANALYSIS.md) contains dependencies,
+input formats, output layout and calibration limits. Both wheels share one
+recorded clock; each keeps its own saved CENTER reference. Use
+`--left-mapping-config` / `--right-mapping-config` to override a wheel's mapping,
+or `--center-reference none` for a recording from different devices. Raw plotted
+angles remain independent of the CAD mapping. Missing clocks require the explicit
+`--recover-timing` option and original clock probes for approximate replay.
 
-This automatically sources ROS, selects the wheel when the input contains only
-one, creates a replay bag, and renders the video with H1/H2/CENTER plots at 1×
-speed and 30 fps. For this front-left example, the video is:
-
-```text
-~/Videos/hamr_sim/trial_002/encoder_trial_002_front_left_1x_plots.mp4
-```
-
-The output also includes full-sample CSV/PNG/PDF plots, video metadata, example
-frames, and `replay_bag/encoder_trial_002/`. Originals are never modified.
-If the output argument is omitted, a new timestamped folder is created under
-`~/Videos/hamr_sim/`. An explicit output folder must be empty or absent.
-
-For a recording containing both wheels, replay them together on the stationary
-HAMR model with six synchronized angle plots:
-
-```bash
-bash hamr_bringup/scripts/render_caster_recording.sh \
-  /path/to/encoder_trial_003 \
-  "$HOME/Videos/hamr_sim/trial_003_both" \
-  --wheel both --width 1920
-```
-
-The paired view contains the same ball-caster vehicle as `hamr_sim_ui`, separate left/right
-caster closeups, and H1/H2/CENTER plots for each wheel. Both casters use the same
-acquisition-time clock over the union of their recorded intervals. Before a
-wheel has all three valid readings its moving geometry is hidden; invalid or
-stale samples hold the last valid pose with an explicit display state. Plot
-values are the source encoder angles; the frame CSV contains mapped CAD angles.
-
-A trajectory inset automatically reads the same recording's `bags/combined`,
-preferring `/HAMR_base/odom` (Vicon). It draws the measured XY path progressively
-at the shared replay timestamp while the chassis remains stationary. It retains
-the recorded coordinate frame, origin, and bag epoch timestamps; sensor/transport
-latency is not calibrated. To select a separate matching robot bag, add
-`--trajectory-bag /path/to/bag` and optionally `--trajectory-topic /HAMR_base/odom`.
-Missing topics or nonoverlapping runs produce empty axes with a reason. The
-renderer never shifts a different run's trajectory onto this recording. A topic
-that mixes coordinate/child frames is rejected as a path source. Trajectory
-PNG/CSV exports and source-topic/coverage metadata accompany the video.
-
-For the October 29 recordings in this workspace:
-
-```bash
-# Newer 27.85 s run: two clock maps need approximate recovery; no robot bag.
-bash hamr_bringup/scripts/render_caster_recording.sh \
-  /home/para/encoder_20261029T070111Z_7b76081e --wheel both --recover-timing --width 1920
-
-# Earlier 65.56 s run: matching Vicon /HAMR_base/odom is discovered automatically.
-bash hamr_bringup/scripts/render_caster_recording.sh \
-  /home/para/encoder_20261029T065650Z_7f3140ba --wheel both --width 1920
-```
-
-The base stays in its neutral pose. This is measured kinematic replay, not a
-physics simulation. It expands
-`hamr_ball_caster/urdf/compa_ball_caster_recording.urdf.xacro`, the model selected
-by Simulation Studio through `terrain_sim.launch.py`, with its default zero
-carrier phase and no closeup-camera sensor. Chassis geometry, native 100 mm-radius
-caster geometry, and mounting transforms are preserved. The two encoder models
-drive the existing `left_caster_*` and `right_caster_*` joints. The model is the
-documented COMPA/HAMR simulation retrofit; output metadata identifies its source.
-
-Paired replay automatically uses each wheel's saved raw CENTER reference from
-`caster_encoder_replay_pair.yaml`. Left uses raw count 1210 with the recorded
-H1-forward reference; right uses raw count 16183 with the recorded H1-up
-reference. Front-left CENTER uses sign -1 for the requested forward direction,
-reversing its motion about that fixed reference. H1/H2 shell phases and PPR
-remain unverified.
-No per-run reset replaces these saved references. Use `--center-reference none`
-to disable them, or `--left-mapping-config` / `--right-mapping-config` for an
-independent replay YAML. An explicit per-wheel mapping replaces that wheel's
-defaults, including its reference settings.
-
-If an export has missing clock maps but retains valid before/after clock probes
-in its manifest, `--wheel both --recover-timing` permits an **approximate
-visualization**. It refits only missing maps with a 5000 ppm drift gate, preserves
-accepted maps and all firmware validity flags, and records the recovery and
-uncertainty in the derivative. It does not repair the source session or claim
-validated synchronization. Without this option, missing maps fail explicitly.
-
-For a standalone view, select one wheel:
-
-```bash
-bash hamr_bringup/scripts/render_caster_recording.sh \
-  /path/to/encoder_trial_003 \
-  "$HOME/Videos/hamr_sim/trial_003_front_right" \
-  --wheel front_right --rate 1 --fps 30
-```
-
-Use `--no-plots` for the caster animation alone, `--width 1280` for a smaller
-video, or `--mapping-config /path/to/caster_encoder_replay.yaml` for an existing
-verified CAD mapping. Run `--help` for all options. The Bash script uses Ubuntu's
-`/usr/bin/python3` so an active Conda environment does not replace ROS Python.
-On a headless workstation whose VTK build requires X, install `xvfb` and prefix
-the command with `xvfb-run -a`.
-
-Conversion uses the clock estimates embedded in `packets.jsonl`, preserving
-integer timestamp precision and assigning each individual sample its own replay
-time. It requires metadata and usable clock maps for all three encoder roles;
-it cannot align recordings whose clock maps are missing. The derived bag's
-`local-recording-replay.json` and the video's JSON metadata identify the original
-packet file by SHA-256 and explicitly label the estimated timing. Synthetic
-receive fields required by the older renderer exist only in the derivative;
-they are not actual UDP receipt timestamps. Clock-valid flags are unchanged.
-
-This is measured caster motion visualization, including manual movements.
-Whole-robot trajectory reconstruction and physics simulation are separate.
-The original robot/Vicon bag is not needed for this caster video.
-
-### Animation-only shortcut with an upright starting pose
-
-To render the caster without angle plots, with the fork vertical, H1 forward
-(+X), H2 back (-X), and both hemispheres at floor level, use:
-
-```bash
-cd /path/to/hamr_control
-bash hamr_bringup/scripts/render_caster_simulation.sh \
-  "/path/to/encoder_YOUR_RUN"
-```
-
-Pass an optional new output folder after the recording folder. Add
-`--wheel front_left` or `--wheel front_right` if the recording contains both
-wheels. The shortcut uses the same dependencies as the renderer above and
-defaults to 1x speed, 30 fps, and 1600x900. Run it with `--help` for options.
-
-This preset always uses `--no-plots --start-pose ground-contact`: the first
-complete fresh H1/H2/CENTER pose becomes the upright reference, with zero
-initial shell spin. Its `caster_encoder_replay_simulation.yaml` mapping uses
-`center_sign: -1.0` to reverse CENTER rotation while retaining H1/H2 directions.
-The reference zero is recomputed with that sign, so the initial H1-front/H2-back
-alignment stays fixed: CENTER's rendered angle is its upright angle minus the
-recorded change since the reference. The video
-retains the CAD views, joint-angle readouts, and timing/status labels. It is
-recorded-motion visualization with an assumed starting pose; use the original
-renderer and the fixed mapping below when absolute starting orientation matters.
+This is kinematic measured-motion replay. It does not infer contact dynamics,
+missing roller motion, or physical encoder accuracy. Vicon data must come from
+the same run; unrelated recordings are never shifted onto its timeline.
 
 ## Saved CENTER absolute-angle reference
 
@@ -550,32 +415,20 @@ Save/copy the calibration with the recordings when moving them to a workstation.
 
 ### Preserve absolute starting orientation in the video
 
-Use the fixed CENTER replay mapping explicitly:
+Paired replay automatically selects each saved raw CENTER reference. To select
+an explicit wheel mapping:
 
 ```bash
-cd ~/hamster_ws/src/hamr_control
-bash hamr_bringup/scripts/render_caster_recording.sh \
+bash hamr_bringup/scripts/visualize_caster_bag \
   /path/to/encoder_YOUR_RUN --wheel front_left \
-  --start-pose recorded \
-  --mapping-config hamr_bringup/config/caster_encoder_replay_front_left_center.yaml
+  --left-mapping-config hamr_bringup/config/caster_encoder_replay_front_left_center.yaml
 ```
 
-This keeps a different CENTER starting reading different in the video. The
-experimental `ground-contact` mode deliberately resets the first complete pose
-of every run and would override the fixed reference. Normal recording commands
-do not need to change, and the firmware does not need reflashing.
-
-The current CAD's H1-positive, model-+X-forward reference has a carrier joint
-angle of 3.620181390266952 rad. Consequently the YAML uses
-`center_zero_rad: -3.1561522019315458`; this is a CAD mapping offset, **not** the
-physical raw zero of 0.46402918833540646 rad. H1/H2 shell phases and the CAD
-direction/side assumptions remain unverified, so `mapping_verified` stays false.
-
-The existing video mapper consumes firmware `calibrated_alpha_rad`. The supplied
-YAML therefore requires firmware CENTER sign +1 and zero 0, as in these two
-observations where raw and calibrated angles are equal. If firmware sign/zero
-changes, adapt that YAML before reuse; the raw-count calibration JSON and
-`caster_center_angle` command continue to use the original absolute reference.
+A different recorded raw CENTER count retains its different initial orientation.
+The device-specific reference maps raw `position14` independently of firmware
+alpha offsets, avoiding a second correction. No per-run ground-contact reset is
+applied. H1/H2 shell phase and physical mapping accuracy remain unverified; an
+apparently aligned CAD model does not establish encoder accuracy.
 
 ## Interrupted commands and recordings
 

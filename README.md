@@ -261,12 +261,13 @@ stationary Simulation Studio HAMR model with synchronized H1/H2/CENTER plots and
 Vicon trajectory inset:
 
 ```bash
-bash hamr_bringup/scripts/render_caster_recording.sh \
-  /path/to/encoder_recording --wheel both --width 1920
+bash hamr_bringup/scripts/visualize_caster_bag \
+  /path/to/combined_0.mcap --output "$HOME/Videos/hamr_sim/my_run"
 ```
 
-The trajectory is discovered in that run's combined bag; missing or unrelated
-pose data leaves an empty panel. See the [rendering guide](docs/LOCAL_CASTER_RECORDING.md#render-a-recording-on-ubuntu)
+Open the output `index.html` for the replay, all trajectory/telemetry plots,
+`all_plots.pdf`, and CSV downloads. A recording folder or rosbag directory also
+works. Add `--render none` for plots only. Missing data is listed explicitly. See the [rendering guide](docs/LOCAL_CASTER_RECORDING.md#render-a-recording-on-ubuntu)
 for the simulation model, clock-recovery assumptions, per-wheel references and exports.
 
 The [combined-bag analysis and Vicon comparison workflow](docs/COMBINED_CASTER_ANALYSIS.md)

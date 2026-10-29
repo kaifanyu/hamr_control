@@ -10,7 +10,7 @@ import numpy as np
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from prepare_caster_vicon_comparison import (
+from caster_vicon_comparison import (
     DEFAULT_QUALITY, POSE_FILES, POSE_TOPICS, ROLES, WHEELS,
     align_wheel, elapsed_ns, prepare, quaternion_step_deg, read_poses,
 )

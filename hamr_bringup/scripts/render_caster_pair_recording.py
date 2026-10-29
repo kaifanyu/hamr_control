@@ -68,11 +68,12 @@ def paired_frames(events, times, mappings, references):
 
 
 class PairOverlay:
-    def __init__(self, width, recording_name, start, end, rate, recovered, trajectory, references):
+    def __init__(self, width, recording_name, start, end, rate, recovered, trajectory, references, time_basis):
         from PIL import ImageFont
         self.scale = width / 1920
         self.name, self.start, self.duration, self.rate = recording_name, start, (end-start)/1e9, rate
         self.recovered = recovered
+        self.time_basis = time_basis
         self.trajectory, self.references = trajectory, references
         root = Path('/usr/share/fonts/truetype/dejavu')
         self.fonts = {name: ImageFont.truetype(str(root / file), max(8, round(size*self.scale)))
@@ -103,7 +104,9 @@ class PairOverlay:
             text(x, 923, ', '.join(issue) if issue else 'H1 / H2 / CENTER: measured pose', 'small', '#687b90')
         text(32, 971, 'H1 = blue    H2 = orange    CENTER = carrier orientation    White dots = shell rotation markers',
              'text', '#f7fbff')
-        timing = 'Approximate clock recovery enabled' if self.recovered else 'Estimated encoder acquisition timing'
+        timing = ('Approximate clock recovery enabled' if self.recovered else
+                  'Bag receipt timing' if 'receipt time; batched' in self.time_basis else
+                  'Estimated encoder acquisition timing')
         trajectory_note = ('trajectory: ' + str(self.trajectory['topic']) if self.trajectory.get('available')
                            else 'no matching robot trajectory')
         text(32, 1007, timing + ' · synchronization accuracy unvalidated · ' + trajectory_note, 'small', '#c5d4e2')
@@ -114,7 +117,7 @@ class PairOverlay:
         return image
 
 
-def render_pair(args, source, output):
+def render_pair(args, source, output, recording=None, trajectory_data=None):
     from caster_pair_recording import load_pair_recording, write_pair_replay_bag
     from caster_pair_scene import Scene
     from caster_pair_plots import PairEncoderPlots
@@ -122,14 +125,15 @@ def render_pair(args, source, output):
     from caster_pair_trajectory_plot import PairTrajectoryPlot
 
     print(f'Reading both casters: {source}', flush=True)
-    events, provenance = load_pair_recording(source, recover_timing=args.recover_timing)
+    events, provenance = (recording if recording is not None else
+                          load_pair_recording(source, recover_timing=args.recover_timing))
     start, end = provenance['start_ns'], provenance['end_ns']
     duration = (end-start)/1e9
     if args.preview_time is not None and args.preview_time > duration:
         raise ValueError(f'--preview-time must be within 0..{duration:.3f} s')
     mappings, references = paired_mappings(events, args)
-    positions, trajectory_info = load_pair_trajectory(
-        source, start, end, args.trajectory_bag, args.trajectory_topic)
+    positions, trajectory_info = (trajectory_data if trajectory_data is not None else
+                                  load_pair_trajectory(source, start, end, args.trajectory_bag, args.trajectory_topic))
     print('Trajectory: ' + (f'{trajectory_info["topic"]}, {len(positions)} positions' if positions
                             else trajectory_info['reason']), flush=True)
     times = ([start + round(args.preview_time*1e9)] if args.preview_time is not None
@@ -145,29 +149,32 @@ def render_pair(args, source, output):
     output.mkdir(parents=True, exist_ok=True)
     stem = f'{source.name}_both_{args.rate:g}x' + ('' if args.no_plots else '_plots')
     video = output / (stem + '.mp4')
-    replay_bag = output / 'replay_bag' / source.name
-    replay_bag.parent.mkdir(parents=True, exist_ok=True)
-    write_pair_replay_bag(replay_bag, events, provenance)
+    replay_bag = None
+    if recording is None:
+        replay_bag = output / 'replay_bag' / source.name
+        replay_bag.parent.mkdir(parents=True, exist_ok=True)
+        write_pair_replay_bag(replay_bag, events, provenance)
     plots = (None if args.no_plots else PairEncoderPlots(
         events, start, end, args.width, source.name, provenance['time_basis']))
     trajectory = PairTrajectoryPlot(positions, start, end, args.width, trajectory_info)
     scene = Scene(args.width, args.width*9//16, args.full_detail)
     overlay = PairOverlay(args.width, source.name, start, end, args.rate,
-                          bool(provenance.get('recovered_clock_mappings')), trajectory_info, references)
+                          bool(provenance.get('recovered_clock_mappings')), trajectory_info, references,
+                          provenance['time_basis'])
     def draw(frame):
         image = overlay.draw(scene.render(frame), frame)
         image = image if plots is None else plots.draw(image, frame)
         return trajectory.draw(image, frame['front_left']['stamp_ns'])
     summary = {
         'mode': 'measured_motion_kinematic_replay', 'source_directory': str(source),
-        'replay_bag': str(replay_bag), 'wheel_ids': list(WHEELS), 'rate': args.rate,
+        'replay_bag': str(replay_bag) if replay_bag else None, 'wheel_ids': list(WHEELS), 'rate': args.rate,
         'fps': args.fps, 'frames': len(frames), 'width': args.width, 'height': args.width*9//16,
         'start_ns': start, 'end_ns': end, 'recording_duration_s': duration,
         'local_recording': provenance, 'model': scene.provenance,
         'mapping': {wheel: frames[-1][wheel]['status']['mapping'] for wheel in WHEELS},
         'references': references, 'robot_body_animated': False,
         'trajectory': trajectory.metadata,
-        'timing': 'One common acquisition-time clock; hold last valid sample, without interpolation.',
+        'timing': provenance['time_basis'] + ' Hold last valid sample, without interpolation.',
         'renderer_sha256': digest(__file__),
     }
     wall = time.monotonic()
@@ -228,5 +235,6 @@ def render_pair(args, source, output):
         trajectory.export(video)
         summary['wall_render_s'] = time.monotonic()-wall
         report.write_text(json.dumps(summary, indent=2) + '\n')
+        return summary
     finally:
         scene.window.Finalize()

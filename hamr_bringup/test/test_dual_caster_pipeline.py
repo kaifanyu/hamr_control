@@ -198,12 +198,12 @@ def test_six_devices_remain_separate_through_mcap_and_csv(tmp_path, monkeypatch)
     assert set(messages) <= recorded, sorted(set(messages) - recorded)
     for wheel in WHEELS:
         report = tmp_path / wheel
-        result = subprocess.run([sys.executable, str(PACKAGE.parent / "rosbags/analyze_caster_encoders.py"),
+        result = subprocess.run([sys.executable, str(PACKAGE / "scripts/caster_visualization.py"),
                                  str(tmp_path / "dual"), "--wheel", wheel,
                                  "--output", str(report), "--no-plots"],
                                 text=True, capture_output=True, timeout=15)
         assert result.returncode == 0, result.stderr + result.stdout
-        rows = list(csv.DictReader((report / "samples.csv").open()))
+        rows = list(csv.DictReader((report / "analysis/encoder_packets" / wheel / "samples.csv").open()))
         assert rows and {row["wheel_id"] for row in rows} == {wheel}
         assert {row["device_id"] for row in rows} == {device(wheel, r) for r in ROLES}
         h1_boots = {row["boot_id"] for row in rows if row["node_id"] == "1"}

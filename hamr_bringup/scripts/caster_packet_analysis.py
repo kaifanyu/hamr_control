@@ -26,7 +26,7 @@ except ModuleNotFoundError as error:
     if error.name != "caster_encoder_protocol":
         raise
     # Installed scripts sit beside the helper; this also supports source checkout use.
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "hamr_bringup" / "scripts"))
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
     import caster_encoder_protocol as protocol
 
 from caster_recording_format import LOCAL_ORIGIN, validate_local_envelope
@@ -114,7 +114,7 @@ def read_bag(path, topic=None, wheel_id=None):
             "ROS bag input needs rosbag2_py, rclpy and std_msgs. Source your ROS 2 "
             "installation and workspace; install ros-$ROS_DISTRO-rosbag2-py and "
             "ros-$ROS_DISTRO-rosbag2-storage-mcap for MCAP. Alternatively use "
-            "--packets-jsonl recordings/run-.../packets.jsonl without ROS."
+            "visualize_caster_bag recordings/run-.../packets.jsonl --render none without ROS."
         ) from error
     path = Path(path)
     if not path.exists():
@@ -587,83 +587,3 @@ def node_values(values, name, sign=False):
         except (ValueError, TypeError) as error:
             raise ValueError(f"{name} expects NODE=VALUE: {error}") from error
     return result
-
-
-def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("bag", nargs="?", type=Path, help="ROS 2 bag directory or .mcap/.db3 file")
-    parser.add_argument("--packets-jsonl", type=Path, help="logger packets.jsonl instead of a ROS bag")
-    parser.add_argument("--output", type=Path, default=Path("caster_encoder_report"))
-    parser.add_argument("--topic", help="packet topic; inferred from --wheel or unique bag topic")
-    parser.add_argument("--wheel", choices=WHEELS, help="physical wheel; legacy selects old v1 recordings")
-    parser.add_argument("--reference-csv", type=Path, help="independent reference: node_id,boot_id,time_epoch_ns,angle_rad; v2 requires wheel_id,device_id; optional valid=0/1")
-    parser.add_argument("--max-match-dt-s", type=float, default=.02)
-    parser.add_argument("--reference-time-offset-s", type=float, default=0,
-                        help="fixed independent offset ADDED to reference timestamps; never fitted")
-    parser.add_argument("--reference-sign", action="append", default=[], metavar="NODE=SIGN")
-    parser.add_argument("--reference-zero-rad", action="append", default=[], metavar="NODE=ANGLE",
-                        help="reference becomes sign * (angle - zero); repeat per node; never fitted")
-    parser.add_argument("--clock-map", type=Path, help="independently calibrated per-node/boot logger clock-map JSON")
-    parser.add_argument("--max-continuity-gap-s", type=float, default=.1)
-    parser.add_argument("--no-plots", action="store_true", help="write CSV/JSON without matplotlib")
-    args = parser.parse_args(argv)
-    if (args.bag is None) == (args.packets_jsonl is None):
-        parser.error("provide exactly one of BAG or --packets-jsonl")
-    try:
-        signs = node_values(args.reference_sign, "--reference-sign", sign=True)
-        zeros = node_values(args.reference_zero_rad, "--reference-zero-rad")
-        seconds_to_ns(args.reference_time_offset_s)
-        if not args.reference_csv and (signs or zeros or args.reference_time_offset_s):
-            raise ValueError("reference transforms require --reference-csv")
-        reference = read_reference(args.reference_csv, args.reference_time_offset_s, signs, zeros) if args.reference_csv else None
-        clock_document = protocol.parse_json(args.clock_map.read_text(encoding="utf-8")) if args.clock_map else None
-        mapper = protocol.ClockMapper(clock_document)
-        mapper.estimated_keys = {protocol.packet_identity(entry) for entry in
-                                 (clock_document or {}).get("mappings", [])
-                                 if entry.get("timing_estimated") or entry.get("accuracy_validated") is False}
-        wheel_id, selected_topic = resolve_selection(args.wheel, args.topic)
-        source = read_jsonl(args.packets_jsonl) if args.packets_jsonl else read_bag(args.bag, args.topic, args.wheel)
-        # Preserve original envelopes, including extra metadata/configuration fields.
-        packets = list(source)
-        rows, metadata, summary = analyze(packets, reference, mapper, args.max_match_dt_s, args.max_continuity_gap_s, wheel_id)
-        _, selected_topic = resolve_selection(summary["wheel_id"], args.topic)
-        summary.update(source=str(args.packets_jsonl or args.bag), topic=selected_topic,
-                       reference_csv=str(args.reference_csv) if args.reference_csv else None,
-                       reference_time_offset_s=args.reference_time_offset_s,
-                       reference_sign_by_node=signs, reference_zero_rad_by_node=zeros,
-                       clock_map=str(args.clock_map) if args.clock_map else None)
-        args.output.mkdir(parents=True, exist_ok=True)
-        # A report directory is a reproducible artifact, not an appendable session.
-        if any(args.output.iterdir()):
-            raise ValueError(f"report directory must be empty to avoid mixing runs: {args.output}")
-        with (args.output / "samples.csv").open("w", encoding="utf-8", newline="") as handle:
-            writer = csv.DictWriter(handle, fieldnames=CSV_FIELDS)
-            writer.writeheader()
-            writer.writerows(rows)
-        for name, entries in (("packets.jsonl", [item[0] for item in packets if "metadata_source_topic" not in item[0]]), ("metadata.jsonl", metadata)):
-            with (args.output / name).open("w", encoding="utf-8") as handle:
-                for envelope in entries:
-                    handle.write(json.dumps(envelope, allow_nan=False, separators=(",", ":")) + "\n")
-        if clock_document is not None:
-            (args.output / "clock-map.json").write_text(json.dumps(clock_document, indent=2) + "\n", encoding="utf-8")
-        summary["plots"] = []
-        plot_error = None
-        if not args.no_plots:
-            try:
-                summary["plots"] = plot_report(rows, args.output)
-            except RuntimeError as error:
-                plot_error = str(error)
-                summary["plot_error"] = plot_error
-        (args.output / "summary.json").write_text(json.dumps(summary, indent=2, allow_nan=False) + "\n", encoding="utf-8")
-        print(f"Saved {len(rows)} sample rows across {len(summary['streams'])} node/boot streams to {args.output}")
-        print(f"Accuracy status: {summary['accuracy_status']}. See summary.json for timing and calibration qualifications.")
-        if plot_error:
-            print(plot_error, file=sys.stderr)
-            return 1
-        return 0
-    except (ValueError, OSError, RuntimeError) as error:
-        parser.error(str(error))
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())

@@ -1,4 +1,4 @@
-# Upright animation preset used by render_caster_simulation.sh.
+# Optional illustrative mapping for standalone caster visualization.
 # Reverse CENTER to match observed forward motion; retain H1/H2 directions.
 # --start-pose ground-contact recomputes all zeros from the first fresh pose:
 # q_center(t) = q_upright - (encoder_center(t) - encoder_center(reference)).

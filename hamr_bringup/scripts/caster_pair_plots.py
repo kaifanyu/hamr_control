@@ -87,7 +87,7 @@ class PairEncoderPlots:
                     ax.set_xlabel("Elapsed recording time (s)", fontsize=11, labelpad=8)
         figure.text(.085, .053, "H1 / H2: multi-turn  |  CENTER: wrapped 0–2π  |  gaps and wraps break curves",
                     size=10.5, color="#687b90")
-        figure.text(.085, .024, "Timing uses acquisition-clock estimates; see replay provenance for uncertainty.",
+        figure.text(.085, .024, "Timing basis and synchronization uncertainty are recorded in replay provenance.",
                     size=9.5, color="#687b90")
         canvas.draw()
         self.panel = Image.fromarray(np.asarray(canvas.buffer_rgba())[:, :, :3].copy())

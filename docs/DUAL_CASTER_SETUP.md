@@ -211,36 +211,31 @@ Confirm all 12 topics have messages. UDP remains best effort; wheel separation
 does not recover packets lost over Wi-Fi. Acquisition clocks are independent
 and must not be treated as synchronized merely because the samples share a bag.
 
-## 5. Analyze or replay a selected wheel
+## 5. Visualize and analyze the recording
 
 ```bash
-ros2 run hamr_bringup analyze_caster_encoders.py /path/to/bag \
-  --wheel front_left --output /path/to/report/front_left
-ros2 run hamr_bringup analyze_caster_encoders.py /path/to/bag \
-  --wheel front_right --output /path/to/report/front_right
-
-ros2 run hamr_bringup record_caster_rotation.py record H1 \
-  --wheel front_left --output /path/to/calibration/front_left
-
-ros2 launch hamr_bringup caster_encoder_replay.launch.py \
-  bag:=/path/to/bag wheel:=front_left
-ros2 run hamr_bringup render_caster_encoder_video.py /path/to/bag \
-  --wheel front_right --output-dir /path/to/video/front_right
+ros2 run hamr_bringup visualize_caster_bag /path/to/combined_0.mcap \
+  --output "$HOME/Videos/hamr_sim/my_run"
 ```
 
-Use a new output directory per report/capture. Analysis and replay require a wheel
-selector when a bag has both branches, and reject conflicting identities within
-the selected stream. The analyzer also reads retained metadata from the selected
-wheel's sibling topic; replay/video use metadata carried on the raw packet stream.
-CSV/JSON exports retain wheel and device identity. Reference CSVs and clock-map
-entries for v2 data must also include matching `wheel_id` and `device_id`; they
-never fall back to an unrelated legacy node/boot mapping. For standalone JSONL
-analysis, record each wheel separately using the firmware logger's `--wheel`
-filter and different output directories; mixed-wheel JSONL inputs are rejected.
+This one command analyzes both wheels, plots robot/fork trajectories and every
+supported numeric bag channel, and renders both casters. Open the output
+`index.html`. Use `--render none` for graphs only or `--preview-time 5` for a
+single CAD frame. A recording folder or rosbag directory also works. See the
+[unified workflow guide](COMBINED_CASTER_ANALYSIS.md) for dependencies and outputs.
 
-Saved v1 bags remain readable using `--wheel legacy` (replay `wheel:=legacy`), or
-automatic selection when the old packet topic is the only candidate. To receive
-old firmware explicitly, use `mode:=legacy` in the separate encoder launch.
-Legacy mode represents one
-unassigned wheel; it cannot distinguish two wheels and must not receive all six
-old boards on one port.
+For individual calibration or live ROS visualization, the acquisition/replay
+interfaces remain:
+
+```bash
+ros2 run hamr_bringup record_caster_rotation.py record H1 \
+  --wheel front_left --output /path/to/calibration/front_left
+ros2 launch hamr_bringup caster_encoder_replay.launch.py \
+  bag:=/path/to/bag wheel:=front_left
+```
+
+The unified command accepts `--wheel front_left` / `front_right` for a single
+caster, or `--wheel legacy` for older unassigned v1 recordings. CSV/JSON outputs
+retain wheel, device and boot identities, and inconsistent identities are
+rejected. Independent reference CSVs and clock maps must match those identities.
+Mixed-wheel local JSONL exports are supported without merging the wheel axes.

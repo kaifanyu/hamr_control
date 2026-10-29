@@ -127,9 +127,10 @@ def read_encoders(path):
             if key not in streams:
                 raise ValueError(f"Unknown encoder identity: {row['topic']}")
             streams[key].append({"time_ns": elapsed_ns(row["bag_time_s"]),
-                                 "angle_rad": float(row["recorded_angle_rad"]),
-                                 "change_rad": float(row["unwrapped_change_from_first_sample_rad"]),
-                                 "velocity_rad_s": float(row["reported_velocity_rad_s"])})
+                                 "angle_rad": float(row["recorded_angle_rad"] or "nan"),
+                                 "change_rad": float(row["unwrapped_change_from_first_sample_rad"] or "nan"),
+                                 "velocity_rad_s": float(row["reported_velocity_rad_s"] or "nan"),
+                                 "segment": row.get("segment")})
     for key, rows in streams.items():
         rows.sort(key=lambda row: row["time_ns"])
         if not rows or any(b["time_ns"] <= a["time_ns"] for a, b in zip(rows, rows[1:])):
@@ -265,7 +266,7 @@ def prepare(analysis_dir, output_dir, config=None, make_plot=True):
     estimation = estimation_settings(settings.get("trajectory_estimation", {}))
     summary = json.loads((source / "summary.json").read_text())
     frame_names = [summary.get("frames", {}).get(topic, []) for topic in POSE_TOPICS.values()]
-    if any(len(names) != 1 for names in frame_names) or len({names[0] for names in frame_names}) != 1:
+    if any(len(names) != 1 or not names[0] for names in frame_names) or len({names[0] for names in frame_names}) != 1:
         raise ValueError("Base and both fork pose exports must use one common recorded frame")
     epoch = summary.get("start_epoch_ns")
     manifest_path = source / "artifact_manifest.json"
@@ -327,23 +328,3 @@ def prepare(analysis_dir, output_dir, config=None, make_plot=True):
         plot_trajectories(output, aligned)
     (output / "comparison_setup.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
     return report
-
-
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("analysis_dir", type=Path, help="Directory containing the combined-bag analysis exports")
-    parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--config", type=Path, help="Quality/estimation settings and future calibration template")
-    parser.add_argument("--no-plot", action="store_true")
-    args = parser.parse_args()
-    try:
-        report = prepare(args.analysis_dir, args.output_dir, args.config, not args.no_plot)
-    except (ValueError, OSError, KeyError, TypeError) as error:
-        parser.exit(2, f"prepare_caster_vicon_comparison: {error}\n")
-    print(json.dumps(report["wheels"], indent=2))
-    print(f"Estimated fork trajectories and aligned encoder history: {args.output_dir.resolve()}")
-    print("Physical prediction remains unconfigured; inspect comparison_setup.json requirements.")
-
-
-if __name__ == "__main__":
-    main()

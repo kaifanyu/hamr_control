@@ -131,6 +131,7 @@ def estimate_wheel(rows, streams, quality, settings):
                 # fit through a missing/invalid native encoder interval.
                 valid = (row[f"{role.lower()}_fresh"] and enough_samples(native, settings)
                          and np.all(np.isfinite(values))
+                         and len({sample.get("segment") for sample in samples}) == 1
                          and all(b-a <= max_encoder_gap for a, b in zip(native, native[1:])))
                 if valid:
                     _, rate = linear_fit(native, values, stamp)
@@ -188,6 +189,12 @@ def plot_trajectories(output, aligned):
                                    (axes[2, column], "fork_angular_speed_rad_s", "Marker angular speed (rad/s)")):
             axis.plot(*curve(rows, "bag_time_s", field), lw=1)
             axis.set(ylabel=label, xlabel="Bag elapsed time (s)")
+            finite = [row[field] for row in rows if row[field] is not None and math.isfinite(row[field])]
+            if finite and max(finite)-min(finite) < 1e-6:
+                center = (max(finite)+min(finite))/2
+                padding = max(.01, abs(center)*.05)
+                axis.set_ylim(center-padding, center+padding)
+            axis.ticklabel_format(axis="y", style="plain", useOffset=False)
         for role in ROLES:
             axes[3, column].plot(*curve(rows, "bag_time_s", f"{role.lower()}_estimated_rate_rad_s"),
                                  lw=1, label=role)

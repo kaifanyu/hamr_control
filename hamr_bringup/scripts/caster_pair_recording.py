@@ -59,7 +59,7 @@ def _recover_maps(directory, run_id, missing, bounds):
     return recovered, hashlib.sha256(payload).hexdigest()
 
 
-def load_pair_recording(directory, recover_timing=False):
+def load_pair_recording(directory, recover_timing=False, packet_rows=None):
     """Return ``({wheel: [(epoch_ns, envelope), ...]}, provenance)``.
 
     Keep the complete union of both recordings, including staggered beginnings
@@ -68,17 +68,18 @@ def load_pair_recording(directory, recover_timing=False):
     """
     directory = Path(directory).expanduser().resolve()
     source = directory / "packets.jsonl"
-    if not source.is_file():
+    if packet_rows is None and not source.is_file():
         raise ValueError(f"Missing {source}; pass the downloaded encoder_<run> folder")
-    payload = source.read_bytes()
+    payload = source.read_bytes() if packet_rows is None else None
+    inputs = payload.splitlines() if payload is not None else packet_rows
     guards = {wheel: WheelIdentityGuard(wheel) for wheel in WHEELS}
     counts = {wheel: Counter() for wheel in WHEELS}
     envelopes, mappings, metadata, bounds, previous, runs = [], {}, {}, {}, {}, set()
-    for line_number, line in enumerate(payload.splitlines(), 1):
-        if not line.strip():
+    for line_number, line in enumerate(inputs, 1):
+        if isinstance(line, bytes) and not line.strip():
             continue
         try:
-            envelope = parse_json(line)
+            envelope = parse_json(line) if isinstance(line, bytes) else line
             validate_local_envelope(envelope)
         except (ValueError, KeyError, TypeError) as error:
             raise ValueError(f"{source}:{line_number}: invalid packet envelope: {error}") from error
@@ -166,7 +167,7 @@ def load_pair_recording(directory, recover_timing=False):
         errors = parse_json(errors_path.read_bytes()).get("clock_errors", [])
     provenance = {
         "version": 1, "source_directory": str(directory), "run_id": run_id,
-        "source_packets_sha256": hashlib.sha256(payload).hexdigest(),
+        "source_packets_sha256": hashlib.sha256(payload).hexdigest() if payload is not None else None,
         "source_manifest_sha256": manifest_hash,
         "wheel_ids": list(WHEELS), "time_basis": TIME_BASIS, "timing_note": TIME_BASIS,
         "timing_estimated": True, "accuracy_validated": False,
