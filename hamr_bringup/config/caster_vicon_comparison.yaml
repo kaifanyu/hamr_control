@@ -1,0 +1,29 @@
+# Uncalibrated fork-marker trajectory/history comparison, not a caster predictor.
+version: 1
+quality:
+  max_encoder_age_s: 0.025
+  max_base_age_s: 0.050
+  max_pose_gap_s: 0.100
+  orientation_jump_deg: 10.0
+  jump_guard_s: 0.100
+trajectory_estimation:
+  # Centered offline fits use native timestamps and stop at rejected intervals.
+  window_s: 0.100
+  min_span_s: 0.020
+  min_samples: 3
+  max_position_step_m: 0.080
+future_calibration:
+  status: unconfigured
+  # Vicon tracks marker bodies attached to the forks. These are NOT the ball's
+  # CENTER shaft or independently spinning H1/H2 hemispheres.
+  marker_to_fork:
+    front_left: {translation_m: null, quaternion_xyzw: null}
+    front_right: {translation_m: null, quaternion_xyzw: null}
+  marker_to_ball_center_m: {front_left: null, front_right: null}
+  base_marker_to_robot: {translation_m: null, quaternion_xyzw: null}
+  # Complete/verify these before any physical motion prediction or angle error.
+  encoder_axes_signs_zeros_and_ppr_verified: false
+  fork_orientation_ambiguity_resolved: false
+  cross_system_time_offset_s: null
+  cross_system_timing_validated: false
+  contact_and_rolling_model: null

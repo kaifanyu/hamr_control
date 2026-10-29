@@ -53,6 +53,8 @@ install(
     scripts/render_caster_recording.sh
     scripts/render_caster_simulation.sh
     scripts/render_caster_recording.py
+    scripts/analyze_combined_caster_bag.py
+    scripts/prepare_caster_vicon_comparison.py
     scripts/record_camera_clip
     scripts/record_dual_cameras
     scripts/run_waypoint_test
@@ -71,9 +73,15 @@ install(FILES scripts/caster_encoder_protocol.py DESTINATION lib/${PROJECT_NAME}
 install(FILES scripts/caster_replay_model.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_encoder_selection.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_encoder_plots.py DESTINATION lib/${PROJECT_NAME})
+install(FILES scripts/caster_pair_recording.py scripts/caster_pair_scene.py
+  scripts/caster_pair_plots.py scripts/render_caster_pair_recording.py
+  scripts/caster_pair_trajectory.py scripts/caster_pair_trajectory_plot.py
+  scripts/caster_vicon_trajectory.py
+  DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_recording_client.py scripts/caster_recording_format.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_recording_session.py scripts/caster_recording_bag.py DESTINATION lib/${PROJECT_NAME})
 install(FILES ../docs/LOCAL_CASTER_RECORDING.md DESTINATION share/${PROJECT_NAME}/docs)
+install(FILES ../docs/COMBINED_CASTER_ANALYSIS.md DESTINATION share/${PROJECT_NAME}/docs)
 install(FILES scripts/caster_center_calibration.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_center_workflow.py DESTINATION lib/${PROJECT_NAME})
 install(FILES ../docs/CENTER_CALIBRATION.md DESTINATION share/${PROJECT_NAME}/docs)
@@ -97,6 +105,16 @@ install(
 if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
+  ament_add_pytest_test(caster_pair_recording test/test_caster_pair_recording.py TIMEOUT 90)
+  ament_add_pytest_test(caster_pair_plots test/test_caster_pair_plots.py TIMEOUT 90)
+  ament_add_pytest_test(caster_pair_scene test/test_caster_pair_scene.py TIMEOUT 90)
+  ament_add_pytest_test(caster_pair_trajectory test/test_caster_pair_trajectory.py TIMEOUT 90)
+  ament_add_pytest_test(caster_pair_trajectory_plot test/test_caster_pair_trajectory_plot.py TIMEOUT 90)
+  ament_add_pytest_test(render_caster_pair_recording test/test_render_caster_pair_recording.py TIMEOUT 90)
+  ament_add_pytest_test(combined_caster_analysis test/test_combined_caster_analysis.py TIMEOUT 90)
+  ament_add_pytest_test(caster_vicon_comparison test/test_caster_vicon_comparison.py TIMEOUT 90)
+  ament_add_pytest_test(caster_vicon_trajectory test/test_caster_vicon_trajectory.py TIMEOUT 90)
+  ament_add_pytest_test(caster_vicon_recording test/test_caster_vicon_recording.py TIMEOUT 90)
   ament_add_gtest(topic_health test/test_topic_health.cpp)
   target_compile_features(topic_health PRIVATE cxx_std_17)
   ament_target_dependencies(topic_health rclcpp diagnostic_msgs nav_msgs sensor_msgs std_msgs)

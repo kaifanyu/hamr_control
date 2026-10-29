@@ -6,3 +6,8 @@ rosbags/*.py text eol=lf
 
 # Preserve the upstream reference byte-for-byte for its recorded SHA-256.
 maps/assets/verti_arena/Grid.py -whitespace
+
+# Analysis snapshots are hash-verified; preserve bytes across checkout platforms.
+docs/analysis/encoder_20261029T065650Z_7f3140ba/* -text
+docs/analysis/encoder_20261029T065650Z_7f3140ba/*.csv whitespace=cr-at-eol
+docs/analysis/caster_fork_history_20261029/* -text

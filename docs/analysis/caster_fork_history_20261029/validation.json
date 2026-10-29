@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-29",
+  "premerge_main": "f6ea964",
+  "merged_branch": "origin/combined-sim",
+  "merged_commit": "f4034db",
+  "build": "colcon build --packages-select hamr_bringup --symlink-install: passed",
+  "focused_regression_tests": {
+    "passed": 130,
+    "failed": 0
+  },
+  "caster_geometry_and_launch_tests": {
+    "passed": 49,
+    "failed": 0
+  },
+  "renderer_smoke": {
+    "result": "passed",
+    "input": "Synthetic two-second six-encoder recording; 401 samples per channel",
+    "output": "960x540 VTK paired preview at t=1s; both casters, six plots, native Simulation Studio geometry",
+    "scope": "Kinematic replay preview; not a physical calibration or a new Gazebo dynamics run",
+    "video_encoding": "Not exercised; ffmpeg is absent on this host"
+  },
+  "installed_analysis": {
+    "result": "passed via ros2 run hamr_bringup prepare_caster_vicon_comparison.py",
+    "source_bag_sha256": "d0f738c772b523fcdba41eff4d30cf8f041fbb2f53b6e2f12032089ee6b4a48e",
+    "artifact_manifest_verified": true,
+    "trajectory_estimator_sha256": "32f8db63c0688b117abf25e2c484af92da4923e085524a814332f706db67e05e",
+    "wheels": {
+      "front_left": {
+        "segments": 6,
+        "position_jump_count": 0,
+        "estimated_rows": 7090,
+        "rows_with_all_encoder_rates": 7090,
+        "estimated_distance_over_valid_segments_m": 14.013065674241398,
+        "peak_estimated_marker_speed_m_s": 1.0905865570329782
+      },
+      "front_right": {
+        "segments": 20,
+        "position_jump_count": 0,
+        "estimated_rows": 6437,
+        "rows_with_all_encoder_rates": 6425,
+        "estimated_distance_over_valid_segments_m": 11.08643650946929,
+        "peak_estimated_marker_speed_m_s": 1.0717936088214932
+      }
+    },
+    "physical_prediction_ready": false
+  },
+  "preexisting_test_failures_reproduced_on_premerge_main": [
+    "test_camera_recording_launch.py::test_hardware_launch_records_both_by_default_with_opt_out_and_external_motion: assumes one top-level include; hardware launch now also includes Foxglove",
+    "test_study_commands.py::test_launch_has_fixed_lifecycle_and_exactly_one_recorder_and_reference: references hamr_study_reference.launch.xml, deleted by e8d1c25",
+    "test_vicon_delivery_config.py::test_foxglove_can_be_disabled_but_remains_on_by_default: expects an inline node; hardware launch uses foxglove.launch.xml"
+  ],
+  "intermittent_ros_test": "test_ordinary_replay.py::test_short_recording_ros_publishes_joints_clock_and_fault_status: occasionally receives no DDS samples; unchanged replay code; passed in premerge baseline check",
+  "files_sha256": {
+    "fork_trajectory_comparison.png": "86d7ef9c67df24829dfdeadd853dfdb997fe8c9007e41a9df4c7121023ce6588",
+    "comparison_setup.json": "c83b6c87de5236261106f3b7f8ce9ac681542a5880697dfe52ec92e7eab7dcea"
+  },
+  "full_bringup_suite": {
+    "passed": 869,
+    "failed": 4,
+    "note": "Three legacy failures reproduced on pre-merge main; one DDS smoke failure in unchanged ordinary-caster replay."
+  }
+}

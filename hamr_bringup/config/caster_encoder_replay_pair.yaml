@@ -1,0 +1,22 @@
+# Saved physical CENTER references for the paired visualization. Raw position14
+# avoids applying firmware alpha offsets twice. Recheck after encoder remounting.
+# Front-left direction reversed at the user's request for forward rotation.
+# Keep its physical reference pose fixed. H1/H2 phases and PPR remain unverified.
+front_left:
+  center_sign: -1.0
+  center_reference_enabled: true
+  center_reference_count: 1210
+  center_reference_model_rad: 3.620181390266952
+  center_reference_wheel_id: front_left
+  center_reference_device_id: "10:bd:a3:b2:14:a4"
+  center_reference_h1_joint: caster_positive_hemisphere_joint
+  mapping_verified: false
+front_right:
+  center_sign: -1.0
+  center_reference_enabled: true
+  center_reference_count: 16183
+  center_reference_model_rad: 5.190977717061848
+  center_reference_wheel_id: front_right
+  center_reference_device_id: "10:bd:a3:af:f3:30"
+  center_reference_h1_joint: caster_positive_hemisphere_joint
+  mapping_verified: false
