@@ -2,44 +2,54 @@
   "schema_version": 1,
   "config": {
     "points_m_flat": [
-      1.2,
-      1.8,
-      1.2,
-      4.4,
-      -1.2,
-      4.4,
-      -1.2,
-      5.6,
-      1.2,
-      5.6,
-      1.2,
-      9.2,
-      -1.2,
-      9.2,
-      -1.2,
+      0.0,
+      0.0,
+      0.0,
       0.8,
       1.2,
       0.8,
       1.2,
       1.8,
       1.2,
-      9.2,
-      0.4,
-      9.2,
-      0.4,
-      0.8,
-      -0.4,
-      0.8,
-      -0.4,
-      9.2,
+      2.6,
       -1.2,
-      9.2,
+      2.6,
+      -1.2,
+      3.8,
+      1.2,
+      3.8,
+      1.2,
+      5.0,
+      -1.2,
+      5.0,
       -1.2,
       0.8,
       1.2,
       0.8,
       1.2,
-      1.8
+      1.8,
+      1.2,
+      5.0,
+      0.4,
+      5.0,
+      0.4,
+      0.8,
+      -0.4,
+      0.8,
+      -0.4,
+      5.0,
+      -1.2,
+      5.0,
+      -1.2,
+      0.8,
+      1.2,
+      0.8,
+      1.2,
+      1.8,
+      0.0,
+      1.8,
+      0.0,
+      0.0
     ],
     "speed_m_s": 0.1,
     "corner_deviation_m": 0.1,
@@ -52,12 +62,12 @@
     "planning_max_translation_acceleration_m_s2": 0.1,
     "planning_max_jerk_m_s3": 0.2,
     "fixed_yaw_rad": 0.0,
-    "origin_mode": "vicon_absolute",
+    "origin_mode": "start_translated_vicon",
     "odom_topic": "/HAMR_base/odom",
     "reference_timer_hz": 100.0,
     "startup_hold_s": 10.0,
     "final_hold_s": 10.0,
-    "odom_timeout_s": 0.08,
+    "odom_timeout_s": 0.2,
     "max_publish_gap_s": 0.08,
     "odom_stable_s": 0.25,
     "odom_recovery_samples": 10,
@@ -76,37 +86,49 @@
   "continuous_plan": {
     "schema_version": 1,
     "profile": "continuous",
-    "duration_s": 628.7331569824931,
-    "trajectory_duration_s": 628.7331569824931,
-    "length_m": 62.6858156982493,
+    "duration_s": 432.0584819567844,
+    "trajectory_duration_s": 432.0584819567844,
+    "length_m": 43.01834819567842,
     "points_m": [
       [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.8
+      ],
+      [
+        1.2,
+        0.8
+      ],
+      [
         1.2,
         1.8
       ],
       [
         1.2,
-        4.4
+        2.6
       ],
       [
         -1.2,
-        4.4
+        2.6
       ],
       [
         -1.2,
-        5.6
+        3.8
       ],
       [
         1.2,
-        5.6
+        3.8
       ],
       [
         1.2,
-        9.2
+        5.0
       ],
       [
         -1.2,
-        9.2
+        5.0
       ],
       [
         -1.2,
@@ -122,11 +144,11 @@
       ],
       [
         1.2,
-        9.2
+        5.0
       ],
       [
         0.4,
-        9.2
+        5.0
       ],
       [
         0.4,
@@ -138,11 +160,11 @@
       ],
       [
         -0.4,
-        9.2
+        5.0
       ],
       [
         -1.2,
-        9.2
+        5.0
       ],
       [
         -1.2,
@@ -155,183 +177,76 @@
       [
         1.2,
         1.8
+      ],
+      [
+        0.0,
+        1.8
+      ],
+      [
+        0.0,
+        0.0
       ]
     ],
     "waypoint_pass_times_s": [
       0.0,
-      26.168006168607587,
-      48.629018505822756,
-      59.09003084303791,
-      81.55104318025306,
-      116.01205551746821,
-      138.4730678546834,
-      220.93408019189854,
-      243.51532594026878,
-      252.8660655200314,
-      326.34665718384156,
-      333.3078405114618,
-      416.269023839082,
-      423.23020716670226,
-      506.1913904943225,
-      513.1525738219427,
-      595.8636716543604,
-      618.4449174027304,
-      628.7331569824931
+      8.418091663810117,
+      19.249422907382876,
+      28.60016248714552,
+      36.08075415095564,
+      58.791851983373334,
+      69.25286432058849,
+      91.71387665780364,
+      102.17488899501882,
+      124.63590133223397,
+      165.09691366944915,
+      187.67815941781936,
+      197.02889899758202,
+      228.5094906613921,
+      235.47067398901234,
+      276.43185731663255,
+      283.3930406442528,
+      324.354223971873,
+      331.31540729949324,
+      372.026505131911,
+      394.60775088028123,
+      403.30923003980655,
+      413.8904757881768,
+      432.0584819567844
     ],
     "interior_motion_interval_s": [
       1.875,
-      626.8581569824931
+      430.1834819567844
     ],
     "max_acceleration_m_s2": 0.1,
-    "max_sample_interval_s": 0.00999989116303368,
-    "max_sample_spacing_m": 0.0009999891163033682,
-    "linear_chord_error_bound_m": 1.2499727909064888e-06,
+    "max_sample_interval_s": 0.009999964865016864,
+    "max_sample_spacing_m": 0.0009999964865016863,
+    "linear_chord_error_bound_m": 1.2499912162696468e-06,
     "corners": [
       {
         "waypoint_index": 1,
-        "start_time_s": 21.60416666666667,
-        "end_time_s": 30.731845670548502,
-        "closest_pass_time_s": 26.168006168607587,
-        "planned_waypoint_miss_m": 0.14142135623730953,
-        "max_intended_deviation_m": 0.1,
-        "setback_m": 0.5333333333333333,
+        "start_time_s": 5.3375,
+        "end_time_s": 11.498683327620231,
+        "closest_pass_time_s": 8.418091663810117,
+        "planned_waypoint_miss_m": 0.09545941546018392,
+        "max_intended_deviation_m": 0.0675,
+        "setback_m": 0.36000000000000004,
         "speed_m_s": 0.1,
-        "curvature_bound_m_inv": 3.9774756441783077,
-        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "curvature_bound_m_inv": 5.892556509893788,
+        "curvature_derivative_bound_m_inv2": 32.48509576536522,
         "entry_m": [
-          1.2,
-          3.866666666666667
+          0.0,
+          0.44
         ],
         "exit_m": [
-          0.6666666666666666,
-          4.4
-        ]
-      },
-      {
-        "waypoint_index": 2,
-        "start_time_s": 44.06517900388184,
-        "end_time_s": 53.19285800776367,
-        "closest_pass_time_s": 48.629018505822756,
-        "planned_waypoint_miss_m": 0.14142135623730953,
-        "max_intended_deviation_m": 0.1,
-        "setback_m": 0.5333333333333333,
-        "speed_m_s": 0.1,
-        "curvature_bound_m_inv": 3.9774756441783077,
-        "curvature_derivative_bound_m_inv2": 14.801021758094532,
-        "entry_m": [
-          -0.6666666666666666,
-          4.4
-        ],
-        "exit_m": [
-          -1.2,
-          4.933333333333334
-        ]
-      },
-      {
-        "waypoint_index": 3,
-        "start_time_s": 54.526191341097,
-        "end_time_s": 63.65387034497883,
-        "closest_pass_time_s": 59.09003084303791,
-        "planned_waypoint_miss_m": 0.14142135623730953,
-        "max_intended_deviation_m": 0.1,
-        "setback_m": 0.5333333333333333,
-        "speed_m_s": 0.1,
-        "curvature_bound_m_inv": 3.9774756441783077,
-        "curvature_derivative_bound_m_inv2": 14.801021758094532,
-        "entry_m": [
-          -1.2,
-          5.066666666666666
-        ],
-        "exit_m": [
-          -0.6666666666666666,
-          5.6
-        ]
-      },
-      {
-        "waypoint_index": 4,
-        "start_time_s": 76.98720367831216,
-        "end_time_s": 86.11488268219398,
-        "closest_pass_time_s": 81.55104318025306,
-        "planned_waypoint_miss_m": 0.14142135623730953,
-        "max_intended_deviation_m": 0.1,
-        "setback_m": 0.5333333333333333,
-        "speed_m_s": 0.1,
-        "curvature_bound_m_inv": 3.9774756441783077,
-        "curvature_derivative_bound_m_inv2": 14.801021758094532,
-        "entry_m": [
-          0.6666666666666666,
-          5.6
-        ],
-        "exit_m": [
-          1.2,
-          6.133333333333333
-        ]
-      },
-      {
-        "waypoint_index": 5,
-        "start_time_s": 111.44821601552731,
-        "end_time_s": 120.57589501940913,
-        "closest_pass_time_s": 116.01205551746821,
-        "planned_waypoint_miss_m": 0.14142135623730953,
-        "max_intended_deviation_m": 0.1,
-        "setback_m": 0.5333333333333333,
-        "speed_m_s": 0.1,
-        "curvature_bound_m_inv": 3.9774756441783077,
-        "curvature_derivative_bound_m_inv2": 14.801021758094532,
-        "entry_m": [
-          1.2,
-          8.666666666666666
-        ],
-        "exit_m": [
-          0.6666666666666666,
-          9.2
-        ]
-      },
-      {
-        "waypoint_index": 6,
-        "start_time_s": 133.90922835274247,
-        "end_time_s": 143.0369073566243,
-        "closest_pass_time_s": 138.4730678546834,
-        "planned_waypoint_miss_m": 0.14142135623730953,
-        "max_intended_deviation_m": 0.1,
-        "setback_m": 0.5333333333333333,
-        "speed_m_s": 0.1,
-        "curvature_bound_m_inv": 3.9774756441783077,
-        "curvature_derivative_bound_m_inv2": 14.801021758094532,
-        "entry_m": [
-          -0.6666666666666666,
-          9.2
-        ],
-        "exit_m": [
-          -1.2,
-          8.666666666666666
-        ]
-      },
-      {
-        "waypoint_index": 7,
-        "start_time_s": 216.37024068995763,
-        "end_time_s": 225.49791969383946,
-        "closest_pass_time_s": 220.93408019189854,
-        "planned_waypoint_miss_m": 0.14142135623730953,
-        "max_intended_deviation_m": 0.1,
-        "setback_m": 0.5333333333333333,
-        "speed_m_s": 0.1,
-        "curvature_bound_m_inv": 3.9774756441783077,
-        "curvature_derivative_bound_m_inv2": 14.801021758094532,
-        "entry_m": [
-          -1.2,
-          1.3333333333333335
-        ],
-        "exit_m": [
-          -0.6666666666666666,
+          0.36000000000000004,
           0.8
         ]
       },
       {
-        "waypoint_index": 8,
-        "start_time_s": 239.66458636050612,
-        "end_time_s": 247.3660655200314,
-        "closest_pass_time_s": 243.51532594026878,
+        "waypoint_index": 2,
+        "start_time_s": 15.39868332762023,
+        "end_time_s": 23.10016248714552,
+        "closest_pass_time_s": 19.249422907382876,
         "planned_waypoint_miss_m": 0.11932426932522991,
         "max_intended_deviation_m": 0.084375,
         "setback_m": 0.45,
@@ -348,10 +263,170 @@
         ]
       },
       {
+        "waypoint_index": 4,
+        "start_time_s": 33.00016248714552,
+        "end_time_s": 39.16134581476575,
+        "closest_pass_time_s": 36.08075415095564,
+        "planned_waypoint_miss_m": 0.09545941546018392,
+        "max_intended_deviation_m": 0.0675,
+        "setback_m": 0.36000000000000004,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 5.892556509893788,
+        "curvature_derivative_bound_m_inv2": 32.48509576536522,
+        "entry_m": [
+          1.2,
+          2.24
+        ],
+        "exit_m": [
+          0.8399999999999999,
+          2.6
+        ]
+      },
+      {
+        "waypoint_index": 5,
+        "start_time_s": 54.228012481432415,
+        "end_time_s": 63.355691485314246,
+        "closest_pass_time_s": 58.791851983373334,
+        "planned_waypoint_miss_m": 0.14142135623730953,
+        "max_intended_deviation_m": 0.1,
+        "setback_m": 0.5333333333333333,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 3.9774756441783077,
+        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "entry_m": [
+          -0.6666666666666666,
+          2.6
+        ],
+        "exit_m": [
+          -1.2,
+          3.1333333333333333
+        ]
+      },
+      {
+        "waypoint_index": 6,
+        "start_time_s": 64.68902481864758,
+        "end_time_s": 73.8167038225294,
+        "closest_pass_time_s": 69.25286432058849,
+        "planned_waypoint_miss_m": 0.14142135623730953,
+        "max_intended_deviation_m": 0.1,
+        "setback_m": 0.5333333333333333,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 3.9774756441783077,
+        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "entry_m": [
+          -1.2,
+          3.2666666666666666
+        ],
+        "exit_m": [
+          -0.6666666666666666,
+          3.8
+        ]
+      },
+      {
+        "waypoint_index": 7,
+        "start_time_s": 87.15003715586273,
+        "end_time_s": 96.27771615974456,
+        "closest_pass_time_s": 91.71387665780364,
+        "planned_waypoint_miss_m": 0.14142135623730953,
+        "max_intended_deviation_m": 0.1,
+        "setback_m": 0.5333333333333333,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 3.9774756441783077,
+        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "entry_m": [
+          0.6666666666666666,
+          3.8
+        ],
+        "exit_m": [
+          1.2,
+          4.333333333333333
+        ]
+      },
+      {
+        "waypoint_index": 8,
+        "start_time_s": 97.6110494930779,
+        "end_time_s": 106.73872849695972,
+        "closest_pass_time_s": 102.17488899501882,
+        "planned_waypoint_miss_m": 0.14142135623730953,
+        "max_intended_deviation_m": 0.1,
+        "setback_m": 0.5333333333333333,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 3.9774756441783077,
+        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "entry_m": [
+          1.2,
+          4.466666666666667
+        ],
+        "exit_m": [
+          0.6666666666666666,
+          5.0
+        ]
+      },
+      {
+        "waypoint_index": 9,
+        "start_time_s": 120.07206183029305,
+        "end_time_s": 129.1997408341749,
+        "closest_pass_time_s": 124.63590133223397,
+        "planned_waypoint_miss_m": 0.14142135623730953,
+        "max_intended_deviation_m": 0.1,
+        "setback_m": 0.5333333333333333,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 3.9774756441783077,
+        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "entry_m": [
+          -0.6666666666666666,
+          5.0
+        ],
+        "exit_m": [
+          -1.2,
+          4.466666666666667
+        ]
+      },
+      {
         "waypoint_index": 10,
-        "start_time_s": 323.2660655200314,
-        "end_time_s": 329.42724884765164,
-        "closest_pass_time_s": 326.34665718384156,
+        "start_time_s": 160.53307416750823,
+        "end_time_s": 169.66075317139007,
+        "closest_pass_time_s": 165.09691366944915,
+        "planned_waypoint_miss_m": 0.14142135623730953,
+        "max_intended_deviation_m": 0.1,
+        "setback_m": 0.5333333333333333,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 3.9774756441783077,
+        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "entry_m": [
+          -1.2,
+          1.3333333333333335
+        ],
+        "exit_m": [
+          -0.6666666666666666,
+          0.8
+        ]
+      },
+      {
+        "waypoint_index": 11,
+        "start_time_s": 183.82741983805673,
+        "end_time_s": 191.52889899758202,
+        "closest_pass_time_s": 187.67815941781936,
+        "planned_waypoint_miss_m": 0.11932426932522991,
+        "max_intended_deviation_m": 0.084375,
+        "setback_m": 0.45,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 4.714045207915031,
+        "curvature_derivative_bound_m_inv2": 20.790461289833747,
+        "entry_m": [
+          0.75,
+          0.8
+        ],
+        "exit_m": [
+          1.2,
+          1.25
+        ]
+      },
+      {
+        "waypoint_index": 13,
+        "start_time_s": 225.428898997582,
+        "end_time_s": 231.59008232520222,
+        "closest_pass_time_s": 228.5094906613921,
         "planned_waypoint_miss_m": 0.09545941546018392,
         "max_intended_deviation_m": 0.0675,
         "setback_m": 0.36,
@@ -360,18 +435,18 @@
         "curvature_derivative_bound_m_inv2": 32.48509576536523,
         "entry_m": [
           1.2,
-          8.84
+          4.64
         ],
         "exit_m": [
           0.84,
-          9.2
+          5.0
         ]
       },
       {
-        "waypoint_index": 11,
-        "start_time_s": 330.22724884765165,
-        "end_time_s": 336.3884321752719,
-        "closest_pass_time_s": 333.3078405114618,
+        "waypoint_index": 14,
+        "start_time_s": 232.39008232520223,
+        "end_time_s": 238.55126565282245,
+        "closest_pass_time_s": 235.47067398901234,
         "planned_waypoint_miss_m": 0.09545941546018392,
         "max_intended_deviation_m": 0.0675,
         "setback_m": 0.36,
@@ -380,18 +455,18 @@
         "curvature_derivative_bound_m_inv2": 32.48509576536523,
         "entry_m": [
           0.76,
-          9.2
+          5.0
         ],
         "exit_m": [
           0.4,
-          8.84
+          4.64
         ]
       },
       {
-        "waypoint_index": 12,
-        "start_time_s": 413.1884321752719,
-        "end_time_s": 419.3496155028921,
-        "closest_pass_time_s": 416.269023839082,
+        "waypoint_index": 15,
+        "start_time_s": 273.35126565282246,
+        "end_time_s": 279.5124489804427,
+        "closest_pass_time_s": 276.43185731663255,
         "planned_waypoint_miss_m": 0.09545941546018392,
         "max_intended_deviation_m": 0.0675,
         "setback_m": 0.36000000000000004,
@@ -408,10 +483,10 @@
         ]
       },
       {
-        "waypoint_index": 13,
-        "start_time_s": 420.1496155028921,
-        "end_time_s": 426.31079883051234,
-        "closest_pass_time_s": 423.23020716670226,
+        "waypoint_index": 16,
+        "start_time_s": 280.3124489804427,
+        "end_time_s": 286.4736323080629,
+        "closest_pass_time_s": 283.3930406442528,
         "planned_waypoint_miss_m": 0.09545941546018392,
         "max_intended_deviation_m": 0.0675,
         "setback_m": 0.36000000000000004,
@@ -428,10 +503,10 @@
         ]
       },
       {
-        "waypoint_index": 14,
-        "start_time_s": 503.11079883051235,
-        "end_time_s": 509.2719821581326,
-        "closest_pass_time_s": 506.1913904943225,
+        "waypoint_index": 17,
+        "start_time_s": 321.27363230806293,
+        "end_time_s": 327.43481563568315,
+        "closest_pass_time_s": 324.354223971873,
         "planned_waypoint_miss_m": 0.09545941546018392,
         "max_intended_deviation_m": 0.0675,
         "setback_m": 0.36,
@@ -440,18 +515,18 @@
         "curvature_derivative_bound_m_inv2": 32.48509576536523,
         "entry_m": [
           -0.4,
-          8.84
+          4.64
         ],
         "exit_m": [
           -0.76,
-          9.2
+          5.0
         ]
       },
       {
-        "waypoint_index": 15,
-        "start_time_s": 510.0719821581326,
-        "end_time_s": 516.2331654857528,
-        "closest_pass_time_s": 513.1525738219427,
+        "waypoint_index": 18,
+        "start_time_s": 328.23481563568316,
+        "end_time_s": 334.3959989633034,
+        "closest_pass_time_s": 331.31540729949324,
         "planned_waypoint_miss_m": 0.09545941546018392,
         "max_intended_deviation_m": 0.0675,
         "setback_m": 0.36,
@@ -460,18 +535,18 @@
         "curvature_derivative_bound_m_inv2": 32.48509576536523,
         "entry_m": [
           -0.84,
-          9.2
+          5.0
         ],
         "exit_m": [
           -1.2,
-          8.84
+          4.64
         ]
       },
       {
-        "waypoint_index": 16,
-        "start_time_s": 591.2998321524194,
-        "end_time_s": 600.4275111563012,
-        "closest_pass_time_s": 595.8636716543604,
+        "waypoint_index": 19,
+        "start_time_s": 367.46266562997005,
+        "end_time_s": 376.5903446338519,
+        "closest_pass_time_s": 372.026505131911,
         "planned_waypoint_miss_m": 0.14142135623730953,
         "max_intended_deviation_m": 0.1,
         "setback_m": 0.5333333333333333,
@@ -488,10 +563,10 @@
         ]
       },
       {
-        "waypoint_index": 17,
-        "start_time_s": 614.5941778229678,
-        "end_time_s": 622.2956569824931,
-        "closest_pass_time_s": 618.4449174027304,
+        "waypoint_index": 20,
+        "start_time_s": 390.75701130051857,
+        "end_time_s": 398.4584904600439,
+        "closest_pass_time_s": 394.60775088028123,
         "planned_waypoint_miss_m": 0.11932426932522991,
         "max_intended_deviation_m": 0.084375,
         "setback_m": 0.45,
@@ -505,6 +580,46 @@
         "exit_m": [
           1.2,
           1.25
+        ]
+      },
+      {
+        "waypoint_index": 21,
+        "start_time_s": 399.4584904600439,
+        "end_time_s": 407.1599696195692,
+        "closest_pass_time_s": 403.30923003980655,
+        "planned_waypoint_miss_m": 0.11932426932522991,
+        "max_intended_deviation_m": 0.084375,
+        "setback_m": 0.45,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 4.714045207915031,
+        "curvature_derivative_bound_m_inv2": 20.790461289833747,
+        "entry_m": [
+          1.2,
+          1.35
+        ],
+        "exit_m": [
+          0.75,
+          1.8
+        ]
+      },
+      {
+        "waypoint_index": 22,
+        "start_time_s": 409.3266362862359,
+        "end_time_s": 418.45431529011773,
+        "closest_pass_time_s": 413.8904757881768,
+        "planned_waypoint_miss_m": 0.14142135623730953,
+        "max_intended_deviation_m": 0.1,
+        "setback_m": 0.5333333333333333,
+        "speed_m_s": 0.1,
+        "curvature_bound_m_inv": 3.9774756441783077,
+        "curvature_derivative_bound_m_inv2": 14.801021758094532,
+        "entry_m": [
+          0.5333333333333333,
+          1.8
+        ],
+        "exit_m": [
+          0.0,
+          1.2666666666666666
         ]
       }
     ],
@@ -535,12 +650,9 @@
     }
   },
   "placement": {
-    "origin_mode": "vicon_absolute",
+    "origin_mode": "start_translated_vicon",
     "rotation_rad": 0.0,
-    "translation_m": [
-      0.0,
-      0.0
-    ],
+    "translation_m": null,
     "axes": "Vicon world axes; start translation, no rotation"
   },
   "execution": {
@@ -552,30 +664,32 @@
     "wheel_acceleration": "planning assumption; requires calibration",
     "yaw": "turret world yaw; base_yaw_offset belongs to controller"
   },
-  "artifact_note": "Compact export: dense samples omitted. Regenerate the full plan with continuous_waypoint --config rgbd_vicon_scan.yaml --plan-only OUTPUT.json.",
+  "artifact_note": "Compact export: dense samples omitted. Regenerate the full plan with continuous_waypoint --config rgbd_vicon_scan.yaml --plan-only OUTPUT.json. Coordinates are now offsets translated to the accepted Vicon starting XY; sample bounds are nominal offset bounds, not fixed world bounds.",
   "sample_validation": {
-    "sample_count": 62926,
+    "sample_count": 43271,
     "xy_bounds_m": {
       "x": [
         -1.2,
         1.2
       ],
       "y": [
-        0.8,
-        9.2
+        0.0,
+        5.0
       ]
     },
-    "all_sampled_positions_within_inset": true,
+    "all_sampled_positions_within_reference_envelope": true,
+    "max_requested_y_m": 5.0,
     "start_position_m": [
-      1.2,
-      1.8
+      0.0,
+      0.0
     ],
     "end_position_m": [
-      1.2,
-      1.8
+      0.0,
+      0.0
     ],
     "start_and_end_stationary": true,
     "max_sampled_speed_m_s": 0.10000000000000003,
-    "planned_duration_with_holds_s": 648.7331569824931
+    "planned_duration_with_holds_s": 452.0584819567844,
+    "coordinate_frame": "Offsets from accepted Vicon start, along Vicon world axes"
   }
 }

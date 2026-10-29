@@ -1,0 +1,541 @@
+{
+  "configById": {
+    "DiagnosticSummary!hamr_health": {
+      "title": "HAMR stream health \u2014 click a row for Hz, age and flags",
+      "topicToRender": "/hamr/diagnostics",
+      "minLevel": 0,
+      "pinnedIds": [],
+      "hardwareIdFilter": "",
+      "sortByLevel": true,
+      "secondsUntilStale": 3
+    },
+    "DiagnosticSummary!hamr_fl": {
+      "title": "Front left H1 / H2 / CENTER",
+      "topicToRender": "/hamr/diagnostics",
+      "minLevel": 0,
+      "pinnedIds": [],
+      "hardwareIdFilter": "caster/front_left",
+      "sortByLevel": true,
+      "secondsUntilStale": 3
+    },
+    "DiagnosticSummary!hamr_fr": {
+      "title": "Front right H1 / H2 / CENTER",
+      "topicToRender": "/hamr/diagnostics",
+      "minLevel": 0,
+      "pinnedIds": [],
+      "hardwareIdFilter": "caster/front_right",
+      "sortByLevel": true,
+      "secondsUntilStale": 3
+    },
+    "DiagnosticSummary!hamr_ekf": {
+      "title": "Existing ROS diagnostics / EKF",
+      "topicToRender": "/diagnostics",
+      "minLevel": 0,
+      "pinnedIds": [],
+      "hardwareIdFilter": "",
+      "sortByLevel": true,
+      "secondsUntilStale": 3
+    },
+    "Plot!hamr_front_left_angles": {
+      "title": "front_left \u2014 angles",
+      "paths": [
+        {
+          "value": "/caster_encoder/front_left/H1/joint_states.position[0]",
+          "label": "H1",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4fc3f7"
+        },
+        {
+          "value": "/caster_encoder/front_left/H2/joint_states.position[0]",
+          "label": "H2",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ffb74d"
+        },
+        {
+          "value": "/caster_encoder/front_left/CENTER/joint_states.position[0]",
+          "label": "CENTER",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#81c784"
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "showLegend": true,
+      "legendDisplay": "top",
+      "showPlotValuesInLegend": true,
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "isSynced": true,
+      "followingViewWidth": 30,
+      "sidebarDimension": 200,
+      "yAxisLabel": "rad (different axes)"
+    },
+    "Plot!hamr_front_left_velocities": {
+      "title": "front_left \u2014 velocities",
+      "paths": [
+        {
+          "value": "/caster_encoder/front_left/H1/joint_states.velocity[0]",
+          "label": "H1",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4fc3f7"
+        },
+        {
+          "value": "/caster_encoder/front_left/H2/joint_states.velocity[0]",
+          "label": "H2",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ffb74d"
+        },
+        {
+          "value": "/caster_encoder/front_left/CENTER/joint_states.velocity[0]",
+          "label": "CENTER",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#81c784"
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "showLegend": true,
+      "legendDisplay": "top",
+      "showPlotValuesInLegend": true,
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "isSynced": true,
+      "followingViewWidth": 30,
+      "sidebarDimension": 200,
+      "yAxisLabel": "rad/s"
+    },
+    "Plot!hamr_front_right_angles": {
+      "title": "front_right \u2014 angles",
+      "paths": [
+        {
+          "value": "/caster_encoder/front_right/H1/joint_states.position[0]",
+          "label": "H1",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4fc3f7"
+        },
+        {
+          "value": "/caster_encoder/front_right/H2/joint_states.position[0]",
+          "label": "H2",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ffb74d"
+        },
+        {
+          "value": "/caster_encoder/front_right/CENTER/joint_states.position[0]",
+          "label": "CENTER",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#81c784"
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "showLegend": true,
+      "legendDisplay": "top",
+      "showPlotValuesInLegend": true,
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "isSynced": true,
+      "followingViewWidth": 30,
+      "sidebarDimension": 200,
+      "yAxisLabel": "rad (different axes)"
+    },
+    "Plot!hamr_front_right_velocities": {
+      "title": "front_right \u2014 velocities",
+      "paths": [
+        {
+          "value": "/caster_encoder/front_right/H1/joint_states.velocity[0]",
+          "label": "H1",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4fc3f7"
+        },
+        {
+          "value": "/caster_encoder/front_right/H2/joint_states.velocity[0]",
+          "label": "H2",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ffb74d"
+        },
+        {
+          "value": "/caster_encoder/front_right/CENTER/joint_states.velocity[0]",
+          "label": "CENTER",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#81c784"
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "showLegend": true,
+      "legendDisplay": "top",
+      "showPlotValuesInLegend": true,
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "isSynced": true,
+      "followingViewWidth": 30,
+      "sidebarDimension": 200,
+      "yAxisLabel": "rad/s"
+    },
+    "Plot!hamr_local": {
+      "title": "Local EKF position \u2014 odom frame",
+      "paths": [
+        {
+          "value": "/local_HAMR/odom.pose.pose.position.x",
+          "label": "x",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4fc3f7"
+        },
+        {
+          "value": "/local_HAMR/odom.pose.pose.position.y",
+          "label": "y",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ffb74d"
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "showLegend": true,
+      "legendDisplay": "top",
+      "showPlotValuesInLegend": true,
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "isSynced": true,
+      "followingViewWidth": 30,
+      "sidebarDimension": 200,
+      "yAxisLabel": "m"
+    },
+    "Plot!hamr_vicon": {
+      "title": "Vicon position \u2014 Vicon world frame",
+      "paths": [
+        {
+          "value": "/HAMR_base/odom.pose.pose.position.x",
+          "label": "x",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4fc3f7"
+        },
+        {
+          "value": "/HAMR_base/odom.pose.pose.position.y",
+          "label": "y",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ffb74d"
+        },
+        {
+          "value": "/HAMR_base/odom.pose.pose.position.z",
+          "label": "z",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#81c784"
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "showLegend": true,
+      "legendDisplay": "top",
+      "showPlotValuesInLegend": true,
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "isSynced": true,
+      "followingViewWidth": 30,
+      "sidebarDimension": 200,
+      "yAxisLabel": "m"
+    },
+    "Plot!hamr_gyro": {
+      "title": "IMU angular velocity",
+      "paths": [
+        {
+          "value": "/imu/data.angular_velocity.x",
+          "label": "x",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4fc3f7"
+        },
+        {
+          "value": "/imu/data.angular_velocity.y",
+          "label": "y",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ffb74d"
+        },
+        {
+          "value": "/imu/data.angular_velocity.z",
+          "label": "z",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#81c784"
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "showLegend": true,
+      "legendDisplay": "top",
+      "showPlotValuesInLegend": true,
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "isSynced": true,
+      "followingViewWidth": 30,
+      "sidebarDimension": 200,
+      "yAxisLabel": "rad/s"
+    },
+    "Plot!hamr_accel": {
+      "title": "IMU linear acceleration",
+      "paths": [
+        {
+          "value": "/imu/data.linear_acceleration.x",
+          "label": "x",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4fc3f7"
+        },
+        {
+          "value": "/imu/data.linear_acceleration.y",
+          "label": "y",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ffb74d"
+        },
+        {
+          "value": "/imu/data.linear_acceleration.z",
+          "label": "z",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#81c784"
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "showLegend": true,
+      "legendDisplay": "top",
+      "showPlotValuesInLegend": true,
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "isSynced": true,
+      "followingViewWidth": 30,
+      "sidebarDimension": 200,
+      "yAxisLabel": "m/s\u00b2"
+    },
+    "Plot!hamr_ticks": {
+      "title": "Drive encoder ticks",
+      "paths": [
+        {
+          "value": "/left_wheel/encoder_ticks.data",
+          "label": "left_wheel",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4fc3f7"
+        },
+        {
+          "value": "/right_wheel/encoder_ticks.data",
+          "label": "right_wheel",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ffb74d"
+        },
+        {
+          "value": "/turret/encoder_ticks.data",
+          "label": "turret",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#81c784"
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "showLegend": true,
+      "legendDisplay": "top",
+      "showPlotValuesInLegend": true,
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "isSynced": true,
+      "followingViewWidth": 30,
+      "sidebarDimension": 200,
+      "yAxisLabel": "ticks"
+    },
+    "Plot!hamr_wheel_odom": {
+      "title": "Wheel odometry body velocity",
+      "paths": [
+        {
+          "value": "/wheel_odom.twist.twist.linear.x",
+          "label": "x",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#4fc3f7"
+        },
+        {
+          "value": "/wheel_odom.twist.twist.linear.y",
+          "label": "y",
+          "enabled": true,
+          "timestampMethod": "receiveTime",
+          "color": "#ffb74d"
+        }
+      ],
+      "xAxisVal": "timestamp",
+      "showLegend": true,
+      "legendDisplay": "top",
+      "showPlotValuesInLegend": true,
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "isSynced": true,
+      "followingViewWidth": 30,
+      "sidebarDimension": 200,
+      "yAxisLabel": "m/s"
+    },
+    "RawMessages!hamr_drive_status": {
+      "title": "Wheel controller status",
+      "topicPath": "/wheel_control/status",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false
+    },
+    "RawMessages!hamr_drive_diagnostics": {
+      "title": "Raw drive encoder diagnostics",
+      "topicPath": "/wheel_encoder/diagnostics",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false
+    },
+    "RawMessages!hamr_fl_report": {
+      "title": "Front left raw diagnostic JSON",
+      "topicPath": "/caster_encoder/front_left/diagnostics",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false
+    },
+    "RawMessages!hamr_fr_report": {
+      "title": "Front right raw diagnostic JSON",
+      "topicPath": "/caster_encoder/front_right/diagnostics",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false
+    },
+    "RawMessages!hamr_imu_calib": {
+      "title": "BNO055 calibration status",
+      "topicPath": "/imu/calib_status",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false
+    },
+    "RawMessages!hamr_sysinfo": {
+      "title": "Pi CPU / memory",
+      "topicPath": "/foxglove_bridge/sysinfo",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false
+    },
+    "Tab!hamr_tabs": {
+      "activeTabIdx": 0,
+      "tabs": [
+        {
+          "title": "Health",
+          "layout": {
+            "direction": "row",
+            "first": "DiagnosticSummary!hamr_health",
+            "second": {
+              "direction": "column",
+              "first": {
+                "direction": "row",
+                "first": "DiagnosticSummary!hamr_fl",
+                "second": "DiagnosticSummary!hamr_fr",
+                "splitPercentage": 50
+              },
+              "second": "DiagnosticSummary!hamr_ekf",
+              "splitPercentage": 65
+            },
+            "splitPercentage": 45
+          }
+        },
+        {
+          "title": "Caster values",
+          "layout": {
+            "direction": "row",
+            "first": {
+              "direction": "column",
+              "first": "Plot!hamr_front_left_angles",
+              "second": "Plot!hamr_front_left_velocities",
+              "splitPercentage": 50
+            },
+            "second": {
+              "direction": "column",
+              "first": "Plot!hamr_front_right_angles",
+              "second": "Plot!hamr_front_right_velocities",
+              "splitPercentage": 50
+            },
+            "splitPercentage": 50
+          }
+        },
+        {
+          "title": "Odometry + IMU",
+          "layout": {
+            "direction": "row",
+            "first": {
+              "direction": "column",
+              "first": "Plot!hamr_local",
+              "second": "Plot!hamr_vicon",
+              "splitPercentage": 50
+            },
+            "second": {
+              "direction": "column",
+              "first": "Plot!hamr_gyro",
+              "second": "Plot!hamr_accel",
+              "splitPercentage": 50
+            },
+            "splitPercentage": 50
+          }
+        },
+        {
+          "title": "Drive encoders",
+          "layout": {
+            "direction": "row",
+            "first": {
+              "direction": "column",
+              "first": "Plot!hamr_ticks",
+              "second": "Plot!hamr_wheel_odom",
+              "splitPercentage": 50
+            },
+            "second": {
+              "direction": "column",
+              "first": "RawMessages!hamr_drive_status",
+              "second": "RawMessages!hamr_drive_diagnostics",
+              "splitPercentage": 50
+            },
+            "splitPercentage": 50
+          }
+        },
+        {
+          "title": "Pi + raw diagnostics",
+          "layout": {
+            "direction": "row",
+            "first": {
+              "direction": "column",
+              "first": "RawMessages!hamr_fl_report",
+              "second": "RawMessages!hamr_fr_report",
+              "splitPercentage": 50
+            },
+            "second": {
+              "direction": "column",
+              "first": "RawMessages!hamr_imu_calib",
+              "second": "RawMessages!hamr_sysinfo",
+              "splitPercentage": 50
+            },
+            "splitPercentage": 50
+          }
+        }
+      ]
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {},
+  "linkedGlobalVariables": [],
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": "Tab!hamr_tabs"
+}

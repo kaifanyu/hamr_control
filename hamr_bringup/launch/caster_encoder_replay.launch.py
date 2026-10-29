@@ -60,6 +60,11 @@ def _start(context):
     mapping_config = Path(LaunchConfiguration("mapping_config").perform(context)).expanduser().resolve()
     if not mapping_config.is_file():
         raise ValueError(f"Mapping configuration does not exist: {mapping_config}")
+    import yaml
+    configured = yaml.safe_load(mapping_config.read_text())["replay_caster_encoder_joints"]["ros__parameters"]
+    mapping, _ = helper.select_center_reference(
+        wheel_id, {key: configured[key] for key in helper.DEFAULT_MAPPING if key in configured},
+        LaunchConfiguration("center_reference").perform(context))
     model = model_share / "urdf/ball_caster.urdf"
     if not model.is_file():
         raise ValueError(f"Install hamr_ball_caster to provide the existing CAD model: {model}")
@@ -73,7 +78,7 @@ def _start(context):
         Node(
             package="hamr_bringup", executable="replay_caster_encoder_joints",
             name="replay_caster_encoder_joints", output="screen",
-            parameters=[str(mapping_config), {"use_sim_time": True, "wheel_id": wheel_id or ""}],
+            parameters=[str(mapping_config), mapping, {"use_sim_time": True, "wheel_id": wheel_id or ""}],
         ),
         Node(
             package="robot_state_publisher", executable="robot_state_publisher",
@@ -111,5 +116,7 @@ def generate_launch_description():
         DeclareLaunchArgument("rviz", default_value="true", description="Open the CAD replay viewer"),
         DeclareLaunchArgument("mapping_config", default_value=str(share / "config/caster_encoder_replay.yaml"),
                               description="Physical side/sign/zero to CAD mapping YAML"),
+        DeclareLaunchArgument("center_reference", default_value="auto",
+                              description="auto selects saved right CENTER reference; none disables auto selection; or a reference mapping YAML"),
         OpaqueFunction(function=_start),
     ])

@@ -71,6 +71,7 @@ if [[ -n "${QOS_PROFILE_OVERRIDES_PATH}" ]]; then
 fi
 
 TOPIC_REGEX='^/d455/(color/image_raw|color/camera_info|depth/image_rect_raw|depth/color/points|imu|imu_raw)$|^/(HAMR_base|HAMR_turret)/(odom|pose|individual_marker_array)$|^/(local_HAMR/odom|wheel_odom|imu/data|imu/data_raw|imu/mag|imu/calib_status|wheel_control/status|wheel_encoder/diagnostics|tf|tf_static)$|^/(reference_trajectory|waypoints_path|state_error|live_gains)$|^/(left_wheel|right_wheel|turret)/cmd_vel$|^/(left_wheel|right_wheel|turret)/encoder_ticks$|^/(robot_pose|odom|cmd_vel)$'
+TOPIC_REGEX="${TOPIC_REGEX}|^/continuous_waypoint/(metadata|status|path)$"
 
 mkdir -p "$(dirname "${BAG_DIR}")"
 

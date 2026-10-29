@@ -1,0 +1,21 @@
+<launch>
+    <!-- Passive visualization: no hardware drivers, controllers or recording. -->
+    <arg name="port" default="8765" />
+    <arg name="address" default="0.0.0.0" />
+    <arg name="run_bridge" default="true"
+         description="Set false when another launch already owns the Foxglove port." />
+    <arg name="run_monitor" default="true" />
+    <arg name="foxglove_config" default="$(find-pkg-share hamr_bringup)/config/foxglove_bridge.yaml" />
+    <arg name="monitor_config" default="$(find-pkg-share hamr_bringup)/config/foxglove_monitor.yaml" />
+    <node pkg="foxglove_bridge" exec="foxglove_bridge" name="foxglove_bridge"
+          output="screen" if="$(var run_bridge)">
+        <param from="$(var foxglove_config)" />
+        <param name="address" value="$(var address)" />
+        <param name="port" value="$(var port)" />
+    </node>
+    <node pkg="hamr_bringup" exec="hamr_topic_monitor" name="hamr_topic_monitor"
+          output="screen" if="$(var run_monitor)">
+        <param name="config_file" value="$(var monitor_config)" />
+        <param name="use_sim_time" value="false" />
+    </node>
+</launch>

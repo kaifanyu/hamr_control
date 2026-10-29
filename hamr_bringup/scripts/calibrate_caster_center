@@ -1,0 +1,6 @@
+#!/usr/bin/env python3
+"""Capture ball-caster CENTER references and estimate rolling radii."""
+from caster_center_workflow import main
+
+if __name__ == "__main__":
+    raise SystemExit(main())

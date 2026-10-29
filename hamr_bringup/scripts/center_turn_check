@@ -1,0 +1,185 @@
+#!/usr/bin/env python3
+"""Record one manual CENTER revolution on either wheel; check the history later."""
+import argparse
+import json
+import math
+from pathlib import Path
+import sys
+import time
+
+import numpy as np
+
+from caster_center_workflow import (
+    N, TAU, center_rows, positive, pose_summary, protocol, unique_rows,
+    unwrap_center, wrap, write_new,
+)
+
+WHEEL = "front_left"
+
+
+def record(path, seconds, wheel=WHEEL):
+    import rclpy
+    from rclpy.qos import QoSProfile, ReliabilityPolicy
+    from std_msgs.msg import String
+
+    if wheel not in protocol.WHEELS:
+        raise ValueError("Choose front_left or front_right")
+    topic = f"/caster_encoder/{wheel}/packets"
+    if seconds < 10:
+        raise ValueError("Allow at least 10 seconds, including stationary endpoints")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    # Exclusive creation protects earlier measurements. Flush each raw packet so
+    # an interrupted recording can still be evaluated.
+    with path.open("x", encoding="utf-8") as output:
+        output.write(json.dumps(dict(format="center_turn_v1", wheel_id=wheel,
+                                     topic=topic, requested_seconds=seconds,
+                                     reference="User-positioned starting pose; no physical zero assigned")) + "\n")
+        output.flush()
+        rclpy.init(args=[])
+        node = rclpy.create_node("center_turn_check")
+        started = None
+        last_valid = time.monotonic()
+        latest, errors, seen = [], [], set()
+        identity = None
+
+        def callback(msg):
+            nonlocal started, last_valid, identity
+            try:
+                envelope = protocol.parse_json(msg.data)
+                packet = envelope["packet"]
+                if packet.get("node_id") != 3 or packet.get("type") != "samples":
+                    return
+                output.write(json.dumps(dict(envelope=envelope), allow_nan=False) + "\n")
+                output.flush()
+                received = envelope.get("receive_epoch_ns", 0)
+                if abs(time.time_ns() - received) > 1_000_000_000:
+                    raise ValueError("Stale/clock-mismatched packet; use the live receiver, not playback")
+                rows = center_rows(envelope, wheel, received)
+                for row in rows:
+                    current = (row["device_id"], row["boot_id"])
+                    if identity is not None and current != identity:
+                        raise ValueError("CENTER device changed or rebooted; recording retained")
+                    identity = current
+                    if row["seq"] in seen:
+                        continue
+                    seen.add(row["seq"])
+                    latest[:] = [row]
+                    last_valid = time.monotonic()
+                    if started is None:
+                        started = last_valid
+                        print(f"Starting raw position: {row['position14']} counts "
+                              f"({row['position14'] * 360 / N:.3f} deg). HOLD STILL for 3 seconds.", flush=True)
+            except (ValueError, TypeError, KeyError) as error:
+                errors.append(error)
+
+        node.create_subscription(String, topic, callback,
+                                 QoSProfile(depth=100, reliability=ReliabilityPolicy.RELIABLE))
+        print(f"Listening to {topic}. Hold H1-down still. You turn the carrier manually.", flush=True)
+        announced_turn = announced_stop = False
+        try:
+            while rclpy.ok():
+                rclpy.spin_once(node, timeout_sec=.05)
+                if errors:
+                    raise errors[0]
+                now = time.monotonic()
+                if now - last_valid > 5:
+                    raise ValueError("No fresh valid CENTER samples for 5 seconds; check live telemetry")
+                if started is None:
+                    continue
+                elapsed = now - started
+                if elapsed >= 3 and not announced_turn:
+                    print("GO: turn the carrier ONE full revolution in one direction, back to your mark. "
+                          "Then HOLD STILL. Do not reverse back through another revolution.", flush=True)
+                    announced_turn = True
+                if elapsed >= seconds - 3 and not announced_stop:
+                    print("Final 3 seconds: HOLD STILL at your starting mark.", flush=True)
+                    announced_stop = True
+                if elapsed >= seconds:
+                    break
+        except KeyboardInterrupt:
+            print("Stopped early; partial history retained.", flush=True)
+        finally:
+            node.destroy_node()
+            if rclpy.ok():
+                rclpy.shutdown()
+            print(f"History saved: {path}", flush=True)
+        if latest:
+            print(f"Last raw position: {latest[0]['position14']} counts. Run check to evaluate the full history.")
+
+
+def evaluate(path, max_rpm):
+    rows, rejected = [], 0
+    with path.open(encoding="utf-8") as source:
+        header = protocol.parse_json(next(source, "{}"))
+        wheel = header.get("wheel_id")
+        if header.get("format") != "center_turn_v1" or wheel not in protocol.WHEELS:
+            raise ValueError("Not an identified left/right center_turn_v1 recording")
+        for number, line in enumerate(source, 2):
+            try:
+                envelope = protocol.parse_json(line)["envelope"]
+                valid = center_rows(envelope, wheel, envelope["receive_epoch_ns"])
+                rejected += len(envelope["packet"]["samples"]) - len(valid)
+                rows.extend(valid)
+            except (ValueError, TypeError, KeyError) as error:
+                raise ValueError(f"Line {number}: {error}") from error
+    rows = unique_rows(rows, wheel)
+    rows, angle = unwrap_center(rows, wheel, rows[0]["device_id"], max_rpm)
+    times = np.array([r["t_us"] - rows[0]["t_us"] for r in rows]) * 1e-6
+    if times[-1] < 6:
+        raise ValueError("Need at least 6 seconds including stationary start and finish")
+    first, last = times <= 2, times >= times[-1] - 2
+    start = pose_summary([r for r, keep in zip(rows, first) if keep], wheel)
+    finish = pose_summary([r for r, keep in zip(rows, last) if keep], wheel)
+    delta = float(np.mean(angle[last]) - np.mean(angle[first]))
+    relative = angle - np.mean(angle[first])
+    dominant = 1 if relative[np.argmax(np.abs(relative))] >= 0 else -1
+    progress = dominant * relative
+    backtrack = float(np.degrees(np.max(np.maximum.accumulate(progress) - progress)))
+    return_error = float(np.degrees(wrap(finish["mean_raw_rad"] - start["mean_raw_rad"])))
+    turn_error = abs(abs(math.degrees(delta)) - 360)
+    passed = turn_error <= 2 and abs(return_error) <= 2 and backtrack <= 2
+    return dict(result="PASS" if passed else "FAIL", wheel_id=wheel,
+                device_id=rows[0]["device_id"], boot_id=rows[0]["boot_id"],
+                start_position14_mean=start["mean_raw_rad"] * N / TAU,
+                finish_position14_mean=finish["mean_raw_rad"] * N / TAU,
+                signed_rotation_deg=math.degrees(delta), signed_revolutions=delta / TAU,
+                return_error_deg=return_error, full_turn_error_deg=turn_error,
+                maximum_backtrack_deg=backtrack, tolerance_deg=2,
+                valid_unique_samples=len(rows), rejected_samples=rejected,
+                duration_s=float(times[-1]), max_rpm_assumption=max_rpm,
+                max_valid_sample_gap_s=float(np.max(np.diff(times))),
+                note="Conditional on the supplied speed bound and your physical starting mark. "
+                     "This checks turn history/return repeatability; it does not set CENTER zero or prove angular accuracy.")
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    commands = parser.add_subparsers(dest="command", required=True)
+    capture = commands.add_parser("record", help="Manual turn, 3-second stationary endpoints")
+    capture.add_argument("file", type=Path)
+    capture.add_argument("--wheel", choices=protocol.WHEELS, default=WHEEL,
+                         help="Wheel to record (default: front_left); check reads it from the file")
+    capture.add_argument("--seconds", type=positive, default=30)
+    check = commands.add_parser("check", help="Evaluate saved history without ROS")
+    check.add_argument("file", type=Path)
+    check.add_argument("--max-rpm", type=positive, required=True,
+                       help="Credible upper speed bound throughout recording (60 = one turn/second)")
+    check.add_argument("--report", type=Path, help="Optional new JSON report file")
+    args = parser.parse_args(argv)
+    try:
+        if args.command == "record":
+            record(args.file, args.seconds, args.wheel)
+        else:
+            result = evaluate(args.file, args.max_rpm)
+            if args.report:
+                write_new(args.report, result)
+            print(json.dumps(result, indent=2, allow_nan=False))
+            return 0 if result["result"] == "PASS" else 1
+        return 0
+    except (ValueError, RuntimeError, OSError, TypeError, KeyError, ImportError) as error:
+        print(f"center_turn_check: {error}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

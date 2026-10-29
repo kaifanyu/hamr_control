@@ -30,7 +30,7 @@ def _parameters(path, node_name):
     return entry["ros__parameters"]
 
 
-def validate_hardware_configuration(planner, controller):
+def validate_hardware_configuration(planner, controller, controller_odom_timeout_s=0.12):
     """Prevent a simulation profile or inconsistent kinematics reaching hardware."""
     if planner.get("use_sim_time", False) or controller.get("use_sim_time", False):
         raise ValueError("Real-car continuous planning requires use_sim_time=false")
@@ -38,7 +38,7 @@ def validate_hardware_configuration(planner, controller):
     # misspelled parameters must fail before the serial bridge is started.
     from reference_trajectory.continuous_execution import build_plan, validate_config
     planner = validate_config({key: value for key, value in planner.items()
-                               if key != "use_sim_time"})
+                               if key != "use_sim_time"}, odom_timeout_limit_s=0.20)
     build_plan(planner)
     if controller.get("simulating") is not False or controller.get("mode") != "auto":
         raise ValueError("Hardware controller must have simulating=false and mode=auto")
@@ -69,15 +69,15 @@ def validate_hardware_configuration(planner, controller):
     if not (math.isfinite(planned_cap) and math.isfinite(hardware_cap)
             and 0.0 < planned_cap <= hardware_cap + 1e-9):
         raise ValueError("Planner wheel speed limit exceeds the hardware controller limit")
-    # The included hardware launch is deliberately kept at its existing 120 ms
-    # reference and accepted-odometry watchdogs. The publisher must abort first.
-    for name in ("odom_timeout_s", "max_publish_gap_s"):
-        try:
-            timeout = float(planner[name])
-        except (KeyError, TypeError, ValueError) as error:
-            raise ValueError(f"Missing or invalid planner watchdog: {name}") from error
-        if not (math.isfinite(timeout) and 0.0 < timeout < 0.12):
-            raise ValueError(f"{name} must be positive and below the hardware 0.12 s watchdog")
+    # Only Vicon feedback may opt in to 200 ms. Reference timing remains bounded
+    # by the independent 120 ms controller watchdog.
+    timeout = float(controller_odom_timeout_s)
+    if not (math.isfinite(timeout) and 0.0 < timeout <= 0.20):
+        raise ValueError("controller_odom_timeout_s must be positive and <= 0.20 s")
+    if planner["odom_timeout_s"] > timeout:
+        raise ValueError("Planner odom_timeout_s exceeds controller_odom_timeout_s")
+    if not 0.0 < planner["max_publish_gap_s"] < 0.12:
+        raise ValueError("max_publish_gap_s must be below the hardware 0.12 s watchdog")
 
 
 def _configure(context):
@@ -85,7 +85,10 @@ def _configure(context):
     planner_config = LaunchConfiguration("planner_config").perform(context)
     planner = _parameters(planner_config, "continuous_waypoint")
     controller = _parameters(bringup / "config/hamr_hw_control_params.yaml", "hamr_controller_node")
-    validate_hardware_configuration(planner, controller)
+    controller_odom_timeout_s = LaunchConfiguration(
+        "controller_odom_timeout_s", default="0.12"
+    ).perform(context)
+    validate_hardware_configuration(planner, controller, controller_odom_timeout_s)
     odom_topic = LaunchConfiguration("odom_topic").perform(context)
     if not odom_topic.startswith("/") or any(char.isspace() for char in odom_topic):
         raise ValueError("odom_topic must be an absolute ROS topic in the Vicon world frame")
@@ -94,9 +97,8 @@ def _configure(context):
         for name in (
             "record_bag", "record_camera", "camera_repository", "camera_config",
             "recording_root", "camera_segment_mib", "run_foxglove", "use_mag",
-            "use_orientation", "ekf_config", "wheel_odom_config",
-            "caster_encoders", "caster_encoder_config", "caster_encoder_mode", "caster_encoder_bind_address",
-            "caster_encoder_udp_port", "caster_encoder_stale_timeout_s",
+            "use_orientation", "ekf_config", "wheel_odom_config", "run_localization",
+            "wheel_base_odom_topic",
         )
     }
     forwarded.update({
@@ -104,7 +106,7 @@ def _configure(context):
         "controller_odom_topic": odom_topic,
         "controller_xy_velocity_source": "odom_twist_world",
         "controller_reference_timeout_s": "0.12",
-        "controller_odom_timeout_s": "0.12",
+        "controller_odom_timeout_s": controller_odom_timeout_s,
         "controller_vicon_pose_guard_enabled": "true",
         "controller_vicon_min_z_m": str(planner.get("odom_min_z_m", 0.25)),
         "controller_vicon_max_z_m": str(planner.get("odom_max_z_m", 0.40)),
@@ -141,13 +143,12 @@ def generate_launch_description():
             description="Raw Vicon world odometry used by both planner and hardware controller",
         ),
         DeclareLaunchArgument("record_bag", default_value="true"),
-        DeclareLaunchArgument("caster_encoders", default_value="true"),
-        DeclareLaunchArgument("caster_encoder_config", default_value=PathJoinSubstitution(
-            [bringup, "config", "caster_encoders.yaml"])),
-        DeclareLaunchArgument("caster_encoder_mode", default_value="dual", choices=["dual", "legacy"]),
-        DeclareLaunchArgument("caster_encoder_bind_address", default_value="0.0.0.0"),
-        DeclareLaunchArgument("caster_encoder_udp_port", default_value="5005"),
-        DeclareLaunchArgument("caster_encoder_stale_timeout_s", default_value="1.0"),
+        DeclareLaunchArgument("run_localization", default_value="true"),
+        DeclareLaunchArgument("wheel_base_odom_topic", default_value="HAMR_base/odom"),
+        DeclareLaunchArgument(
+            "controller_odom_timeout_s", default_value="0.12",
+            description="Vicon feedback timeout; explicitly allow up to 0.20 seconds.",
+        ),
         DeclareLaunchArgument(
             "record_camera", default_value="false",
             description="Opt in to the external dual-camera repository and calibrated rig",

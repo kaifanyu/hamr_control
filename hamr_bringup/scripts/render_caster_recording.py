@@ -183,8 +183,10 @@ def main():
     parser.add_argument("--width", type=int, default=1600)
     parser.add_argument("--no-plots", action="store_true", help="Render the caster without the angle plots")
     parser.add_argument("--mapping-config", type=Path)
+    parser.add_argument("--center-reference", default="auto",
+                        help="auto uses saved right CENTER reference; none disables auto selection; or specify a reference mapping YAML")
     parser.add_argument("--start-pose", choices=("ground-contact", "recorded"), default="ground-contact",
-                        help="default: assume H1 forward/H2 back at ground at the first complete pose; recorded uses the original CAD angle mapping")
+                        help="without an absolute CENTER reference: assume H1 forward/H2 back, or use recorded CAD mapping; an enabled reference preserves measured starting phase")
     parser.add_argument("--preview-time", type=float, help="Render one PNG at this elapsed recording time instead of a video")
     parser.add_argument("--full-detail", action="store_true")
     args = parser.parse_args()
@@ -225,6 +227,7 @@ def main():
         render(argparse.Namespace(
             bag=bag, wheel=wheel, topic=None, rate=args.rate, fps=args.fps,
             width=args.width, plots=not args.no_plots, mapping_config=args.mapping_config,
+            center_reference=args.center_reference,
             full_detail=args.full_detail, preview_time=args.preview_time, start_pose=args.start_pose, output_dir=output))
     except (ValueError, OSError, RuntimeError, ImportError) as error:
         parser.exit(2, f"render_caster_recording: {error}\n")

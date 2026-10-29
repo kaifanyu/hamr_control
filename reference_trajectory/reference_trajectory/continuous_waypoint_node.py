@@ -30,6 +30,11 @@ def default_config_path():
     )
 
 
+def validate_runtime_config(overrides):
+    """Allow opt-in 200 ms Vicon feedback; keep reference timing separate."""
+    return validate_config(overrides, odom_timeout_limit_s=0.20)
+
+
 def load_config(path):
     """Read the named node's ROS parameter YAML without initializing ROS."""
     import yaml
@@ -41,7 +46,7 @@ def load_config(path):
         raise ValueError(
             'Expected continuous_waypoint.ros__parameters YAML'
         ) from exc
-    return validate_config(parameters)
+    return validate_runtime_config(parameters)
 
 
 def plan_document(cfg, plan):
@@ -165,7 +170,7 @@ def finite_feedback(msg, received_s, cfg):
 
 
 def create_node(parameter_overrides=None, *, node_name='continuous_waypoint',
-                config_defaults=None, config_validator=validate_config,
+                config_defaults=None, config_validator=validate_runtime_config,
                 plan_builder=build_plan, document_builder=runtime_document):
     """Construct the ROS node lazily so dry planning needs no ROS runtime."""
     from hamr_interfaces.msg import ReferenceTraj

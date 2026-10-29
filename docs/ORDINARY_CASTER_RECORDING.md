@@ -95,8 +95,8 @@ or start vehicle motion.
 ```bash
 export HAMR_BAG_ROOT="$HOME/hamster_ws/src/hamr_control/rosbags"
 
-# First launch the existing hardware stack and robot bag. Disable its ball
-# bridges with caster_encoders:=false. Wait until its bag is recording.
+# First launch the existing hardware stack and robot bag.
+# Caster acquisition runs separately. Wait until the robot bag is recording.
 
 # Start all four local encoders BEFORE triggering the vehicle trajectory.
 ros2 run hamr_bringup caster_recording --caster-type ordinary \

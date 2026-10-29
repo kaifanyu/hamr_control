@@ -19,6 +19,6 @@
     udp_port: 5008
     stale_timeout_s: 1.0
     ordinary_layout: split
-    expected_device_ids: ["", ""]
+    expected_device_ids: ["", "10:bd:a3:b0:8a:28"]
     expected_source_ips: ["", ""]
     use_sim_time: false

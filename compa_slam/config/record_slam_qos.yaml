@@ -66,3 +66,19 @@
   durability: transient_local
   history: keep_last
   depth: 100
+
+/continuous_waypoint/metadata:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 1
+/continuous_waypoint/status:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 10
+/continuous_waypoint/path:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 1

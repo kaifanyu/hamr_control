@@ -1,0 +1,25 @@
+# Receipt health, not control-loop deadlines or proof of sensor accuracy.
+# Rates are observed by this subscriber over a rolling window. No assumed Hz.
+publish_hz: 2.0
+rate_window_s: 5.0
+diagnostics_topic: /hamr/diagnostics
+caster_diagnostic_timeout_s: 2.5
+streams:
+  - {name: caster/front_left/H1, topic: /caster_encoder/front_left/H1/joint_states, type: sensor_msgs/msg/JointState, timeout_s: 1.0}
+  - {name: caster/front_left/H2, topic: /caster_encoder/front_left/H2/joint_states, type: sensor_msgs/msg/JointState, timeout_s: 1.0}
+  - {name: caster/front_left/CENTER, topic: /caster_encoder/front_left/CENTER/joint_states, type: sensor_msgs/msg/JointState, timeout_s: 1.0}
+  - {name: caster/front_right/H1, topic: /caster_encoder/front_right/H1/joint_states, type: sensor_msgs/msg/JointState, timeout_s: 1.0}
+  - {name: caster/front_right/H2, topic: /caster_encoder/front_right/H2/joint_states, type: sensor_msgs/msg/JointState, timeout_s: 1.0}
+  - {name: caster/front_right/CENTER, topic: /caster_encoder/front_right/CENTER/joint_states, type: sensor_msgs/msg/JointState, timeout_s: 1.0}
+  - {name: odometry/local_EKF, topic: /local_HAMR/odom, type: nav_msgs/msg/Odometry, timeout_s: 1.0}
+  - {name: odometry/wheel, topic: /wheel_odom, type: nav_msgs/msg/Odometry, timeout_s: 1.0}
+  - {name: vicon/base, topic: /HAMR_base/odom, type: nav_msgs/msg/Odometry, timeout_s: 1.0}
+  - {name: vicon/turret, topic: /HAMR_turret/odom, type: nav_msgs/msg/Odometry, timeout_s: 1.0}
+  - {name: imu/data, topic: /imu/data, type: sensor_msgs/msg/Imu, timeout_s: 1.0}
+  - {name: imu/magnetometer, topic: /imu/mag, type: sensor_msgs/msg/MagneticField, timeout_s: 1.0}
+  - {name: imu/calibration, topic: /imu/calib_status, type: std_msgs/msg/UInt8MultiArray, timeout_s: 3.0}
+  - {name: drive/left_ticks, topic: /left_wheel/encoder_ticks, type: std_msgs/msg/Int32, timeout_s: 1.0}
+  - {name: drive/right_ticks, topic: /right_wheel/encoder_ticks, type: std_msgs/msg/Int32, timeout_s: 1.0}
+  - {name: drive/turret_ticks, topic: /turret/encoder_ticks, type: std_msgs/msg/Int32, timeout_s: 1.0}
+  - {name: drive/control_status, topic: /wheel_control/status, type: std_msgs/msg/Float64MultiArray, timeout_s: 3.0}
+  - {name: drive/encoder_diagnostics, topic: /wheel_encoder/diagnostics, type: std_msgs/msg/Float64MultiArray, timeout_s: 3.0}

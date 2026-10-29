@@ -14,7 +14,126 @@ board continues recording, or stops when its storage is full.
 original binary logs and analysis exports beside the robot's bags, then
 acknowledges the verified downloads. The acknowledgement permits a future
 `start` to reuse storage; it does not immediately erase the retained recording.
-Robot motion and the original rosbag are never modified by these commands.
+The low-level `caster_recording` commands do not stop the robot bag. The unified
+start/stop workflow below also closes the associated bag and creates a merged
+copy, while leaving hardware and trajectory nodes running.
+
+## Unified manual start and stop (ball casters)
+
+Launch your normal `hamr_HW.launch.xml` with `record_bag:=true` first. Wait until
+its bag recorder reports that recording has started. Then, in another terminal:
+
+```bash
+source ~/hamster_ws/install/setup.bash
+ros2 run hamr_bringup start_encoder_recording
+
+# Run your experiment. When finished, in any sourced terminal:
+ros2 run hamr_bringup stop_encoder_recording
+```
+
+The start command discovers **all available H1, H2, and CENTER boards on both
+front_left and front_right**, validates their identities, prints missing roles,
+**erases their previous onboard recordings, including undownloaded logs**, and
+starts the new recordings with the full recording partition available. It
+returns after startup; no background
+client or open terminal is needed. A unique session ID is saved automatically.
+Boards that appear later are not added to the running session. Zero boards,
+duplicate identities, an inactive robot bag, or firmware without guarded erase
+support cause an error before any boards are erased. The selected boards pass
+identity, storage, and firmware checks before preparation. Any old onboard
+recording still running is stopped before its flash is erased. Firmware,
+configuration, and files already saved on the Pi are preserved.
+
+An active unified session must be stopped before starting another one. If its
+stop closed the robot bag but an ESP download failed, a new start can discard
+that remaining onboard data after you launch a new robot bag. Old Pi session
+folders remain available. This automatic erase policy applies to
+`start_encoder_recording`; the low-level `caster_recording start` still requires
+an explicit `--discard-existing` to discard unread data.
+
+The start output reports each board's actual flash capacity in seconds. Manual
+stop does **not** remove that limit (approximately 2.5 minutes on the current
+4 MiB layout at 200 Hz); stop before the shortest reported limit. A full flash
+stops acquisition early and is reported as incomplete even if download succeeds.
+
+The stop command:
+
+1. Stops the selected ESP recordings and takes final clock probes.
+2. Downloads their binary logs, verifies lengths/CRCs/identities, and acknowledges
+   only verified, durable files.
+3. Sends SIGINT to **the exact robot bag recorder saved at start**, allowing it
+   to close cleanly. This ends that bag's recording; hardware, motion control,
+   and trajectory nodes keep running. It never signals the whole launch.
+4. Creates a new combined MCAP rosbag containing every original robot message
+   plus the encoder samples. The original robot bag and ESP logs are retained.
+
+The default root is `~/hamster_ws/src/hamr_control/rosbags`, or `HAMR_BAG_ROOT`.
+Both commands accept `--root /path`. Files are organized as:
+
+```text
+rosbags/
+  hamr_hw_<timestamp>/              # original Pi bag
+  encoder_<session-id>/
+    session.json                   # exact bag/process, missing boards, outcome
+    manifest.json                  # device identities, clock probes, CRCs
+    front_left_H1_<MAC>.bin         # one original binary per selected board
+    ...
+    samples.csv, packets.jsonl, metadata.jsonl
+    clock-map.json, export-summary.json
+    bags/
+      encoders/                    # aligned onboard messages only
+      combined/                    # use this rosbag for the full experiment
+      merge-result.json            # verified message counts
+```
+
+Existing odometry, IMU, Vicon, transforms, actuator and reference-trajectory
+messages retain their original serialized data and bag timestamps. Only topics
+actually published and selected by the hardware recorder can be included; this
+does not synthesize missing odometry or trajectory history. The original bag's
+full time span is retained, including data before encoder start and during the
+stop/download step.
+
+New onboard topics use a separate namespace so they cannot be confused with
+live UDP data already in the robot bag:
+
+| Topic | Contents |
+| --- | --- |
+| `/caster_recording/front_left/packets` | Original samples, flags, identities, acquisition times and estimated clock maps (JSON String) |
+| `/caster_recording/front_left/metadata` | Device firmware/configuration and timing provenance (JSON String) |
+| `/caster_recording/front_left/H1/joint_states` | Valid H1 readings with estimated Pi acquisition timestamps |
+| `/caster_recording/front_left/H2/joint_states` | Valid H2 readings |
+| `/caster_recording/front_left/CENTER/joint_states` | Valid calibrated CENTER angles |
+| `/caster_recording/session` | Session manifest and clock uncertainty (JSON String) |
+
+The same per-wheel topics exist for `front_right` when those boards are present.
+Invalid samples remain in `packets` and the original binaries; they are not
+turned into valid joint measurements. ESP microsecond timestamps are mapped to
+Pi epoch time using clock probes before and after recording. These are
+**estimates**, with uncertainty retained, not a claim of hardware synchronization.
+Original firmware clock flags remain unchanged. Missing/invalid clock maps
+prevent an aligned merge; downloads are retained without substituting download
+time for acquisition time.
+
+Optional explicit selection and recovery:
+
+```bash
+# Name a run and select an exact active robot bag if multiple are running:
+ros2 run hamr_bringup start_encoder_recording trial_001 --bag /absolute/robot/bag
+ros2 run hamr_bringup stop_encoder_recording trial_001
+
+# If broadcast discovery is blocked, repeat --node for each available board:
+ros2 run hamr_bringup start_encoder_recording \
+  --node front_left:H1@192.168.1.111 \
+  --node front_right:CENTER@192.168.1.123
+```
+
+Both commands accept `--config` for the **recording** inventory (not the live
+`caster_encoders.yaml`), `--discovery-address`, and `--discovery-timeout`.
+Rerun the same stop command after a transient network/download failure; it
+reuses verified files and never restarts recording. A completed stop is
+idempotent and requires no boards online. A new session requires a new active
+robot bag because stop finalized the preceding one. Foxglove and the live
+caster bridges are not required for this workflow.
 
 ## Install once
 
@@ -54,7 +173,8 @@ Use the same bag root as the existing robot recorder. Its default is
 export HAMR_BAG_ROOT="$HOME/hamster_ws/src/hamr_control/rosbags"
 
 # Launch your usual hardware/trajectory stack and its robot bag first.
-# Add caster_encoders:=false to disable the live caster receivers.
+# Onboard flash recording is started separately from hardware bringup.
+# Its optional run_caster_encoders flag only receives live UDP telemetry.
 # Wait for the robot bag to report that recording has started.
 
 # Example experiment identifier; choose a new identifier for every run.

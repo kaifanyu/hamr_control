@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Render an existing encoder recording with a fixed upright starting pose.
+# Render an existing encoder recording with the available CENTER reference.
 set -euo pipefail
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -9,10 +9,10 @@ usage() {
 Usage: bash render_caster_simulation.sh RECORDING_FOLDER [OUTPUT_FOLDER] [OPTIONS]
 
 Render the caster animation from a downloaded encoder_<run> folder containing
-packets.jsonl. Starts with the fork vertical, H1 forward (+X), H2 back (-X),
-and both hemispheres at floor level. CENTER rotation is reversed; H1/H2 retain
-their recorded directions. Subsequent angle changes use these directions.
-The first complete fresh encoder pose defines this assumed starting reference.
+packets.jsonl. Front-right automatically uses its saved absolute CENTER reference
+and measured starting count; H1/H2 retain recorded relative shell angles.
+Without a saved reference, starts with H1 forward (+X), H2 back (-X) and both
+hemispheres at floor level; CENTER is reversed and the first fresh pose is zeroed.
 
 The video has no angle plots. Defaults: 1x speed, 30 fps, 1600x900.
 Output defaults to a new timestamped folder under ~/Videos/hamr_sim/.
@@ -20,6 +20,7 @@ An explicit output folder must be empty or absent.
 
 Options:
   --wheel front_left|front_right  Required if the recording has both wheels
+  --center-reference auto|none|PATH  Saved CENTER mapping (default: auto)
   --rate NUMBER                  Playback speed (default: 1)
   --fps NUMBER                   Frames per second (default: 30)
   --width NUMBER                 Width >=800, divisible by 32 (default: 1600)
@@ -28,8 +29,8 @@ Options:
   -h, --help                     Show this help
 
 Uses render_caster_recording.sh and its Ubuntu/ROS rendering dependencies.
-The ground-contact start, reversed CENTER mapping, and no-plots mode are fixed
-by this preset.
+The no-plots mode is fixed by this preset. A saved CENTER reference takes
+precedence over its otherwise assumed ground-contact start and CENTER direction.
 See docs/LOCAL_CASTER_RECORDING.md for dependency installation.
 
 Example (from the repository root):

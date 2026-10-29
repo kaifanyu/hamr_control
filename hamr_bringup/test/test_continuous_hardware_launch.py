@@ -42,6 +42,36 @@ def test_real_profile_matches_calibrated_hardware(configurations):
     LAUNCH.validate_hardware_configuration(*configurations)
 
 
+def test_200_ms_vicon_requires_matching_controller_timeout(configurations):
+    planner, controller = copy.deepcopy(configurations)
+    planner['odom_timeout_s'] = 0.20
+    with pytest.raises(ValueError, match='exceeds controller'):
+        LAUNCH.validate_hardware_configuration(planner, controller)
+    LAUNCH.validate_hardware_configuration(planner, controller, 0.20)
+    planner['max_publish_gap_s'] = 0.20
+    with pytest.raises(ValueError, match='max_publish_gap_s'):
+        LAUNCH.validate_hardware_configuration(planner, controller, 0.20)
+
+
+def test_localization_disable_gates_wheel_odometry_and_every_ekf():
+    root = ET.parse(PACKAGE / 'launch/hamr_HW.launch.xml').getroot()
+    wheel = next(node for node in root.findall('node')
+                 if node.get('exec') == 'holonomic_odom_node')
+    assert wheel.get('if') == '$(var run_localization)'
+    group = next(g for g in root.findall('group')
+                 if g.get('if') == '$(var run_localization)')
+    assert len(group.findall('.//node[@exec="ekf_node"]')) == 3
+    assert len(root.findall('.//node[@exec="ekf_node"]')) == 3
+
+
+def test_wheel_auxiliary_heading_can_use_onboard_odom_without_remapping_controller():
+    root = ET.parse(PACKAGE / 'launch/hamr_HW.launch.xml').getroot()
+    wheel = root.find('node[@exec="holonomic_odom_node"]')
+    assert wheel.find('param[@name="base_odom_topic"]').get('value') == '$(var wheel_base_odom_topic)'
+    controller = root.find('node[@exec="hamr_controller"]')
+    assert controller.find('remap[@from="HAMR_base/odom"]').get('to') == '$(var controller_odom_topic)'
+
+
 @pytest.mark.parametrize("key,value", [
     ("wheel_radius_m", 0.1075),
     ("half_track_m", 0.33072),
@@ -49,7 +79,7 @@ def test_real_profile_matches_calibrated_hardware(configurations):
     ("max_wheel_rate_rad_s", 6.0),
     ("max_wheel_rate_rad_s", float("nan")),
     ("use_sim_time", True),
-    ("odom_timeout_s", 0.12),
+    ("odom_timeout_s", 0.20),
     ("max_publish_gap_s", 0.0),
     ("points_m_flat", [0.0, 0.0, 0.0, 0.0]),
     ("points_m_flat", [0.0, 0.0, 0.0]),

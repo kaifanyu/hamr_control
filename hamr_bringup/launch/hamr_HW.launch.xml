@@ -11,6 +11,8 @@
     <arg name="ekf_config" default="$(var ekf_config_path)" />
     <arg name="wheel_odom_config"
          default="$(find-pkg-share hamr_bringup)/config/wheel_odometry_calibration.yaml" />
+    <arg name="wheel_base_odom_topic" default="HAMR_base/odom"
+         description="Base yaw input for the wheel node's auxiliary turret estimate." />
     <let name="ekf_mag_config_path"
         value="$(find-pkg-share hamr_bringup)/config/ekf_mag.yaml" />
     <let name="ekf_orientation_config_path"
@@ -20,13 +22,10 @@
     <arg name="bridge_config" default="$(var bridge_config_path)"
          description="Serial bridge and IMU covariance profile." />
     <arg name="record_bag" default="true" />
-    <arg name="caster_encoders" default="true" description="Receive the caster ESP UDP telemetry for live plots and bags." />
-    <arg name="caster_encoder_config" default="$(find-pkg-share hamr_bringup)/config/caster_encoders.yaml" />
-    <arg name="caster_encoder_mode" default="dual" />
-    <!-- The address/port/timeout overrides below apply only to legacy mode. -->
-    <arg name="caster_encoder_bind_address" default="0.0.0.0" />
-    <arg name="caster_encoder_udp_port" default="5005" />
-    <arg name="caster_encoder_stale_timeout_s" default="1.0" />
+    <arg name="run_caster_encoders" default="false"
+         description="Start both caster UDP receivers; use the hardware launch's recorder and Foxglove bridge." />
+    <arg name="caster_encoder_config" default="$(env HOME)/caster_encoders.yaml"
+         description="Operator-owned front-left/front-right caster ports and device inventory." />
     <arg name="record_camera" default="true" description="Record both caster cameras throughout the hardware session." />
     <arg name="camera_repository" default="$(env HOME)/Caster_Vision/ball_caster_dual_cam" />
     <arg name="camera_config" default="$(var camera_repository)/config/rig.yaml"
@@ -34,6 +33,8 @@
     <arg name="recording_root" default="$(env HOME)/hamster_ws/recordings" description="Camera clip directory; robot bags still use HAMR_BAG_ROOT." />
     <arg name="camera_segment_mib" default="1024" />
     <arg name="run_controller" default="true" />
+    <arg name="run_localization" default="true"
+         description="Run encoder wheel odometry and the onboard EKF." />
     <!-- Bound how long a cached trajectory command can survive a publisher
          abort. Supervised hardware tests require this exact 120 ms value. -->
     <arg name="controller_reference_timeout_s" default="0.12" />
@@ -88,9 +89,11 @@
 
     <!-- Wheel odometry: integrates encoder ticks → /wheel_odom
          publish_tf is false because the EKF below owns the odom→base_link TF -->
-    <node pkg="hamr_odometry" exec="holonomic_odom_node" output="screen">
+    <node pkg="hamr_odometry" exec="holonomic_odom_node" output="screen"
+          if="$(var run_localization)">
         <param from="$(var wheel_odom_config)" />
         <param name="publish_tf" value="false"/>
+        <param name="base_odom_topic" value="$(var wheel_base_odom_topic)" />
     </node>
 
     <!-- IMU mounting TF: BNO055 is mounted flat and axis-aligned with base_link
@@ -104,6 +107,7 @@
          use_orientation:=true             -> ekf_orientation.yaml  (BNO055 quaternion yaw, relative; no raw gz)
          use_orientation:=false use_mag:=false -> ekf_config        (calibrated wheel vx/vy/yaw-rate + gyro)
          use_orientation:=false use_mag:=true  -> ekf_mag.yaml      (BNO055 absolute-yaw / magnetometer) -->
+    <group if="$(var run_localization)">
     <group unless="$(var use_orientation)">
         <node pkg="robot_localization" exec="ekf_node" name="ekf_filter_node" output="screen"
               unless="$(var use_mag)">
@@ -121,6 +125,7 @@
         <param from="$(var ekf_orientation_config_path)"/>
         <remap from="odometry/filtered" to="local_HAMR/odom"/>
     </node>
+    </group>
 
     <!-- uROS bridge — serial_port/baud configured in hamr_uros_bridge.yaml
          ESP USB-CDC (logs) is /dev/ttyACM0 @ 115200.
@@ -132,20 +137,18 @@
     <!-- Waypoint trajectory publisher — loops the hardcoded path in waypoint_traj_simple.py -->
     <!-- <node pkg="reference_trajectory" exec="waypoint_traj_simple" output="screen" /> -->
 
-    <!-- Record Vicon, onboard localization, commands, and encoder ticks for offline comparison. -->
-    <!-- Keep the encoder-only recorder disabled without overriding the parent
-         record_bag setting: ROS 2 include arguments are otherwise unscoped. -->
-    <group scoped="true">
-        <include file="$(find-pkg-share hamr_bringup)/launch/caster_encoders.launch.xml"
-                 if="$(var caster_encoders)">
+    <!-- Scope the child overrides so they cannot disable the parent's recorder
+         or Foxglove bridge. Exactly one receiver may own each caster UDP port. -->
+    <group scoped="true" if="$(var run_caster_encoders)">
+        <include file="$(find-pkg-share hamr_bringup)/launch/caster_encoders.launch.xml">
+            <arg name="mode" value="dual" />
             <arg name="config_file" value="$(var caster_encoder_config)" />
-            <arg name="mode" value="$(var caster_encoder_mode)" />
-            <arg name="bind_address" value="$(var caster_encoder_bind_address)" />
-            <arg name="udp_port" value="$(var caster_encoder_udp_port)" />
-            <arg name="stale_timeout_s" value="$(var caster_encoder_stale_timeout_s)" />
             <arg name="record_bag" value="false" />
+            <arg name="run_foxglove" value="false" />
         </include>
     </group>
+
+    <!-- One recorder captures robot telemetry and caster topics when published. -->
     <node pkg="hamr_bringup" exec="record_hamr_test_bag"
           output="screen" if="$(var record_bag)" />
 
@@ -160,9 +163,7 @@
     </include>
 
     <!-- Foxglove WebSocket bridge — connect Foxglove Studio to ws://<robot-ip>:8765 -->
-    <node pkg="foxglove_bridge" exec="foxglove_bridge" name="foxglove_bridge"
-          if="$(var run_foxglove)">
-        <param name="port" value="8765" />
-    </node>
+    <include file="$(find-pkg-share hamr_bringup)/launch/foxglove.launch.xml"
+             if="$(var run_foxglove)" />
 
 </launch>

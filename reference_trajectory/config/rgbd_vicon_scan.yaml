@@ -1,8 +1,11 @@
 # RGB-D scan candidate for the user-confirmed Vicon area:
-# x=[-2,2] m, y=[0,10] m. Coordinates below are absolute Vicon coordinates.
-# Start at (1.2,1.8) m with raw Vicon base yaw near 0 rad, camera looking
+# x=[-2,2] m, y=[0,10] m. Nominal route offsets reach +5.0 m in Vicon Y.
+# Coordinates translate to the accepted starting XY, retaining Vicon world axes.
+# Start and finish at the captured position with initial raw Vicon base yaw near 0 rad, camera looking
 # wheel-forward (+Y initially). Explicit /continuous_waypoint/start is required.
-# The 0.8 m boundary inset is provisional: verify the complete rotating robot
+# There is no absolute start-position tolerance in this mode and no command
+# jump to (0,0). World bounds translate with the start: X=[x0-1.2,x0+1.2],
+# Y=[y0,y0+5.0]. Verify the placed route and the complete rotating robot
 # footprint, stopping/tracking margin and all obstacles before using this path.
 # Cross passes and overlapping lanes encourage varied views; they do not prove
 # complete visibility. fixed_yaw_rad is turret world yaw, NOT chassis/camera yaw.
@@ -11,46 +14,56 @@
 continuous_waypoint:
   ros__parameters:
     points_m_flat:
-    # Phase A: perimeter with transverse excursion, then revisit the start.
+    # Phase A: enter from the captured start; J is at offset (1.2,1.8).
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.8
+    - 1.2
+    - 0.8
     - 1.2
     - 1.8
     - 1.2
-    - 4.4
+    - 2.6
     - -1.2
-    - 4.4
+    - 2.6
     - -1.2
-    - 5.6
+    - 3.8
     - 1.2
-    - 5.6
+    - 3.8
     - 1.2
-    - 9.2
+    - 5.0
     - -1.2
-    - 9.2
+    - 5.0
     - -1.2
     - 0.8
     - 1.2
     - 0.8
     - 1.2
     - 1.8
-    # Phase B: four longitudinal lanes at 0.8 m spacing, then final revisit.
+    # Phase B: four longitudinal lanes, revisit J, then return to captured start.
     - 1.2
-    - 9.2
+    - 5.0
     - 0.4
-    - 9.2
+    - 5.0
     - 0.4
     - 0.8
     - -0.4
     - 0.8
     - -0.4
-    - 9.2
+    - 5.0
     - -1.2
-    - 9.2
+    - 5.0
     - -1.2
     - 0.8
     - 1.2
     - 0.8
     - 1.2
     - 1.8
+    - 0.0
+    - 1.8
+    - 0.0
+    - 0.0
     speed_m_s: 0.10
     corner_deviation_m: 0.10
     wheel_radius_m: 0.122
@@ -62,16 +75,16 @@ continuous_waypoint:
     planning_max_translation_acceleration_m_s2: 0.1
     planning_max_jerk_m_s3: 0.2
     fixed_yaw_rad: 0.0
-    origin_mode: vicon_absolute
+    origin_mode: start_translated_vicon
     odom_topic: /HAMR_base/odom
     reference_timer_hz: 100.0
     startup_hold_s: 10.0
     final_hold_s: 10.0
-    odom_timeout_s: 0.08
+    # Match the scan launch's controller_odom_timeout_s=0.20.
+    odom_timeout_s: 0.20
     max_publish_gap_s: 0.08
     odom_stable_s: 0.25
     odom_recovery_samples: 10
-    start_position_tolerance_m: 0.03
     nominal_start_base_yaw_rad: 0.0
     start_yaw_tolerance_rad: 0.15
     start_speed_max_m_s: 0.03

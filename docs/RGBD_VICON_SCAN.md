@@ -1,43 +1,59 @@
-# RGB-D scan of the 4 × 10 m Vicon area
+# RGB-D Vicon scan starting at the measured position
 
 This route uses the operator-provided Vicon limits `x=[-2,2]`, `y=[0,10] m`
 and a D455 rigidly attached to the base, looking in the driving direction.
+The trajectory uses offsets extending **5.0 m along +Y from the captured start**.
+It starts and finishes at the measured starting position; there is no absolute
+start-position tolerance and no initial command to drive to the world origin.
 It is a coverage-oriented capture route for RTAB-Map, not a certification that
 every surface is visible. No obstacle layout was supplied.
 
 The executable profile is
 [`rgbd_vicon_scan.yaml`](../reference_trajectory/config/rgbd_vicon_scan.yaml).
 It uses the existing continuous-waypoint planner and hardware controller.
-Coordinates are **absolute Vicon coordinates**, not offsets from placement.
-Start at **(1.20, 1.80) m**, with raw Vicon base yaw **0 rad**, corresponding
-to physical forward along **+Y** under the current controller convention.
-The existing start gate requires position within 0.03 m and yaw within 0.15 rad.
+Coordinates are **offsets from the accepted starting XY**, expressed along
+Vicon world axes. The path translates but does not rotate with the robot.
+Start near the intended origin with raw Vicon base yaw **0 rad**, facing **+Y**.
+The position gate is inactive in `start_translated_vicon` mode. Stationarity,
+yaw (within 0.15 rad), Vicon freshness and geometric validity checks remain.
+For start `(x0,y0)`, the placed reference bounds are `X=[x0-1.2,x0+1.2]`,
+`Y=[y0,y0+5.0]`. Check the whole translated footprint before starting.
+For the reported start `(0.025,-0.074)`, these are X=[-1.175,1.225] m and
+Y=[-0.074,4.926] m. A positive starting Y would put the endpoint beyond world
+Y=5; the previous absolute Y=5 cap is no longer enforced by route placement.
 
-![Two-phase waypoint layout](assets/rgbd_vicon_scan.png)
+![Nominal two-phase layout at a zero starting offset](assets/rgbd_vicon_scan.png)
+
+The diagram shows the nominal zero-origin placement. Translate all plotted
+coordinates by the captured start; it is not a live world-position preview.
 
 ## Route and purpose
 
-Execute A then B as one continuous run. `S=(1.2,1.8)`.
+Execute A then B as one continuous run. In offset coordinates, `S=(0,0)` is
+the captured start/finish and `J=(1.2,1.8)` is the shared scan junction.
 
-**A — perimeter with a crosswise excursion:**
-
-```text
-S → (1.2,4.4) → (-1.2,4.4) → (-1.2,5.6) → (1.2,5.6)
-  → (1.2,9.2) → (-1.2,9.2) → (-1.2,0.8) → (1.2,0.8) → S
-```
-
-**B — overlapping interior lanes and a return through familiar views:**
+**A — entry from the origin, then perimeter with a crosswise excursion:**
 
 ```text
-S → (1.2,9.2) → (0.4,9.2) → (0.4,0.8) → (-0.4,0.8)
-  → (-0.4,9.2) → (-1.2,9.2) → (-1.2,0.8) → (1.2,0.8) → S
+S → (0,0.8) → (1.2,0.8) → J
+  → (1.2,2.6) → (-1.2,2.6) → (-1.2,3.8) → (1.2,3.8)
+  → (1.2,5.0) → (-1.2,5.0) → (-1.2,0.8) → (1.2,0.8) → J
 ```
 
-The four longitudinal lanes are 0.8 m apart. The crosswise legs at Y=4.4 and
-5.6 add views toward both sides. Repeated outer legs approach previously seen
+**B — interior lanes, a revisit of J, and return to the origin:**
+
+```text
+J → (1.2,5.0) → (0.4,5.0) → (0.4,0.8) → (-0.4,0.8)
+  → (-0.4,5.0) → (-1.2,5.0) → (-1.2,0.8) → (1.2,0.8)
+  → J → (0,1.8) → S
+```
+
+The four longitudinal lanes are 0.8 m apart. The crosswise legs at Y=2.6 and
+3.8 add views toward both sides. Repeated outer legs approach previously seen
 structure from the same direction, providing opportunities for visual loop
-closure. B ends travelling +Y toward the original starting view. Opposite-facing
-lane images are not assumed to match each other.
+closure. B revisits J travelling +Y through familiar views, then returns to S
+along -Y. The final base heading is not commanded to equal its initial heading.
+Opposite-facing lane images are not assumed to match each other.
 
 RTAB-Map recognizes revisited appearances and uses accepted loop closures to
 correct its graph; returning to similar camera views is therefore useful.
@@ -56,16 +72,18 @@ guaranteed camera orientation. Confirm actual views during the capture.
 | --- | --- |
 | Nominal translation speed | 0.10 m/s |
 | Corner deviation bound | 0.10 m; corners are blended, not stopped at |
-| Reference XY envelope | X=[-1.2,1.2], Y=[0.8,9.2] m |
-| Boundary inset of reference point | 0.8 m |
-| Blended path length | 62.686 m (unrounded waypoints: 64.8 m) |
-| Planned motion duration | 10 min 28.7 s |
+| Reference offsets from start | X=[-1.2,1.2], Y=[0.0,5.0] m |
+| Nominal scan side/bottom inset | 0.8 m at zero-origin placement; shifts with start |
+| Blended path length | 43.018 m (unrounded waypoints: 45.6 m) |
+| Planned motion duration | 7 min 12.1 s |
 | Initial/final stationary holds | 10 s each |
-| Total after accepted start | **10 min 48.7 s** |
+| Total after accepted start | **7 min 32.1 s** |
 
-The 0.8 m inset applies to the tracked reference point, **not the outside of
-the vehicle**. Confirm that the whole rotating chassis/caster envelope plus
-tracking error fits, and clear every leg of obstacles. This waypoint runner
+The plotted margins apply to the reference point at nominal zero placement,
+**not the outside of the vehicle**. Entry/return reach the captured start.
+All margins change with its translation; allow clearance for the full robot.
+Confirm that the whole rotating chassis/caster envelope plus tracking error
+fits, and clear every leg of obstacles. This waypoint runner
 does not use depth for obstacle avoidance and does not enforce a workspace
 geofence. Smaller objects inside the rectangle require route changes.
 
@@ -96,17 +114,18 @@ terminal:
 source /opt/ros/jazzy/setup.bash
 source /home/hamr/hamster_ws/install/setup.bash
 cd /home/hamr/hamster_ws
-colcon build --packages-select reference_trajectory
+colcon build --packages-select reference_trajectory hamr_bringup compa_slam
 source /home/hamr/hamster_ws/install/setup.bash
 ```
 
 The node update keeps dense samples in `--plan-only` output but omits them from
-live metadata, and prepares visualization poses before arming. For this route,
+live metadata, and prepares visualization poses before arming. For the original
+10-minute route before its Y cap was reduced,
 serializing dense metadata alone took about 256 ms on the preparation host;
 constructing the visualization poses took another 83 ms. Doing that after arming
 would exceed the unchanged 80 ms watchdog. Compact live metadata and cached
 poses remove that route-size-dependent startup work without relaxing the guards.
-A synthetic start of this full route on an isolated localhost ROS domain took
+A synthetic start of that original full route on an isolated localhost ROS domain took
 11.6 ms after the change and produced a valid first reference decision. That
 checks startup overhead on this host; it is not a timing guarantee under live
 camera, DDS and storage load.
@@ -119,8 +138,9 @@ ros2 run reference_trajectory continuous_waypoint \
   --plan-only /tmp/hamr_rgbd_vicon_scan_plan.json
 ```
 
-The offline check sampled 62,926 reference states, verified the XY envelope and
-stationary endpoints, and retained the original geometry and watchdog settings.
+The revised offline check sampled 43,271 reference states, verified the XY envelope and
+stationary endpoints, and retained the original geometry. Vicon feedback now
+allows 200 ms; the reference-publication watchdog remains 80 ms.
 Analytic nominal bounds were 0.10 m/s² translation acceleration,
 0.1643 m/s³ jerk, 1.2571 rad/s wheel speed and 1.6748 rad/s² wheel acceleration.
 These validate the reference, not physical tracking or sensor coverage. The
@@ -129,99 +149,154 @@ compact [validation report](assets/rgbd_vicon_scan_validation.json) and
 
 ## Record and execute
 
-First measure the six `base_link → camera_link` mount values. The camera launch
-defaults are simulation placeholders. Physical wheel-forward is currently
-base_link +Y; a forward camera does not imply a zero camera-mount yaw. Retain the
-driver's optical-frame transform and measure the camera-link mounting transform.
+The operator-specified `base_link → camera_link` mount is saved in
+[`rgbd_vicon_scan.launch.py`](../compa_slam/launch/rgbd_vicon_scan.launch.py):
+X=0.00 m, Y=0.20 m, Z=0.30 m, roll=0, pitch=0, yaw=+pi/2 rad.
+Physical wheel-forward is base_link +Y, so +pi/2 yaw points the level, upright
+camera forward. The driver supplies the camera optical-frame transforms.
 
-Budget about **35–40 GiB free** for the bag and startup time at the current raw
-640×480 RGB/depth configuration, plus separate space for the RTAB-Map database.
-The preparation check found the D455 on USB 3, but no live `/d455/*` topics.
-Connection alone does not verify streaming or recording.
+This scan records **independent onboard localization plus RGB-D**. Vicon
+`/HAMR_base/odom` is used by the test controller/planner and recorded separately
+for ground-truth comparison. It is not an input to the local EKF, RTAB-Map
+odometry, or `odom → base_link`. There is no Vicon-to-odometry TF bridge.
 
-Keep the Vicon driver running. With the robot placed at S and no competing
-controller or reference publisher, terminal 1 starts the stack and idle planner:
+The drive-wheel encoders feed `/wheel_odom`. The current calibrated wheel/gyro
+EKF (`ekf_calibrated.yaml`, `use_orientation:=false`, `use_mag:=false`) combines
+wheel velocity/yaw rate with `/imu/data` gyro and publishes `/local_HAMR/odom`
+and `odom → base_link`. This uses the current calibration rather than the older
+mapping runbook's quaternion-yaw preset. The wheel node's auxiliary turret-yaw
+input is explicitly `/local_HAMR/odom`, so it also does not require Vicon.
+The unused caster-encoder receivers remain disabled. Drive-wheel encoder
+telemetry and firmware wheel-speed control remain active.
 
-```bash
-ros2 launch hamr_bringup hamr_continuous_HW.launch.py \
-  planner_config:=/home/hamr/hamster_ws/src/hamr_control/reference_trajectory/config/rgbd_vicon_scan.yaml \
-  record_bag:=false record_camera:=false run_foxglove:=false \
-  use_orientation:=true use_mag:=false
+The intended Vicon-free localization chain is:
+
+```text
+Drive-wheel encoders + IMU → local EKF → odom → base_link
+RGB-D + onboard odometry   → RTAB-Map  → map → odom
+Vicon                     → test control + separate evaluation only
 ```
 
-`use_orientation:=true` follows the existing mapping runbook's EKF choice.
-Vicon still controls the route; recorded wheel/IMU odometry is RTAB-Map's default
-motion input. The robot geometry values remain unchanged; the mapping runbook
-documents controller/odometry geometry differences that need measurement before
-claiming precision. This route does not resolve that calibration question.
+During this capture the camera is recorded, not fused into the EKF, and
+RTAB-Map is not running live. Replay uses onboard odometry and RGB-D to build
+and correct the map. Later localization against that map can provide camera
+corrections onboard without Vicon. In this design the correction is `map → odom`;
+`/local_HAMR/odom` remains the continuous local wheel/IMU estimate.
+If camera-aided *local* odometry is also needed, compare a separately configured
+RGB-D visual-odometry/fusion pipeline using the same bag. Do not simply enable a
+second `odom → base_link` publisher. Better accuracy must be measured against
+held-out Vicon data; recording alone does not tune or improve the estimator.
+See the [RTAB-Map node documentation](https://github.com/introlab/rtabmap_ros/blob/ros2/rtabmap_slam/README.md).
 
-Terminal 2 starts the camera and the camera-inclusive bag. Replace all six
-`MEASURED_*` tokens with measured numeric values first:
+The scan's planner and controller both allow **200 ms Vicon feedback gaps**.
+The independent reference-publication gap is still **80 ms**, and the controller
+reference timeout remains **120 ms**. Geometric validity checks are unchanged.
+Ordinary hardware launches retain their original 120 ms controller feedback
+setting unless the new timeout argument is explicitly supplied.
+
+Keep the external Vicon driver running. Stop the previous scan/hardware/camera
+launch before restarting, so there is only one controller, camera and TF source.
+Place the robot near the intended origin, **facing +Y**, raw base yaw near zero.
+Its measured XY will anchor the route. Check the translated bounds, then run:
 
 ```bash
-ros2 launch compa_slam record_trajectory.launch.py \
-  robot:=false bag_name:=vicon_rgbd_scan_01 pointcloud:=false \
-  mount_x:=MEASURED_X mount_y:=MEASURED_Y mount_z:=MEASURED_Z \
-  mount_roll:=MEASURED_ROLL mount_pitch:=MEASURED_PITCH mount_yaw:=MEASURED_YAW
+source /opt/ros/jazzy/setup.bash
+source /home/hamr/hamster_ws/install/setup.bash
+ros2 launch compa_slam rgbd_vicon_scan.launch.py bag_name:=rgbd_onboard_scan_01
 ```
 
-If the camera already has the correct launch and transform, add `camera:=false`.
-The ordinary hardware recorder alone does not contain RGB-D. This SLAM recorder
-captures RGB, aligned depth, RGB camera info, camera IMU, local odometry, Vicon,
-commands, and `/tf` plus transient-local `/tf_static`. Point-cloud generation
-stays off; RTAB-Map reconstructs it from the bag.
+This starts the controller, idle planner, serial relay, calibrated wheel odometry,
+local EKF, D455 and one camera-inclusive recorder. It does not start motion. If the camera
+is already running with this exact mount, `camera:=false` reuses it.
+Budget about **25–28 GiB free** for the bag and startup time, plus map storage.
+The recorder prints the actual directory and adds a suffix to existing names.
 
-Before starting, verify RGB and aligned depth near 30 Hz, camera info, a correct
-TF chain to the optical frame, and continuous finite local odometry. Use the
-checks in [MAPPING_CAPTURE.md](../compa_slam/docs/MAPPING_CAPTURE.md). Do not
-accept an empty bag or missing image stream just because the recorder is running.
+Before motion, verify images/depth near 30 Hz, onboard odometry and its transform:
 
-Terminal 3 explicitly starts one run:
+```bash
+ros2 topic hz /d455/color/image_raw
+ros2 topic hz /d455/depth/image_rect_raw
+ros2 topic hz /local_HAMR/odom
+ros2 run tf2_ros tf2_echo odom base_link
+```
+
+Run each check separately and Ctrl-C it after inspecting the result. Require
+continuous, finite `/wheel_odom` and `/local_HAMR/odom`. The bag contains these
+onboard odometry topics, raw Vicon, RGB, aligned depth, camera info, IMUs, commands, `/tf`,
+`/tf_static`, and the scan metadata/status/path. Point-cloud generation stays
+off; RTAB-Map reconstructs the cloud on replay.
+
+From a second sourced terminal, with the route clear, start one run:
 
 ```bash
 ros2 service call /continuous_waypoint/start std_srvs/srv/Trigger '{}'
 ```
 
-An accepted start includes the 10-second initial hold. The middle revisit of S
-does not stop. Wait for completion including the final hold, then Ctrl-C terminal
-2 and wait for MCAP finalization; shut down terminal 1 as well. To end the route
-early, use:
+The run includes 10-second initial/final holds. The revised route lasts about
+7 minutes 32 seconds, finishes at the captured start, and does not repeat automatically.
+After completion, Ctrl-C the launch and wait for the recorder to close MCAP.
+To stop motion early:
 
 ```bash
 ros2 service call /continuous_waypoint/stop std_srvs/srv/Trigger '{}'
 ```
 
-The existing planner aborts on an 80 ms feedback gap or reference callback gap;
-the controller has its own 120 ms watchdogs. Camera/disk load can expose these
-timing limits. An abort is a partial capture, not a completed scan. Inspect and
-correct the cause; do not silently increase the limits or automatically retry.
+### Starting from the current position
+
+The scan no longer requires placement within 3 cm of absolute (0,0). The
+existing `start_translated_vicon` mode captures the accepted XY and shifts the
+whole route. During the 10-second initial hold the reference is at that measured
+position. Stop and restart the launch after updating; planner parameters are
+read-only and an already running node retains its old absolute-position setting.
+
+A remaining rejection can still indicate stale/invalid Vicon, motion during
+arming, competing reference publishers, or incorrect initial heading. These
+checks remain active. Inspect measured placement with:
+
+```bash
+ros2 topic echo /HAMR_base/odom --once --field pose.pose.position --qos-reliability best_effort
+```
+
+The latest pasted camera log also reported `Depth stream start failure`.
+Verify `/d455/depth/image_rect_raw` actually publishes before requesting motion;
+removing the position gate does not resolve that separate camera problem.
+
+A feedback or callback fault produces a partial capture. Diagnose the cause
+before requesting another run. The earlier pasted log also reported recorder
+transport loss; disabling unused caster receivers reduces work but
+does not prove that USB, DDS or storage drops are resolved.
 
 ## Validate and build the map
 
-Use the actual bag directory printed by the recorder (a suffix is added if the
-requested name already exists):
+Use the actual printed bag path:
 
 ```bash
-ros2 bag info /home/hamr/hamster_ws/src/hamr_control/rosbags/vicon_rgbd_scan_01
+ros2 bag info /home/hamr/hamster_ws/src/hamr_control/rosbags/rgbd_onboard_scan_01
 ros2 run compa_slam analyze_rosbag.py \
-  /home/hamr/hamster_ws/src/hamr_control/rosbags/vicon_rgbd_scan_01
+  /home/hamr/hamster_ws/src/hamr_control/rosbags/rgbd_onboard_scan_01
 ```
 
-Require nonzero RGB/depth/camera-info/TF/odometry data, useful image rates and
-valid covariance throughout. After stopping live hardware processes, replay
-on a separate ROS domain so recorded command topics cannot reach the robot.
-Choose a domain unused by your deployment; 88 below is an example.
-The mapping launch deletes an existing database at the requested output path,
-so select a new filename for each build:
+Verify nonzero RGB/depth/camera-info/onboard-odometry/Vicon/TF data and scan
+completion. The analyzer compares onboard odometry against Vicon and checks
+covariance. Require finite covariance and no reset-guard crossings over the
+whole bag before using odometry-topic mode below. Check image drops and
+clock alignment before treating the Vicon comparison as an accuracy result.
+
+Stop live hardware before replay, and use a separate unused ROS domain so
+recorded command topics cannot reach the robot. Domain 88 is an example.
+Choose a new database filename: mapping mode deletes an existing target DB.
+Use the validated onboard `/local_HAMR/odom` for this bag:
 
 ```bash
 ROS_DOMAIN_ID=88 ros2 launch compa_slam rtabmap_real.launch.py \
-  bag:=/home/hamr/hamster_ws/src/hamr_control/rosbags/vicon_rgbd_scan_01 \
-  database_path:=/home/hamr/.ros/vicon_rgbd_scan_01.db \
-  rate:=0.5 use_rtabmap_viz:=false use_odom_topic:=true
+  bag:=/home/hamr/hamster_ws/src/hamr_control/rosbags/rgbd_onboard_scan_01 \
+  database_path:=/home/hamr/.ros/rgbd_onboard_scan_01.db \
+  rate:=0.5 use_rtabmap_viz:=false use_odom_topic:=true visual_odometry:=false
 ```
 
-Use `use_odom_topic:=true` only after whole-bag covariance validation succeeds,
-as described in the mapping runbook. Inspect accepted loop closures, the optimized
-trajectory and the cloud for missing surfaces, doubled walls and discontinuities.
-That inspection determines whether supplemental coverage is required.
+The recorded onboard EKF supplies the motion input; RGB-D supplies scene
+observations and visual loop closures. Vicon is not fed to RTAB-Map. Inspect the
+optimized trajectory and cloud for missing surfaces, doubled walls and
+discontinuities. Compare the onboard and corrected trajectories against Vicon
+before claiming an accuracy improvement. Existing bags captured with the removed
+Vicon-TF bridge do not establish independent onboard-localization accuracy.

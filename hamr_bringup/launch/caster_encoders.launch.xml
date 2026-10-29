@@ -11,6 +11,8 @@
     <arg name="udp_port" default="5005" />
     <arg name="stale_timeout_s" default="1.0" />
     <arg name="record_bag" default="true" />
+    <arg name="run_foxglove" default="false"
+         description="Enable for caster-only visualization; leave false if hamr_HW or a standalone bridge is running." />
     <node pkg="hamr_bringup" exec="caster_encoder_bridge"
           name="caster_encoder_front_left" output="screen"
           if="$(eval &quot;'$(var mode)' == 'dual'&quot;)">
@@ -41,4 +43,6 @@
     </node>
     <node pkg="hamr_bringup" exec="record_hamr_test_bag"
           output="screen" if="$(var record_bag)" />
+    <include file="$(find-pkg-share hamr_bringup)/launch/foxglove.launch.xml"
+             if="$(var run_foxglove)" />
 </launch>

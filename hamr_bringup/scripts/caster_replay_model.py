@@ -10,7 +10,7 @@ import math
 from pathlib import Path
 
 from caster_encoder_protocol import (
-    ROLES, TelemetryState, decode_packet, integer, parse_json,
+    DEVICE_ID, ROLES, TelemetryState, decode_packet, integer, parse_json,
 )
 
 from caster_encoder_selection import WheelIdentityGuard, WheelIdentityError
@@ -28,7 +28,41 @@ DEFAULT_MAPPING = {
     "h1_sign": 1.0, "h2_sign": 1.0, "center_sign": 1.0,
     "h1_zero_rad": 0.0, "h2_zero_rad": 0.0, "center_zero_rad": 0.0,
     "mapping_verified": False,
+    "center_reference_enabled": False, "center_reference_count": 0,
+    "center_reference_model_rad": 0.0, "center_reference_wheel_id": "",
+    "center_reference_device_id": "", "center_reference_h1_joint": SHELL_JOINTS[0],
 }
+
+
+def select_center_reference(wheel_id, mapping=None, selection="auto"):
+    """Apply the per-wheel raw reference, preserving explicit mapping overrides.
+
+    An explicit mapping already containing a reference takes precedence, so its
+    center_sign can be reversed without moving the reference pose. ``none`` only
+    disables automatic selection; it does not rewrite an explicit configuration.
+    """
+    result = dict(mapping or {})
+    if result.get("center_reference_enabled") or selection == "none":
+        return result, None
+    if selection == "auto":
+        if wheel_id != "front_right":
+            return result, None
+        filename = "caster_encoder_replay_front_right_center.yaml"
+        path = Path(__file__).resolve().parent.parent / "config" / filename
+        if not path.is_file():
+            from ament_index_python.packages import get_package_share_directory
+            path = Path(get_package_share_directory("hamr_bringup")) / "config" / filename
+    else:
+        path = Path(selection).expanduser().resolve()
+    import yaml
+    params = yaml.safe_load(path.read_text())["replay_caster_encoder_joints"]["ros__parameters"]
+    if params.get("center_reference_enabled") is not True:
+        raise ValueError(f"Mapping does not contain an enabled absolute CENTER reference: {path}")
+    result.update({key: value for key, value in params.items() if key.startswith("center_")})
+    result["mapping_verified"] = False  # A CENTER reference does not calibrate the shells.
+    # Validate immediately, before creating a video or starting bag playback.
+    ReplayModel(result, wheel_id=wheel_id)
+    return result, str(path)
 
 
 def validate_playback(bag, rate):
@@ -67,6 +101,26 @@ class ReplayModel:
                 raise ValueError(f"{role}_zero_rad must be finite")
         if type(self.mapping["mapping_verified"]) is not bool:
             raise ValueError("mapping_verified must be true or false")
+        if type(self.mapping["center_reference_enabled"]) is not bool:
+            raise ValueError("center_reference_enabled must be true or false")
+        if self.mapping["center_reference_enabled"]:
+            reference_wheel = self.mapping["center_reference_wheel_id"]
+            device = self.mapping["center_reference_device_id"]
+            if reference_wheel not in ("front_left", "front_right"):
+                raise ValueError("CENTER reference must identify a wheel")
+            if wheel_id is not None and wheel_id != reference_wheel:
+                raise ValueError("CENTER reference belongs to a different wheel")
+            if not isinstance(device, str) or not DEVICE_ID.fullmatch(device):
+                raise ValueError("CENTER reference requires a device MAC")
+            integer(self.mapping["center_reference_count"], "center_reference_count", 0, 16383)
+            target = self.mapping["center_reference_model_rad"]
+            if type(target) not in (int, float) or not math.isfinite(target):
+                raise ValueError("center_reference_model_rad must be finite")
+            if self.mapping["center_reference_h1_joint"] != self.mapping["h1_joint"]:
+                raise ValueError("CENTER reference was derived for a different H1 CAD side")
+            if self.mapping["center_zero_rad"] != 0:
+                raise ValueError("Raw CENTER reference replaces center_zero_rad; set center_zero_rad to 0")
+            wheel_id = reference_wheel
         self.guard = WheelIdentityGuard(wheel_id)
         self.identity_error = None
         self.stale_timeout_s = stale_timeout_s
@@ -104,12 +158,30 @@ class ReplayModel:
             if not isinstance(envelope.get("source_ip"), str) or not envelope["source_ip"]:
                 raise ValueError("Envelope requires source_ip")
             packet = decode_packet(json.dumps(envelope["packet"], allow_nan=False).encode("utf-8"))
+            if self.mapping["center_reference_enabled"] and packet["node_id"] == 3:
+                if (packet.get("wheel_id"), packet.get("device_id")) != (
+                        self.mapping["center_reference_wheel_id"], self.mapping["center_reference_device_id"]):
+                    raise WheelIdentityError("CENTER packet does not match the saved wheel/device reference")
+                # Adapt only the decoded working copy. Raw data stays intact.
+                # Reuse sequence/boot/validity handling, but display raw phase
+                # independently of firmware sign/zero or accumulated angle.
+                for sample in packet.get("samples", []):
+                    raw, count = sample["absolute_angle_rad"], sample["position14"]
+                    sample["calibrated_alpha_rad"] = None
+                    if sample["flags"] & 3 != 3 or sample["flags"] & ((1 << 7) | (1 << 12)):
+                        continue
+                    if raw is None or count is None:
+                        continue
+                    expected = count * math.tau / 16384
+                    if not math.isclose(raw, expected, rel_tol=0, abs_tol=1e-12):
+                        raise ValueError("Raw CENTER angle disagrees with position14")
+                    sample["calibrated_alpha_rad"] = expected
             self.guard.accept(packet)
             if self.identity_error:
                 raise WheelIdentityError(self.identity_error)
             previous_boots = dict(self.state.current_boot)
             _, readings, _ = self.state.receive(
-                json.dumps(envelope["packet"], allow_nan=False).encode("utf-8"),
+                json.dumps(packet, allow_nan=False).encode("utf-8"),
                 (envelope["source_ip"], envelope["source_port"]),
                 envelope["receive_epoch_ns"], replay_ns, replay_ns,
             )
@@ -121,6 +193,10 @@ class ReplayModel:
                 role = ROLES[node].lower()
                 value = self.mapping[f"{role}_sign"] * (
                     reading["position"] - self.mapping[f"{role}_zero_rad"])
+                if node == 3 and self.mapping["center_reference_enabled"]:
+                    raw_reference = self.mapping["center_reference_count"] * math.tau / 16384
+                    value = self.mapping["center_reference_model_rad"] + self.mapping["center_sign"] * math.remainder(
+                        reading["position"] - raw_reference, math.tau)
                 self.values[node] = {
                     "position": value, "source_angle_rad": reading["position"],
                     "seq": reading["seq"],
@@ -182,6 +258,8 @@ class ReplayModel:
             "complete_pose_available": complete, "mapping": dict(self.mapping),
             "clock_resets": self.clock_resets, "invalid_envelopes": self.invalid_envelopes,
             "last_error": self.last_error,
+            "center_absolute_reference": self.mapping["center_reference_enabled"],
+            "center_angle_basis": "raw position14" if self.mapping["center_reference_enabled"] else "firmware calibrated_alpha_rad",
             "unmeasured_joints_held_at_nominal_zero": list(ROLLER_JOINTS),
             "interpolation": "none; hold last valid sample; reset on backwards clock",
             "accuracy": "unavailable_without_independent_reference",
@@ -194,6 +272,8 @@ class ReplayModel:
 def status_text(status):
     mapping = "user-calibrated CAD mapping" if status["mapping_calibration_current"] else "ILLUSTRATIVE mapping: signs / zeros unverified"
     rows = [f"Recorded {status.get('wheel_id') or 'caster'} motion | kinematic CAD replay", mapping]
+    if status.get("center_absolute_reference"):
+        rows.append("CENTER: fixed raw absolute reference | H1/H2 spin phases remain separate")
     for node in status["nodes"]:
         value = node["model_position_rad"]
         angle = "unknown" if value is None else f"{value:.3f} rad"

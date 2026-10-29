@@ -66,11 +66,16 @@ ros2 launch hamr_bringup caster_encoders.launch.xml \
   config_file:="$HOME/caster_encoders.yaml"
 ```
 
-This starts two bridges and one recorder. Hardware launches use
-`caster_encoder_config:="$HOME/caster_encoders.yaml"`; their existing recorder
-owns the bag. Use `record_bag:=false` for standalone bridges if the hardware
-recorder is already running, and `caster_encoders:=false` in hardware bringup
-if the receivers already run separately.
+This starts two bridges and one recorder. Hardware bringup starts its own robot
+bag. To include both receivers in that same launch, add
+`run_caster_encoders:=true caster_encoder_config:="$HOME/caster_encoders.yaml"`
+to `hamr_HW.launch.xml`; the caster flag defaults to false. The hardware launch
+owns the recorder and Foxglove bridge, so the included receivers start neither.
+Stop standalone receivers before enabling the flag. Alternatively, with a
+separate hardware launch already recording, add
+`record_bag:=false run_foxglove:=false` to the encoder launch above so its
+topics are captured in the existing robot bag. For onboard flash recording,
+follow [the local recorder guide](LOCAL_CASTER_RECORDING.md).
 
 ```bash
 ros2 topic echo /caster_encoder/front_left/diagnostics --once
@@ -87,8 +92,8 @@ names receive a numeric suffix.
 The examples below select `front_left`; use `front_right` for the other wheel.
 Analysis/replay of a two-wheel bag requires a selector. Original v1 bags remain
 readable with `--wheel legacy` (replay `wheel:=legacy`) or single-topic automatic
-selection. To receive old firmware, explicitly set `mode:=legacy` in passive
-launch or `caster_encoder_mode:=legacy` in hardware bringup. That mode represents
+selection. To receive old firmware, explicitly set `mode:=legacy` in the separate
+encoder launch. That mode represents
 one unassigned wheel only. Old bind/port/timeout launch arguments apply only in
 legacy mode; dual mode uses the per-node YAML.
 

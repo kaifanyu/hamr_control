@@ -52,7 +52,8 @@ def orientation(position14, calibration):
         "orientation_deg": delta * 360 / bins,
         "physical_direction_verified": calibration["physical_direction_verified"],
         "accuracy_validated": calibration["accuracy_validated"],
-        "angle_definition": "Single-turn shaft phase relative to the saved H1-front/H2-back pose; not robot yaw",
+        "angle_definition": "Single-turn shaft phase relative to " + calibration.get(
+            "reference_pose", "the saved H1-front/H2-back pose") + "; not robot yaw",
         "positive_direction": "increasing raw counts" if calibration["direction_sign"] == 1 else "decreasing raw counts",
     }
 

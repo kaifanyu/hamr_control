@@ -1,0 +1,190 @@
+{
+  "version": 1,
+  "wheel_id": "front_right",
+  "device_id": "10:bd:a3:af:f3:30",
+  "node_id": 3,
+  "role": "CENTER",
+  "counts_per_revolution": 16384,
+  "zero_position14": 16183,
+  "zero_absolute_angle_rad": 6.206102772588332,
+  "direction_sign": 1,
+  "physical_direction_verified": true,
+  "accuracy_validated": false,
+  "reference_pose": "H1 points toward the fork mounting block: bench H1 down/block below axle; upright CAD H1 up (+Z).",
+  "quantity": "CENTER carrier phase relative to fixed fork; not robot yaw or hemisphere spin phase.",
+  "angle_source": "Raw position14 / absolute_angle_rad, before firmware sign and zero",
+  "direction_convention": "Positive raw counts; user observed H1 move toward the front from the reference pose. In upright CAD this is H1 +Z toward +X.",
+  "calibration_method": "Initial stationary two-second circular mean, rounded to the native count. End pose is a return check, not an encoder scale adjustment.",
+  "cad_reference": {
+    "h1_joint": "caster_positive_hemisphere_joint",
+    "h1_axis": [
+      0,
+      0,
+      1
+    ],
+    "center_reference_model_rad": 5.190977717061848,
+    "center_sign": -1,
+    "shell_spin_phases_calibrated": false
+  },
+  "provenance": {
+    "source_file": "/home/hamr/center_right_turn_01.jsonl",
+    "source_sha256": "70190bed5bcd9924111f2979e01a626b29485212813656d8fce4e50b75dbbf3e",
+    "boot_id": "1f1d5cc1053e63bc",
+    "user_pose_and_direction_confirmed": true,
+    "confirmation": "H1 and fork mounting block point down on bench; H1 moves toward front initially. Both rotations described as clockwise; view-dependent clockwise is not used to define the mapping.",
+    "initial": {
+      "mean_raw_rad": 6.2061008551123935,
+      "max_deviation_deg": 0.021862792971346297,
+      "sample_count": 400,
+      "device_id": "10:bd:a3:af:f3:30",
+      "boot_id": "1f1d5cc1053e63bc"
+    },
+    "final": {
+      "mean_raw_rad": 6.203430738721877,
+      "max_deviation_deg": 0.02126032576395594,
+      "sample_count": 401,
+      "device_id": "10:bd:a3:af:f3:30",
+      "boot_id": "1f1d5cc1053e63bc"
+    }
+  },
+  "checks": {
+    "result": "PASS",
+    "wheel_id": "front_right",
+    "device_id": "10:bd:a3:af:f3:30",
+    "boot_id": "1f1d5cc1053e63bc",
+    "start_position14_mean": 16182.995000000119,
+    "finish_position14_mean": 16176.032418951898,
+    "signed_rotation_deg": 359.84701360003305,
+    "signed_revolutions": 0.9995750377778696,
+    "return_error_deg": -0.1529863999853265,
+    "full_turn_error_deg": 0.15298639996694874,
+    "maximum_backtrack_deg": 1.8237304687500264,
+    "tolerance_deg": 2,
+    "valid_unique_samples": 6024,
+    "rejected_samples": 0,
+    "duration_s": 30.115026,
+    "max_rpm_assumption": 60.0,
+    "max_valid_sample_gap_s": 0.005530000000000257,
+    "note": "Conditional on the supplied speed bound and your physical starting mark. This checks turn history/return repeatability; it does not set CENTER zero or prove angular accuracy."
+  },
+  "reuse_conditions": [
+    "Only this wheel and CENTER device identity.",
+    "Recheck after encoder remounting, coupling changes, or electronic zero changes.",
+    "Reference survives power cycles if encoder mechanical/electronic zero is unchanged.",
+    "Single-turn orientation only; no turns during outages or hemisphere phases inferred."
+  ],
+  "observations": [
+    {
+      "receive_epoch_ns": 1793253769257079391,
+      "receive_monotonic_ns": 9974573505034,
+      "source_ip": "10.42.0.33",
+      "source_port": 61816,
+      "packet": {
+        "v": 2,
+        "type": "samples",
+        "wheel_id": "front_right",
+        "device_id": "10:bd:a3:af:f3:30",
+        "node_id": 3,
+        "boot_id": "1f1d5cc1053e63bc",
+        "samples": [
+          {
+            "seq": 33697,
+            "t_us": 168976493,
+            "raw_count": null,
+            "raw_spi_word": 32567,
+            "position14": 16183,
+            "index_raw_count": null,
+            "angle_rad": null,
+            "absolute_angle_rad": 6.206102772588332,
+            "calibrated_alpha_rad": 6.206102772588332,
+            "velocity_rad_s": 0,
+            "filtered_velocity_rad_s": 0,
+            "index_event_count": 0,
+            "index_timestamp_us": 0,
+            "flags": 1347
+          },
+          {
+            "seq": 33698,
+            "t_us": 168981525,
+            "raw_count": null,
+            "raw_spi_word": 32567,
+            "position14": 16183,
+            "index_raw_count": null,
+            "angle_rad": null,
+            "absolute_angle_rad": 6.206102772588332,
+            "calibrated_alpha_rad": 6.206102772588332,
+            "velocity_rad_s": 0,
+            "filtered_velocity_rad_s": 0,
+            "index_event_count": 0,
+            "index_timestamp_us": 0,
+            "flags": 1347
+          }
+        ],
+        "diagnostics": {
+          "acquisition_overruns": 36,
+          "queue_drops": 0,
+          "invalid_spi_responses": 0,
+          "index_queue_drops": 0,
+          "radio_failures": 182
+        }
+      },
+      "receive_ros_ns": 1793253769257089650
+    },
+    {
+      "receive_epoch_ns": 1793253799366967151,
+      "receive_monotonic_ns": 10004683392239,
+      "source_ip": "10.42.0.33",
+      "source_port": 61816,
+      "packet": {
+        "v": 2,
+        "type": "samples",
+        "wheel_id": "front_right",
+        "device_id": "10:bd:a3:af:f3:30",
+        "node_id": 3,
+        "boot_id": "1f1d5cc1053e63bc",
+        "samples": [
+          {
+            "seq": 39719,
+            "t_us": 199086492,
+            "raw_count": null,
+            "raw_spi_word": 65328,
+            "position14": 16176,
+            "index_raw_count": null,
+            "angle_rad": null,
+            "absolute_angle_rad": 6.2034183062095325,
+            "calibrated_alpha_rad": 6.2034183062095325,
+            "velocity_rad_s": 0,
+            "filtered_velocity_rad_s": 0,
+            "index_event_count": 0,
+            "index_timestamp_us": 0,
+            "flags": 1347
+          },
+          {
+            "seq": 39720,
+            "t_us": 199091519,
+            "raw_count": null,
+            "raw_spi_word": 65328,
+            "position14": 16176,
+            "index_raw_count": null,
+            "angle_rad": null,
+            "absolute_angle_rad": 6.2034183062095325,
+            "calibrated_alpha_rad": 6.2034183062095325,
+            "velocity_rad_s": 0,
+            "filtered_velocity_rad_s": 0,
+            "index_event_count": 0,
+            "index_timestamp_us": 0,
+            "flags": 1347
+          }
+        ],
+        "diagnostics": {
+          "acquisition_overruns": 36,
+          "queue_drops": 0,
+          "invalid_spi_responses": 0,
+          "index_queue_drops": 0,
+          "radio_failures": 182
+        }
+      },
+      "receive_ros_ns": 1793253799366976540
+    }
+  ]
+}

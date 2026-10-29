@@ -1,0 +1,58 @@
+{
+  "ros_domain": 213,
+  "checks": [
+    "18 missing streams are STALE",
+    "constant valid measurements become OK",
+    "all 18 telemetry schemas advertised",
+    "19 channels delivered through Foxglove WebSocket",
+    "sysinfo advertised",
+    "publication/services disabled",
+    "sensor dropout becomes STALE over WebSocket",
+    "12 native health unit tests passed",
+    "95 Python launch/protocol/regression tests passed"
+  ],
+  "idle": {
+    "bridge": {
+      "cpu_percent_one_core": 1.2,
+      "rss_mib": 43.3
+    },
+    "monitor": {
+      "cpu_percent_one_core": 0.2,
+      "rss_mib": 31.0
+    }
+  },
+  "telemetry_without_client": {
+    "bridge": {
+      "cpu_percent_one_core": 1.2,
+      "rss_mib": 43.4
+    },
+    "monitor": {
+      "cpu_percent_one_core": 16.8,
+      "rss_mib": 31.2
+    }
+  },
+  "synthetic_streaming": {
+    "bridge": {
+      "cpu_percent_one_core": 29.0,
+      "rss_mib": 49.8
+    },
+    "monitor": {
+      "cpu_percent_one_core": 17.8,
+      "rss_mib": 31.3
+    }
+  },
+  "synthetic_payload_kib_s": 460.8,
+  "message_count": 21701,
+  "note": "Synthetic small telemetry on this Pi; CPU percent is relative to one core. No cameras, controller, or physical sensor validation.",
+  "monitor_implementation": "C++: serialized receipt counting, latest-value validation at 2 Hz",
+  "platform": "Raspberry Pi 5; ROS 2 Jazzy; foxglove_bridge 3.4.1",
+  "synthetic_rates_hz": {
+    "six_caster_joint_streams_each": 200,
+    "four_odometry_streams_each": 100,
+    "imu": 100,
+    "magnetometer": 25,
+    "imu_calibration": 1,
+    "three_drive_tick_streams_each": 100,
+    "two_drive_diagnostic_streams_each": 10
+  }
+}

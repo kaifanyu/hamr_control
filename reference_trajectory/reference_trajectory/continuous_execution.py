@@ -337,13 +337,15 @@ class ContinuousExecution:
             return False, 'Base yaw is outside the start tolerance'
         first = self.plan.points[0]
         if self.cfg['origin_mode'] == 'vicon_absolute':
-            if (
-                math.hypot(sample.x - first[0], sample.y - first[1])
-                > self.cfg['start_position_tolerance_m']
-            ):
+            distance = math.hypot(sample.x - first[0], sample.y - first[1])
+            if distance > self.cfg['start_position_tolerance_m']:
                 return (
                     False,
-                    'Base position is outside the absolute start tolerance',
+                    'Base position is outside the absolute start tolerance: '
+                    f'current=({sample.x:.3f}, {sample.y:.3f}) m, '
+                    f'required=({first[0]:.3f}, {first[1]:.3f}) m, '
+                    f'distance={distance:.3f} m, '
+                    f'tolerance={self.cfg["start_position_tolerance_m"]:.3f} m',
                 )
             self.translation = (0.0, 0.0)
         else:

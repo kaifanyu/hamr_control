@@ -22,7 +22,7 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-from caster_replay_model import DEFAULT_MAPPING, ReplayModel, validate_playback
+from caster_replay_model import DEFAULT_MAPPING, ReplayModel, select_center_reference, validate_playback
 from caster_encoder_protocol import decode_packet, parse_json
 from caster_encoder_selection import WHEELS, WheelIdentityError, WheelIdentityGuard, resolve_selection
 
@@ -142,6 +142,8 @@ def link_transforms(robot, angles):
 def ground_start_mapping(events, robot, mapping=None, stale_timeout_s=1., wheel_id=None):
     """Assume a physical reference pose once; retain all subsequent angle changes."""
     model = ReplayModel(mapping, stale_timeout_s, wheel_id)
+    if model.mapping['center_reference_enabled']:
+        raise ValueError('Ground-contact reset would overwrite the absolute CENTER reference; use recorded start')
     reference = None
     for stamp, envelope in events:
         try:
@@ -359,7 +361,9 @@ class Overlay:
         if not frame['status']['complete_pose_available']:
             text(180,698,'Waiting for H1 + H2 + CENTER','label')
         calibrated=frame['status']['mapping_calibration_current']
-        if frame['status'].get('start_pose', {}).get('assumed'):
+        if frame['status'].get('center_absolute_reference'):
+            text(40,795,'CENTER: saved raw absolute reference  |  H1/H2 shell phases remain uncalibrated', 'small','#d9e5ef')
+        elif frame['status'].get('start_pose', {}).get('assumed'):
             text(40,795,'Assumed start: H1 forward (+X), H2 back (-X), both at ground  |  Recorded angle changes', 'small','#d9e5ef')
         else:
             text(40,795,'Measured-motion visualization  |  CAD mapping '+('user-verified' if calibrated else 'illustrative: signs / zeros unverified'), 'small','#d9e5ef')
@@ -388,15 +392,39 @@ def render(args):
         stale=params.get('stale_timeout_s',1.)
     wheel_id, topic = resolve_selection(args.wheel, args.topic)
     events,start,end=read_bag(bag, args.topic, args.wheel)
+    if wheel_id is None:
+        guard = WheelIdentityGuard()
+        for _, message in events:
+            try:
+                envelope = parse_json(message) if isinstance(message, (str, bytes)) else message
+                packet = decode_packet(json.dumps(envelope['packet'], allow_nan=False).encode())
+                guard.accept(packet)
+            except (ValueError, KeyError, TypeError):
+                continue
+            wheel_id = guard.wheel_id
+            break
+    mapping, reference_path = select_center_reference(
+        wheel_id, mapping, getattr(args, 'center_reference', 'auto'))
     model=package_share('hamr_ball_caster')/'urdf/ball_caster.urdf'
     start_pose = {'mode': 'recorded', 'assumed': False}
     ground_pose = None
-    if getattr(args, 'start_pose', 'recorded') == 'ground-contact':
+    if mapping.get('center_reference_enabled'):
+        start_pose = {
+            'mode': 'absolute-center-reference', 'assumed': False,
+            'reference_config': reference_path or str(args.mapping_config),
+            'reference_raw_count': mapping['center_reference_count'],
+            'reference_model_rad': mapping['center_reference_model_rad'],
+            'note': 'CENTER starts from the measured raw absolute count; no first-frame re-zero. '
+                    'H1/H2 retain recorded relative shell angles; their physical phases are uncalibrated.',
+        }
+    elif getattr(args, 'start_pose', 'recorded') == 'ground-contact':
         mapping, start_pose = ground_start_mapping(events, ET.parse(model).getroot(), mapping, stale, wheel_id)
         ground_pose = {mapping['h1_joint']: 0., mapping['h2_joint']: 0.,
                        'caster_carrier_joint': start_pose['target_model_rad']['center']}
     times=frame_times(start,end,args.fps,rate)
     frames=sample_frames(events,times,mapping,stale,wheel_id)
+    if mapping.get('center_reference_enabled'):
+        ground_pose = next(f['joints'] for f in frames if f['status']['complete_pose_available'])
     for frame in frames:
         frame['status']['start_pose'] = start_pose
     wheel_id = frames[-1]["status"]["wheel_id"]
@@ -498,6 +526,8 @@ def main():
     parser.add_argument('--fps',type=int,default=30)
     parser.add_argument('--width',type=int,default=1600)
     parser.add_argument('--mapping-config',type=Path)
+    parser.add_argument('--center-reference',default='auto',
+                        help='auto uses saved right CENTER reference; none disables auto selection; or specify a reference mapping YAML')
     parser.add_argument('--start-pose',choices=('recorded','ground-contact'),default='recorded',
                         help='ground-contact assumes the first complete pose has H1 forward and H2 back at the floor; applies measured changes thereafter')
     parser.add_argument('--plots',action='store_true',help='Show synchronized H1/H2/CENTER angle plots; also export PNG, PDF and full-sample CSV')

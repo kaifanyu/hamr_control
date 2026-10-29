@@ -1,0 +1,22 @@
+/foxglove_bridge:
+  ros__parameters:
+    # Advertise every ordinary ROS topic; actual subscriptions are client-driven.
+    topic_whitelist: [".*"]
+    include_hidden: false
+    num_threads: 2
+    min_qos_depth: 1
+    max_qos_depth: 10
+    send_buffer_limit: 4000000
+    # Visualization may drop samples instead of demanding sensor retransmission.
+    # Leave /tf_static and latched metadata on automatically selected QoS.
+    best_effort_qos_topic_whitelist:
+      - "^/caster_encoder/.*/joint_states$"
+      - "^/(local_HAMR/odom|wheel_odom|HAMR_base/odom|HAMR_turret/odom)$"
+      - "^/imu/.*$"
+      - "^/(left_wheel|right_wheel|turret)/encoder_ticks$"
+    # This launch is for observation; no client publication or service calls.
+    capabilities: [connectionGraph, assets]
+    publish_client_count: true
+    sysinfo: true
+    sysinfo_refresh_interval: 1000
+    use_sim_time: false

@@ -160,13 +160,16 @@ ros2 launch hamr_bringup caster_encoders.launch.xml \
   config_file:="$HOME/caster_encoders.yaml"
 ```
 
-This starts no motor controller. For the regular hardware workflow, pass
-`caster_encoder_config:="$HOME/caster_encoders.yaml"` to `hamr_HW.launch.xml` or
-`hamr_continuous_HW.launch.py`; their existing recorder owns the bag. If the
-receivers already run separately, use `caster_encoders:=false` in the hardware
-launch and `record_bag:=false` in the standalone encoder launch. Only one receiver
-may bind each port; do not run the firmware's standalone logger on those ports
-at the same time.
+This starts no motor controller. For a single hardware launch, add
+`run_caster_encoders:=true caster_encoder_config:="$HOME/caster_encoders.yaml"`
+to `hamr_HW.launch.xml`. This opt-in flag starts both receivers and uses the
+hardware launch's existing recorder and Foxglove bridge. Stop the standalone
+encoder launch before switching to that arrangement.
+
+For separate terminals, keep the hardware caster flag false and add
+`record_bag:=false run_foxglove:=false` to the encoder launch above when the
+robot bag/bridge is already running. Only one receiver may bind each port;
+do not run the firmware's standalone logger on those ports at the same time.
 
 Each wheel publishes `packets`, `metadata`, `diagnostics`, `H1/joint_states`,
 `H2/joint_states`, and `CENTER/joint_states` under its prefix. Joint names are
@@ -237,7 +240,7 @@ filter and different output directories; mixed-wheel JSONL inputs are rejected.
 
 Saved v1 bags remain readable using `--wheel legacy` (replay `wheel:=legacy`), or
 automatic selection when the old packet topic is the only candidate. To receive
-old firmware explicitly, use `mode:=legacy` in the encoder launch, or
-`caster_encoder_mode:=legacy` in hardware bringup. Legacy mode represents one
+old firmware explicitly, use `mode:=legacy` in the separate encoder launch.
+Legacy mode represents one
 unassigned wheel; it cannot distinguish two wheels and must not receive all six
 old boards on one port.

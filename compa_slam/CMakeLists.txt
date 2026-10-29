@@ -56,6 +56,9 @@ if(BUILD_TESTING)
   ament_add_pytest_test(reference_transform_math_test
     test/test_reference_transform_math.py
   )
+  ament_add_pytest_test(rgbd_vicon_scan_launch_test
+    test/test_rgbd_vicon_scan_launch.py
+  )
 endif()
 
 ament_package()
