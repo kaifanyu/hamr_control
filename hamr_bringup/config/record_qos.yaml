@@ -33,6 +33,27 @@
   durability: volatile
   history: keep_last
   depth: 1
+# Fork-mounted Vicon subjects use the same delivery policy as base/turret.
+/Left_Caster/odom:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 1
+/Left_Caster/pose:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 1
+/Right_Caster/odom:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 1
+/Right_Caster/pose:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 1
 /hamr_test/trajectory_metadata:
   reliability: reliable
   durability: transient_local

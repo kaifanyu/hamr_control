@@ -61,6 +61,28 @@
   history: keep_last
   depth: 10
 
+# Match the hardware recorder's delivery policy for fork-mounted Vicon subjects.
+/Left_Caster/odom:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 1
+/Left_Caster/pose:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 1
+/Right_Caster/odom:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 1
+/Right_Caster/pose:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 1
+
 /tf_static:
   reliability: reliable
   durability: transient_local

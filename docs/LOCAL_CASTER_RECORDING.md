@@ -93,6 +93,24 @@ does not synthesize missing odometry or trajectory history. The original bag's
 full time span is retained, including data before encoder start and during the
 stop/download step.
 
+The hardware recorder (`record_hamr_test_bag`), standalone Vicon recorder
+(`record_hamr_vicon_bag`), and COMPA recorder (`record_compa_slam_bag`) include the
+fork-mounted Vicon subjects using their case-sensitive subject names:
+
+| Subject | Recorded topics |
+| --- | --- |
+| Left caster | `/Left_Caster/odom`, `/Left_Caster/pose`, `/Left_Caster/individual_marker_array` |
+| Right caster | `/Right_Caster/odom`, `/Right_Caster/pose`, `/Right_Caster/individual_marker_array` |
+
+The caster odometry and pose messages use the `mocap` frame; odometry child frames
+are `Left_Caster/base_link` and `Right_Caster/base_link`. These are measurements of
+the tracked subjects above the forks, without a transform to the wheel centers.
+Both subjects' odometry and pose streams were verified at approximately 120 Hz
+on 2026-10-29. The marker-array topics were advertised but delivered no messages
+during that check; they will be captured if the Vicon bridge publishes them.
+The unified stop/merge workflow preserves these topics with the rest of the
+original robot bag. Start a new recording to use an updated topic filter.
+
 New onboard topics use a separate namespace so they cannot be confused with
 live UDP data already in the robot bag:
 
