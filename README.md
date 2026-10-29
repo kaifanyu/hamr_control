@@ -256,6 +256,23 @@ The first command is passive acquisition without a motor controller. Select
 See [caster encoder measurement and accuracy analysis](docs/CASTER_ENCODERS.md)
 for calibration, model mapping, plots and independent reference comparisons.
 
+To visualize a downloaded six-encoder recording, animate both casters on a
+stationary Simulation Studio HAMR model with synchronized H1/H2/CENTER plots and a progressive
+Vicon trajectory inset:
+
+```bash
+bash hamr_bringup/scripts/render_caster_recording.sh \
+  /path/to/encoder_recording --wheel both --width 1920
+```
+
+The trajectory is discovered in that run's combined bag; missing or unrelated
+pose data leaves an empty panel. See the [rendering guide](docs/LOCAL_CASTER_RECORDING.md#render-a-recording-on-ubuntu)
+for the simulation model, clock-recovery assumptions, per-wheel references and exports.
+
+The [combined-bag analysis and Vicon comparison workflow](docs/COMBINED_CASTER_ANALYSIS.md)
+includes the recorded report/plots, portable analysis code, and preparation of
+aligned fork/base/encoder histories with explicit orientation-quality masks.
+
 ## Hardware camera clips
 
 The hardware launch records the C920 to a timestamped MP4 with a JSON settings

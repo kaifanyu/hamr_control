@@ -177,14 +177,22 @@ def main():
         epilog="Run through render_caster_recording.sh to source ROS automatically. Originals are retained.")
     parser.add_argument("recording", type=Path, help="Downloaded folder containing packets.jsonl")
     parser.add_argument("output_dir", type=Path, nargs="?", help="Output folder (default: ~/Videos/hamr_sim/<recording>_<UTC timestamp>)")
-    parser.add_argument("--wheel", choices=("front_left", "front_right"), help="Required when both wheels are recorded")
+    parser.add_argument("--wheel", choices=("front_left", "front_right", "both"),
+                        help="both replays the two casters together on the HAMR chassis")
     parser.add_argument("--rate", type=float, default=1.)
     parser.add_argument("--fps", type=int, default=30)
     parser.add_argument("--width", type=int, default=1600)
     parser.add_argument("--no-plots", action="store_true", help="Render the caster without the angle plots")
     parser.add_argument("--mapping-config", type=Path)
+    parser.add_argument("--left-mapping-config", type=Path, help="Independent left CAD mapping for --wheel both")
+    parser.add_argument("--right-mapping-config", type=Path, help="Independent right CAD mapping for --wheel both")
+    parser.add_argument("--trajectory-bag", type=Path,
+                        help="Paired replay: robot pose bag (default: recording/bags/combined)")
+    parser.add_argument("--trajectory-topic", help="Paired replay: pose topic (default prefers /HAMR_base/odom)")
+    parser.add_argument("--recover-timing", action="store_true",
+                        help="Paired visualization only: refit missing clock maps from saved probes with a 5000 ppm drift limit; explicitly approximate")
     parser.add_argument("--center-reference", default="auto",
-                        help="auto uses saved right CENTER reference; none disables auto selection; or specify a reference mapping YAML")
+                        help="auto uses saved CENTER reference (both wheel references in paired mode); none disables auto selection; or specify reference YAML")
     parser.add_argument("--start-pose", choices=("ground-contact", "recorded"), default="ground-contact",
                         help="without an absolute CENTER reference: assume H1 forward/H2 back, or use recorded CAD mapping; an enabled reference preserves measured starting phase")
     parser.add_argument("--preview-time", type=float, help="Render one PNG at this elapsed recording time instead of a video")
@@ -207,11 +215,22 @@ def main():
             raise ValueError("Choose an output folder outside the original recording directory")
         if output.exists() and (not output.is_dir() or any(output.iterdir())):
             raise ValueError(f"Output folder is not empty: {output}; choose a new directory")
-        if args.mapping_config:
-            args.mapping_config = args.mapping_config.expanduser().resolve()
-            if not args.mapping_config.is_file():
-                raise ValueError(f"Mapping config does not exist: {args.mapping_config}")
-        check_dependencies(not args.no_plots, video=args.preview_time is None)
+        for name in ("mapping_config", "left_mapping_config", "right_mapping_config"):
+            config = getattr(args, name)
+            if config:
+                config = config.expanduser().resolve()
+                if not config.is_file():
+                    raise ValueError(f"Mapping config does not exist: {config}")
+                setattr(args, name, config)
+        if args.wheel != "both" and (args.recover_timing or args.left_mapping_config or args.right_mapping_config
+                                     or args.trajectory_bag or args.trajectory_topic):
+            raise ValueError("Timing recovery, per-wheel mappings, and trajectory options require --wheel both")
+        check_dependencies(not args.no_plots or args.wheel == "both", video=args.preview_time is None)
+        if args.wheel == "both":
+            importlib.import_module("xacro")
+            from render_caster_pair_recording import render_pair
+            render_pair(args, source, output)
+            return
         from render_caster_encoder_video import render
 
         print(f"Reading local recording: {source}", flush=True)

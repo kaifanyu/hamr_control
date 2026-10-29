@@ -1,0 +1,234 @@
+{
+  "version": 1,
+  "recording_id": "encoder_20261029T065650Z_7f3140ba",
+  "run_id": "20261029T065650Z_7f3140ba",
+  "start_epoch_ns": 1793256992820270894,
+  "duration_ns": 122176413556,
+  "message_count": 394424,
+  "time_basis": "Analysis CSV bag_time_s is elapsed recorded bag time from start_epoch_ns. Encoder bag timestamps are estimates of acquisition time. Header timestamps are retained separately; no fitted lag, clock shift, or pose correction is applied.",
+  "source_mcap": {
+    "relative_path": "bags/combined/combined_0.mcap",
+    "sha256": "d0f738c772b523fcdba41eff4d30cf8f041fbb2f53b6e2f12032089ee6b4a48e",
+    "bytes": 226491482,
+    "archived": false
+  },
+  "source_bag_metadata_sha256": "dcb7402dc2711ef8b1770531ec5b4500c9a878a6e66e051602182979c06d1b81",
+  "original_analysis_script": {
+    "name": "analyze_combined_bag.py",
+    "sha256": "eac9a6fb20cd59b2a60949a44b22093f3cde63ec3e26e7f63cff40997f8af652",
+    "archived": false,
+    "portable_successor": "hamr_bringup/scripts/analyze_combined_caster_bag.py"
+  },
+  "snapshot_note": "Original analysis artifacts are byte-for-byte copies. They retain original workstation paths and conclusions. README and this manifest are repository indexes; use the portable successor and COMBINED_CASTER_ANALYSIS guide for new runs.",
+  "replay": {
+    "metadata_sha256": "4398f496ecbce7e1b322a825b23f6025cf49ad6b05aa8e5186022f7dcf0c1d81",
+    "model": {
+      "chassis_model": "/home/para/hamr_control/hamr_ball_caster/urdf/compa_ball_caster_recording.urdf.xacro",
+      "basis": "Unscaled full ball-caster vehicle used by hamr_sim_ui / Simulation Studio",
+      "simulation_launch": "hamr_terrain/launch/terrain_sim.launch.py",
+      "xacro_mappings": {
+        "enable_closeup_camera": "false"
+      },
+      "source_model_sha256": "6aecdb779d76e1de7f0f83a723bb4b66cafc3686e9aafe902a984140dc26eb15",
+      "expanded_visual_model_sha256": "831a47eb6b60cd8489ceed081cea01127decc0e95b23f62fe462c6d4c483e74c",
+      "caster_uniform_scale": 1.0,
+      "native_caster_nominal_radius_m": 0.1,
+      "ball_centers_in_base_footprint_m": {
+        "front_left": [
+          0.315,
+          0.257,
+          0.10347999999999999
+        ],
+        "front_right": [
+          0.315,
+          -0.256999999999999,
+          0.1034799999999991
+        ]
+      },
+      "caster_joint_prefixes": {
+        "front_left": "left_caster_",
+        "front_right": "right_caster_"
+      },
+      "mounting_note": "Native simulation fork mounts, mesh scales and joint origins retained unchanged.",
+      "carrier_phase_rad": 0.0,
+      "body_pose": "Fixed at the simulation model's neutral posture; trajectory is plotted separately",
+      "unmeasured_joints": "Drive wheels, rocker/gimbal linkage and polar rollers held at zero",
+      "joint_angle_scale": 1.0,
+      "incomplete_mesh_fallbacks": []
+    },
+    "mapping": {
+      "front_left": {
+        "h1_joint": "caster_positive_hemisphere_joint",
+        "h2_joint": "caster_negative_hemisphere_joint",
+        "h1_sign": 1.0,
+        "h2_sign": 1.0,
+        "center_sign": -1.0,
+        "h1_zero_rad": 0.0,
+        "h2_zero_rad": 0.0,
+        "center_zero_rad": 0.0,
+        "mapping_verified": false,
+        "center_reference_enabled": true,
+        "center_reference_count": 1210,
+        "center_reference_model_rad": 3.620181390266952,
+        "center_reference_wheel_id": "front_left",
+        "center_reference_device_id": "10:bd:a3:b2:14:a4",
+        "center_reference_h1_joint": "caster_positive_hemisphere_joint"
+      },
+      "front_right": {
+        "h1_joint": "caster_positive_hemisphere_joint",
+        "h2_joint": "caster_negative_hemisphere_joint",
+        "h1_sign": 1.0,
+        "h2_sign": 1.0,
+        "center_sign": -1.0,
+        "h1_zero_rad": 0.0,
+        "h2_zero_rad": 0.0,
+        "center_zero_rad": 0.0,
+        "mapping_verified": false,
+        "center_reference_enabled": true,
+        "center_reference_count": 16183,
+        "center_reference_model_rad": 5.190977717061848,
+        "center_reference_wheel_id": "front_right",
+        "center_reference_device_id": "10:bd:a3:af:f3:30",
+        "center_reference_h1_joint": "caster_positive_hemisphere_joint"
+      }
+    },
+    "preview_frame": 983,
+    "preview_time_s": 32.766666666666666,
+    "fps": 30,
+    "source_recording_packets_sha256": "3efb3cb648f0c11109cfa8b427b4812737f0c2ff1718a9560c45c0b54a4497a2"
+  },
+  "files": [
+    {
+      "path": "01_overview.png",
+      "bytes": 342147,
+      "sha256": "d3fac3d4e130d2f5bfb052cbad00ebe60a69b98257081f8f6ac0cea36419e083",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "02_encoder_angles.png",
+      "bytes": 264005,
+      "sha256": "ac003531229187c88a7afacded8232c3cc9cc13c8acdb1d9955a2700716e37ce",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "03_encoder_rates.png",
+      "bytes": 330596,
+      "sha256": "e707dc448cb1cfe9e9a8dd6fdd1dea7963d84d2368248f77f044f881229afda3",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "04_vicon_pose.png",
+      "bytes": 382777,
+      "sha256": "b220b77311ffba802f147489f07caa3be745986f13476ae3e36a66edd2631f9e",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "05_vicon_quality.png",
+      "bytes": 420613,
+      "sha256": "57a06d1a1820fae7176c79f1975b95982aba17690c896b7c7c1f8bcf7ec5257c",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "06_drive_response.png",
+      "bytes": 354533,
+      "sha256": "91363a100bd3b087d83e61bbce017e3200611dff499e45788ac6fd7caa5ede05",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "07_timing.png",
+      "bytes": 440185,
+      "sha256": "e612792e51d7ae8dd60fb0d51d747501d2364aa6b18834523e00fc80b4fa2bfa",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "combined_bag_analysis.pdf",
+      "bytes": 1237332,
+      "sha256": "f43c5b973f5e004e7078061ae45050702bb84b22aa4c30406c591f6ed26dcce2",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 39947,
+      "sha256": "fc97b94b7ede692d82614ddfb6bfde1a444c577eebb870b35eba543455c4c871",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "analysis_notes.txt",
+      "bytes": 5258,
+      "sha256": "5b2b643e5ac711fa9d5f356a93814d4fab63a61a04821ee282829d97186ce89d",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "HAMR_base_pose.csv",
+      "bytes": 2315982,
+      "sha256": "a4a27cb85b35ae9396e84eec42a17748d8edb2c36783bfedd96ce5b6781f21d8",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "HAMR_turret_pose.csv",
+      "bytes": 2230740,
+      "sha256": "a2a2c3ad8080b5d6070e5822fc55c7b8291ac000f0e098c196640716879ef68d",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "Left_Caster_pose.csv",
+      "bytes": 2227550,
+      "sha256": "1db9b0733bb6080929915382ac09df05fb31c94cba4ac656da1c6e127f16e203",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "Right_Caster_pose.csv",
+      "bytes": 2221375,
+      "sha256": "95400dfdfda9ca0c81dbf189138c3dad5a9e19cba6a44560e63f50c0c43965fc",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "encoder_signals.csv",
+      "bytes": 8618574,
+      "sha256": "aaf4826ee4b133dce9abb49f7bb778e9fb7a654c45ff899138a78487bf019f0d",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "topics.csv",
+      "bytes": 4705,
+      "sha256": "7067ccf4326ea28f2b443b0cae2d4aa195e24467cab3f4248c135dd1aba9b4cd",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "vicon_orientation_jumps.csv",
+      "bytes": 11953,
+      "sha256": "8017bda595a85c52ba6b1ae895ddcac3eb6614731e865c9a68f32d8da19ab73b",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "extracted_signals.npz",
+      "bytes": 9173527,
+      "sha256": "22bbd136a34394d17fa18d1f9e65684ebf77d394ffcc238a73a64d0549dc56b0",
+      "kind": "original_analysis_snapshot"
+    },
+    {
+      "path": "replay_preview.png",
+      "bytes": 327339,
+      "sha256": "d17a3f34f6317e3f12c93561b59bb84167ce6462b414d86c4d513edebb280195",
+      "kind": "replay_image"
+    },
+    {
+      "path": "replay_encoder_angles.png",
+      "bytes": 273365,
+      "sha256": "a3ca84891fe8cf182fdb8f97044a12c7eb5a942bd815d3f777fbd6ceae4b0070",
+      "kind": "replay_image"
+    },
+    {
+      "path": "replay_trajectory.png",
+      "bytes": 12293,
+      "sha256": "c594e473efe0739888980dfc71667689cf7625a738c3749fc15d7d630bae481f",
+      "kind": "replay_image"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5183,
+      "sha256": "b97b98dadb9e2e4ee4ba520aa7231cefd93a12681213395737da447750dc225b",
+      "kind": "repository_index"
+    }
+  ]
+}

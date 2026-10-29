@@ -14,9 +14,18 @@ for argument in "$@"; do
   fi
 done
 
-ros_setup="/opt/ros/${ROS_DISTRO:-jazzy}/setup.bash"
+ros_distro="${ROS_DISTRO:-}"
+if [[ -z "$ros_distro" ]]; then
+  for candidate in jazzy humble; do
+    if [[ -f "/opt/ros/$candidate/setup.bash" ]]; then
+      ros_distro="$candidate"
+      break
+    fi
+  done
+fi
+ros_setup="/opt/ros/${ros_distro:-jazzy}/setup.bash"
 if [[ ! -f "$ros_setup" ]]; then
-  printf 'ROS setup not found: %s\nUse Ubuntu 24.04 with ROS 2 Jazzy installed under /opt/ros/jazzy.\n' "$ros_setup" >&2
+  printf 'ROS setup not found: %s\nInstall ROS 2 Jazzy or Humble, or select an installed distro with ROS_DISTRO.\n' "$ros_setup" >&2
   exit 2
 fi
 # ROS setup scripts may reference unset variables; enable nounset afterwards.

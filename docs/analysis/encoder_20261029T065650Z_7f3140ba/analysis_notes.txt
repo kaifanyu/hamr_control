@@ -1,0 +1,70 @@
+COMBINED MCAP RECORDING ANALYSIS
+Source: /home/para/encoder_20261029T065650Z_7f3140ba/bags/combined/combined_0.mcap
+SHA256: d0f738c772b523fcdba41eff4d30cf8f041fbb2f53b6e2f12032089ee6b4a48e
+Recorded start: 2026-10-29T02:56:32.820271-04:00
+Duration: 122.176 s; 394,424 messages. Every topic count matches bag metadata.
+
+The recording contains continuous six-channel caster encoder data and a clear robot trajectory.
+The main observed data-quality problem is discontinuous fork orientation tracking, especially on the right.
+
+All six encoder streams overlap from 20.591 to 86.028 s after bag start (65.437 s).
+The smoothed base trajectory travels approximately 12.16 m.
+Its shape is a rectangular loop with an approach and return, consistent in broad shape with the waypoint route.
+The reference route and raw Vicon paths are plotted separately; frame calibration is not assumed.
+Base peak smoothed planar speed is 0.313 m/s.
+Its start-to-finish displacement during encoder coverage is 0.109 m.
+Motion above 0.03 m/s occurs in these smoothed sampled intervals (bag seconds):
+[[30.366757126044778, 37.60647483223532], [37.947945683828124, 81.34643427091001]]
+
+ENCODERS
+Each channel is sampled near 200 Hz; no missing sequences or invalid samples are reported in the local export.
+PPR, absolute phase, and clock-sync validation flags remain false. Continuity does not prove physical angle calibration.
+The CENTER traces progress mostly in one direction; H1/H2 exhibit bursts, plateaus, and reversals.
+That pattern alone cannot identify contact state, slip, or encoder accuracy.
+Net angle changes over each full encoder stream (raw sign convention):
+  /caster_recording/front_left/H1/joint_states: +8.753 rad (+1.3931 turns)
+  /caster_recording/front_left/H2/joint_states: +7.250 rad (+1.1539 turns)
+  /caster_recording/front_left/CENTER/joint_states: -125.278 rad (-19.9385 turns)
+  /caster_recording/front_right/H1/joint_states: -6.541 rad (-1.0410 turns)
+  /caster_recording/front_right/H2/joint_states: -2.811 rad (-0.4474 turns)
+  /caster_recording/front_right/CENTER/joint_states: -100.677 rad (-16.0232 turns)
+
+VICON
+Quaternion comparisons use the shortest 3D rotation angle, with q/-q equivalence handled explicitly.
+Large steps therefore are not merely quaternion sign flips or Euler wrapping.
+  /HAMR_base/pose: 0 adjacent steps >10 deg; max 0.680 deg; max 3D position step 12.11 mm.
+  /Left_Caster/pose: 8 adjacent steps >10 deg; max 179.884 deg; max 3D position step 12.26 mm.
+  /Right_Caster/pose: 106 adjacent steps >10 deg; max 179.994 deg; max 3D position step 11.98 mm.
+Fork-to-base relative orientation also changes by nearly 180 deg, supporting a tracking/model ambiguity diagnosis.
+Cause is not established: individual marker arrays have no messages in this bag.
+Position trajectories are much more continuous than fork orientations; position steps include real travel and variable sample intervals.
+Reject or resolve fork orientation faults before differentiating poses or applying a marker-to-ball-center lever arm.
+
+DRIVE RESPONSE
+  left: active target-vs-measured RMS error 3.71 RPM; saturation flag on 41.3% of active samples.
+  right: active target-vs-measured RMS error 2.90 RPM; saturation flag on 5.1% of active samples.
+Active means |target| >0.5 RPM inside common encoder coverage; transient errors are included.
+The left drive repeatedly requests 28 RPM while measured speed stays several RPM lower.
+This supports using measured Vicon travel, rather than commanded travel, for the later caster analysis.
+
+TIMING
+Vicon median source-header intervals are about 8.4 ms; longest interval during overlap is below 48 ms.
+Encoder clock mapping is estimated; saved uncertainty fields span approximately 50-99 ms, not validated bounds.
+Bag-minus-header differences are not end-to-end Vicon capture latency.
+No fitted lag, timing shift, pose correction, or encoder-to-CAD mapping has been applied.
+
+METHODS AND OUTPUTS
+All time-series axes use recorded bag time; encoder bag time was estimated from individual acquisition clocks.
+Raw Vicon and encoder angles are not corrected, fitted, or transformed into CAD coordinates.
+CENTER unwrapping uses nearest increments, justified by continuous 200 Hz samples and tiny observed steps; no phase calibration applied.
+Vicon quaternion jump metrics use absolute quaternion dot products and cannot be caused by q/-q representation flips.
+Base path/speed summary uses 50 Hz resampling and a 0.42 s Savitzky-Golay window; it is a descriptive smoothed estimate.
+Reference X/Y is plotted in its recorded numerical coordinates; no new frame alignment or calibration is inferred.
+No independent ball-orientation prediction or encoder-accuracy claim is made.
+combined_bag_analysis.pdf contains seven plot pages; corresponding PNG files allow individual viewing.
+summary.json contains numerical results and quality metadata; CSV files contain signals, topic inventory and jump timestamps.
+extracted_signals.npz stores selected decoded numeric channels; unplotted messages remain in the original MCAP.
+Original recording files and repository source were not changed.
+Reproduce:
+  source /opt/ros/humble/setup.bash
+  /usr/bin/python3 /home/para/encoder_20261029T065650Z_7f3140ba/analysis/analyze_combined_bag.py
