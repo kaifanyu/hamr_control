@@ -1,0 +1,53 @@
+{
+  "case": "encoder_20261030T005046Z_7a2266b7",
+  "stages_completed": [
+    "prepare",
+    "reconstruct",
+    "joint report",
+    "contact",
+    "contact page",
+    "video poster"
+  ],
+  "released_inputs_written": false,
+  "fresh_output_default": "DATA_ROOT/reproduced",
+  "prepared_input_equivalence": {
+    "arrays_compared": 16,
+    "max_absolute_difference": 0.0,
+    "absolute_tolerance": 1e-12
+  },
+  "reconstructed_history_equivalence": {
+    "arrays_compared": 56,
+    "max_absolute_difference": 0.0,
+    "absolute_tolerance": 1e-12
+  },
+  "contact_numeric_values_compared": 3450,
+  "contact_max_absolute_difference": 0.0,
+  "poster": {
+    "same_dimensions": true,
+    "mean_absolute_pixel_difference": 0.0,
+    "fraction_identical_pixels": 1.0,
+    "note": "Portable version uses Matplotlib-bundled DejaVu fonts; small font rasterization differences are allowed."
+  },
+  "links": [
+    {
+      "page": "all_caster_reconstruction/index.html",
+      "missing_local_links": []
+    },
+    {
+      "page": "caster_trajectory_replay/index.html",
+      "missing_local_links": []
+    }
+  ],
+  "selected_case_counts_dynamic": true,
+  "script_sha256": {
+    "build_page.py": "18b7b5d8b8278cd3488a238dfc14cbd92a511373eaa72909c46b77877cdff3a6",
+    "build_report.py": "5425ff2b26997fb0e7233b4eb82a5fc68a98d80084c7a2a4ba19a34ecd049906",
+    "contact_analysis.py": "f5346d8499377d2820d0c4a47202c71101d463f528a56b9e04e74c4820e7bd2a",
+    "prepare_inputs.py": "35b8a76cfc0a232e216b8f765abaf435e7024d89c945172f48596194e0f1bf96",
+    "reconstruct_all.py": "1e941a113967afaf1cc26d9c5a167d4723acbd769c4c9c00eb934fad91804584",
+    "render_videos.py": "4d9195034bfda8909e86d1b66b93da96fbfa4910998075789254ff5d5b22e624",
+    "run.py": "3e2accf2c6b2b37aadafe3aea8a8929fff5ee6a30f4232522f71187ee986d947",
+    "_paths.py": "4598d367c6acbe38ac842ef2aab85e5f5c9812728b62e710c84f5ced6c15fe9e"
+  },
+  "protected_output_tree_guard_passed": true
+}

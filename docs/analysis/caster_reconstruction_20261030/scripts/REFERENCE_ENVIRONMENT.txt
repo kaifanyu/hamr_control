@@ -1,0 +1,8 @@
+Reference run: Ubuntu 24.04, Python 3.12
+numpy 1.26.4
+scipy 1.11.4
+matplotlib 3.6.3 (Ubuntu system package)
+Pillow 10.2.0
+PyYAML 6.0.1
+ffmpeg is an external executable, required for MP4 rendering only.
+Newer compatible dependency versions may introduce tiny floating-point/rendering differences.
