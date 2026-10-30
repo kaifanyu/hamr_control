@@ -25,11 +25,18 @@ its bag recorder reports that recording has started. Then, in another terminal:
 
 ```bash
 source ~/hamster_ws/install/setup.bash
+ros2 run hamr_bringup check_hamr_ready
 ros2 run hamr_bringup start_encoder_recording
 
 # Run your experiment. When finished, in any sourced terminal:
 ros2 run hamr_bringup stop_encoder_recording
 ```
+
+The [local readiness checker](HARDWARE_READINESS.md) verifies Vicon, EKF inputs,
+drive encoders, all six recorder boards, and the active robot bag without
+Foxglove. Keep `run_caster_encoders:=false` for onboard recording; the live UDP
+receivers are not required. Run the check again after start, or with `--watch`,
+to verify that every board's recorded sample count advances.
 
 The start command discovers **all available H1, H2, and CENTER boards on both
 front_left and front_right**, validates their identities, prints missing roles,

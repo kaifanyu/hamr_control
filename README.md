@@ -30,6 +30,7 @@ platform:
 | New caster and full-vehicle URDF | [Model files and CAD scope](docs/SIMULATION.md#5-new-urdf-and-model-scope) |
 | WSL / Ubuntu Gazebo simulation and MP4 recording | [Simulation guide](docs/SIMULATION.md) · `ros2 launch hamr_ball_caster continuous_sim.launch.py` |
 | Real HAMR continuous run | [Hardware guide](docs/REAL_CAR_CONTINUOUS.md) · `ros2 launch hamr_bringup hamr_continuous_HW.launch.py` |
+| Local hardware readiness without Foxglove | [Connection checker](docs/HARDWARE_READINESS.md) · `ros2 run hamr_bringup check_hamr_ready` |
 | Repository layout and validation | [Development guide](docs/DEVELOPMENT.md) |
 
 Quick start for the desktop simulator (see [dependencies](hamr_sim_ui/README.md#start)):

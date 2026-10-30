@@ -47,6 +47,7 @@ install(
     scripts/caster_center_angle
     scripts/calibrate_caster_center
     scripts/center_turn_check
+    scripts/check_hamr_ready
     scripts/record_caster_rotation.py
     scripts/replay_caster_encoder_joints
     scripts/visualize_caster_bag
@@ -65,6 +66,7 @@ install(
 
 install(FILES scripts/c920_controls.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_encoder_protocol.py DESTINATION lib/${PROJECT_NAME})
+install(FILES scripts/hamr_readiness.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_replay_model.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_encoder_selection.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_encoder_plots.py DESTINATION lib/${PROJECT_NAME})
@@ -80,6 +82,7 @@ install(FILES scripts/caster_pair_recording.py scripts/caster_pair_scene.py
 install(FILES scripts/caster_recording_client.py scripts/caster_recording_format.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_recording_session.py scripts/caster_recording_bag.py DESTINATION lib/${PROJECT_NAME})
 install(FILES ../docs/LOCAL_CASTER_RECORDING.md DESTINATION share/${PROJECT_NAME}/docs)
+install(FILES ../docs/HARDWARE_READINESS.md DESTINATION share/${PROJECT_NAME}/docs)
 install(FILES ../docs/COMBINED_CASTER_ANALYSIS.md DESTINATION share/${PROJECT_NAME}/docs)
 install(FILES scripts/caster_center_calibration.py DESTINATION lib/${PROJECT_NAME})
 install(FILES scripts/caster_center_workflow.py DESTINATION lib/${PROJECT_NAME})
@@ -103,6 +106,7 @@ install(
 if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
+  ament_add_pytest_test(hamr_readiness test/test_hamr_readiness.py TIMEOUT 60)
   ament_add_pytest_test(caster_pair_recording test/test_caster_pair_recording.py TIMEOUT 90)
   ament_add_pytest_test(caster_pair_plots test/test_caster_pair_plots.py TIMEOUT 90)
   ament_add_pytest_test(caster_pair_scene test/test_caster_pair_scene.py TIMEOUT 90)
