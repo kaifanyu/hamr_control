@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+"""Calibrate ordinary swivel zero/sign, or record and check a manual full turn."""
+import caster_encoder_protocol
+caster_encoder_protocol.ordinary_protocol()
+from ordinary_caster.calibration import main
+
+if __name__ == "__main__":
+    raise SystemExit(main())

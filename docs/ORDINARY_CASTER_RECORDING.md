@@ -85,6 +85,91 @@ time. Use the stored logs for quantitative trajectory history. Invalid or stale
 channels appear in diagnostics; a valid wheel sample remains usable during an
 SPI failure. Delayed samples and packets from an old boot do not refresh poses.
 
+## Calibrate swivel zero/sign and check one full turn
+
+Use `calibrate_ordinary_swivel` for either caster. It reads the AMT222A-V's
+native **12-bit `position12` (4096 counts/revolution)**, independently of firmware
+zero/sign and unavailable accumulated angle/velocity. It accepts split `SWIVEL`/5
+and legacy `ORDINARY`/4 packets; a separate `WHEEL` board is not needed for this
+calibration. It never commands motion. Keep the live receiver above running;
+do not start an onboard recording that suppresses live telemetry. Only launch
+one receiver per UDP port.
+
+In a second terminal, source ROS and run the guided calibration:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+source ~/hamster_ws/install/setup.bash
+python3 ~/hamster_ws/src/hamr_control/hamr_bringup/scripts/calibrate_ordinary_swivel \
+  zero --wheel both --output ~/ordinary_swivel_calibration_01
+```
+
+Use `--wheel front_left` or `--wheel front_right` to calibrate one side. Support
+the caster with its mount fixed and upright so the fork can swivel freely.
+Use the **axle center's position relative to the vertical swivel shaft**, not
+just the wheel plane, which looks the same 180 degrees apart. At each prompt,
+position it, press Enter, and hold still for the capture:
+
+1. **Zero:** wheel axle behind the swivel shaft, toward robot rear (-X).
+2. **+90 degrees:** rotate counterclockwise viewed from above; axle is now on
+   the robot's right (-Y). This establishes the encoder sign.
+3. **+180 degrees:** axle in front of the shaft (+X).
+4. **Return zero:** axle behind the shaft again (-X).
+
+These conventions match `swivel_caster.urdf`: zero has trailing axle -X and
+positive swivel rotates about +Z. The same convention applies to both casters.
+Each stationary capture must span enough fresh samples, have no gap over
+0.25 seconds, and stay within 0.5 degrees of its circular mean. The quarter
+and half poses must agree within 5 degrees; return zero within 2 degrees.
+
+For each selected caster the output directory contains:
+
+- `<wheel>_swivel_observations.jsonl`: raw capture history, retained on interruption.
+- `<wheel>_swivel_calibration.json`: measured zero/sign, device/boot identity,
+  checks, pose samples and source hash.
+- `<wheel>_swivel_calibration.h`: the three firmware definitions to apply.
+
+Replace `SWIVEL_ZERO_RAD`, `SWIVEL_SIGN`, and `SWIVEL_PHASE_REFERENCE_VALID` in
+the matching `caster-encoder-controller/ordinary_caster/config/<wheel>.local.h`
+with the generated values, before its `#include "example.h"`. Rebuild/reflash
+that caster's **SWIVEL** profile to apply them. The script does not edit private
+headers or flash hardware. Changing `SWIVEL_SIGN` from +1 to -1 (or back) reverses
+direction while keeping the same physical zero. Do not change the 4096-count
+scale. Repeat calibration after encoder/shaft remounting or a hardware zero reset.
+The existing bridge and ordinary replay consume firmware's calibrated swivel
+angle, so new recordings after reflashing use the new zero/sign. Merely saving
+this JSON does not alter live/replayed angles or recalibrate old recordings.
+
+For the same **record one full turn, evaluate later** workflow as CENTER:
+
+```bash
+python3 ~/hamster_ws/src/hamr_control/hamr_bringup/scripts/swivel_turn_check \
+  record ~/swivel_right_turn_01.jsonl --wheel front_right
+
+python3 ~/hamster_ws/src/hamr_control/hamr_bringup/scripts/swivel_turn_check \
+  check ~/swivel_right_turn_01.jsonl --max-rpm 60 \
+  --report ~/swivel_right_turn_01_check.json
+```
+
+The default capture is 30 seconds: hold at your mark for the first 3 seconds,
+turn the **fork about the vertical shaft** one complete revolution in one
+direction when prompted, then hold at the same mark through the final 3 seconds.
+Do not reverse through an extra revolution; spinning the wheel about its axle
+does not test swivel. Substitute `front_left` and a new filename for the left.
+Both executables expose the same `zero`, `record`, and `check` commands; after
+building, `ros2 run hamr_bringup <executable>` works too.
+
+`--max-rpm 60` asserts the swivel never exceeded one revolution per second
+during this capture. Supply a credible bound; the checker uses ESP acquisition
+timestamps and rejects gaps that could hide turns. Invalid reads are preserved
+and excluded from angles, while their full time gaps remain subject to the bound.
+A PASS requires one revolution within 2 degrees, return error within 2 degrees,
+and backtracking no greater than 2 degrees. It checks repeatability conditional
+on the physical mark and rate bound; it does not establish physical zero/sign,
+angular accuracy, wheel radius, or a verified maximum operating rate. In
+particular, it does not set `SWIVEL_MAX_RPM_VERIFIED`. All outputs require new
+filenames/directories so earlier measurements are preserved.
+
 ## Run the same vehicle experiment
 
 Keep the existing trajectory, speed, floor, payload, reference tracking and

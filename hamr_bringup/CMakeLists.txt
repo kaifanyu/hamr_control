@@ -47,6 +47,8 @@ install(
     scripts/caster_center_angle
     scripts/calibrate_caster_center
     scripts/center_turn_check
+    scripts/calibrate_ordinary_swivel
+    scripts/swivel_turn_check
     scripts/check_hamr_ready
     scripts/record_caster_rotation.py
     scripts/replay_caster_encoder_joints
@@ -124,6 +126,7 @@ if(BUILD_TESTING)
   target_link_libraries(topic_health yaml-cpp nlohmann_json::nlohmann_json)
   ament_add_pytest_test(foxglove_monitor test/test_foxglove_monitor.py)
   ament_add_pytest_test(ordinary_live test/test_ordinary_live.py)
+  ament_add_pytest_test(ordinary_swivel_calibration test/test_ordinary_swivel_calibration.py TIMEOUT 90)
   ament_add_pytest_test(ordinary_split test/test_ordinary_split.py TIMEOUT 90)
   ament_add_pytest_test(ordinary_integration test/test_ordinary_integration.py)
   ament_add_pytest_test(ordinary_protocol test/test_ordinary_protocol.py)

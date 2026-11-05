@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+"""Ordinary-swivel counterpart of center_turn_check (also supports zero)."""
+import caster_encoder_protocol
+caster_encoder_protocol.ordinary_protocol()
+from ordinary_caster.calibration import main
+
+if __name__ == "__main__":
+    raise SystemExit(main())

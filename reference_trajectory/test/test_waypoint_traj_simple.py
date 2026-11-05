@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from reference_trajectory.waypoint_traj_simple import MAX_HOLD_SECONDS
+from reference_trajectory.waypoint_traj_simple import generate_circle_points
 from reference_trajectory.waypoint_traj_simple import PHASE_DONE
 from reference_trajectory.waypoint_traj_simple import PHASE_FINAL_HOLD
 from reference_trajectory.waypoint_traj_simple import PHASE_MOTION
@@ -20,6 +21,72 @@ from reference_trajectory.waypoint_traj_simple import (
     validated_required_subscribers,
 )
 from reference_trajectory.waypoint_traj_simple import WaypointTraj
+
+
+@pytest.mark.parametrize("direction,sign", [("ccw", 1), ("cw", -1)])
+@pytest.mark.parametrize("center_y", [0.0, 3.0, -2.0])
+def test_circle_geometry_and_traversal_direction(direction, sign, center_y):
+    radius = 1.5
+    points = generate_circle_points(
+        radius=radius, direction=direction, center_y=center_y
+    )
+    np.testing.assert_array_equal(
+        points[[0, -1]], [(0.0, center_y, 0.0)] * 2
+    )
+    np.testing.assert_allclose(
+        np.linalg.norm(points[:, :2] - (radius, center_y), axis=1), radius
+    )
+    # The start is exactly left of the center, with the whole circle to its right.
+    assert points[0, 0] == np.min(points[:, 0]) == 0.0
+    np.testing.assert_allclose(
+        points[len(points) // 2, :2], (2.0 * radius, center_y), atol=1e-14
+    )
+    np.testing.assert_array_equal(points[:, 2], np.zeros(len(points)))
+
+    # Signed area verifies winding, independently of the sampling angles.
+    x, y = points[:, :2].T
+    signed_area = 0.5 * np.sum(x[:-1] * y[1:] - x[1:] * y[:-1])
+    assert signed_area == pytest.approx(sign * math.pi * radius**2, rel=0.001)
+
+    trajectory = WaypointTraj(points, v_lin=0.15, w_yaw=0.5)
+    start = trajectory.update(0.0)
+    assert start[4] * sign < 0.0
+    assert abs(start[4]) > abs(start[3])
+    assert math.hypot(start[3], start[4]) == pytest.approx(0.15)
+    assert trajectory.update(trajectory.total_time) == (
+        0.0, center_y, 0.0, 0.0, 0.0, 0.0
+    )
+
+
+@pytest.mark.parametrize("center_y", [0.0, 3.0])
+def test_circle_directions_follow_the_same_path_in_reverse(center_y):
+    ccw = generate_circle_points(
+        radius=2.0, direction="ccw", steps_between=10, center_y=center_y
+    )
+    cw = generate_circle_points(
+        radius=2.0, direction="cw", steps_between=10, center_y=center_y
+    )
+    np.testing.assert_allclose(cw, ccw[::-1], atol=1e-14)
+
+
+@pytest.mark.parametrize("overrides", [
+    {"direction": "clockwise"},
+    {"direction": True},
+    {"radius": 0.0},
+    {"radius": -1.0},
+    {"radius": math.nan},
+    {"radius": math.inf},
+    {"center_y": math.nan},
+    {"center_y": math.inf},
+    {"center_y": True},
+    {"steps_between": 0},
+    {"steps_between": 2.5},
+    {"steps_between": True},
+    {"steps_between": 1001},
+])
+def test_circle_rejects_invalid_parameters(overrides):
+    with pytest.raises(ValueError):
+        generate_circle_points(**overrides)
 
 
 def test_subscriber_gate_requires_an_uninterrupted_stable_interval():

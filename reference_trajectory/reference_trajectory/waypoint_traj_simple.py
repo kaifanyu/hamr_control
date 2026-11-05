@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-"""Publish a timed, optionally one-shot waypoint reference trajectory."""
+"""Publish a timed, optionally one-shot waypoint reference trajectory.
+
+The default ``trajectory_type:=waypoints`` uses the existing waypoint route.
+Select a circle with ``--ros-args -p trajectory_type:=circle`` and choose
+``-p circle_direction:=ccw`` (default) or ``-p circle_direction:=cw``.
+``circle_radius_m`` defaults to 1.0 m and ``circle_center_y_m`` to 0.0 m.
+The circle starts at absolute (0, center_y), the 9 o'clock point relative to
+its center at (radius, center_y), and keeps reference yaw at zero.
+CW initially travels toward +Y; CCW initially travels toward -Y.
+"""
 
 import math
 from typing import NamedTuple
@@ -57,6 +66,43 @@ def validated_positive_float(name, value):
     if not math.isfinite(result) or result <= 0.0:
         raise ValueError(f"{name} must be finite and greater than zero")
     return result
+
+
+def validated_choice(name, value, choices):
+    """Reject unsupported path selections before creating publishers."""
+    if not isinstance(value, str) or value not in choices:
+        raise ValueError(f"{name} must be one of: {', '.join(choices)}")
+    return value
+
+
+def generate_circle_points(
+    radius=1.0, direction="ccw", steps_between=25, *, center_y=0.0
+):
+    """Sample one lap from 9 o'clock, centered at (radius, center_y)."""
+    radius = validated_positive_float("circle_radius_m", radius)
+    center_y = validated_bounded_float(
+        "circle_center_y_m", center_y, -math.inf, math.inf
+    )
+    direction = validated_choice("circle_direction", direction, ("ccw", "cw"))
+    if (
+        isinstance(steps_between, bool)
+        or not isinstance(steps_between, int)
+        or not 1 <= steps_between <= 1000
+    ):
+        raise ValueError("circle_steps_between must be an integer in [1, 1000]")
+
+    # Match the old generator's number of segments per quarter circle.
+    sign = 1.0 if direction == "ccw" else -1.0
+    angles = np.pi + sign * np.linspace(
+        0.0, 2 * np.pi, 4 * (steps_between + 1) + 1
+    )
+    points = np.column_stack((
+        radius * (1.0 + np.cos(angles)),
+        center_y + radius * np.sin(angles),
+        np.zeros_like(angles),
+    ))
+    points[0] = points[-1] = (0.0, center_y, 0.0)
+    return points
 
 
 def validated_required_subscribers(value):
@@ -273,6 +319,25 @@ class TrajectoryNode(Node):
         w_yaw = validated_positive_float(
             "w_yaw", self.declare_parameter("w_yaw", 0.5).value
         )
+        trajectory_type = validated_choice(
+            "trajectory_type",
+            self.declare_parameter("trajectory_type", "waypoints").value,
+            ("waypoints", "circle"),
+        )
+        circle_direction = validated_choice(
+            "circle_direction",
+            self.declare_parameter("circle_direction", "ccw").value,
+            ("ccw", "cw"),
+        )
+        circle_radius_m = self.declare_parameter("circle_radius_m", 1.0).value
+        circle_center_y_m = self.declare_parameter("circle_center_y_m", 0.0).value
+        circle_steps_between = self.declare_parameter(
+            "circle_steps_between", 25
+        ).value
+        circle_points = generate_circle_points(
+            circle_radius_m, circle_direction, circle_steps_between,
+            center_y=circle_center_y_m,
+        )
         self.reference_timer_hz = validated_bounded_float(
             "reference_timer_hz",
             self.declare_parameter("reference_timer_hz", 100.0).value,
@@ -335,47 +400,16 @@ class TrajectoryNode(Node):
         max_point = 5.0
         origin = 0.0
 
-        def generate_ccw_circle_points(radius=5.0, steps_between=10):
-            cx = 0.0
-            cy = 0.0 + radius
-
-            # Angles for waypoints (rad)
-            # waypoints = [-np.pi/2, -np.pi, -3*np.pi/2, -2*np.pi, -5*np.pi/2] # CW
-            waypoints = [-5*np.pi/2, -2*np.pi, -3*np.pi/2, -np.pi, -np.pi/2] # CCW
-            pts = []
-
-            # First point explicitly at (0,0,0)
-            pts.append([cx, cy - radius, 0.0])
-
-            # Generate ccw points
-            for i in range(len(waypoints) - 1):
-                th_start = waypoints[i]
-                th_end   = waypoints[i + 1]
-
-                # steps_between points between waypoints
-                thetas = np.linspace(th_start, th_end, steps_between + 1, endpoint=False)[1:] if i == 0 else \
-                        np.linspace(th_start, th_end, steps_between + 1, endpoint=False)
-
-                for th in thetas:
-                    x = cx + radius * np.cos(th)
-                    y = cy + radius * np.sin(th)
-                    pts.append([float(x), float(y), 0.0])
-
-            # Close the loop back to start
-            pts.append([0.0, 0.0, 0.0])
-
-            return np.array(pts)
-
         # Straight hardware test path: move along +Y in the odom/mocap frame,
         # then return to the starting point.
         # waypoints = np.array([ # x, y, yaw
-        #     [0.0, 0.0, 0.0],
-        #     [0.0, 3.0, 0.0],
-        #     [0.0, 0.0, 0.0],
+            # [0.0, 0.0, 0.0],
+            # [0.0, 5.0, 0.0],
+            # [0.0, 0.0, 0.0],
         # ])
 
-        # waypoints = generate_ccw_circle_points()
-
+        # Select the circle at launch with trajectory_type:=circle.
+#
         waypoints = np.array([ # x, y, yaw
             [0.0, 0.0, 0.0],
             [0.0, 2.0, 0.0],
@@ -385,7 +419,7 @@ class TrajectoryNode(Node):
             [0.0, 2.0, 0.0],
             [0.0, 0.0, 0.0],
         ])
-
+#
         #     # [0.0, 0.0, 0.0], # SQUARE
         #     # [5.75, 0.0, 0.0],
         #     # [5.75, 5.75, 0.0],
@@ -418,6 +452,16 @@ class TrajectoryNode(Node):
         #     # [0.0, 0.0, 0.0],
         # ])
         
+        if trajectory_type == "circle":
+            waypoints = circle_points
+            self.get_logger().info(
+                "Circle: direction=%s, radius=%.3f m, center=(%.3f, %.3f), "
+                "absolute start=(0, %.3f) at 9 o'clock, reference yaw=0"
+                % (
+                    circle_direction, circle_radius_m, circle_radius_m,
+                    circle_center_y_m, circle_center_y_m,
+                )
+            )
         self.trajectory = WaypointTraj(waypoints, v_lin=v_lin, w_yaw=w_yaw)
         self.subscriber_gate = SubscriberReadinessGate(
             self.required_reference_subscribers,
