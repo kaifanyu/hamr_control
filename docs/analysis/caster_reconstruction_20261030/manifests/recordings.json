@@ -1,0 +1,2162 @@
+{
+  "schema_version": 1,
+  "source_root": "/home/para/Encoder Rosbag",
+  "archive_root": "/mnt/c/Users/aishi/Documents/Codex/2026-10-29/wit/work/github_handoff/assets",
+  "generator_script": "/mnt/c/Users/aishi/Documents/Codex/2026-10-29/wit/work/github_handoff/archive_recordings.py",
+  "generator_sha256": "46567a7fa22b7ec5a619f7e682cfe84e8d7eae21b7415e3b74da7ea2f69c7157",
+  "exclusions": [],
+  "expected_case_count": 12,
+  "archives": [
+    {
+      "case": "encoder_20261030T003954Z_b1f7061e",
+      "source_directory": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e",
+      "archive_path": "/mnt/c/Users/aishi/Documents/Codex/2026-10-29/wit/work/github_handoff/assets/recording-encoder_20261030T003954Z_b1f7061e.zip",
+      "archive_filename": "recording-encoder_20261030T003954Z_b1f7061e.zip",
+      "archive_size_bytes": 29354237,
+      "archive_sha256": "ac54fbcdbd8e5c94662011bf88a1c5f6c5465e38419d6de809cec9cf363bec7c",
+      "source_file_count": 20,
+      "source_total_size_bytes": 335583889,
+      "compression": "ZIP_DEFLATED level 6; ZIP64 enabled",
+      "contents_prefix": "recordings/encoder_20261030T003954Z_b1f7061e/",
+      "verification": {
+        "zip_testzip_crc_passed": true,
+        "archive_file_inventory_exactly_matches_source": true,
+        "every_archive_entry_sha256_matches_source": true,
+        "every_original_source_sha256_rechecked_after_archiving": true,
+        "source_sizes_and_mtimes_unchanged": true,
+        "no_source_mutations": true
+      },
+      "files": [
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/.recording.lock",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/.recording.lock",
+          "size_bytes": 1,
+          "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+          "source_mtime_ns": 1793330185423845045,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/bags/combined/combined_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/bags/combined/combined_0.mcap",
+          "size_bytes": 161779898,
+          "sha256": "708a3b1145657f1ca0a7efe36768bcfa2235329c449942db92bf1b87ffde88a2",
+          "source_mtime_ns": 1793330437677152525,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/bags/combined/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/bags/combined/metadata.yaml",
+          "size_bytes": 23872,
+          "sha256": "0f41bac125fd4a512328c1688e8a1a26b947a70d8cb521903cb9822f4783f09c",
+          "source_mtime_ns": 1793330208114631597,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/bags/encoders/encoders_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/bags/encoders/encoders_0.mcap",
+          "size_bytes": 123693018,
+          "sha256": "34f1f9e9e172f18012eaadaaf03d732c62a10f3e01548f68bd479a7bb8c5ad61",
+          "source_mtime_ns": 1793330425474896576,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/bags/encoders/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/bags/encoders/metadata.yaml",
+          "size_bytes": 3323,
+          "sha256": "f1b04545bfbd9f5850f0302c0ff8c1ac9ffa12a9da096732eb8d4c6737acbaa1",
+          "source_mtime_ns": 1793330208118693313,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/bags/merge-result.json",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/bags/merge-result.json",
+          "size_bytes": 1844,
+          "sha256": "aa6cae9530e5e93af3715ceaae0e8c066d2e6a9e1a5ad49cb93fb559e204be41",
+          "source_mtime_ns": 1793330198753768845,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/bags/merge.yaml",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/bags/merge.yaml",
+          "size_bytes": 215,
+          "sha256": "e89ee088180125c4eeb46ca393925166805bf96fbafc27348d45c3c965e97f67",
+          "source_mtime_ns": 1793330198265768854,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/clock-map.json",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/clock-map.json",
+          "size_bytes": 5665,
+          "sha256": "53918b6ddddfe0d4639756fb4084d6d519797149b06154f34fa4d7b97d925ca0",
+          "source_mtime_ns": 1793330185507918753,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/export-summary.json",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/export-summary.json",
+          "size_bytes": 6792,
+          "sha256": "ae29160fbd06ace4abb8fac600b3719713cf6512d828b59f52fc8e232fc92cdf",
+          "source_mtime_ns": 1793330185507918753,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/front_left_CENTER_10bda3b214a4.bin",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/front_left_CENTER_10bda3b214a4.bin",
+          "size_bytes": 1084796,
+          "sha256": "c964773cc84b0e874809833d6f7bdb36946162d605ce9cd8c2ed7fbdc76bafc6",
+          "source_mtime_ns": 1793330211917422686,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/front_left_H1_10bda3aff910.bin",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/front_left_H1_10bda3aff910.bin",
+          "size_bytes": 1085896,
+          "sha256": "6e1a161d4670d8dd22f83942e8a0e1a5b536eaa11c154e5390460cf6e478fa15",
+          "source_mtime_ns": 1793330211917422686,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/front_left_H2_10bda3b233b0.bin",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/front_left_H2_10bda3b233b0.bin",
+          "size_bytes": 1085796,
+          "sha256": "404b39e670e569b9fb87fddd04aeba096d7ba76bca25fba64e71b9bf6b1aa6bb",
+          "source_mtime_ns": 1793330211961622943,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/front_right_CENTER_10bda3aff330.bin",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/front_right_CENTER_10bda3aff330.bin",
+          "size_bytes": 1084596,
+          "sha256": "3ca29dcff824fb271426451bb9cce45a3085f34e86745dbcd566b61d4dea0f37",
+          "source_mtime_ns": 1793330211961622943,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/front_right_H1_10bda3b030d0.bin",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/front_right_H1_10bda3b030d0.bin",
+          "size_bytes": 1085896,
+          "sha256": "818b203519ae9940dc9259edd9834903cb8153c4b99171bb2823f7ba3ce4fc2b",
+          "source_mtime_ns": 1793330212126369361,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/front_right_H2_10bda3b2339c.bin",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/front_right_H2_10bda3b2339c.bin",
+          "size_bytes": 1085896,
+          "sha256": "fc88676b0bd7f4f2b381aa8189c0b74fec761996e17484c9a808be51d67f1a2d",
+          "source_mtime_ns": 1793330212126369361,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/manifest.json",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/manifest.json",
+          "size_bytes": 76049,
+          "sha256": "1ffc0c3a13bd865c04d0f835c5f540d7c2cea7003a13922f51709eeb7c356a26",
+          "source_mtime_ns": 1793330185800174979,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/metadata.jsonl",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/metadata.jsonl",
+          "size_bytes": 12763,
+          "sha256": "267a8dc1b7e3bf5d5459d94c1c8f6b530bd1371eec4cdf00f307e3f9eaef6726",
+          "source_mtime_ns": 1793330185868234648,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/packets.jsonl",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/packets.jsonl",
+          "size_bytes": 24667566,
+          "sha256": "708154585eb3ca12d1406d563bec41ab4692ec962f137a680e672693ea24b9b0",
+          "source_mtime_ns": 1793330304516073742,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/samples.csv",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/samples.csv",
+          "size_bytes": 18799309,
+          "sha256": "898179ba135c2fd4276483e264de23f4a28b57b2944b47b96926963e441feae2",
+          "source_mtime_ns": 1793330285309066466,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T003954Z_b1f7061e/session.json",
+          "archive_entry": "recordings/encoder_20261030T003954Z_b1f7061e/session.json",
+          "size_bytes": 698,
+          "sha256": "b9aaa6b5bb2bda416a0db641367b26dc4606bc8ca91d6f6dd19c6d4cbd1e94be",
+          "source_mtime_ns": 1793330188258330084,
+          "source_mode": 33188
+        }
+      ],
+      "elapsed_seconds": 9.700823545455933
+    },
+    {
+      "case": "encoder_20261030T005046Z_7a2266b7",
+      "source_directory": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7",
+      "archive_path": "/mnt/c/Users/aishi/Documents/Codex/2026-10-29/wit/work/github_handoff/assets/recording-encoder_20261030T005046Z_7a2266b7.zip",
+      "archive_filename": "recording-encoder_20261030T005046Z_7a2266b7.zip",
+      "archive_size_bytes": 27118424,
+      "archive_sha256": "fe21dbcee19503493523a8ca7ad26e9e1b43ae47c2975d4acd7c2045a28595c0",
+      "source_file_count": 20,
+      "source_total_size_bytes": 297032351,
+      "compression": "ZIP_DEFLATED level 6; ZIP64 enabled",
+      "contents_prefix": "recordings/encoder_20261030T005046Z_7a2266b7/",
+      "verification": {
+        "zip_testzip_crc_passed": true,
+        "archive_file_inventory_exactly_matches_source": true,
+        "every_archive_entry_sha256_matches_source": true,
+        "every_original_source_sha256_rechecked_after_archiving": true,
+        "source_sizes_and_mtimes_unchanged": true,
+        "no_source_mutations": true
+      },
+      "files": [
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/.recording.lock",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/.recording.lock",
+          "size_bytes": 1,
+          "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+          "source_mtime_ns": 1793330197045768875,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/bags/combined/combined_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/bags/combined/combined_0.mcap",
+          "size_bytes": 144486652,
+          "sha256": "1380858b35a68f74b88fa01992c4f3e4077d8da2894bc7fb8215c040bb7cc84a",
+          "source_mtime_ns": 1793330434159112658,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/bags/combined/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/bags/combined/metadata.yaml",
+          "size_bytes": 23866,
+          "sha256": "630b84b2ef4472f3fcbba6b3aef1e56cb59b53d3b967175dd6bd330e83a46882",
+          "source_mtime_ns": 1793330216333430310,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/bags/encoders/encoders_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/bags/encoders/encoders_0.mcap",
+          "size_bytes": 108391281,
+          "sha256": "c0ce11d2fbee433101f88828b2285645a81354accf738e696af215ba373cc143",
+          "source_mtime_ns": 1793330413856179386,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/bags/encoders/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/bags/encoders/metadata.yaml",
+          "size_bytes": 3317,
+          "sha256": "67933e78d5e73d3522087d51ddab20d5c3ba1063d49b54b0c1aad779c1b143cf",
+          "source_mtime_ns": 1793330217585767192,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/bags/merge-result.json",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/bags/merge-result.json",
+          "size_bytes": 1838,
+          "sha256": "0ab92bef52cd36cace593b8dae017953ae668036d1d3445a6a15838074cdd4f6",
+          "source_mtime_ns": 1793330207346967335,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/bags/merge.yaml",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/bags/merge.yaml",
+          "size_bytes": 215,
+          "sha256": "e42e9b79097669c2df56fa265fa3be5bb66b67676b729b9dae5cbab9cc816528",
+          "source_mtime_ns": 1793330207346967335,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/clock-map.json",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/clock-map.json",
+          "size_bytes": 5668,
+          "sha256": "856065599df37a11b64c4ab274f6e171963f2ee9a2335fa3bd0732e7df73573f",
+          "source_mtime_ns": 1793330197745768863,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/export-summary.json",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/export-summary.json",
+          "size_bytes": 6756,
+          "sha256": "cc02effbc86f4e814f122d58310385d4e30fd4f888a57e021347f763f43615b0",
+          "source_mtime_ns": 1793330198141768856,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/front_left_CENTER_10bda3b214a4.bin",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/front_left_CENTER_10bda3b214a4.bin",
+          "size_bytes": 949996,
+          "sha256": "e810d5e5148f70092ce2037dae3760eed67e7fb68cdd341a52702d2e6e80584d",
+          "source_mtime_ns": 1793330211917422686,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/front_left_H1_10bda3aff910.bin",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/front_left_H1_10bda3aff910.bin",
+          "size_bytes": 949896,
+          "sha256": "e2083cecd174b68d1efd92f06f2ae725fb29fa5631a0cd4e25d661875520a591",
+          "source_mtime_ns": 1793330211917422686,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/front_left_H2_10bda3b233b0.bin",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/front_left_H2_10bda3b233b0.bin",
+          "size_bytes": 950296,
+          "sha256": "b87e0ee800b7b77ab1a575e6bcf21a4d0a3a3d834f41d39204437ded42bd7d50",
+          "source_mtime_ns": 1793330211917422686,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/front_right_CENTER_10bda3aff330.bin",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/front_right_CENTER_10bda3aff330.bin",
+          "size_bytes": 950296,
+          "sha256": "d6162e77b3ba7077b1e7c3245bded41502ba1b55528ea19d9743b3ad514ef448",
+          "source_mtime_ns": 1793330211917422686,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/front_right_H1_10bda3b030d0.bin",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/front_right_H1_10bda3b030d0.bin",
+          "size_bytes": 949696,
+          "sha256": "c1163c85bf40cac2e91d717950b268dca8c35b3d0732b846acd1c6a7c4b921b2",
+          "source_mtime_ns": 1793330211917422686,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/front_right_H2_10bda3b2339c.bin",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/front_right_H2_10bda3b2339c.bin",
+          "size_bytes": 950196,
+          "sha256": "eea056a21112cb39e79051d658d283e137697634c0775069220dce3401c336cf",
+          "source_mtime_ns": 1793330211917422686,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/manifest.json",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/manifest.json",
+          "size_bytes": 75978,
+          "sha256": "de6c840f62a499153457343789d329d72716d9fb1c9bb3e1e0f209c72e8f7705",
+          "source_mtime_ns": 1793330197857768861,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/metadata.jsonl",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/metadata.jsonl",
+          "size_bytes": 12766,
+          "sha256": "bf030a5bdeeb0c24017010ade62265a25702bfef18d7ae897b33412e60f2e3e8",
+          "source_mtime_ns": 1793330197853768861,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/packets.jsonl",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/packets.jsonl",
+          "size_bytes": 21728231,
+          "sha256": "49e8cfcbd2926100418cbe7290bde41fa4f5f8fc0e349fa70391d0aa1e6fb0ba",
+          "source_mtime_ns": 1793330295326240650,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/samples.csv",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/samples.csv",
+          "size_bytes": 16594708,
+          "sha256": "f8025e508356124d10438c887fb4eaa10c63f8f95d2ff23a1e10124209b42f4b",
+          "source_mtime_ns": 1793330280423358160,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T005046Z_7a2266b7/session.json",
+          "archive_entry": "recordings/encoder_20261030T005046Z_7a2266b7/session.json",
+          "size_bytes": 698,
+          "sha256": "27eb9610dbe54ea4907e397a2882019e9958679f8f3354467e3f74ca96e961e2",
+          "source_mtime_ns": 1793330198121768856,
+          "source_mode": 33188
+        }
+      ],
+      "elapsed_seconds": 8.79568099975586
+    },
+    {
+      "case": "encoder_20261030T010929Z_0e7d65f0_center_0.5_straight",
+      "source_directory": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight",
+      "archive_path": "/mnt/c/Users/aishi/Documents/Codex/2026-10-29/wit/work/github_handoff/assets/recording-encoder_20261030T010929Z_0e7d65f0_center_0.5_straight.zip",
+      "archive_filename": "recording-encoder_20261030T010929Z_0e7d65f0_center_0.5_straight.zip",
+      "archive_size_bytes": 28327164,
+      "archive_sha256": "ab3353119fdc41d425ca0f065880cd52a8374905a592e667f9b4ae70098d89ca",
+      "source_file_count": 20,
+      "source_total_size_bytes": 327644512,
+      "compression": "ZIP_DEFLATED level 6; ZIP64 enabled",
+      "contents_prefix": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/",
+      "verification": {
+        "zip_testzip_crc_passed": true,
+        "archive_file_inventory_exactly_matches_source": true,
+        "every_archive_entry_sha256_matches_source": true,
+        "every_original_source_sha256_rechecked_after_archiving": true,
+        "source_sizes_and_mtimes_unchanged": true,
+        "no_source_mutations": true
+      },
+      "files": [
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/.recording.lock",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/.recording.lock",
+          "size_bytes": 1,
+          "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+          "source_mtime_ns": 1793330196015535701,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/bags/combined/combined_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/bags/combined/combined_0.mcap",
+          "size_bytes": 158792314,
+          "sha256": "d08bdbda8abd01c36da2c5b1d7601e211775daf211b2a18b0a177981e55a9efd",
+          "source_mtime_ns": 1793330437006081336,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/bags/combined/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/bags/combined/metadata.yaml",
+          "size_bytes": 23872,
+          "sha256": "f46a67365bcf5aa922e9449d40cdd614edb35297af063889c6952f6cb866d234",
+          "source_mtime_ns": 1793330215939646190,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/bags/encoders/encoders_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/bags/encoders/encoders_0.mcap",
+          "size_bytes": 120205876,
+          "sha256": "c5ea51215dfe900a8518f92510022118d4d9f206931626dbe09be63024f2801b",
+          "source_mtime_ns": 1793330424824510293,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/bags/encoders/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/bags/encoders/metadata.yaml",
+          "size_bytes": 3323,
+          "sha256": "7963d22e5d9d11a4b60a086f78171b32d1fa780180735d7f16e615be276412e5",
+          "source_mtime_ns": 1793330217329085740,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/bags/merge-result.json",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/bags/merge-result.json",
+          "size_bytes": 1844,
+          "sha256": "cde4c6405a267fd23f1ac11293dc8192ca673e8ee0b19c9ac3e67dabb7eb3124",
+          "source_mtime_ns": 1793330207168251844,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/bags/merge.yaml",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/bags/merge.yaml",
+          "size_bytes": 215,
+          "sha256": "55dabfa3d67adceceb395f31eb7646876522476ad0dcadb6021b4647936adfc7",
+          "source_mtime_ns": 1793330207172313560,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/clock-map.json",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/clock-map.json",
+          "size_bytes": 5660,
+          "sha256": "e2088a09cfe7d619eb2cabe2043e98d2db882132270cc5d11b28da2d33e0a88c",
+          "source_mtime_ns": 1793330196058869034,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/export-summary.json",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/export-summary.json",
+          "size_bytes": 6796,
+          "sha256": "5407bbeb4aee8a8b082e9a072d109fec1fe450d0b100352668cca39cadcdee9a",
+          "source_mtime_ns": 1793330196058869034,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/front_left_CENTER_10bda3b214a4.bin",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/front_left_CENTER_10bda3b214a4.bin",
+          "size_bytes": 1055196,
+          "sha256": "0d8c18236e1492bf293f5cab52d1c841896b32596d1241420fca8cdfb23eada0",
+          "source_mtime_ns": 1793330215746772339,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/front_left_H1_10bda3aff910.bin",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/front_left_H1_10bda3aff910.bin",
+          "size_bytes": 1055296,
+          "sha256": "54fed19251473de32010f5d52d81401983a2b2adab1f3b9a30f43255b8ea6c85",
+          "source_mtime_ns": 1793330215939646190,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/front_left_H2_10bda3b233b0.bin",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/front_left_H2_10bda3b233b0.bin",
+          "size_bytes": 1055396,
+          "sha256": "0f5dacbbdd01e737d6f6c326c797e937e16d383dc26d8adee228bbd1c8c14a72",
+          "source_mtime_ns": 1793330215939646190,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/front_right_CENTER_10bda3aff330.bin",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/front_right_CENTER_10bda3aff330.bin",
+          "size_bytes": 1056596,
+          "sha256": "96aef67c8ba2ab6099bef84c50d76eead264755de1f92bf3b21622a761371e82",
+          "source_mtime_ns": 1793330215939646190,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/front_right_H1_10bda3b030d0.bin",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/front_right_H1_10bda3b030d0.bin",
+          "size_bytes": 1055896,
+          "sha256": "8fff649deb905a18eb54dd797243df50246140834eea6422f5dce69ff975a7eb",
+          "source_mtime_ns": 1793330215939646190,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/front_right_H2_10bda3b2339c.bin",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/front_right_H2_10bda3b2339c.bin",
+          "size_bytes": 1056596,
+          "sha256": "da9b1876466a52d03d8f93cb118481dc7ca26c5e88fe6ddefe1f94968d9a0f8b",
+          "source_mtime_ns": 1793330215939646190,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/manifest.json",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/manifest.json",
+          "size_bytes": 76062,
+          "sha256": "ee993bac38d6d49ceecfbb090efed7fd759b216a89973f81f807358a7ec31aac",
+          "source_mtime_ns": 1793330196713202358,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/metadata.jsonl",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/metadata.jsonl",
+          "size_bytes": 12758,
+          "sha256": "5f46736d9f9c25bc3588b29269ca59ff7f6125bae5307b3119466d50a29cf1f9",
+          "source_mtime_ns": 1793330196843202355,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/packets.jsonl",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/packets.jsonl",
+          "size_bytes": 23941412,
+          "sha256": "59a2bf2c0ce73b7623d1a140cdfa62833fe20bad0ea650619f1ec0ee2f47e3e3",
+          "source_mtime_ns": 1793330300572580616,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/samples.csv",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/samples.csv",
+          "size_bytes": 18238704,
+          "sha256": "86cddc6b571fe7be6a0c2561f751f2d4a3d7251735bfce3a43b7c53b354a376c",
+          "source_mtime_ns": 1793330284922258310,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/session.json",
+          "archive_entry": "recordings/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/session.json",
+          "size_bytes": 699,
+          "sha256": "140cd5780fb6521feb2bc54c30689292366e255b9add397fb7f1669a400e723e",
+          "source_mtime_ns": 1793330196997768876,
+          "source_mode": 33188
+        }
+      ],
+      "elapsed_seconds": 8.736926317214966
+    },
+    {
+      "case": "encoder_20261030T011917Z_b8c84d4e",
+      "source_directory": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e",
+      "archive_path": "/mnt/c/Users/aishi/Documents/Codex/2026-10-29/wit/work/github_handoff/assets/recording-encoder_20261030T011917Z_b8c84d4e.zip",
+      "archive_filename": "recording-encoder_20261030T011917Z_b8c84d4e.zip",
+      "archive_size_bytes": 27667688,
+      "archive_sha256": "e2be9f7176da112c5eff4f0433da8010e06bd50167d76241962de2b3784c9319",
+      "source_file_count": 20,
+      "source_total_size_bytes": 312631762,
+      "compression": "ZIP_DEFLATED level 6; ZIP64 enabled",
+      "contents_prefix": "recordings/encoder_20261030T011917Z_b8c84d4e/",
+      "verification": {
+        "zip_testzip_crc_passed": true,
+        "archive_file_inventory_exactly_matches_source": true,
+        "every_archive_entry_sha256_matches_source": true,
+        "every_original_source_sha256_rechecked_after_archiving": true,
+        "source_sizes_and_mtimes_unchanged": true,
+        "no_source_mutations": true
+      },
+      "files": [
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/.recording.lock",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/.recording.lock",
+          "size_bytes": 1,
+          "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+          "source_mtime_ns": 1793330195044869048,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/bags/combined/combined_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/bags/combined/combined_0.mcap",
+          "size_bytes": 150558576,
+          "sha256": "2625289b4342da4b0f618706677595c195aa4ebcb03d62c18414f1db02a00e64",
+          "source_mtime_ns": 1793330435480919545,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/bags/combined/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/bags/combined/metadata.yaml",
+          "size_bytes": 23872,
+          "sha256": "b280bc1976a2eebd3a093c38abcedd745c3c3eb84d4aee3b90518104a1298c8f",
+          "source_mtime_ns": 1793330215939646190,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/bags/encoders/encoders_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/bags/encoders/encoders_0.mcap",
+          "size_bytes": 115218433,
+          "sha256": "289f462640a1d3d82d989c5eda5fcdc583acf52abb7c842d0c17d9131c29eaff",
+          "source_mtime_ns": 1793330421308444412,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/bags/encoders/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/bags/encoders/metadata.yaml",
+          "size_bytes": 3323,
+          "sha256": "0ea4c107013a407d39cc083ef0fc5a0cfdf03343e1854fdb2d7e32d300292bfd",
+          "source_mtime_ns": 1793330216333430310,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/bags/merge-result.json",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/bags/merge-result.json",
+          "size_bytes": 1844,
+          "sha256": "c0f83e89f80a591882eb593bb09be55a52d035182d5757dd47377d45c3725e5a",
+          "source_mtime_ns": 1793330206567117924,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/bags/merge.yaml",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/bags/merge.yaml",
+          "size_bytes": 215,
+          "sha256": "d7e7286a1284c439307e5c6ae1a89466c1053396fb0daa0a54ceec9ceb19eddb",
+          "source_mtime_ns": 1793330206571179640,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/clock-map.json",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/clock-map.json",
+          "size_bytes": 5677,
+          "sha256": "3e88e378cbbc8e4d5fc83018b93628c1f88cacd28b79eb1fd56e1160de46a4dc",
+          "source_mtime_ns": 1793330195187869047,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/export-summary.json",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/export-summary.json",
+          "size_bytes": 6798,
+          "sha256": "69c04ef6299f12eb6beda037586b9bea73e374f13a0efebf1244f0ba1d5f2a48",
+          "source_mtime_ns": 1793330195200869047,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/front_left_CENTER_10bda3b214a4.bin",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/front_left_CENTER_10bda3b214a4.bin",
+          "size_bytes": 1009896,
+          "sha256": "51207239a2c8c36d7f0069a29e0daab73665fdf1c4517eaeadc6ea34157afd65",
+          "source_mtime_ns": 1793330211274509837,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/front_left_H1_10bda3aff910.bin",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/front_left_H1_10bda3aff910.bin",
+          "size_bytes": 1009996,
+          "sha256": "7eb5517c8ee70b244f3a1091c69714cad702887f9dada07b834ddb131de154a3",
+          "source_mtime_ns": 1793330211274509837,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/front_left_H2_10bda3b233b0.bin",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/front_left_H2_10bda3b233b0.bin",
+          "size_bytes": 1007996,
+          "sha256": "c7ed3f0032fe32e701ba2fcb2b104c860c5f8448c8ef031f002a2fc6c4cba3c8",
+          "source_mtime_ns": 1793330211274509837,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/front_right_CENTER_10bda3aff330.bin",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/front_right_CENTER_10bda3aff330.bin",
+          "size_bytes": 1007896,
+          "sha256": "5975c05baa018fd2f08c28e99b8cb6330bd34a4fb8ccc8f845499220ecdef479",
+          "source_mtime_ns": 1793330211511583949,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/front_right_H1_10bda3b030d0.bin",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/front_right_H1_10bda3b030d0.bin",
+          "size_bytes": 1010396,
+          "sha256": "22a046d080b2319aa5cf7324aa8e9815b44d4da77e67d93cba54c64fe71a2546",
+          "source_mtime_ns": 1793330211515602155,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/front_right_H2_10bda3b2339c.bin",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/front_right_H2_10bda3b2339c.bin",
+          "size_bytes": 1007896,
+          "sha256": "6c43a07adb5e3afca435b88262700e6e2125baa833cffdb8c42d364bafa7ad20",
+          "source_mtime_ns": 1793330211519620360,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/manifest.json",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/manifest.json",
+          "size_bytes": 76084,
+          "sha256": "d2ba6b1826a693b090ee44b909552d4b9b3729f2381899e41b552aba3b8778d7",
+          "source_mtime_ns": 1793330197097768874,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/metadata.jsonl",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/metadata.jsonl",
+          "size_bytes": 12775,
+          "sha256": "d0ac9a037d0c7ecc2485a59cf23aafdcbbfe8d34e698a287b81bbfb9fdc2869e",
+          "source_mtime_ns": 1793330195868202372,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/packets.jsonl",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/packets.jsonl",
+          "size_bytes": 23013390,
+          "sha256": "5d2ebc72defd133cef9a0c99528c590049d9ed4ec2dfa7dea4f98ede40233775",
+          "source_mtime_ns": 1793330297440813304,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/samples.csv",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/samples.csv",
+          "size_bytes": 17655999,
+          "sha256": "9517e3bd273710822762642e3dd43ddca478f90bc0c16d8d16941485da0a0241",
+          "source_mtime_ns": 1793330282906784229,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T011917Z_b8c84d4e/session.json",
+          "archive_entry": "recordings/encoder_20261030T011917Z_b8c84d4e/session.json",
+          "size_bytes": 699,
+          "sha256": "35a031f858aa55f85e560bf0e011877ef1778faaabf509470259fe305f4dc083",
+          "source_mtime_ns": 1793330196041535700,
+          "source_mode": 33188
+        }
+      ],
+      "elapsed_seconds": 8.400440692901611
+    },
+    {
+      "case": "encoder_20261030T012339Z_5f3ad8da",
+      "source_directory": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da",
+      "archive_path": "/mnt/c/Users/aishi/Documents/Codex/2026-10-29/wit/work/github_handoff/assets/recording-encoder_20261030T012339Z_5f3ad8da.zip",
+      "archive_filename": "recording-encoder_20261030T012339Z_5f3ad8da.zip",
+      "archive_size_bytes": 27864041,
+      "archive_sha256": "d76cf137126df55e111b3a623233736fc70cc2610599eb745c0984e09f255e79",
+      "source_file_count": 20,
+      "source_total_size_bytes": 301313087,
+      "compression": "ZIP_DEFLATED level 6; ZIP64 enabled",
+      "contents_prefix": "recordings/encoder_20261030T012339Z_5f3ad8da/",
+      "verification": {
+        "zip_testzip_crc_passed": true,
+        "archive_file_inventory_exactly_matches_source": true,
+        "every_archive_entry_sha256_matches_source": true,
+        "every_original_source_sha256_rechecked_after_archiving": true,
+        "source_sizes_and_mtimes_unchanged": true,
+        "no_source_mutations": true
+      },
+      "files": [
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/.recording.lock",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/.recording.lock",
+          "size_bytes": 1,
+          "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+          "source_mtime_ns": 1793330193874869066,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/bags/combined/combined_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/bags/combined/combined_0.mcap",
+          "size_bytes": 146875863,
+          "sha256": "22a04fe84fcd8b53e3a7a4dcd6a8461b9388365ab114df9d5b4f25c34f6de531",
+          "source_mtime_ns": 1793330434541419881,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/bags/combined/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/bags/combined/metadata.yaml",
+          "size_bytes": 23866,
+          "sha256": "7bc5278715d2b339e52dc9c95d8b4d0c0d7d778a9da51550524d555aee9098ff",
+          "source_mtime_ns": 1793330211961622943,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/bags/encoders/encoders_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/bags/encoders/encoders_0.mcap",
+          "size_bytes": 109755466,
+          "sha256": "4c2d97a7c280633981330bcc541887ec10984a2e3b9e920ae703a4865d76788b",
+          "source_mtime_ns": 1793330415734542515,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/bags/encoders/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/bags/encoders/metadata.yaml",
+          "size_bytes": 3317,
+          "sha256": "03a2ee4164550fef977fee20cbe4229f99cb1ecd94fff7123ac51fe588e8dc9b",
+          "source_mtime_ns": 1793330211961622943,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/bags/merge-result.json",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/bags/merge-result.json",
+          "size_bytes": 1838,
+          "sha256": "ea17ad138ed5469d2af61365f78cef5263d8bc280566cfa0e31187a6836080c2",
+          "source_mtime_ns": 1793330206461513318,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/bags/merge.yaml",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/bags/merge.yaml",
+          "size_bytes": 215,
+          "sha256": "602687e15c1bdabd73f8ad36c8c9f4bec938b2f9d2319d9f6102477745abaefd",
+          "source_mtime_ns": 1793330206461513318,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/clock-map.json",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/clock-map.json",
+          "size_bytes": 5675,
+          "sha256": "dba6501da76c6bb2c971c98ee89a34af24567ba2eb418b34e59ed9b1c6dc0ac7",
+          "source_mtime_ns": 1793330193939869065,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/export-summary.json",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/export-summary.json",
+          "size_bytes": 6753,
+          "sha256": "3af6cc0171e7bda4290fc8167a8a74188b80afbc2fa78d978fef3c4b75799387",
+          "source_mtime_ns": 1793330193983202397,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/front_left_CENTER_10bda3b214a4.bin",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/front_left_CENTER_10bda3b214a4.bin",
+          "size_bytes": 961196,
+          "sha256": "97482ae20d3ffe3eccb64a472892e506cf9693c233ab19b94b7af5b3d0e34bf8",
+          "source_mtime_ns": 1793330210876707510,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/front_left_H1_10bda3aff910.bin",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/front_left_H1_10bda3aff910.bin",
+          "size_bytes": 961196,
+          "sha256": "254ad50a0022d8a071d3a33c9002b68ee20ef8bffc8824a03be835a9d79484c8",
+          "source_mtime_ns": 1793330210876707510,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/front_left_H2_10bda3b233b0.bin",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/front_left_H2_10bda3b233b0.bin",
+          "size_bytes": 961496,
+          "sha256": "e7ce49d1bd7453aecf860eddbb8a3743c91f41f703ab5a5f9396a0eaa7d4c3b7",
+          "source_mtime_ns": 1793330210876707510,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/front_right_CENTER_10bda3aff330.bin",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/front_right_CENTER_10bda3aff330.bin",
+          "size_bytes": 960396,
+          "sha256": "3370046bdb0ca6d7d82638999b9d21d3e60e5033ca31d146b10e027fd493d203",
+          "source_mtime_ns": 1793330210876707510,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/front_right_H1_10bda3b030d0.bin",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/front_right_H1_10bda3b030d0.bin",
+          "size_bytes": 960996,
+          "sha256": "a17e6f2dc0022ff303e63390562b8c5218e955dcb511b90d0ca4853855a4f7dd",
+          "source_mtime_ns": 1793330210876707510,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/front_right_H2_10bda3b2339c.bin",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/front_right_H2_10bda3b2339c.bin",
+          "size_bytes": 961396,
+          "sha256": "2b751ab74e22775630b6a27717333af172413e45af1137b788388a7228b48bea",
+          "source_mtime_ns": 1793330211274509837,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/manifest.json",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/manifest.json",
+          "size_bytes": 75987,
+          "sha256": "0abe6df7fce4abec41baf5fbf7a050fbf16e2b528b5bec44324e75f926afec47",
+          "source_mtime_ns": 1793330195018869048,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/metadata.jsonl",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/metadata.jsonl",
+          "size_bytes": 12773,
+          "sha256": "1287e7475fd57914e978737560b5001758245cc6d76edee37ad61f774ec12abc",
+          "source_mtime_ns": 1793330194971202383,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/packets.jsonl",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/packets.jsonl",
+          "size_bytes": 21963482,
+          "sha256": "2629ecf5aea496f2cfcce9fee1c768603860c2ee713bef3bd484d44fb873a6e3",
+          "source_mtime_ns": 1793330295244761915,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/samples.csv",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/samples.csv",
+          "size_bytes": 16820476,
+          "sha256": "1e1162f6f28efa3a305845ab4b452b1b9ae3f2464d33608c1a8b15cf13264ee2",
+          "source_mtime_ns": 1793330280475358159,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T012339Z_5f3ad8da/session.json",
+          "archive_entry": "recordings/encoder_20261030T012339Z_5f3ad8da/session.json",
+          "size_bytes": 699,
+          "sha256": "36729c433bcfd5e15d8eb4ec5eb620dc37517d933387ac28eda68d6d0454960c",
+          "source_mtime_ns": 1793330195183535713,
+          "source_mode": 33188
+        }
+      ],
+      "elapsed_seconds": 8.087920665740967
+    },
+    {
+      "case": "encoder_20261030T013746Z_3eeed870",
+      "source_directory": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870",
+      "archive_path": "/mnt/c/Users/aishi/Documents/Codex/2026-10-29/wit/work/github_handoff/assets/recording-encoder_20261030T013746Z_3eeed870.zip",
+      "archive_filename": "recording-encoder_20261030T013746Z_3eeed870.zip",
+      "archive_size_bytes": 14787860,
+      "archive_sha256": "ae0d84cf5286575ed996b4de76f5a2d144f19c55aaaddc00959f55e614398e56",
+      "source_file_count": 20,
+      "source_total_size_bytes": 205094473,
+      "compression": "ZIP_DEFLATED level 6; ZIP64 enabled",
+      "contents_prefix": "recordings/encoder_20261030T013746Z_3eeed870/",
+      "verification": {
+        "zip_testzip_crc_passed": true,
+        "archive_file_inventory_exactly_matches_source": true,
+        "every_archive_entry_sha256_matches_source": true,
+        "every_original_source_sha256_rechecked_after_archiving": true,
+        "source_sizes_and_mtimes_unchanged": true,
+        "no_source_mutations": true
+      },
+      "files": [
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/.recording.lock",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/.recording.lock",
+          "size_bytes": 1,
+          "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+          "source_mtime_ns": 1793330192806317380,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/bags/combined/combined_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/bags/combined/combined_0.mcap",
+          "size_bytes": 99895085,
+          "sha256": "cbd6c7e820522f12b568de747e5d604057d9b77cb84a62565d4952306bdf6dd5",
+          "source_mtime_ns": 1793330408702654793,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/bags/combined/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/bags/combined/metadata.yaml",
+          "size_bytes": 23864,
+          "sha256": "f01d5a6c30c8fdff4959298b65990b4aa6e0ff3440957052f5a9fcd0abcc905d",
+          "source_mtime_ns": 1793330211961622943,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/bags/encoders/encoders_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/bags/encoders/encoders_0.mcap",
+          "size_bytes": 75416184,
+          "sha256": "aa1014ed2c040dd659aa650cafc927fb8e67c7158348868e5e9d73de278f3909",
+          "source_mtime_ns": 1793330384001962781,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/bags/encoders/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/bags/encoders/metadata.yaml",
+          "size_bytes": 3316,
+          "sha256": "1e0e41d60ca3cc69aed6461339eb5934372060d541aa6fe2bde7f445b3fbf5bb",
+          "source_mtime_ns": 1793330215939646190,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/bags/merge-result.json",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/bags/merge-result.json",
+          "size_bytes": 1834,
+          "sha256": "2952e2a79ef8ea06c1b45d6bbb4faaec3d92a28c7f04a0e86804c12cec80cfa3",
+          "source_mtime_ns": 1793330206461513318,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/bags/merge.yaml",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/bags/merge.yaml",
+          "size_bytes": 215,
+          "sha256": "7c8782a0c0e1b444c449b1fcd34e2c7564e6e72e53bcf835eeda9372cf94d432",
+          "source_mtime_ns": 1793330206461513318,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/clock-map.json",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/clock-map.json",
+          "size_bytes": 5668,
+          "sha256": "2d86cb2a5d272a9bd7c16dff4108f63d954efa644067bc884d4e992dd179daec",
+          "source_mtime_ns": 1793330192818327910,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/export-summary.json",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/export-summary.json",
+          "size_bytes": 6755,
+          "sha256": "c7ea8d849929cf9b2b39c168e8583d63f5912c53442473156d84363f80b90eae",
+          "source_mtime_ns": 1793330192822331419,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/front_left_CENTER_10bda3b214a4.bin",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/front_left_CENTER_10bda3b214a4.bin",
+          "size_bytes": 668196,
+          "sha256": "b60ef1b79f7c40d418644260d72ce189abdcd7c63eaf73abc9a0905589e704a2",
+          "source_mtime_ns": 1793330206457451602,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/front_left_H1_10bda3aff910.bin",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/front_left_H1_10bda3aff910.bin",
+          "size_bytes": 667596,
+          "sha256": "11d1747ea5a500bc7401c704cc492ed8d2f112c6a53dd989004fe79a87b7bd96",
+          "source_mtime_ns": 1793330206457451602,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/front_left_H2_10bda3b233b0.bin",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/front_left_H2_10bda3b233b0.bin",
+          "size_bytes": 665696,
+          "sha256": "375a96faeaf2a3a2a679ccaef3a9ae6180517d0443f566c7bbebb26d5308cbe3",
+          "source_mtime_ns": 1793330206457451602,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/front_right_CENTER_10bda3aff330.bin",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/front_right_CENTER_10bda3aff330.bin",
+          "size_bytes": 667696,
+          "sha256": "fe5371d1b10130438af9d5f3671eb0f2b078c420d79a4ed84cbbcdbd145e049d",
+          "source_mtime_ns": 1793330206457451602,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/front_right_H1_10bda3b030d0.bin",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/front_right_H1_10bda3b030d0.bin",
+          "size_bytes": 667496,
+          "sha256": "f8c63887144406d4245db43919f7e597509213aa985ef416526a09dbc5682294",
+          "source_mtime_ns": 1793330206457451602,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/front_right_H2_10bda3b2339c.bin",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/front_right_H2_10bda3b2339c.bin",
+          "size_bytes": 667396,
+          "sha256": "d9dd297b0071512b571b5b20d4ee27fe1a919ba375a9b7bc40c3e51b14ffc9bf",
+          "source_mtime_ns": 1793330206457451602,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/manifest.json",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/manifest.json",
+          "size_bytes": 75951,
+          "sha256": "a7b871f3e8fd95fd0ada209dbce8880cb984b6f6866307077a29a75f0999d68d",
+          "source_mtime_ns": 1793330193684202402,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/metadata.jsonl",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/metadata.jsonl",
+          "size_bytes": 12766,
+          "sha256": "07c3d84670ab55c469e972496397d21de6c0eb37b678b5c7845aa7b89b9ab042",
+          "source_mtime_ns": 1793330193684202402,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/packets.jsonl",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/packets.jsonl",
+          "size_bytes": 14617003,
+          "sha256": "84fe4260b479b5593aa96b32be0b3eca94e2ef4f4737a9683076a54a755a8b28",
+          "source_mtime_ns": 1793330274411242968,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/samples.csv",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/samples.csv",
+          "size_bytes": 11031056,
+          "sha256": "3baa53ba107cd958b486f2b7f8e5d9bab5649ef66f247bd4a71019c4b238c14b",
+          "source_mtime_ns": 1793330264083493195,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013746Z_3eeed870/session.json",
+          "archive_entry": "recordings/encoder_20261030T013746Z_3eeed870/session.json",
+          "size_bytes": 699,
+          "sha256": "376eb90c9e1ad66ec214180aff41088790a320be3f7cb62ab09097fcf5e4e11b",
+          "source_mtime_ns": 1793330193935535731,
+          "source_mode": 33188
+        }
+      ],
+      "elapsed_seconds": 5.90468955039978
+    },
+    {
+      "case": "encoder_20261030T013933Z_d585b0e6",
+      "source_directory": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6",
+      "archive_path": "/mnt/c/Users/aishi/Documents/Codex/2026-10-29/wit/work/github_handoff/assets/recording-encoder_20261030T013933Z_d585b0e6.zip",
+      "archive_filename": "recording-encoder_20261030T013933Z_d585b0e6.zip",
+      "archive_size_bytes": 24707467,
+      "archive_sha256": "30ce6175316eeab3e70d4d868cd3fd269778644bb1549c355087942d6eca02b0",
+      "source_file_count": 20,
+      "source_total_size_bytes": 280157343,
+      "compression": "ZIP_DEFLATED level 6; ZIP64 enabled",
+      "contents_prefix": "recordings/encoder_20261030T013933Z_d585b0e6/",
+      "verification": {
+        "zip_testzip_crc_passed": true,
+        "archive_file_inventory_exactly_matches_source": true,
+        "every_archive_entry_sha256_matches_source": true,
+        "every_original_source_sha256_rechecked_after_archiving": true,
+        "source_sizes_and_mtimes_unchanged": true,
+        "no_source_mutations": true
+      },
+      "files": [
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/.recording.lock",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/.recording.lock",
+          "size_bytes": 1,
+          "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+          "source_mtime_ns": 1793330191941559233,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/bags/combined/combined_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/bags/combined/combined_0.mcap",
+          "size_bytes": 135109178,
+          "sha256": "f46fb9143dbc73b9657a0aceadbec7a629cffba5047ddfac952ce588eac62a5c",
+          "source_mtime_ns": 1793330431042688441,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/bags/combined/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/bags/combined/metadata.yaml",
+          "size_bytes": 23866,
+          "sha256": "ec4c50567193e26fa8778ac09ac13ce4ba2895429321b6b249227e4c10bce813",
+          "source_mtime_ns": 1793330211957604738,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/bags/encoders/encoders_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/bags/encoders/encoders_0.mcap",
+          "size_bytes": 103059145,
+          "sha256": "a336b6c2b526a536b6a97c684e80a3f0be38c4adcb75aef588be155039d43d0c",
+          "source_mtime_ns": 1793330410213047443,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/bags/encoders/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/bags/encoders/metadata.yaml",
+          "size_bytes": 3317,
+          "sha256": "dfaeb4e10f461de78903623b444c40235117db7a34d5a7746578462686b45bdb",
+          "source_mtime_ns": 1793330211957604738,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/bags/merge-result.json",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/bags/merge-result.json",
+          "size_bytes": 1838,
+          "sha256": "abd2c355eb30d5cf9f47b9735655fb40d8dd7fc9abaaf90ccb27674832713a5a",
+          "source_mtime_ns": 1793330206457451602,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/bags/merge.yaml",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/bags/merge.yaml",
+          "size_bytes": 215,
+          "sha256": "ad2f25f8e199fcc02b6e23b15c7324071ce4d50afb79cd988fa1a5e2879a3ff8",
+          "source_mtime_ns": 1793330206457451602,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/clock-map.json",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/clock-map.json",
+          "size_bytes": 5662,
+          "sha256": "82a9da6ff1b0e4aabae25683d4abf9c7bec45c2a909df13bfbde61b7d25a9526",
+          "source_mtime_ns": 1793330194680869052,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/export-summary.json",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/export-summary.json",
+          "size_bytes": 6757,
+          "sha256": "0fe0dc2ca427a35a2de3a75a630093c546ac9ae5c7e2c52d8bd185bdc56cab81",
+          "source_mtime_ns": 1793330192197783868,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/front_left_CENTER_10bda3b214a4.bin",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/front_left_CENTER_10bda3b214a4.bin",
+          "size_bytes": 902296,
+          "sha256": "444d8f143a04bba99b5e0654e8cbcdd62f8c3cb0e8397f89f584dec86af9476c",
+          "source_mtime_ns": 1793330210282013127,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/front_left_H1_10bda3aff910.bin",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/front_left_H1_10bda3aff910.bin",
+          "size_bytes": 903196,
+          "sha256": "fd1f80f841e6447b5d98256bd468ee6c71d96216eaf659058eebf4e12f7f9c0e",
+          "source_mtime_ns": 1793330210282013127,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/front_left_H2_10bda3b233b0.bin",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/front_left_H2_10bda3b233b0.bin",
+          "size_bytes": 902496,
+          "sha256": "362e38e4788c0e0e5f0c55f7032d895e05dbfb0b1d81b397f3739e884703fef1",
+          "source_mtime_ns": 1793330210282013127,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/front_right_CENTER_10bda3aff330.bin",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/front_right_CENTER_10bda3aff330.bin",
+          "size_bytes": 904696,
+          "sha256": "049362fd6e060b601329fd3a106e08d5115495a4d5799407298c71ca4296e231",
+          "source_mtime_ns": 1793330210282013127,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/front_right_H1_10bda3b030d0.bin",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/front_right_H1_10bda3b030d0.bin",
+          "size_bytes": 904696,
+          "sha256": "10672a9a7f6d0c30514ae1d41fb4c9e881cc5b484f081844390547dac787884e",
+          "source_mtime_ns": 1793330211274509837,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/front_right_H2_10bda3b2339c.bin",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/front_right_H2_10bda3b2339c.bin",
+          "size_bytes": 906196,
+          "sha256": "4d265f9f83ef0bbc62ebbd043acabf8ca2e42efd69000da0df654b54ce6e2900",
+          "source_mtime_ns": 1793330210282013127,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/manifest.json",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/manifest.json",
+          "size_bytes": 75952,
+          "sha256": "f6b7e120d74b0c1503c4582ee0e213a31d826765ee36986fea0c23bd61e6b6d4",
+          "source_mtime_ns": 1793330192678205062,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/metadata.jsonl",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/metadata.jsonl",
+          "size_bytes": 12760,
+          "sha256": "3316a2f268ff08e97f08a8d45f2db01c3f38f9fb1ab8740be511c212f77231d9",
+          "source_mtime_ns": 1793330192574113802,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/packets.jsonl",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/packets.jsonl",
+          "size_bytes": 20644916,
+          "sha256": "00de16e68b66aa22f9d4a9fffafc81939e0eeac17c1b9ead923b43b3a2f24b4d",
+          "source_mtime_ns": 1793330292718921153,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/samples.csv",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/samples.csv",
+          "size_bytes": 15789461,
+          "sha256": "5fdd36cc220e86c132662020b1243e4fb82f0a7bef07febe45ccd2d858d740b9",
+          "source_mtime_ns": 1793330276960157471,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T013933Z_d585b0e6/session.json",
+          "archive_entry": "recordings/encoder_20261030T013933Z_d585b0e6/session.json",
+          "size_bytes": 699,
+          "sha256": "726609a6483dad4f4cd7b333c5a35a122a9c69e54f67c3dc8451caefdd4367c9",
+          "source_mtime_ns": 1793330192806317380,
+          "source_mode": 33188
+        }
+      ],
+      "elapsed_seconds": 7.151269435882568
+    },
+    {
+      "case": "encoder_20261030T014344Z_474eacce",
+      "source_directory": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce",
+      "archive_path": "/mnt/c/Users/aishi/Documents/Codex/2026-10-29/wit/work/github_handoff/assets/recording-encoder_20261030T014344Z_474eacce.zip",
+      "archive_filename": "recording-encoder_20261030T014344Z_474eacce.zip",
+      "archive_size_bytes": 21660212,
+      "archive_sha256": "5ebfec1347a776a32cbf6e59a611c686ee5b946b2a37cad8ab9f6ca7ca81e932",
+      "source_file_count": 20,
+      "source_total_size_bytes": 272310329,
+      "compression": "ZIP_DEFLATED level 6; ZIP64 enabled",
+      "contents_prefix": "recordings/encoder_20261030T014344Z_474eacce/",
+      "verification": {
+        "zip_testzip_crc_passed": true,
+        "archive_file_inventory_exactly_matches_source": true,
+        "every_archive_entry_sha256_matches_source": true,
+        "every_original_source_sha256_rechecked_after_archiving": true,
+        "source_sizes_and_mtimes_unchanged": true,
+        "no_source_mutations": true
+      },
+      "files": [
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/.recording.lock",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/.recording.lock",
+          "size_bytes": 1,
+          "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+          "source_mtime_ns": 1793330190884632607,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/bags/combined/combined_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/bags/combined/combined_0.mcap",
+          "size_bytes": 131995801,
+          "sha256": "67b0fef70ccf8b63584e43c8ddbc97c348eeac1e08253905def9b6b4a57bfb8c",
+          "source_mtime_ns": 1793330429870671059,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/bags/combined/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/bags/combined/metadata.yaml",
+          "size_bytes": 23866,
+          "sha256": "5c1722d142dca1f89921c743095f7f1d72d7438e2f29dccf0fad93ee0023682d",
+          "source_mtime_ns": 1793330211957604738,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/bags/encoders/encoders_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/bags/encoders/encoders_0.mcap",
+          "size_bytes": 100154630,
+          "sha256": "094aa32488e38946076fec086927d93990a3df5767f07b7e1d526e36efa65b7d",
+          "source_mtime_ns": 1793330407650235010,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/bags/encoders/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/bags/encoders/metadata.yaml",
+          "size_bytes": 3317,
+          "sha256": "8008e99fbfd3fc6d4a579c08d548528d33517bc55c7ad21cea6981de73c46bd8",
+          "source_mtime_ns": 1793330211957604738,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/bags/merge-result.json",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/bags/merge-result.json",
+          "size_bytes": 1837,
+          "sha256": "e7f68ec67732012908d371714261d4b73f5508fe089b081384d5b3a84878ca97",
+          "source_mtime_ns": 1793330206453389886,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/bags/merge.yaml",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/bags/merge.yaml",
+          "size_bytes": 215,
+          "sha256": "38265736a4c34967ec2db561c308b854279564162afa0bbb0671d9749c09076b",
+          "source_mtime_ns": 1793330206453389886,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/clock-map.json",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/clock-map.json",
+          "size_bytes": 5667,
+          "sha256": "9b62092df92c913997f3bc16e8aae25cdfc412f405659b0f55b9b31d87272f82",
+          "source_mtime_ns": 1793330190972709826,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/export-summary.json",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/export-summary.json",
+          "size_bytes": 6763,
+          "sha256": "faa25051e09a4b0983a81ae77210f2d15df7c7512f98c9448329dbf5be191332",
+          "source_mtime_ns": 1793330190980716845,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/front_left_CENTER_10bda3b214a4.bin",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/front_left_CENTER_10bda3b214a4.bin",
+          "size_bytes": 880796,
+          "sha256": "af4e0ac4a3dbab86a9e768765e3670d1249972b7d764fe6a59834fc3e302df94",
+          "source_mtime_ns": 1793330210109230301,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/front_left_H1_10bda3aff910.bin",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/front_left_H1_10bda3aff910.bin",
+          "size_bytes": 882296,
+          "sha256": "47699f716cdc737dbeeebecc06678d47ef60d1d5e12c23eb673038b55eb9ed85",
+          "source_mtime_ns": 1793330210109230301,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/front_left_H2_10bda3b233b0.bin",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/front_left_H2_10bda3b233b0.bin",
+          "size_bytes": 882596,
+          "sha256": "f20597087ffbe0923230bac7a68259096431cf0edd5d4f85a57b08981e48140d",
+          "source_mtime_ns": 1793330210109230301,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/front_right_CENTER_10bda3aff330.bin",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/front_right_CENTER_10bda3aff330.bin",
+          "size_bytes": 880496,
+          "sha256": "68d817e62c7009e75b51e416616918d629bf60f189410e3b121e21b72d3d6c9e",
+          "source_mtime_ns": 1793330210109230301,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/front_right_H1_10bda3b030d0.bin",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/front_right_H1_10bda3b030d0.bin",
+          "size_bytes": 881396,
+          "sha256": "9a0f088a07ddc3a7b70e4105847baca92ff8511b91378af9a7b319acb6f9df1c",
+          "source_mtime_ns": 1793330210109230301,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/front_right_H2_10bda3b2339c.bin",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/front_right_H2_10bda3b2339c.bin",
+          "size_bytes": 882296,
+          "sha256": "8a7927f63aabfd75cc927d98598b3ed32d0aca0a0c14088c5e0d0621a9eb5a7f",
+          "source_mtime_ns": 1793330210282013127,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/manifest.json",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/manifest.json",
+          "size_bytes": 75964,
+          "sha256": "ab4d0c12179ac5e631768acb376d857688f51ed5326f2e8d85264d077c1dbff4",
+          "source_mtime_ns": 1793330191561225788,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/metadata.jsonl",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/metadata.jsonl",
+          "size_bytes": 12765,
+          "sha256": "9b11e434e167d7980cb1693a4b8fb866d5dd94fa8087292f0fa0e5eb2da6a20e",
+          "source_mtime_ns": 1793330191697345126,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/packets.jsonl",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/packets.jsonl",
+          "size_bytes": 19738580,
+          "sha256": "099a4dec734dc68f03580016df2a4e85a8c0a097270b659b91ffae559b7000f2",
+          "source_mtime_ns": 1793330289500511143,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/samples.csv",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/samples.csv",
+          "size_bytes": 15000348,
+          "sha256": "aa89ccd62e5b690649356dde3c207095798ccefbd73ee0c465d9a4bc5df8bf31",
+          "source_mtime_ns": 1793330274868008448,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014344Z_474eacce/session.json",
+          "archive_entry": "recordings/encoder_20261030T014344Z_474eacce/session.json",
+          "size_bytes": 699,
+          "sha256": "d803ad416a1400a2510efd6fca5d7330a7027993aea632ad293a79bdb85356cc",
+          "source_mtime_ns": 1793330191801436383,
+          "source_mode": 33188
+        }
+      ],
+      "elapsed_seconds": 6.603682279586792
+    },
+    {
+      "case": "encoder_20261030T014845Z_d8f8cf35",
+      "source_directory": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35",
+      "archive_path": "/mnt/c/Users/aishi/Documents/Codex/2026-10-29/wit/work/github_handoff/assets/recording-encoder_20261030T014845Z_d8f8cf35.zip",
+      "archive_filename": "recording-encoder_20261030T014845Z_d8f8cf35.zip",
+      "archive_size_bytes": 41887052,
+      "archive_sha256": "c19aa3033c2ffa676babd397f7cf91886674f89158a9911418a69a6318c93115",
+      "source_file_count": 20,
+      "source_total_size_bytes": 512347895,
+      "compression": "ZIP_DEFLATED level 6; ZIP64 enabled",
+      "contents_prefix": "recordings/encoder_20261030T014845Z_d8f8cf35/",
+      "verification": {
+        "zip_testzip_crc_passed": true,
+        "archive_file_inventory_exactly_matches_source": true,
+        "every_archive_entry_sha256_matches_source": true,
+        "every_original_source_sha256_rechecked_after_archiving": true,
+        "source_sizes_and_mtimes_unchanged": true,
+        "no_source_mutations": true
+      },
+      "files": [
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/.recording.lock",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/.recording.lock",
+          "size_bytes": 1,
+          "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+          "source_mtime_ns": 1793330189871744591,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/bags/combined/combined_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/bags/combined/combined_0.mcap",
+          "size_bytes": 244917897,
+          "sha256": "eff8673900d79efa872e8c0e28d20e67cd0c4a145a3aaeb19dbbe2db02db44fd",
+          "source_mtime_ns": 1793330447145395645,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/bags/combined/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/bags/combined/metadata.yaml",
+          "size_bytes": 23874,
+          "sha256": "ad817b0bed483d20d913a21f2aa976d498fa8500cf9c1abfdcc72448e816f26f",
+          "source_mtime_ns": 1793330210109230301,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/bags/encoders/encoders_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/bags/encoders/encoders_0.mcap",
+          "size_bytes": 190564250,
+          "sha256": "63e93100a0927604a24dc5c5ade3ced6e8391748d4e6ec0bf5b05141d105cdc0",
+          "source_mtime_ns": 1793330440026406147,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/bags/encoders/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/bags/encoders/metadata.yaml",
+          "size_bytes": 3323,
+          "sha256": "3464d0b5401b2b931b0284c9db2634d2ad1e2d98884004bce5e8afe5749ed590",
+          "source_mtime_ns": 1793330210876707510,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/bags/merge-result.json",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/bags/merge-result.json",
+          "size_bytes": 1846,
+          "sha256": "28f1f815f0c6728d68b2196177f7de9c20b4b57e55e2868f13e2cc87ca7a6492",
+          "source_mtime_ns": 1793330206453389886,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/bags/merge.yaml",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/bags/merge.yaml",
+          "size_bytes": 215,
+          "sha256": "b3afc6453c3b08785312af6c96d8d78c85a845d544936ea76822fd4cc2a94e1d",
+          "source_mtime_ns": 1793330206453389886,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/clock-map.json",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/clock-map.json",
+          "size_bytes": 5669,
+          "sha256": "a88d6e639bec213294e955b450e8797761aa5b5adeb37d3cac575f672df63f07",
+          "source_mtime_ns": 1793330190071920088,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/export-summary.json",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/export-summary.json",
+          "size_bytes": 6803,
+          "sha256": "b951a259c3f52dd94d7effc7bfc4f5c7a82394cb4191e311dd3086dc908e9ce8",
+          "source_mtime_ns": 1793330190115958698,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/front_left_CENTER_10bda3b214a4.bin",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/front_left_CENTER_10bda3b214a4.bin",
+          "size_bytes": 1670496,
+          "sha256": "28dcd2eda2045e8bf1097efbc5fc2d82205d732a6cb1bf6f88fec7ba73224dd8",
+          "source_mtime_ns": 1793330219013557767,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/front_left_H1_10bda3aff910.bin",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/front_left_H1_10bda3aff910.bin",
+          "size_bytes": 1670296,
+          "sha256": "a471fd273d993819c9cb0aff3535f2197bf011224ab29a48a7c2bc5625375196",
+          "source_mtime_ns": 1793330219013557767,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/front_left_H2_10bda3b233b0.bin",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/front_left_H2_10bda3b233b0.bin",
+          "size_bytes": 1670296,
+          "sha256": "c62035f93bcfae9b855ef0faae0ec2d51490f6234bea1fe9dc4a129d455c6623",
+          "source_mtime_ns": 1793330219013557767,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/front_right_CENTER_10bda3aff330.bin",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/front_right_CENTER_10bda3aff330.bin",
+          "size_bytes": 1672196,
+          "sha256": "3031f686754523fbe4ec1f387c00cc76b8e98d4527240921cc6ca2a523432ac5",
+          "source_mtime_ns": 1793330219013557767,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/front_right_H1_10bda3b030d0.bin",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/front_right_H1_10bda3b030d0.bin",
+          "size_bytes": 1671096,
+          "sha256": "3c59e354aedd65683e324fe212b750d7514a1beb1eccf457191e5ac50c8d31aa",
+          "source_mtime_ns": 1793330219013557767,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/front_right_H2_10bda3b2339c.bin",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/front_right_H2_10bda3b2339c.bin",
+          "size_bytes": 1670996,
+          "sha256": "8941dd3cf48add87b106766d0a6f859f49ebc2b1885127d4f3b4f7c78c6b0126",
+          "source_mtime_ns": 1793330219017568415,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/manifest.json",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/manifest.json",
+          "size_bytes": 76056,
+          "sha256": "309eb280f35ee6990907591fd7b533e249f8d0ee301d2ae0378840bd6da7b846",
+          "source_mtime_ns": 1793330190780541348,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/metadata.jsonl",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/metadata.jsonl",
+          "size_bytes": 12767,
+          "sha256": "55ea12bf38ec53ec23f27b18a22c52f3c47f0f11402641a3a4a17abed384a7cd",
+          "source_mtime_ns": 1793330190780541348,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/packets.jsonl",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/packets.jsonl",
+          "size_bytes": 37846999,
+          "sha256": "868ededca655fe8aac0ccaf6358a24fde6d98fcba692c5c90686c132f5163513",
+          "source_mtime_ns": 1793330329253882681,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/samples.csv",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/samples.csv",
+          "size_bytes": 28862120,
+          "sha256": "f12d16dac1dbacbeb5529906ae5ae8d147c1ba2ed52ac0b3beed81e0b93fbfcf",
+          "source_mtime_ns": 1793330312323875921,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T014845Z_d8f8cf35/session.json",
+          "archive_entry": "recordings/encoder_20261030T014845Z_d8f8cf35/session.json",
+          "size_bytes": 699,
+          "sha256": "91fd1224fd08498730be703abbf3b268e01f86f132ab10f69b64c67ec949504a",
+          "source_mtime_ns": 1793330190968706316,
+          "source_mode": 33188
+        }
+      ],
+      "elapsed_seconds": 12.92952585220337
+    },
+    {
+      "case": "encoder_20261030T015141Z_05f67011",
+      "source_directory": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011",
+      "archive_path": "/mnt/c/Users/aishi/Documents/Codex/2026-10-29/wit/work/github_handoff/assets/recording-encoder_20261030T015141Z_05f67011.zip",
+      "archive_filename": "recording-encoder_20261030T015141Z_05f67011.zip",
+      "archive_size_bytes": 21130926,
+      "archive_sha256": "a9c0285b192b96ca4a195f62aff56ed8d5541dadeaf470088488fe4402e37f26",
+      "source_file_count": 20,
+      "source_total_size_bytes": 228593988,
+      "compression": "ZIP_DEFLATED level 6; ZIP64 enabled",
+      "contents_prefix": "recordings/encoder_20261030T015141Z_05f67011/",
+      "verification": {
+        "zip_testzip_crc_passed": true,
+        "archive_file_inventory_exactly_matches_source": true,
+        "every_archive_entry_sha256_matches_source": true,
+        "every_original_source_sha256_rechecked_after_archiving": true,
+        "source_sizes_and_mtimes_unchanged": true,
+        "no_source_mutations": true
+      },
+      "files": [
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/.recording.lock",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/.recording.lock",
+          "size_bytes": 1,
+          "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+          "source_mtime_ns": 1793330186957189351,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/bags/combined/combined_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/bags/combined/combined_0.mcap",
+          "size_bytes": 111884268,
+          "sha256": "181839f714b55ee8b0a5d0235379ce84c2dc2d87b795d10507766deb9ff3bce8",
+          "source_mtime_ns": 1793330417495303520,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/bags/combined/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/bags/combined/metadata.yaml",
+          "size_bytes": 23866,
+          "sha256": "90a98b0a4db91728ed6a70768e330cc0e67495dfd55c45dc080119f236cdcf12",
+          "source_mtime_ns": 1793330210109230301,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/bags/encoders/encoders_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/bags/encoders/encoders_0.mcap",
+          "size_bytes": 82947764,
+          "sha256": "3f6b9f45c30359e3bb42c720c22705569b2a46dcf38472d28de2cec3c0932cc1",
+          "source_mtime_ns": 1793330391067912288,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/bags/encoders/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/bags/encoders/metadata.yaml",
+          "size_bytes": 3316,
+          "sha256": "4a91a4b120ecd7ab7dfc6730572e235993a3dc4ca77ebca9ba10b6c5d2856e2b",
+          "source_mtime_ns": 1793330210109230301,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/bags/merge-result.json",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/bags/merge-result.json",
+          "size_bytes": 1836,
+          "sha256": "284d447c4fbfac891c430d4112d5d36089c9fbad0aa16eab4802de3c7b276daf",
+          "source_mtime_ns": 1793330206453389886,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/bags/merge.yaml",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/bags/merge.yaml",
+          "size_bytes": 215,
+          "sha256": "597024d5a7753e27e263f0ea0f85d1f562999a910ebe312d04e47a01f374730f",
+          "source_mtime_ns": 1793330206453389886,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/clock-map.json",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/clock-map.json",
+          "size_bytes": 5662,
+          "sha256": "9d3f44f4a05b106319f8d9abe903b0c4005fa82b0205776ad5771ea96e4e3177",
+          "source_mtime_ns": 1793330186993220941,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/export-summary.json",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/export-summary.json",
+          "size_bytes": 6762,
+          "sha256": "4e07b51d9a7d42521f51f55438ea0553970a9a369d0f4351255f0e07ef66c3c2",
+          "source_mtime_ns": 1793330187065284119,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/front_left_CENTER_10bda3b214a4.bin",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/front_left_CENTER_10bda3b214a4.bin",
+          "size_bytes": 728596,
+          "sha256": "2cebb60c942f733b54f7519247f5a1824f742d22a1de2c04cbfb8d06ab90ccab",
+          "source_mtime_ns": 1793330206449328170,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/front_left_H1_10bda3aff910.bin",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/front_left_H1_10bda3aff910.bin",
+          "size_bytes": 728796,
+          "sha256": "9ac241d3ead74a84852caf26dbbcee9d8c94adec3c9d8edca38cf7ebad4f8728",
+          "source_mtime_ns": 1793330206449328170,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/front_left_H2_10bda3b233b0.bin",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/front_left_H2_10bda3b233b0.bin",
+          "size_bytes": 728396,
+          "sha256": "ec06db31c671092cee1e7ab2bea1cdcf5b2245085fbf6a01286182b5db83076b",
+          "source_mtime_ns": 1793330206449328170,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/front_right_CENTER_10bda3aff330.bin",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/front_right_CENTER_10bda3aff330.bin",
+          "size_bytes": 728496,
+          "sha256": "22dc0cbfb1074d222fb183578705ab53a44f8678162354779810719716f1c01c",
+          "source_mtime_ns": 1793330206449328170,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/front_right_H1_10bda3b030d0.bin",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/front_right_H1_10bda3b030d0.bin",
+          "size_bytes": 728496,
+          "sha256": "06ef4657415be9392113116fd6ec3fe97ca8254c4151fcb37658e43cf63ea233",
+          "source_mtime_ns": 1793330206449328170,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/front_right_H2_10bda3b2339c.bin",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/front_right_H2_10bda3b2339c.bin",
+          "size_bytes": 728696,
+          "sha256": "9f3035bca1e3f43b967d0c13fffb7cc2f00044e6ae1610ad53842e93e4b40b93",
+          "source_mtime_ns": 1793330206449328170,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/manifest.json",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/manifest.json",
+          "size_bytes": 75960,
+          "sha256": "8930607a2c9e30214f6cb8bb230977651a5f2365b116c1f43a0097c5f6255106",
+          "source_mtime_ns": 1793330187857979088,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/metadata.jsonl",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/metadata.jsonl",
+          "size_bytes": 12760,
+          "sha256": "307419dbb4d18e4d80efc13313b3d96b511950ceb364cc4c07959e98ac59cdb4",
+          "source_mtime_ns": 1793330187910024717,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/packets.jsonl",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/packets.jsonl",
+          "size_bytes": 16590473,
+          "sha256": "be23c6bb9c7c85a40b6bb952bdcf56c36c605a6fd56639856868d64c9445ff3d",
+          "source_mtime_ns": 1793330279256219659,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/samples.csv",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/samples.csv",
+          "size_bytes": 12668930,
+          "sha256": "1100995f0fb94f27cf929ef9ee04dd0aa82efc2514432dc9cb2eb6238a45970b",
+          "source_mtime_ns": 1793330269111228417,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T015141Z_05f67011/session.json",
+          "archive_entry": "recordings/encoder_20261030T015141Z_05f67011/session.json",
+          "size_bytes": 699,
+          "sha256": "3a0ab66125bcee89bd19828fe433b4fbc141e25f795048f89642f4e60716835d",
+          "source_mtime_ns": 1793330188498540679,
+          "source_mode": 33188
+        }
+      ],
+      "elapsed_seconds": 7.4012651443481445
+    },
+    {
+      "case": "encoder_20261030T021013Z_6b07008b",
+      "source_directory": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b",
+      "archive_path": "/mnt/c/Users/aishi/Documents/Codex/2026-10-29/wit/work/github_handoff/assets/recording-encoder_20261030T021013Z_6b07008b.zip",
+      "archive_filename": "recording-encoder_20261030T021013Z_6b07008b.zip",
+      "archive_size_bytes": 15789268,
+      "archive_sha256": "79ef584fae9f34f683a349a62a241dbdf0622446ad0add080d9373fd128f617c",
+      "source_file_count": 20,
+      "source_total_size_bytes": 191549460,
+      "compression": "ZIP_DEFLATED level 6; ZIP64 enabled",
+      "contents_prefix": "recordings/encoder_20261030T021013Z_6b07008b/",
+      "verification": {
+        "zip_testzip_crc_passed": true,
+        "archive_file_inventory_exactly_matches_source": true,
+        "every_archive_entry_sha256_matches_source": true,
+        "every_original_source_sha256_rechecked_after_archiving": true,
+        "source_sizes_and_mtimes_unchanged": true,
+        "no_source_mutations": true
+      },
+      "files": [
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/.recording.lock",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/.recording.lock",
+          "size_bytes": 1,
+          "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+          "source_mtime_ns": 1793330188194273925,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/bags/combined/combined_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/bags/combined/combined_0.mcap",
+          "size_bytes": 93260493,
+          "sha256": "b6256f2a3fb3b5ba005e2061944ec1d5f200e1c09ab1e946d2a97e5c4d1f36b0",
+          "source_mtime_ns": 1793330402290099486,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/bags/combined/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/bags/combined/metadata.yaml",
+          "size_bytes": 23866,
+          "sha256": "22cd33765d9f32db500cbcf5a843e80ab59e774b56355f1eb577a80bfd0f8b7c",
+          "source_mtime_ns": 1793330211511583949,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/bags/encoders/encoders_0.mcap",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/bags/encoders/encoders_0.mcap",
+          "size_bytes": 70003917,
+          "sha256": "2d3f206ac6b93d4173695ff889f7a7b3b6eb40938a586884cba8bc25d02ebf66",
+          "source_mtime_ns": 1793330379918281506,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/bags/encoders/metadata.yaml",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/bags/encoders/metadata.yaml",
+          "size_bytes": 3316,
+          "sha256": "ffaf4fc1f23cad428f862881f679ed2d1b8b8f50ee1dd2e1790f38fead42a80d",
+          "source_mtime_ns": 1793330211523638565,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/bags/merge-result.json",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/bags/merge-result.json",
+          "size_bytes": 1836,
+          "sha256": "d25555400f066ed298b247fa18363b61d945496077ea231161730490ee1126e0",
+          "source_mtime_ns": 1793330206453389886,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/bags/merge.yaml",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/bags/merge.yaml",
+          "size_bytes": 215,
+          "sha256": "f82884388dfc75dd1dc85fca0b04e984f5a5f49b497bf2f11f3f2494ba50b82a",
+          "source_mtime_ns": 1793330206453389886,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/clock-map.json",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/clock-map.json",
+          "size_bytes": 5663,
+          "sha256": "04f7a19a562c597f9394936d376256e237acfbd2225139939e5a1a1353f88392",
+          "source_mtime_ns": 1793330191885510092,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/export-summary.json",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/export-summary.json",
+          "size_bytes": 6758,
+          "sha256": "21adac8c5b6073cac90e78a493a5b05208734b36dbb3f298b4f2523dbdfe6799",
+          "source_mtime_ns": 1793330191857485524,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/front_left_CENTER_10bda3b214a4.bin",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/front_left_CENTER_10bda3b214a4.bin",
+          "size_bytes": 615896,
+          "sha256": "a4ad4a5f52d6fe54923feeed58f626643fae83e9a896196b91843b88df87e093",
+          "source_mtime_ns": 1793330206453389886,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/front_left_H1_10bda3aff910.bin",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/front_left_H1_10bda3aff910.bin",
+          "size_bytes": 616496,
+          "sha256": "dedcbd4114b28d07cc3447d2f754d0540ff520c236f082053d48217e62999608",
+          "source_mtime_ns": 1793330206453389886,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/front_left_H2_10bda3b233b0.bin",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/front_left_H2_10bda3b233b0.bin",
+          "size_bytes": 617296,
+          "sha256": "be1136ca1673596bdf5fdd4ea5ba299f4653192f1b458d8087fab63247b10128",
+          "source_mtime_ns": 1793330206453389886,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/front_right_CENTER_10bda3aff330.bin",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/front_right_CENTER_10bda3aff330.bin",
+          "size_bytes": 617496,
+          "sha256": "dcabe43df973db3c317206d11f9cd9e36e07d15bda1724e618eeead9484fd034",
+          "source_mtime_ns": 1793330206453389886,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/front_right_H1_10bda3b030d0.bin",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/front_right_H1_10bda3b030d0.bin",
+          "size_bytes": 616596,
+          "sha256": "d3ab533f0cedc6fa30e5eadc80bf5a73d8be3d7f8ac146e3070579d3144aec56",
+          "source_mtime_ns": 1793330206453389886,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/front_right_H2_10bda3b2339c.bin",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/front_right_H2_10bda3b2339c.bin",
+          "size_bytes": 615896,
+          "sha256": "ab9aeac07ae5a2a57826814d4aa541d94b46774ef46564ffc6b05d1fc5b34b7c",
+          "source_mtime_ns": 1793330206453389886,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/manifest.json",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/manifest.json",
+          "size_bytes": 75924,
+          "sha256": "9ec11f3d51a9f9723ddfbb01223ef6cbd2478e235a1919671f34b58417337bd8",
+          "source_mtime_ns": 1793330189683579624,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/metadata.jsonl",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/metadata.jsonl",
+          "size_bytes": 12761,
+          "sha256": "be16c3d77275b3d10f51e96f075d380e691d304ce4cf99f2f57e5f023372dd7d",
+          "source_mtime_ns": 1793330189471393596,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/packets.jsonl",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/packets.jsonl",
+          "size_bytes": 13886256,
+          "sha256": "1f4c3676aebbd9ee6a8b10fce0727662774e2e761ee1f58d76767b5b79e0a167",
+          "source_mtime_ns": 1793330271390117822,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/samples.csv",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/samples.csv",
+          "size_bytes": 10568079,
+          "sha256": "7823b6f01f220e42d3090bbc292718a95002b1522fb1734913c9066aa399b2df",
+          "source_mtime_ns": 1793330261531974093,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021013Z_6b07008b/session.json",
+          "archive_entry": "recordings/encoder_20261030T021013Z_6b07008b/session.json",
+          "size_bytes": 699,
+          "sha256": "b20c503c39c7ac17ee075602296e2db1a6ea871aa0193cc9c7aa6afca278be50",
+          "source_mtime_ns": 1793330190063913069,
+          "source_mode": 33188
+        }
+      ],
+      "elapsed_seconds": 5.564095735549927
+    },
+    {
+      "case": "encoder_20261030T021139Z_a7eb78f9",
+      "source_directory": "/home/para/Encoder Rosbag/encoder_20261030T021139Z_a7eb78f9",
+      "archive_path": "/mnt/c/Users/aishi/Documents/Codex/2026-10-29/wit/work/github_handoff/assets/recording-encoder_20261030T021139Z_a7eb78f9.zip",
+      "archive_filename": "recording-encoder_20261030T021139Z_a7eb78f9.zip",
+      "archive_size_bytes": 950688,
+      "archive_sha256": "af5ddfc3b312b05be4df5d89c12de9555b0317508c92aaf06c4042d07115ece2",
+      "source_file_count": 14,
+      "source_total_size_bytes": 14918864,
+      "compression": "ZIP_DEFLATED level 6; ZIP64 enabled",
+      "contents_prefix": "recordings/encoder_20261030T021139Z_a7eb78f9/",
+      "verification": {
+        "zip_testzip_crc_passed": true,
+        "archive_file_inventory_exactly_matches_source": true,
+        "every_archive_entry_sha256_matches_source": true,
+        "every_original_source_sha256_rechecked_after_archiving": true,
+        "source_sizes_and_mtimes_unchanged": true,
+        "no_source_mutations": true
+      },
+      "files": [
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021139Z_a7eb78f9/.recording.lock",
+          "archive_entry": "recordings/encoder_20261030T021139Z_a7eb78f9/.recording.lock",
+          "size_bytes": 1,
+          "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+          "source_mtime_ns": 1793330185956311866,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021139Z_a7eb78f9/clock-map.json",
+          "archive_entry": "recordings/encoder_20261030T021139Z_a7eb78f9/clock-map.json",
+          "size_bytes": 4068,
+          "sha256": "6fd51473856c74ed79a3f433e904b4eee9a7a0329e8291ef9db1347e72aeae61",
+          "source_mtime_ns": 1793330186004353986,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021139Z_a7eb78f9/export-summary.json",
+          "archive_entry": "recordings/encoder_20261030T021139Z_a7eb78f9/export-summary.json",
+          "size_bytes": 7015,
+          "sha256": "d97e1b7676f33e3979fa541e74aa28b2b00bf361262020c7139ec17a23af3af9",
+          "source_mtime_ns": 1793330186084424185,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021139Z_a7eb78f9/front_left_CENTER_10bda3b214a4.bin",
+          "archive_entry": "recordings/encoder_20261030T021139Z_a7eb78f9/front_left_CENTER_10bda3b214a4.bin",
+          "size_bytes": 360896,
+          "sha256": "f678ea22d2199d53d679165ad33edaf16899cfab6e6a15ac840d0aa92bc3de44",
+          "source_mtime_ns": 1793330198545768849,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021139Z_a7eb78f9/front_left_H1_10bda3aff910.bin",
+          "archive_entry": "recordings/encoder_20261030T021139Z_a7eb78f9/front_left_H1_10bda3aff910.bin",
+          "size_bytes": 191296,
+          "sha256": "8a670688d1095340c371d299fe417b732e018105cd5ace1c6e42877f34213b53",
+          "source_mtime_ns": 1793330186364669880,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021139Z_a7eb78f9/front_left_H2_10bda3b233b0.bin",
+          "archive_entry": "recordings/encoder_20261030T021139Z_a7eb78f9/front_left_H2_10bda3b233b0.bin",
+          "size_bytes": 360096,
+          "sha256": "0772ce819b2ed8b96e9667969fb4a9babd003b5d0444fee7fdf99c793eb35ee2",
+          "source_mtime_ns": 1793330198633768848,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021139Z_a7eb78f9/front_right_CENTER_10bda3aff330.bin",
+          "archive_entry": "recordings/encoder_20261030T021139Z_a7eb78f9/front_right_CENTER_10bda3aff330.bin",
+          "size_bytes": 360696,
+          "sha256": "8c21ae12f6c7337a4a4879a265d9aae8ce096d48ca7c5bd4f0a621bad64ac673",
+          "source_mtime_ns": 1793330198633768848,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021139Z_a7eb78f9/front_right_H1_10bda3b030d0.bin",
+          "archive_entry": "recordings/encoder_20261030T021139Z_a7eb78f9/front_right_H1_10bda3b030d0.bin",
+          "size_bytes": 360996,
+          "sha256": "af915bfed6843ff8654d520f5da916af7da9f0b4fdf58b082e263bf28a4b9057",
+          "source_mtime_ns": 1793330198753768845,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021139Z_a7eb78f9/front_right_H2_10bda3b2339c.bin",
+          "archive_entry": "recordings/encoder_20261030T021139Z_a7eb78f9/front_right_H2_10bda3b2339c.bin",
+          "size_bytes": 360296,
+          "sha256": "35f48a7633c7125cb90c62501a35853ff1dc0311fd975daec2cb062d57a6f82e",
+          "source_mtime_ns": 1793330198753768845,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021139Z_a7eb78f9/manifest.json",
+          "archive_entry": "recordings/encoder_20261030T021139Z_a7eb78f9/manifest.json",
+          "size_bytes": 74037,
+          "sha256": "a28d3310b5cf50228ec629f1cb943f420f7cc6b4f5b13880fc1d966db4fecb84",
+          "source_mtime_ns": 1793330186957189351,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021139Z_a7eb78f9/metadata.jsonl",
+          "archive_entry": "recordings/encoder_20261030T021139Z_a7eb78f9/metadata.jsonl",
+          "size_bytes": 11239,
+          "sha256": "1f04d5ed478caada92859c6ec8839e0cd6cf9b80e93d3b937d639ba7f3903dc0",
+          "source_mtime_ns": 1793330186957189351,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021139Z_a7eb78f9/packets.jsonl",
+          "archive_entry": "recordings/encoder_20261030T021139Z_a7eb78f9/packets.jsonl",
+          "size_bytes": 7315450,
+          "sha256": "dbd91d560b7f584a463ebb5f58933f385e029f8ef3c2f75673a460d6d4407b53",
+          "source_mtime_ns": 1793330246444879171,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021139Z_a7eb78f9/samples.csv",
+          "archive_entry": "recordings/encoder_20261030T021139Z_a7eb78f9/samples.csv",
+          "size_bytes": 5511956,
+          "sha256": "f2457dbbff7412245ad7b5b84c6f62ff9a5b9eb7682bff91513594fae7566b0f",
+          "source_mtime_ns": 1793330238942842466,
+          "source_mode": 33188
+        },
+        {
+          "source_path": "/home/para/Encoder Rosbag/encoder_20261030T021139Z_a7eb78f9/session.json",
+          "archive_entry": "recordings/encoder_20261030T021139Z_a7eb78f9/session.json",
+          "size_bytes": 822,
+          "sha256": "4fab05b0da11cf3d11314b7915e511131830f2ad88d145b14da4d695713f2d21",
+          "source_mtime_ns": 1793330186989217429,
+          "source_mode": 33188
+        }
+      ],
+      "elapsed_seconds": 0.6064755916595459
+    }
+  ],
+  "failures": [],
+  "archive_total_size_bytes": 281245027,
+  "source_total_size_bytes": 3279177953
+}

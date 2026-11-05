@@ -1,0 +1,462 @@
+{
+  "source_root": "/home/para/hamr_control/analysis/batch_20261029_233502",
+  "archive_name": "existing-analysis-batch-20261029.zip",
+  "archive_bytes": 43948650,
+  "archive_sha256": "cc116581eec51b72c19f5c1b09be44ef3d4b7334675be4118bd315f77e72ff2f",
+  "created_at_utc": "2026-10-30T06:23:10.658946+00:00",
+  "file_count": 74,
+  "directory_count": 13,
+  "uncompressed_file_bytes": 44614317,
+  "all_source_hashes_unchanged": true,
+  "zip_crc_verified": true,
+  "all_archived_content_hashes_verified": true,
+  "empty_directories": [
+    "encoder_20261030T003954Z_b1f7061e"
+  ],
+  "entries": [
+    {
+      "path": "encoder_20261030T005046Z_7a2266b7/caster_encoder_angles.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T005046Z_7a2266b7/caster_encoder_angles.png",
+      "bytes": 207217,
+      "sha256": "1594ec17d50d30e3b8ad8162fdfb1e791fdd946a7f6c02b2d5e205a7962d7768"
+    },
+    {
+      "path": "encoder_20261030T005046Z_7a2266b7/index.html",
+      "archive_path": "batch_20261029_233502/encoder_20261030T005046Z_7a2266b7/index.html",
+      "bytes": 2208,
+      "sha256": "b537e688e1ba0a03d14611d362493dce43bfd0f6b386623b24ce6ad51a1ed054"
+    },
+    {
+      "path": "encoder_20261030T005046Z_7a2266b7/report.json",
+      "archive_path": "batch_20261029_233502/encoder_20261030T005046Z_7a2266b7/report.json",
+      "bytes": 5991,
+      "sha256": "dc1eb07b276ec22ed4fdb66e81529994eb3b4a8474b65cd0984ae50b49407ead"
+    },
+    {
+      "path": "encoder_20261030T005046Z_7a2266b7/robot_casters_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T005046Z_7a2266b7/robot_casters_trajectory.png",
+      "bytes": 85305,
+      "sha256": "569ab3b372b0a8408f5eb3d41c1adf85ba5c86a0bc8dded848641c5caf8d04a2"
+    },
+    {
+      "path": "encoder_20261030T005046Z_7a2266b7/robot_ekf_aligned.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T005046Z_7a2266b7/robot_ekf_aligned.png",
+      "bytes": 71894,
+      "sha256": "e5dd780b91cc00befef58fa0868bfc98b95483b3eed906bd7a59982d538f6fcd"
+    },
+    {
+      "path": "encoder_20261030T005046Z_7a2266b7/robot_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T005046Z_7a2266b7/robot_trajectory.png",
+      "bytes": 41713,
+      "sha256": "ff02579f420777f4b354deb26303393bcfa5ede7fc881ddc65fd9d79133d8b1b"
+    },
+    {
+      "path": "encoder_20261030T005046Z_7a2266b7/simulation.mp4",
+      "archive_path": "batch_20261029_233502/encoder_20261030T005046Z_7a2266b7/simulation.mp4",
+      "bytes": 5146940,
+      "sha256": "a6d453500a1ad423486cae4bd876593db6ee73045e1c644a4562f16561c77e2e"
+    },
+    {
+      "path": "encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/caster_encoder_angles.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/caster_encoder_angles.png",
+      "bytes": 195750,
+      "sha256": "74cd9861b19038707e9491d7b61f0ffa216a2933dde61caacfc8e1ce56703186"
+    },
+    {
+      "path": "encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/index.html",
+      "archive_path": "batch_20261029_233502/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/index.html",
+      "bytes": 2267,
+      "sha256": "3f743204156c5b1697656d1e1b4773bbd2f18cac338dc05bde63ea1a14ef4bf3"
+    },
+    {
+      "path": "encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/report.json",
+      "archive_path": "batch_20261029_233502/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/report.json",
+      "bytes": 6111,
+      "sha256": "6cc8839b9eefe9c0e2dd15c825d176cd36f2fb4194f14ed9f8ceb34495e29792"
+    },
+    {
+      "path": "encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/robot_casters_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/robot_casters_trajectory.png",
+      "bytes": 81847,
+      "sha256": "98f4b5b9808ca5fcd99422f709bcc738ec1ce20dad86cc5fc9fb166f5b78de1b"
+    },
+    {
+      "path": "encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/robot_ekf_aligned.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/robot_ekf_aligned.png",
+      "bytes": 71720,
+      "sha256": "e9ec2d0327ad84dba72b0343311c04d7aba97c83bcde1d75e2c27377df1c4acd"
+    },
+    {
+      "path": "encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/robot_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/robot_trajectory.png",
+      "bytes": 42353,
+      "sha256": "684b1493eae37e840791f4027306d00ac4829966066df3873633ee6b7bdd6e2c"
+    },
+    {
+      "path": "encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/simulation.mp4",
+      "archive_path": "batch_20261029_233502/encoder_20261030T010929Z_0e7d65f0_center_0.5_straight/simulation.mp4",
+      "bytes": 5075626,
+      "sha256": "76ec44957e2aed00297d84b3445737b255986b715589c6aebfbad48c83fd8117"
+    },
+    {
+      "path": "encoder_20261030T011917Z_b8c84d4e/caster_encoder_angles.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T011917Z_b8c84d4e/caster_encoder_angles.png",
+      "bytes": 197328,
+      "sha256": "f858246fc9c89c0b22b966bf349a394ac8a092b443a506280a658f83de925865"
+    },
+    {
+      "path": "encoder_20261030T011917Z_b8c84d4e/index.html",
+      "archive_path": "batch_20261029_233502/encoder_20261030T011917Z_b8c84d4e/index.html",
+      "bytes": 2208,
+      "sha256": "5d80b4b51b63dfdac9e85c7dfc5771f7bd010c210359b58ca23194dc68370129"
+    },
+    {
+      "path": "encoder_20261030T011917Z_b8c84d4e/report.json",
+      "archive_path": "batch_20261029_233502/encoder_20261030T011917Z_b8c84d4e/report.json",
+      "bytes": 5990,
+      "sha256": "f34f55cef11af54ae408d76f824d33a417eb0f2bcb78554fee012ee513fc9f7f"
+    },
+    {
+      "path": "encoder_20261030T011917Z_b8c84d4e/robot_casters_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T011917Z_b8c84d4e/robot_casters_trajectory.png",
+      "bytes": 86132,
+      "sha256": "f84b5e0185ef33dfa6ca04781e5cab6b64f1f6f40619f828406427e4a4a44c87"
+    },
+    {
+      "path": "encoder_20261030T011917Z_b8c84d4e/robot_ekf_aligned.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T011917Z_b8c84d4e/robot_ekf_aligned.png",
+      "bytes": 74427,
+      "sha256": "e54482f660556dc94ceb1fe5ad992b3800bc17dff5e502b366ea7e5c9cc34d93"
+    },
+    {
+      "path": "encoder_20261030T011917Z_b8c84d4e/robot_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T011917Z_b8c84d4e/robot_trajectory.png",
+      "bytes": 42482,
+      "sha256": "b2cd7e250aa4e85988225d909f8236405287e0876ec912c991313f8a0457fdd6"
+    },
+    {
+      "path": "encoder_20261030T011917Z_b8c84d4e/simulation.mp4",
+      "archive_path": "batch_20261029_233502/encoder_20261030T011917Z_b8c84d4e/simulation.mp4",
+      "bytes": 5376763,
+      "sha256": "797e94da56e86e74c803576cb436126331fcaad849bff1ec497883c4615be893"
+    },
+    {
+      "path": "encoder_20261030T012339Z_5f3ad8da/caster_encoder_angles.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T012339Z_5f3ad8da/caster_encoder_angles.png",
+      "bytes": 215101,
+      "sha256": "fa64e0f680ab1dc996939755e9fb5d621268b278d2400c634cda599464a72d1c"
+    },
+    {
+      "path": "encoder_20261030T012339Z_5f3ad8da/index.html",
+      "archive_path": "batch_20261029_233502/encoder_20261030T012339Z_5f3ad8da/index.html",
+      "bytes": 2210,
+      "sha256": "c3eb9dd45b8e4384656406efba0d36cc129d796a5519051e8defecf872b72687"
+    },
+    {
+      "path": "encoder_20261030T012339Z_5f3ad8da/report.json",
+      "archive_path": "batch_20261029_233502/encoder_20261030T012339Z_5f3ad8da/report.json",
+      "bytes": 5982,
+      "sha256": "e33a0a66a34b1bb3a33d81da7e90fd91a836143fe7017757433f3c1e0d0f4f04"
+    },
+    {
+      "path": "encoder_20261030T012339Z_5f3ad8da/robot_casters_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T012339Z_5f3ad8da/robot_casters_trajectory.png",
+      "bytes": 85747,
+      "sha256": "ead30db7d773e94abb82ed6659c035d9e2a9a64ca506e08524e3c101fe1bce87"
+    },
+    {
+      "path": "encoder_20261030T012339Z_5f3ad8da/robot_ekf_aligned.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T012339Z_5f3ad8da/robot_ekf_aligned.png",
+      "bytes": 71414,
+      "sha256": "2d06c1a5f653e7f5274948ae785a45ca334ff6a94b0569b9bb54255000b7d8e0"
+    },
+    {
+      "path": "encoder_20261030T012339Z_5f3ad8da/robot_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T012339Z_5f3ad8da/robot_trajectory.png",
+      "bytes": 43179,
+      "sha256": "ca4a93d29e5d4510c6231e5dbfb2fdd229e2539fdf6ac6c5afe685cd1508d1ac"
+    },
+    {
+      "path": "encoder_20261030T012339Z_5f3ad8da/simulation.mp4",
+      "archive_path": "batch_20261029_233502/encoder_20261030T012339Z_5f3ad8da/simulation.mp4",
+      "bytes": 5236758,
+      "sha256": "6b92aea8e7cd6b99849088ea1ff6f3e39f112daeb4e881965c69443c7862e77c"
+    },
+    {
+      "path": "encoder_20261030T013746Z_3eeed870/caster_encoder_angles.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T013746Z_3eeed870/caster_encoder_angles.png",
+      "bytes": 135454,
+      "sha256": "25da61d5072f7760746236005d1545af02ddb24d8c843a739698d13c4a980de0"
+    },
+    {
+      "path": "encoder_20261030T013746Z_3eeed870/index.html",
+      "archive_path": "batch_20261029_233502/encoder_20261030T013746Z_3eeed870/index.html",
+      "bytes": 2207,
+      "sha256": "b5dc30482265ff7dec3440181a0950b41167326ed3279c583c09b27f73853c87"
+    },
+    {
+      "path": "encoder_20261030T013746Z_3eeed870/report.json",
+      "archive_path": "batch_20261029_233502/encoder_20261030T013746Z_3eeed870/report.json",
+      "bytes": 5989,
+      "sha256": "fcd5dde3ebde82757e6760b5e0ab6f1a068ea7f51f99242bbb277e2a94eba25f"
+    },
+    {
+      "path": "encoder_20261030T013746Z_3eeed870/robot_casters_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T013746Z_3eeed870/robot_casters_trajectory.png",
+      "bytes": 69775,
+      "sha256": "3927115232e870e457dd01f97ab95b773602c9211031d7aef934257e2fe5bb88"
+    },
+    {
+      "path": "encoder_20261030T013746Z_3eeed870/robot_ekf_aligned.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T013746Z_3eeed870/robot_ekf_aligned.png",
+      "bytes": 91381,
+      "sha256": "88c22b097ec7781c2a245ccfa4ce01feb55345ddc16d24d23e692397aa863f66"
+    },
+    {
+      "path": "encoder_20261030T013746Z_3eeed870/robot_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T013746Z_3eeed870/robot_trajectory.png",
+      "bytes": 62749,
+      "sha256": "8083fa9a1092e3235141066c0236419769520dd4642bec7b5642f52867f45cd4"
+    },
+    {
+      "path": "encoder_20261030T013746Z_3eeed870/simulation.mp4",
+      "archive_path": "batch_20261029_233502/encoder_20261030T013746Z_3eeed870/simulation.mp4",
+      "bytes": 1078378,
+      "sha256": "63f3a73a5496e4f1483ae99e5021588f62b9fb948b2543f16f75388736751b0c"
+    },
+    {
+      "path": "encoder_20261030T013933Z_d585b0e6/caster_encoder_angles.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T013933Z_d585b0e6/caster_encoder_angles.png",
+      "bytes": 191772,
+      "sha256": "233a28cd8a918364ca065e36a70e051e04f47a25c2dd5aecbea8adaea0b733c4"
+    },
+    {
+      "path": "encoder_20261030T013933Z_d585b0e6/index.html",
+      "archive_path": "batch_20261029_233502/encoder_20261030T013933Z_d585b0e6/index.html",
+      "bytes": 2207,
+      "sha256": "21ca3c5e2b9e305aa8aab19bf8e2f60c91afd7280ec6719f4d02644b6a7edf2c"
+    },
+    {
+      "path": "encoder_20261030T013933Z_d585b0e6/report.json",
+      "archive_path": "batch_20261029_233502/encoder_20261030T013933Z_d585b0e6/report.json",
+      "bytes": 5984,
+      "sha256": "c7042ea9aa96c6603c414db1eb33bb54d91c00c0c0bc2e412b95e2ddd9833179"
+    },
+    {
+      "path": "encoder_20261030T013933Z_d585b0e6/robot_casters_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T013933Z_d585b0e6/robot_casters_trajectory.png",
+      "bytes": 125978,
+      "sha256": "8d14744d18d1d42528f143db9600cf27dd71234667bd5c755237909ec67e7861"
+    },
+    {
+      "path": "encoder_20261030T013933Z_d585b0e6/robot_ekf_aligned.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T013933Z_d585b0e6/robot_ekf_aligned.png",
+      "bytes": 106967,
+      "sha256": "3901c31c5b53ce15c4d21e1f8806295c6247885a732d0073652d2e3d4221f3ce"
+    },
+    {
+      "path": "encoder_20261030T013933Z_d585b0e6/robot_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T013933Z_d585b0e6/robot_trajectory.png",
+      "bytes": 63446,
+      "sha256": "3222708ffd841d9a9438acea716e91e4e5bf9705377369a6bc1165a12f453568"
+    },
+    {
+      "path": "encoder_20261030T013933Z_d585b0e6/simulation.mp4",
+      "archive_path": "batch_20261029_233502/encoder_20261030T013933Z_d585b0e6/simulation.mp4",
+      "bytes": 4014909,
+      "sha256": "9c0d994bd9e8082a42e2e5c598482d75d7a742001eb9526d36c8f8c47a3f18a9"
+    },
+    {
+      "path": "encoder_20261030T014344Z_474eacce/caster_encoder_angles.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T014344Z_474eacce/caster_encoder_angles.png",
+      "bytes": 150702,
+      "sha256": "a0d1449e186fbb36656f8abbeee18b20dca3af17fb4b9dc2a7299b0aa6fb686d"
+    },
+    {
+      "path": "encoder_20261030T014344Z_474eacce/index.html",
+      "archive_path": "batch_20261029_233502/encoder_20261030T014344Z_474eacce/index.html",
+      "bytes": 2207,
+      "sha256": "0ea50a5b8149f23abc782c0057c72ecfd47c31bdc1be6e49030f89dfb53f75e0"
+    },
+    {
+      "path": "encoder_20261030T014344Z_474eacce/report.json",
+      "archive_path": "batch_20261029_233502/encoder_20261030T014344Z_474eacce/report.json",
+      "bytes": 5985,
+      "sha256": "9c91476285f910981cb1d1ef1036a979d355ddfa46231ac32037c5b4f0f38940"
+    },
+    {
+      "path": "encoder_20261030T014344Z_474eacce/robot_casters_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T014344Z_474eacce/robot_casters_trajectory.png",
+      "bytes": 107269,
+      "sha256": "c9d24dee978c2e1e59758f73df9f6c6e91303f9c4d137809554933b7681136f3"
+    },
+    {
+      "path": "encoder_20261030T014344Z_474eacce/robot_ekf_aligned.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T014344Z_474eacce/robot_ekf_aligned.png",
+      "bytes": 99013,
+      "sha256": "48a3e42b21db2ae0d0297ff5ad69264369fb0eec419b2946089a46c566be9d25"
+    },
+    {
+      "path": "encoder_20261030T014344Z_474eacce/robot_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T014344Z_474eacce/robot_trajectory.png",
+      "bytes": 61560,
+      "sha256": "952619895df8fdd5caf149fe40f45808a3b1a200487cf45c32fd866f966f426c"
+    },
+    {
+      "path": "encoder_20261030T014344Z_474eacce/simulation.mp4",
+      "archive_path": "batch_20261029_233502/encoder_20261030T014344Z_474eacce/simulation.mp4",
+      "bytes": 2929952,
+      "sha256": "1998a8edd3789818c44a609b108f8bddff96da8b75310f88e87a6d6beb7dde9c"
+    },
+    {
+      "path": "encoder_20261030T014845Z_d8f8cf35/caster_encoder_angles.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T014845Z_d8f8cf35/caster_encoder_angles.png",
+      "bytes": 202914,
+      "sha256": "fdcb58b3cbd294f31e8350a8d6f4b8fa417b908e611709d16a29f6bce7305d39"
+    },
+    {
+      "path": "encoder_20261030T014845Z_d8f8cf35/index.html",
+      "archive_path": "batch_20261029_233502/encoder_20261030T014845Z_d8f8cf35/index.html",
+      "bytes": 2207,
+      "sha256": "159df6faaaeda0a1aeaf80c431f5650687fb7e60d83798ded665b962f6f83ebd"
+    },
+    {
+      "path": "encoder_20261030T014845Z_d8f8cf35/report.json",
+      "archive_path": "batch_20261029_233502/encoder_20261030T014845Z_d8f8cf35/report.json",
+      "bytes": 5989,
+      "sha256": "3dbc6bbbbd08dab6fc8808f8ce74f913349db62ab0ef07906cc07091cdbf00e8"
+    },
+    {
+      "path": "encoder_20261030T014845Z_d8f8cf35/robot_casters_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T014845Z_d8f8cf35/robot_casters_trajectory.png",
+      "bytes": 118993,
+      "sha256": "99d60f30afae7ef11c149a43c33cabcac5204db6ed1017f781994df1fd470154"
+    },
+    {
+      "path": "encoder_20261030T014845Z_d8f8cf35/robot_ekf_aligned.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T014845Z_d8f8cf35/robot_ekf_aligned.png",
+      "bytes": 99877,
+      "sha256": "a7b777cf513f2cd240f918440a6ed5baaa56e0f609c93d67c752a0308b2f0c63"
+    },
+    {
+      "path": "encoder_20261030T014845Z_d8f8cf35/robot_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T014845Z_d8f8cf35/robot_trajectory.png",
+      "bytes": 67994,
+      "sha256": "a0c98852471e6626a1185839e885adba2a6547f32c8592fc24ec8157c8d6f99c"
+    },
+    {
+      "path": "encoder_20261030T014845Z_d8f8cf35/simulation.mp4",
+      "archive_path": "batch_20261029_233502/encoder_20261030T014845Z_d8f8cf35/simulation.mp4",
+      "bytes": 6183790,
+      "sha256": "f41199b43a9e102cbcaba09328b1d452cf8dee7a895decb969c665727423dd38"
+    },
+    {
+      "path": "encoder_20261030T015141Z_05f67011/caster_encoder_angles.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T015141Z_05f67011/caster_encoder_angles.png",
+      "bytes": 180044,
+      "sha256": "506bf9a59c9d029828d0065cd8e55157cc211c654744d5d568ef7b8668e9dfbd"
+    },
+    {
+      "path": "encoder_20261030T015141Z_05f67011/index.html",
+      "archive_path": "batch_20261029_233502/encoder_20261030T015141Z_05f67011/index.html",
+      "bytes": 2210,
+      "sha256": "412687c74e43bff8d08a9d49dfe09461ee4e226397c242e44fb669f454f61379"
+    },
+    {
+      "path": "encoder_20261030T015141Z_05f67011/report.json",
+      "archive_path": "batch_20261029_233502/encoder_20261030T015141Z_05f67011/report.json",
+      "bytes": 5991,
+      "sha256": "4922ab8633f60ec3fdf5e00dd9dcc7a5fc6c28c12be5f6be3acdd477b6ebbf13"
+    },
+    {
+      "path": "encoder_20261030T015141Z_05f67011/robot_casters_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T015141Z_05f67011/robot_casters_trajectory.png",
+      "bytes": 132793,
+      "sha256": "887c69416be383bfc4644b7c2160be621451ee80b179f05dc5cf5dd43960c34b"
+    },
+    {
+      "path": "encoder_20261030T015141Z_05f67011/robot_ekf_aligned.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T015141Z_05f67011/robot_ekf_aligned.png",
+      "bytes": 100068,
+      "sha256": "53523e921f82486acc23cbd9f3a696f340c1e66bf482a286fb2bb1615f11791a"
+    },
+    {
+      "path": "encoder_20261030T015141Z_05f67011/robot_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T015141Z_05f67011/robot_trajectory.png",
+      "bytes": 75202,
+      "sha256": "397b474d60e7df91feaad78cfc621b8d42cbf6168d56bba4858e7b34139f84ff"
+    },
+    {
+      "path": "encoder_20261030T015141Z_05f67011/simulation.mp4",
+      "archive_path": "batch_20261029_233502/encoder_20261030T015141Z_05f67011/simulation.mp4",
+      "bytes": 3227333,
+      "sha256": "48f89928941402225450d447041c9418704a2d166471947f3135ca0120a109a0"
+    },
+    {
+      "path": "encoder_20261030T021013Z_6b07008b/caster_encoder_angles.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T021013Z_6b07008b/caster_encoder_angles.png",
+      "bytes": 142268,
+      "sha256": "22579328666db810e9ba8f1cc471c05fd4372a11f6f37f98f598e85bb90deb77"
+    },
+    {
+      "path": "encoder_20261030T021013Z_6b07008b/index.html",
+      "archive_path": "batch_20261029_233502/encoder_20261030T021013Z_6b07008b/index.html",
+      "bytes": 2210,
+      "sha256": "4e49367864b832ce836da7fc8616610ebeaac9b02df9329833e0da944b5cffb2"
+    },
+    {
+      "path": "encoder_20261030T021013Z_6b07008b/report.json",
+      "archive_path": "batch_20261029_233502/encoder_20261030T021013Z_6b07008b/report.json",
+      "bytes": 5990,
+      "sha256": "b9aed3ed413c49c04524dd0d256b93afab0bc349d1926802f46fefdf1cb54950"
+    },
+    {
+      "path": "encoder_20261030T021013Z_6b07008b/robot_casters_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T021013Z_6b07008b/robot_casters_trajectory.png",
+      "bytes": 121874,
+      "sha256": "b8f2e390535c01324254d7177da6bce5a3df5dad448764b71f40fe8bcf1fc0f8"
+    },
+    {
+      "path": "encoder_20261030T021013Z_6b07008b/robot_ekf_aligned.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T021013Z_6b07008b/robot_ekf_aligned.png",
+      "bytes": 108886,
+      "sha256": "f522a1f54cb9006a834a96413d513e06906e34609477a1f5ad22ecfc4bc27b21"
+    },
+    {
+      "path": "encoder_20261030T021013Z_6b07008b/robot_trajectory.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T021013Z_6b07008b/robot_trajectory.png",
+      "bytes": 67528,
+      "sha256": "276d2d8432fd8b2b946d1565fc6c04bae9ee0645dc76f045cc706cbfe24a791e"
+    },
+    {
+      "path": "encoder_20261030T021013Z_6b07008b/simulation.mp4",
+      "archive_path": "batch_20261029_233502/encoder_20261030T021013Z_6b07008b/simulation.mp4",
+      "bytes": 1816412,
+      "sha256": "bd8ac6c23c9dcac32265ee8dbcc630e928d0317799760178b8c41b9049099d33"
+    },
+    {
+      "path": "encoder_20261030T021139Z_a7eb78f9/caster_encoder_angles.png",
+      "archive_path": "batch_20261029_233502/encoder_20261030T021139Z_a7eb78f9/caster_encoder_angles.png",
+      "bytes": 142414,
+      "sha256": "2c293de005a7236df996bb2d919b677c386db932b9d4accf03bd249e9430e96c"
+    },
+    {
+      "path": "encoder_20261030T021139Z_a7eb78f9/index.html",
+      "archive_path": "batch_20261029_233502/encoder_20261030T021139Z_a7eb78f9/index.html",
+      "bytes": 1727,
+      "sha256": "8bc7c86445c5b3c4c075984aa280047dfb8fa4629bfa7503ab7e2370c8a69862"
+    },
+    {
+      "path": "encoder_20261030T021139Z_a7eb78f9/report.json",
+      "archive_path": "batch_20261029_233502/encoder_20261030T021139Z_a7eb78f9/report.json",
+      "bytes": 1906,
+      "sha256": "b3abe0f6d1c2933fd988917c9afda94609644ce8aa7946702669990829fee6a0"
+    },
+    {
+      "path": "encoder_20261030T021139Z_a7eb78f9/simulation.log",
+      "archive_path": "batch_20261029_233502/encoder_20261030T021139Z_a7eb78f9/simulation.log",
+      "bytes": 1150,
+      "sha256": "ab20b3833568b2be4cadb49f350f491d516f645ffb91e57e9e5ba2c2058ed1b9"
+    }
+  ]
+}

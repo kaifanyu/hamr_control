@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "repository": "kaifanyu/hamr_control",
+  "release_tag": "caster-analysis-2026-10-30",
+  "assets": [
+    {
+      "name": "caster-analysis-20261030.zip",
+      "kind": "analysis",
+      "bytes": 294546148,
+      "sha256": "ef71b2ad2721d7f6af2feff113479ff2e1375aa43e0ac7e3b33f64e12bdb0ff2",
+      "url": "https://github.com/kaifanyu/hamr_control/releases/download/caster-analysis-2026-10-30/caster-analysis-20261030.zip"
+    },
+    {
+      "name": "recording-encoder_20261030T003954Z_b1f7061e.zip",
+      "kind": "recording",
+      "case": "encoder_20261030T003954Z_b1f7061e",
+      "bytes": 29354237,
+      "sha256": "ac54fbcdbd8e5c94662011bf88a1c5f6c5465e38419d6de809cec9cf363bec7c",
+      "url": "https://github.com/kaifanyu/hamr_control/releases/download/caster-analysis-2026-10-30/recording-encoder_20261030T003954Z_b1f7061e.zip"
+    },
+    {
+      "name": "recording-encoder_20261030T005046Z_7a2266b7.zip",
+      "kind": "recording",
+      "case": "encoder_20261030T005046Z_7a2266b7",
+      "bytes": 27118424,
+      "sha256": "fe21dbcee19503493523a8ca7ad26e9e1b43ae47c2975d4acd7c2045a28595c0",
+      "url": "https://github.com/kaifanyu/hamr_control/releases/download/caster-analysis-2026-10-30/recording-encoder_20261030T005046Z_7a2266b7.zip"
+    },
+    {
+      "name": "recording-encoder_20261030T010929Z_0e7d65f0_center_0.5_straight.zip",
+      "kind": "recording",
+      "case": "encoder_20261030T010929Z_0e7d65f0_center_0.5_straight",
+      "bytes": 28327164,
+      "sha256": "ab3353119fdc41d425ca0f065880cd52a8374905a592e667f9b4ae70098d89ca",
+      "url": "https://github.com/kaifanyu/hamr_control/releases/download/caster-analysis-2026-10-30/recording-encoder_20261030T010929Z_0e7d65f0_center_0.5_straight.zip"
+    },
+    {
+      "name": "recording-encoder_20261030T011917Z_b8c84d4e.zip",
+      "kind": "recording",
+      "case": "encoder_20261030T011917Z_b8c84d4e",
+      "bytes": 27667688,
+      "sha256": "e2be9f7176da112c5eff4f0433da8010e06bd50167d76241962de2b3784c9319",
+      "url": "https://github.com/kaifanyu/hamr_control/releases/download/caster-analysis-2026-10-30/recording-encoder_20261030T011917Z_b8c84d4e.zip"
+    },
+    {
+      "name": "recording-encoder_20261030T012339Z_5f3ad8da.zip",
+      "kind": "recording",
+      "case": "encoder_20261030T012339Z_5f3ad8da",
+      "bytes": 27864041,
+      "sha256": "d76cf137126df55e111b3a623233736fc70cc2610599eb745c0984e09f255e79",
+      "url": "https://github.com/kaifanyu/hamr_control/releases/download/caster-analysis-2026-10-30/recording-encoder_20261030T012339Z_5f3ad8da.zip"
+    },
+    {
+      "name": "recording-encoder_20261030T013746Z_3eeed870.zip",
+      "kind": "recording",
+      "case": "encoder_20261030T013746Z_3eeed870",
+      "bytes": 14787860,
+      "sha256": "ae0d84cf5286575ed996b4de76f5a2d144f19c55aaaddc00959f55e614398e56",
+      "url": "https://github.com/kaifanyu/hamr_control/releases/download/caster-analysis-2026-10-30/recording-encoder_20261030T013746Z_3eeed870.zip"
+    },
+    {
+      "name": "recording-encoder_20261030T013933Z_d585b0e6.zip",
+      "kind": "recording",
+      "case": "encoder_20261030T013933Z_d585b0e6",
+      "bytes": 24707467,
+      "sha256": "30ce6175316eeab3e70d4d868cd3fd269778644bb1549c355087942d6eca02b0",
+      "url": "https://github.com/kaifanyu/hamr_control/releases/download/caster-analysis-2026-10-30/recording-encoder_20261030T013933Z_d585b0e6.zip"
+    },
+    {
+      "name": "recording-encoder_20261030T014344Z_474eacce.zip",
+      "kind": "recording",
+      "case": "encoder_20261030T014344Z_474eacce",
+      "bytes": 21660212,
+      "sha256": "5ebfec1347a776a32cbf6e59a611c686ee5b946b2a37cad8ab9f6ca7ca81e932",
+      "url": "https://github.com/kaifanyu/hamr_control/releases/download/caster-analysis-2026-10-30/recording-encoder_20261030T014344Z_474eacce.zip"
+    },
+    {
+      "name": "recording-encoder_20261030T014845Z_d8f8cf35.zip",
+      "kind": "recording",
+      "case": "encoder_20261030T014845Z_d8f8cf35",
+      "bytes": 41887052,
+      "sha256": "c19aa3033c2ffa676babd397f7cf91886674f89158a9911418a69a6318c93115",
+      "url": "https://github.com/kaifanyu/hamr_control/releases/download/caster-analysis-2026-10-30/recording-encoder_20261030T014845Z_d8f8cf35.zip"
+    },
+    {
+      "name": "recording-encoder_20261030T015141Z_05f67011.zip",
+      "kind": "recording",
+      "case": "encoder_20261030T015141Z_05f67011",
+      "bytes": 21130926,
+      "sha256": "a9c0285b192b96ca4a195f62aff56ed8d5541dadeaf470088488fe4402e37f26",
+      "url": "https://github.com/kaifanyu/hamr_control/releases/download/caster-analysis-2026-10-30/recording-encoder_20261030T015141Z_05f67011.zip"
+    },
+    {
+      "name": "recording-encoder_20261030T021013Z_6b07008b.zip",
+      "kind": "recording",
+      "case": "encoder_20261030T021013Z_6b07008b",
+      "bytes": 15789268,
+      "sha256": "79ef584fae9f34f683a349a62a241dbdf0622446ad0add080d9373fd128f617c",
+      "url": "https://github.com/kaifanyu/hamr_control/releases/download/caster-analysis-2026-10-30/recording-encoder_20261030T021013Z_6b07008b.zip"
+    },
+    {
+      "name": "recording-encoder_20261030T021139Z_a7eb78f9.zip",
+      "kind": "recording",
+      "case": "encoder_20261030T021139Z_a7eb78f9",
+      "bytes": 950688,
+      "sha256": "af5ddfc3b312b05be4df5d89c12de9555b0317508c92aaf06c4042d07115ece2",
+      "url": "https://github.com/kaifanyu/hamr_control/releases/download/caster-analysis-2026-10-30/recording-encoder_20261030T021139Z_a7eb78f9.zip"
+    },
+    {
+      "name": "existing-analysis-batch-20261029.zip",
+      "kind": "original_analysis_batch",
+      "bytes": 43948650,
+      "sha256": "cc116581eec51b72c19f5c1b09be44ef3d4b7334675be4118bd315f77e72ff2f",
+      "url": "https://github.com/kaifanyu/hamr_control/releases/download/caster-analysis-2026-10-30/existing-analysis-batch-20261029.zip"
+    }
+  ],
+  "total_download_bytes": 619739825,
+  "scope": "All original recording files, supplied existing analysis batch, and this task analysis workspace/output snapshots. Publishing scratch and generated Python bytecode excluded."
+}

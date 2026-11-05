@@ -11,3 +11,6 @@ maps/assets/verti_arena/Grid.py -whitespace
 docs/analysis/encoder_20261029T065650Z_7f3140ba/* -text
 docs/analysis/encoder_20261029T065650Z_7f3140ba/*.csv whitespace=cr-at-eol
 docs/analysis/caster_fork_history_20261029/* -text
+
+# Preserve the published analysis source/manifests across platforms.
+docs/analysis/caster_reconstruction_20261030/** -text
