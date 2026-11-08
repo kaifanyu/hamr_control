@@ -1,0 +1,187 @@
+{
+  "format": "hamr_caster_orientation_archive",
+  "version": 1,
+  "created_utc": "2026-11-08T02:42:49.184641+00:00",
+  "created_local": "2026-11-08T10:42:49.184911+08:00",
+  "user_preference": "Save calibration data only; do not reflash firmware or activate calibration automatically.",
+  "application_status": {
+    "firmware_applied": false,
+    "software_configuration_applied": false,
+    "automatic_loading": false
+  },
+  "description": "Four independently checked manual orientation zero/sign references. Complete numeric parameters and physical conventions are contained here. Original per-sensor JSON and raw evidence are retained in the separately stored evidence archive, not in this Git directory.",
+  "usage": {
+    "input": "Native raw counts from the matching device and unchanged mechanical mounting/electronic zero.",
+    "apply_once": true,
+    "consolidated_file_compatibility": "Archive collection format, not a direct input to existing per-wheel calibration tools. Use the referenced original per-sensor JSON for those tools.",
+    "ordinary": "Existing ordinary live/replay tools do not automatically load this archive. Software may apply the recorded formula to native position12 without firmware modification.",
+    "ball": "Existing caster_center_angle accepts the original per-wheel CENTER JSON and computes orientation from raw position14 without firmware modification.",
+    "limits": "Manual zero/sign only. No independent angular accuracy, wheel radius/CPR, maximum operating rate or clock synchronization qualification. Ball reference is H1 front, different from older H1-up CAD references."
+  },
+  "calibrations": [
+    {
+      "caster_type": "ordinary",
+      "wheel_id": "front_left",
+      "role": "SWIVEL",
+      "node_id": 5,
+      "device_id": "10:bd:a3:8e:9d:44",
+      "counts_per_revolution": 4096,
+      "zero_absolute_angle_rad": 6.048486246633083,
+      "direction_sign": -1,
+      "physical_direction_verified": true,
+      "accuracy_validated": false,
+      "max_rpm_verified": false,
+      "reference_pose": "Fork upright; wheel axle BEHIND the vertical swivel axis (robot rear, -X)",
+      "direction_convention": "Positive about +Z: CCW viewed from above",
+      "raw_count_field": "position12",
+      "angle_range": "[-pi, pi)",
+      "formula": "wrap_signed(direction_sign * (position12 * 2*pi/4096 - zero_absolute_angle_rad))",
+      "checks": {
+        "quarter_error_deg": 0.614943346553332,
+        "half_turn_error_deg": 3.955369153446692,
+        "return_zero_error_deg": 1.5065293650337346
+      },
+      "quality": {
+        "valid_samples": 2403,
+        "max_pose_gap_ms": 5.225,
+        "max_pose_deviation_deg": 0.08759959655332611
+      },
+      "captured_boot_id": "1c5e0df71dde4ae5",
+      "created_utc": "2026-11-08T01:41:23.959791+00:00",
+      "evidence": {
+        "calibration_json": "accepted/ordinary/front_left/front_left_swivel_calibration.json",
+        "calibration_sha256": "e770fe1bb9159bc146ebd1aaac5a7c9d4d7438ca310301942f3a2ea9cd1cb5e0",
+        "raw_history": "accepted/ordinary/front_left/front_left_swivel_observations.jsonl",
+        "raw_history_sha256": "4b044c95ce1815bab8da5b26be0c77e3061887b3b8825b50afa3e510e44c11b8",
+        "original_calibration_path": "/home/hamr/ordinary_swivel_left_calibration_17ikaoEZ/front_left_swivel_calibration.json",
+        "original_history_path": "/home/hamr/ordinary_swivel_left_calibration_17ikaoEZ/front_left_swivel_observations.jsonl"
+      },
+      "zero_position12": 3943
+    },
+    {
+      "caster_type": "ordinary",
+      "wheel_id": "front_right",
+      "role": "SWIVEL",
+      "node_id": 5,
+      "device_id": "10:bd:a3:b2:25:34",
+      "counts_per_revolution": 4096,
+      "zero_absolute_angle_rad": 1.3391652278241648,
+      "direction_sign": 1,
+      "physical_direction_verified": true,
+      "accuracy_validated": false,
+      "max_rpm_verified": false,
+      "reference_pose": "Fork upright; wheel axle BEHIND the vertical swivel axis (robot rear, -X)",
+      "direction_convention": "Positive about +Z: CCW viewed from above",
+      "raw_count_field": "position12",
+      "angle_range": "[-pi, pi)",
+      "formula": "wrap_signed(direction_sign * (position12 * 2*pi/4096 - zero_absolute_angle_rad))",
+      "checks": {
+        "quarter_error_deg": 3.2542970990355684,
+        "half_turn_error_deg": 3.642238674724979,
+        "return_zero_error_deg": 1.141987521609619
+      },
+      "quality": {
+        "valid_samples": 2383,
+        "max_pose_gap_ms": 130.002,
+        "max_pose_deviation_deg": 0.3539064740355725
+      },
+      "captured_boot_id": "3924b3d8c7ded982",
+      "created_utc": "2026-11-08T01:58:10.879328+00:00",
+      "evidence": {
+        "calibration_json": "accepted/ordinary/front_right/front_right_swivel_calibration.json",
+        "calibration_sha256": "b778ba24dc3bc25a9986ccb62d710c7e1e9ebbe7840958d80e612383844d6407",
+        "raw_history": "accepted/ordinary/front_right/front_right_swivel_observations.jsonl",
+        "raw_history_sha256": "2a0dc54efa47096c32dcf0c45178cc2687701445f8908961fa71138d1a65628a",
+        "original_calibration_path": "/home/hamr/hamster_ws/calibration_results/caster_orientation_20261108/ordinary_right_5AQZqFJN/front_right_swivel_calibration.json",
+        "original_history_path": "/home/hamr/hamster_ws/calibration_results/caster_orientation_20261108/ordinary_right_5AQZqFJN/front_right_swivel_observations.jsonl"
+      },
+      "zero_position12": 873
+    },
+    {
+      "caster_type": "ball",
+      "wheel_id": "front_left",
+      "role": "CENTER",
+      "node_id": 3,
+      "device_id": "10:bd:a3:b2:14:a4",
+      "counts_per_revolution": 16384,
+      "zero_absolute_angle_rad": 0.5905826033359719,
+      "direction_sign": 1,
+      "physical_direction_verified": true,
+      "accuracy_validated": false,
+      "max_rpm_verified": false,
+      "reference_pose": "H1 FRONT, H2 BACK; fork upright, split axis horizontal",
+      "direction_convention": "Positive = forward rolling; H1 moves from front to down at +90 degrees",
+      "raw_count_field": "position14",
+      "angle_range": "[0, 2*pi)",
+      "formula": "((direction_sign * (position14 - zero_position14)) % 16384) * 2*pi/16384",
+      "checks": {
+        "quarter_error_deg": 1.3620553390261847,
+        "half_turn_error_deg": 1.127418936696737,
+        "return_zero_error_deg": 0.15315306953508287
+      },
+      "quality": {
+        "valid_samples": 2464,
+        "max_pose_gap_ms": 5.125,
+        "max_pose_deviation_deg": 0.10898729543178357
+      },
+      "captured_boot_id": "494a2416c0868068",
+      "created_utc": "2026-11-08T02:25:08.667088+00:00",
+      "evidence": {
+        "calibration_json": "accepted/ball/front_left/front_left_center_calibration.json",
+        "calibration_sha256": "e2edeeed70c7c71f1bbe2cac83c44b4278caa386cd691458f57d2004252fbbff",
+        "raw_history": "accepted/ball/front_left/front_left_center_observations.jsonl",
+        "raw_history_sha256": "104909dead9c2ef4a9b8e1fc76a5fe7b0e13ba12425f5c991b2ece77fb342401",
+        "original_calibration_path": "/home/hamr/hamster_ws/calibration_results/caster_orientation_20261108/ball_left_durable_01/front_left_center_calibration.json",
+        "original_history_path": "/home/hamr/hamster_ws/calibration_results/caster_orientation_20261108/ball_left_durable_01/front_left_center_observations.jsonl"
+      },
+      "zero_position14": 1540
+    },
+    {
+      "caster_type": "ball",
+      "wheel_id": "front_right",
+      "role": "CENTER",
+      "node_id": 3,
+      "device_id": "10:bd:a3:af:f3:30",
+      "counts_per_revolution": 16384,
+      "zero_absolute_angle_rad": 5.875146417602005,
+      "direction_sign": -1,
+      "physical_direction_verified": true,
+      "accuracy_validated": false,
+      "max_rpm_verified": false,
+      "reference_pose": "H1 FRONT, H2 BACK; fork upright, split axis horizontal",
+      "direction_convention": "Positive = forward rolling; H1 moves from front to down at +90 degrees",
+      "raw_count_field": "position14",
+      "angle_range": "[0, 2*pi)",
+      "formula": "((direction_sign * (position14 - zero_position14)) % 16384) * 2*pi/16384",
+      "checks": {
+        "quarter_error_deg": 0.8345594437903685,
+        "half_turn_error_deg": 0.04052789864304908,
+        "return_zero_error_deg": 0.5350086300489756
+      },
+      "quality": {
+        "valid_samples": 2404,
+        "max_pose_gap_ms": 5.577,
+        "max_pose_deviation_deg": 0.17923516328506378
+      },
+      "captured_boot_id": "c23962be807bcb29",
+      "created_utc": "2026-11-08T02:35:55.517247+00:00",
+      "evidence": {
+        "calibration_json": "accepted/ball/front_right/front_right_center_calibration.json",
+        "calibration_sha256": "b2274535aef9d1c629b3340c2f5f7024429e87ceaf419342ed961a965501d0f1",
+        "raw_history": "accepted/ball/front_right/front_right_center_observations.jsonl",
+        "raw_history_sha256": "b34ca6ed28d097d4384d2b7e9e92f655029f936935d80a403eb9113f6793c243",
+        "original_calibration_path": "/home/hamr/hamster_ws/calibration_results/caster_orientation_20261108/ball_right_durable_01/front_right_center_calibration.json",
+        "original_history_path": "/home/hamr/hamster_ws/calibration_results/caster_orientation_20261108/ball_right_durable_01/front_right_center_observations.jsonl"
+      },
+      "zero_position14": 15320
+    }
+  ],
+  "evidence_archive": {
+    "filename": "caster_orientation_calibration_20261108.zip",
+    "sha256": "641d851cd96fbf1484083cf6aab4ce50346699418e1cd3c4534451b3a79676d8",
+    "path_base": "All per-sensor evidence.calibration_json and evidence.raw_history paths are relative to the external ZIP archive root.",
+    "original_local_path": "/home/hamr/hamster_ws/calibration_results/caster_orientation_20261108/caster_orientation_calibration_20261108.zip",
+    "included_in_git": false,
+    "source_consolidated_json_sha256": "89c64e773f914348cf85cca2f6ab39f646922c92c6fd756237f70b3e070ed12b"
+  }
+}
