@@ -1,23 +1,20 @@
-# HTTP/local flash recording, independently of the live UDP ports.
+# Ordinary caster identities confirmed by operator discovery.
+# Discover IP addresses dynamically; do not pin DHCP addresses or boot IDs.
 version: 1
 caster_type: ordinary
 discovery_address: 255.255.255.255
 discovery_port: 5010
-devices: []
-# devices:
-#   - wheel_id: front_left
-#     node_id: 5 # SWIVEL
-#     device_id: aa:bb:cc:dd:ee:01
-#     host: 192.168.1.101
-#   - wheel_id: front_left
-#     node_id: 6 # WHEEL
-#     device_id: aa:bb:cc:dd:ee:02
-#     host: 192.168.1.102
-#   - wheel_id: front_right
-#     node_id: 5 # SWIVEL
-#     device_id: aa:bb:cc:dd:ee:03
-#     host: 192.168.1.103
-#   - wheel_id: front_right
-#     node_id: 6 # WHEEL
-#     device_id: aa:bb:cc:dd:ee:04
-#     host: 192.168.1.104
+
+devices:
+  - wheel_id: front_left
+    node_id: 5 # SWIVEL
+    device_id: "10:bd:a3:8e:9d:44"
+  - wheel_id: front_left
+    node_id: 6 # WHEEL
+    device_id: "10:bd:a3:b0:8a:28"
+  - wheel_id: front_right
+    node_id: 5 # SWIVEL
+    device_id: "10:bd:a3:b2:25:34"
+  - wheel_id: front_right
+    node_id: 6 # WHEEL
+    device_id: "10:bd:a3:b0:12:ac"

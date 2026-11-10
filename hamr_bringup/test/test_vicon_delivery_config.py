@@ -238,10 +238,16 @@ def test_foxglove_can_be_disabled_but_remains_on_by_default():
     assert len(run_foxglove_args) == 1
     assert run_foxglove_args[0].get('default') == 'true'
 
-    foxglove_nodes = [
+    foxglove_includes = [
         element
-        for element in launch.findall('node')
-        if element.get('pkg') == 'foxglove_bridge'
+        for element in launch.findall('include')
+        if element.get('file', '').endswith('/launch/foxglove.launch.xml')
     ]
+    assert len(foxglove_includes) == 1
+    assert foxglove_includes[0].get('if') == '$(var run_foxglove)'
+    included_launch = ET.parse(HARDWARE_LAUNCH.parent / 'foxglove.launch.xml').getroot()
+    assert included_launch.find("arg[@name='run_bridge']").get('default') == 'true'
+    foxglove_nodes = [element for element in included_launch.findall('node')
+                      if element.get('pkg') == 'foxglove_bridge']
     assert len(foxglove_nodes) == 1
-    assert foxglove_nodes[0].get('if') == '$(var run_foxglove)'
+    assert foxglove_nodes[0].get('if') == '$(var run_bridge)'

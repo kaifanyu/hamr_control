@@ -104,6 +104,24 @@ ros2 launch compa_slam record_trajectory.launch.py \
 
 ## 3. Do a stationary preflight
 
+The hardware RGB-D launches and recorder now use `config/fastdds_rgbd.xml`
+by default. Its 64 MiB shared-memory segment accommodates full RGB-D frames;
+the default Fast DDS segment was too small for a 640x480 RGB8 image. A custom
+`FASTRTPS_DEFAULT_PROFILES_FILE` remains respected.
+
+The recorder waits for active publishers and selects a finite topic list.
+This lets rosbag2 stop discovery once all selected topics are subscribed,
+avoiding subscription-creation stalls during the scan. Keep the robot still
+until the recorder reports all requested topics subscribed, then verify rates
+and gaps over a settled interval. Do not start it paused: initial latched TF
+and scan metadata must be recorded. A publisher added after selection needs
+a new recording. The dedicated `rgbd_vicon_scan.launch.py` also requires Vicon
+and rejects a second running hardware stack before launching any processes.
+
+`/HAMR_turret/odom` is Vicon-only; `/wheel_turret/odom` is the independent
+encoder estimate. Both are recorded when available. Caster encoder boards
+and caster cameras are not required for RGB-D mapping.
+
 Before driving, leave the robot stationary for about 5 seconds and check:
 
 ```bash

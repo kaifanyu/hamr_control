@@ -76,6 +76,10 @@ def generate_launch_description():
                               description="Bring up the D455 (realsense.launch.py)."),
         DeclareLaunchArgument("record", default_value="true",
                               description="Record the trajectory bag."),
+        DeclareLaunchArgument("require_vicon", default_value="false",
+                              description="Wait for Vicon before choosing recorder topics."),
+        DeclareLaunchArgument("require_scan_metadata", default_value="false",
+                              description="Wait for the scan planner and its metadata publishers."),
         DeclareLaunchArgument("bag_name", default_value="",
                               description="Bag folder name (default: compa_slam_<timestamp>)."),
         DeclareLaunchArgument("pointcloud", default_value="false",
@@ -116,6 +120,7 @@ def generate_launch_description():
         AnyLaunchDescriptionSource(hw_launch),
         launch_arguments={
             "record_bag": "false",
+            "record_camera": "false",  # This capture owns the D455, not caster cameras.
             "run_controller": run_controller,
             "run_foxglove": run_foxglove,
             "use_orientation": use_orientation,
@@ -142,6 +147,11 @@ def generate_launch_description():
     # Empty bag_name -> the script falls back to compa_slam_<timestamp>.
     recorder = ExecuteProcess(
         cmd=["ros2", "run", "compa_slam", "record_compa_slam_bag", bag_name],
+        additional_env={
+            "COMPA_SLAM_REQUIRE_RGBD": "true",
+            "COMPA_SLAM_REQUIRE_VICON": LaunchConfiguration("require_vicon"),
+            "COMPA_SLAM_REQUIRE_SCAN": LaunchConfiguration("require_scan_metadata"),
+        },
         output="screen",
         condition=IfCondition(record),
     )

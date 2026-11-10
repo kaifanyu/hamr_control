@@ -35,9 +35,9 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, ExecuteProcess
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, SetEnvironmentVariable
 from launch.conditions import IfCondition, UnlessCondition
-from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch.substitutions import EnvironmentVariable, LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 
@@ -64,6 +64,14 @@ def generate_launch_description():
     playback_delay = LaunchConfiguration("playback_delay")
 
     declare = [
+        DeclareLaunchArgument(
+            "dds_profile",
+            default_value=EnvironmentVariable(
+                "FASTRTPS_DEFAULT_PROFILES_FILE",
+                default_value=os.path.join(pkg, "config", "fastdds_rgbd.xml"),
+            ),
+            description="Fast DDS profile shared by RTAB-Map and bag playback.",
+        ),
         DeclareLaunchArgument("database_path", default_value=default_db,
                               description="Where to read/write the RTAB-Map database."),
         DeclareLaunchArgument("localization", default_value="false",
@@ -165,5 +173,8 @@ def generate_launch_description():
     )
 
     return LaunchDescription(
-        declare + [rgbd_odometry, rtabmap_mapping, rtabmap_localization, rtabmap_viz, play_bag]
+        declare + [
+            SetEnvironmentVariable("FASTRTPS_DEFAULT_PROFILES_FILE", LaunchConfiguration("dds_profile")),
+            rgbd_odometry, rtabmap_mapping, rtabmap_localization, rtabmap_viz, play_bag,
+        ]
     )

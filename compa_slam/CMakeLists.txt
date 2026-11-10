@@ -26,6 +26,7 @@ install(
   PROGRAMS
     scripts/map_to_sim.py
     scripts/record_compa_slam_bag
+    scripts/select_recording_topics.py
     scripts/analyze_rosbag.py
     scripts/map_reference_to_odom.py
   DESTINATION lib/${PROJECT_NAME}
@@ -58,6 +59,12 @@ if(BUILD_TESTING)
   )
   ament_add_pytest_test(rgbd_vicon_scan_launch_test
     test/test_rgbd_vicon_scan_launch.py
+  )
+  ament_add_pytest_test(recording_topics_test
+    test/test_select_recording_topics.py
+  )
+  ament_add_pytest_test(analyze_turret_sources_test
+    test/test_analyze_turret_sources.py
   )
 endif()
 

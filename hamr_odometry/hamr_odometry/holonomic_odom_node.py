@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 import math
+import signal
 
 import rclpy
 from rclpy.node import Node
+from rclpy.executors import ExternalShutdownException, SingleThreadedExecutor
+from rclpy.signals import SignalHandlerOptions
 from rclpy.qos import (
     QoSDurabilityPolicy,
     QoSHistoryPolicy,
@@ -91,6 +94,9 @@ class HolonomicOdomNode(Node):
         self.declare_parameter('odom_frame', 'odom')
         self.declare_parameter('base_frame', 'base_link')
         self.declare_parameter('base_odom_topic', 'HAMR_base/odom')
+        # Keep the encoder estimate separate from Vicon's HAMR_turret/odom.
+        # Consumers must explicitly select the feedback source they require.
+        self.declare_parameter('turret_odom_topic', '/wheel_turret/odom')
         self.declare_parameter('ekf_yaw_timeout', 0.25)
         # Set to False once the EKF node is running (it will publish TF instead)
         self.declare_parameter('publish_tf', True)
@@ -114,9 +120,10 @@ class HolonomicOdomNode(Node):
         self.base_frame = self.get_parameter('base_frame').value
         self.publish_tf = self.get_parameter('publish_tf').value
         self.base_odom_topic = self.get_parameter('base_odom_topic').value
+        self.turret_odom_topic = self.get_parameter('turret_odom_topic').value
         self.ekf_yaw_timeout = float(self.get_parameter('ekf_yaw_timeout').value)
 
-        # Latest EKF base yaw from HAMR_base/odom
+        # Latest base yaw from the configured Vicon or onboard odometry source.
         self.latest_ekf_yaw = None
         self.latest_ekf_yaw_time = None
 
@@ -146,7 +153,8 @@ class HolonomicOdomNode(Node):
         )
 
         self.pub_odom = self.create_publisher(Odometry, '/wheel_odom', 10)
-        self.pub_turret_odom = self.create_publisher(Odometry, 'HAMR_turret/odom', 10)
+        self.pub_turret_odom = self.create_publisher(
+            Odometry, self.turret_odom_topic, 10)
         self.tf_broadcaster = TransformBroadcaster(self) if self.publish_tf else None
 
         self.create_timer(0.02, self._update)  # 50 Hz integration
@@ -157,7 +165,8 @@ class HolonomicOdomNode(Node):
             f'tick_scale=({self.left_tick_scale:.3f},{self.right_tick_scale:.3f}) '
             f'velocity_scale=({self.linear_velocity_scale:.6f},'
             f'{self.yaw_rate_scale:.6f}) '
-            f'yaw_sign={self.yaw_sign:+.1f} publish_tf={self.publish_tf}'
+            f'yaw_sign={self.yaw_sign:+.1f} publish_tf={self.publish_tf} '
+            f'turret_odom_topic={self.turret_odom_topic}'
         )
 
     def _cb_L(self, msg: Int32):
@@ -170,7 +179,7 @@ class HolonomicOdomNode(Node):
         self.latest_T = msg.data
 
     def _cb_base_odom(self, msg: Odometry):
-        # read the EKF-filtered base yaw from HAMR_base/odom
+        # Read heading from the configured base odometry source.
         self.latest_ekf_yaw = quat_to_yaw(msg.pose.pose.orientation)
         self.latest_ekf_yaw_time = self.get_clock().now()
 
@@ -271,7 +280,8 @@ class HolonomicOdomNode(Node):
 
         self.pub_odom.publish(odom)
 
-        # Publish HAMR_turret/odom — controller gates on this in hardware mode.
+        # Publish encoder-derived turret orientation on its own odometry topic.
+        # This estimate must never be mixed with the raw Vicon turret stream.
         # turret_yaw_world = base heading + turret angle relative to base.
         # latest_T defaults to 0 so this publishes from the first integration step
         # even if /turret/encoder_ticks hasn't arrived yet.
@@ -314,11 +324,39 @@ class HolonomicOdomNode(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
-    node = HolonomicOdomNode()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    # Defer context shutdown until an in-flight odometry callback finishes.
+    rclpy.init(args=args, signal_handler_options=SignalHandlerOptions.NO)
+    stop_requested = False
+
+    def request_stop(signum, frame):
+        nonlocal stop_requested
+        stop_requested = True
+
+    previous_handlers = {
+        signum: signal.signal(signum, request_stop)
+        for signum in (signal.SIGINT, signal.SIGTERM)
+    }
+    node = None
+    executor = None
+    try:
+        node = HolonomicOdomNode()
+        executor = SingleThreadedExecutor(context=node.context)
+        executor.add_node(node)
+        while rclpy.ok() and not stop_requested:
+            executor.spin_once(timeout_sec=0.05)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
+    finally:
+        try:
+            if executor is not None:
+                executor.shutdown()
+            if node is not None:
+                node.destroy_node()
+        finally:
+            if rclpy.ok():
+                rclpy.shutdown()
+            for signum, handler in previous_handlers.items():
+                signal.signal(signum, handler)
 
 
 if __name__ == '__main__':

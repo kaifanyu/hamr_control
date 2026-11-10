@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- RGB8 640x480 frames exceed Fast DDS's default 512 KiB SHM segment.
+     Keep local image traffic in a 64 MiB segment and UDP for remote Vicon.
+     This profile affects only processes launched with it, not system settings. -->
+<profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+  <transport_descriptors>
+    <transport_descriptor>
+      <transport_id>rgbd_shm</transport_id>
+      <type>SHM</type>
+      <segment_size>67108864</segment_size>
+      <port_queue_capacity>2048</port_queue_capacity>
+    </transport_descriptor>
+    <transport_descriptor>
+      <transport_id>rgbd_udp</transport_id>
+      <type>UDPv4</type>
+    </transport_descriptor>
+  </transport_descriptors>
+  <participant profile_name="rgbd_large_frames" is_default_profile="true">
+    <rtps>
+      <userTransports>
+        <transport_id>rgbd_shm</transport_id>
+        <transport_id>rgbd_udp</transport_id>
+      </userTransports>
+      <useBuiltinTransports>false</useBuiltinTransports>
+    </rtps>
+  </participant>
+</profiles>

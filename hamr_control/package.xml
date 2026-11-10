@@ -10,6 +10,7 @@
   <depend>rclpy</depend>
   <depend>rcl_interfaces</depend>
   <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
   <depend>nav_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>hamr_interfaces</depend>

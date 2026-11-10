@@ -7,12 +7,53 @@ Motion requires an explicit /continuous_waypoint/start service call.
 
 import math
 import os
+import time
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription, OpaqueFunction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
+
+
+def _check_existing_stack(context):
+    """Reject a duplicate hardware owner before starting any scan process."""
+    import rclpy
+    from rclpy.context import Context
+    from rclpy.executors import SingleThreadedExecutor
+    from rclpy.node import Node
+
+    owned = {
+        ("hamr_controller_node", "/"), ("hamr_uros_bridge", "/"),
+        ("holonomic_odom_node", "/"), ("ekf_filter_node", "/"),
+        ("continuous_waypoint", "/"),
+    }
+    if LaunchConfiguration("camera").perform(context).lower() == "true":
+        owned.add(("d455_camera", "/d455"))
+    ros_context = Context()
+    rclpy.init(args=[], context=ros_context)
+    node = None
+    executor = SingleThreadedExecutor(context=ros_context)
+    try:
+        node = Node("rgbd_scan_launch_check", context=ros_context,
+                    enable_rosout=False, start_parameter_services=False)
+        deadline = time.monotonic() + 5.0
+        while time.monotonic() < deadline:
+            rclpy.spin_once(node, executor=executor, timeout_sec=0.1)
+            conflicts = owned.intersection(node.get_node_names_and_namespaces())
+            if conflicts:
+                names = ", ".join(sorted(namespace.rstrip("/") + "/" + name
+                                         for name, namespace in conflicts))
+                raise RuntimeError(
+                    f"Scan would duplicate running nodes: {names}. "
+                    "Stop the existing hardware launch before starting the scan launch."
+                )
+    finally:
+        executor.shutdown()
+        if node is not None:
+            node.destroy_node()
+        rclpy.shutdown(context=ros_context)
+    return []
 
 
 def generate_launch_description():
@@ -46,6 +87,10 @@ def generate_launch_description():
             "camera", default_value="true", choices=["true", "false"],
             description="Start the D455; false only if its correct TF and streams already run.",
         ),
+        DeclareLaunchArgument(
+            "record", default_value="true", choices=["true", "false"],
+            description="Record RGB-D; false prepares the idle stack for a separate recorder.",
+        ),
     ]
     arguments.extend(
         DeclareLaunchArgument(name, default_value=value)
@@ -73,7 +118,9 @@ def generate_launch_description():
     capture_arguments = {
         "robot": "false",  # The hardware include above owns controller/relay/EKF.
         "camera": LaunchConfiguration("camera"),
-        "record": "true",
+        "record": LaunchConfiguration("record"),
+        "require_vicon": "true",
+        "require_scan_metadata": "true",
         "bag_name": LaunchConfiguration("bag_name"),
         "pointcloud": "false",
         **{name: LaunchConfiguration(name) for name in mount_defaults},
@@ -85,6 +132,7 @@ def generate_launch_description():
         launch_arguments=capture_arguments.items(),
     )
     return LaunchDescription(arguments + [
+        OpaqueFunction(function=_check_existing_stack),
         GroupAction(actions=[hardware], scoped=True),
         GroupAction(actions=[capture], scoped=True),
     ])

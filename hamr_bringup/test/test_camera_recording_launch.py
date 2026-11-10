@@ -43,19 +43,24 @@ def test_hardware_launch_records_both_by_default_with_opt_out_and_external_motio
     description = get_launch_description_from_any_launch_file(str(launch_file))
     includes = [action for action in description.entities
                 if isinstance(action, IncludeLaunchDescription)]
-    assert len(includes) == 1
     context = LaunchContext()
+    # Foxglove has its own include; select the camera include by its gate.
+    context.launch_configurations["run_foxglove"] = "false"
     context.launch_configurations["record_camera"] = "true"
-    assert includes[0].condition.evaluate(context)
+    camera_includes = [action for action in includes if action.condition.evaluate(context)]
+    assert len(camera_includes) == 1
     context.launch_configurations["record_camera"] = "false"
-    assert not includes[0].condition.evaluate(context)
+    assert not camera_includes[0].condition.evaluate(context)
 
     root = ET.parse(launch_file).getroot()
     defaults = {arg.get("name"): arg.get("default") for arg in root.findall("arg")}
     assert defaults["record_camera"] == "true"
     assert defaults["record_bag"] == "true"
-    include = root.find("include")
-    assert include.get("file").endswith("/launch/camera_recording.launch.xml")
+    camera_xml = [include for include in root.findall("include")
+                  if include.get("file", "").endswith("/launch/camera_recording.launch.xml")]
+    assert len(camera_xml) == 1
+    include = camera_xml[0]
+    assert include.get("if") == "$(var record_camera)"
     assert {arg.get("name"): arg.get("value") for arg in include.findall("arg")} == {
         key: f"$(var {key})" for key in
         ("camera_repository", "camera_config", "recording_root", "camera_segment_mib")

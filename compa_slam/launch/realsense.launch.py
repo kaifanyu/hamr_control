@@ -31,9 +31,9 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, SetEnvironmentVariable
 from launch.conditions import IfCondition
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import EnvironmentVariable, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 
@@ -57,6 +57,14 @@ def generate_launch_description():
     mount_yaw = LaunchConfiguration("mount_yaw")
 
     declare = [
+        DeclareLaunchArgument(
+            "dds_profile",
+            default_value=EnvironmentVariable(
+                "FASTRTPS_DEFAULT_PROFILES_FILE",
+                default_value=os.path.join(pkg, "config", "fastdds_rgbd.xml"),
+            ),
+            description="Fast DDS profile sized for full RGB-D frames.",
+        ),
         DeclareLaunchArgument("pointcloud", default_value="false",
                               description="Publish /d455/depth/color/points (CPU-heavy "
                                           "on the Pi; enable for Phase 2 elevation)."),
@@ -133,4 +141,7 @@ def generate_launch_description():
         parameters=[{"use_sim_time": ParameterValue(use_sim_time, value_type=bool)}],
     )
 
-    return LaunchDescription(declare + [realsense, madgwick, static_tf])
+    return LaunchDescription(declare + [
+        SetEnvironmentVariable("FASTRTPS_DEFAULT_PROFILES_FILE", LaunchConfiguration("dds_profile")),
+        realsense, madgwick, static_tf,
+    ])

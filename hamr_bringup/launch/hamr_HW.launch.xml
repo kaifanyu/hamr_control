@@ -13,6 +13,8 @@
          default="$(find-pkg-share hamr_bringup)/config/wheel_odometry_calibration.yaml" />
     <arg name="wheel_base_odom_topic" default="HAMR_base/odom"
          description="Base yaw input for the wheel node's auxiliary turret estimate." />
+    <arg name="wheel_turret_odom_topic" default="/wheel_turret/odom"
+         description="Encoder-derived turret orientation, kept separate from Vicon ground truth." />
     <let name="ekf_mag_config_path"
         value="$(find-pkg-share hamr_bringup)/config/ekf_mag.yaml" />
     <let name="ekf_orientation_config_path"
@@ -46,6 +48,8 @@
          default-preserving overrides also let the dedicated waypoint/local
          wrapper select onboard odometry without duplicating this launch. -->
     <arg name="controller_odom_topic" default="/HAMR_base/odom" />
+    <arg name="controller_turret_odom_topic" default="/HAMR_turret/odom"
+         description="Vicon turret feedback by default; onboard-only runtimes select /wheel_turret/odom." />
     <arg name="controller_xy_velocity_source" default="odom_twist_world" />
     <arg name="controller_vicon_pose_guard_enabled" default="true" />
     <arg name="controller_vicon_min_z_m" default="0.25" />
@@ -80,6 +84,7 @@
         <param name="vicon_max_z_m" value="$(var controller_vicon_max_z_m)" />
         <param name="vicon_source_stamp_policy" value="$(var controller_vicon_source_stamp_policy)" />
         <remap from="HAMR_base/odom" to="$(var controller_odom_topic)" />
+        <remap from="HAMR_turret/odom" to="$(var controller_turret_odom_topic)" />
     </node>
 
     <!-- Graphing -->
@@ -94,6 +99,7 @@
         <param from="$(var wheel_odom_config)" />
         <param name="publish_tf" value="false"/>
         <param name="base_odom_topic" value="$(var wheel_base_odom_topic)" />
+        <param name="turret_odom_topic" value="$(var wheel_turret_odom_topic)" />
     </node>
 
     <!-- IMU mounting TF: BNO055 is mounted flat and axis-aligned with base_link

@@ -37,7 +37,17 @@ BAG_ROOT="${HAMR_BAG_ROOT:-${HOME}/hamster_ws/src/hamr_control/rosbags}"
 BAG_DIR="${USER_ARGS[1]:-${BAG_ROOT}/${RUN_NAME}}"
 STORAGE_ID="${STORAGE_ID:-${HAMR_BAG_STORAGE_ID:-mcap}}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PACKAGE_PREFIX="$(ros2 pkg prefix compa_slam)"
 QOS_PROFILE_OVERRIDES_PATH="${HAMR_BAG_QOS_OVERRIDES:-}"
+
+# The same large-frame profile is used by realsense.launch.py and bag replay.
+if [[ -z "${FASTRTPS_DEFAULT_PROFILES_FILE:-}" ]]; then
+  if [[ -f "${SCRIPT_DIR}/../config/fastdds_rgbd.xml" ]]; then
+    export FASTRTPS_DEFAULT_PROFILES_FILE="${SCRIPT_DIR}/../config/fastdds_rgbd.xml"
+  else
+    export FASTRTPS_DEFAULT_PROFILES_FILE="${PACKAGE_PREFIX}/share/compa_slam/config/fastdds_rgbd.xml"
+  fi
+fi
 
 # ros2 bag will refuse an existing output directory while the camera and robot
 # continue running. Select a deterministic suffix so an accidentally reused
@@ -61,7 +71,6 @@ fi
 if [[ -z "${QOS_PROFILE_OVERRIDES_PATH}" && -f "${SCRIPT_DIR}/../config/record_slam_qos.yaml" ]]; then
   QOS_PROFILE_OVERRIDES_PATH="${SCRIPT_DIR}/../config/record_slam_qos.yaml"
 elif [[ -z "${QOS_PROFILE_OVERRIDES_PATH}" ]] && command -v ros2 >/dev/null 2>&1; then
-  PACKAGE_PREFIX="$(ros2 pkg prefix compa_slam 2>/dev/null || true)"
   if [[ -n "${PACKAGE_PREFIX}" && -f "${PACKAGE_PREFIX}/share/compa_slam/config/record_slam_qos.yaml" ]]; then
     QOS_PROFILE_OVERRIDES_PATH="${PACKAGE_PREFIX}/share/compa_slam/config/record_slam_qos.yaml"
   fi
@@ -74,13 +83,24 @@ fi
 
 TOPIC_REGEX='^/d455/(color/image_raw|color/camera_info|depth/image_rect_raw|depth/color/points|imu|imu_raw)$|^/(HAMR_base|HAMR_turret|Left_Caster|Right_Caster)/(odom|pose|individual_marker_array)$|^/(local_HAMR/odom|wheel_odom|imu/data|imu/data_raw|imu/mag|imu/calib_status|wheel_control/status|wheel_encoder/diagnostics|tf|tf_static)$|^/(reference_trajectory|waypoints_path|state_error|live_gains)$|^/(left_wheel|right_wheel|turret)/cmd_vel$|^/(left_wheel|right_wheel|turret)/encoder_ticks$|^/(robot_pose|odom|cmd_vel)$'
 TOPIC_REGEX="${TOPIC_REGEX}|^/continuous_waypoint/(metadata|status|path)$"
+TOPIC_REGEX="${TOPIC_REGEX}|^/wheel_turret/odom$"
+
+# Creating subscriptions during capture caused multi-second stalls on the Pi.
+# Resolve a finite set after publishers appear. rosbag2 then stops discovery
+# automatically when this complete set is subscribed. Keep recording during
+# warmup so transient-local TF and scan metadata are retained.
+TOPICS_OUTPUT="$(python3 "${SCRIPT_DIR}/select_recording_topics.py" "${TOPIC_REGEX}")"
+[[ -n "${TOPICS_OUTPUT}" ]] || { echo "No recording topics available" >&2; exit 1; }
+readarray -t RECORD_TOPICS <<< "${TOPICS_OUTPUT}"
 
 mkdir -p "$(dirname "${BAG_DIR}")"
 
 echo "Recording COMPA SLAM trajectory bag:"
 echo "  output:  ${BAG_DIR}"
 echo "  storage: ${STORAGE_ID}"
-echo "  regex:   ${TOPIC_REGEX}"
+echo "  topics:  ${RECORD_TOPICS[*]}"
+echo "  dds:     ${FASTRTPS_DEFAULT_PROFILES_FILE}"
+echo "  Wait for 'All requested topics are subscribed' before checking capture health."
 if [[ -n "${QOS_PROFILE_OVERRIDES_PATH}" ]]; then
   echo "  qos:     ${QOS_PROFILE_OVERRIDES_PATH}"
 fi
@@ -89,4 +109,4 @@ exec ros2 bag record \
   --storage "${STORAGE_ID}" \
   --output "${BAG_DIR}" \
   "${QOS_ARGS[@]}" \
-  --regex "${TOPIC_REGEX}"
+  --topics "${RECORD_TOPICS[@]}"

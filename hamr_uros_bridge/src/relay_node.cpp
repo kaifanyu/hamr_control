@@ -17,15 +17,23 @@
 #include <vector>
 #include <thread>
 #include <cerrno>
+#include <csignal>
 
 #include <unistd.h>
 #include <fcntl.h>
 #include <termios.h>
 #include <sys/ioctl.h>
+#include <poll.h>
 
 using namespace std::chrono_literals;
 
 namespace {
+
+volatile std::sig_atomic_t stop_requested = 0;
+
+void request_stop(int) {
+  stop_requested = 1;
+}
 
 constexpr uint16_t MAGIC = 0xCAFE;
 constexpr uint16_t VER   = 4;      // v4: adds raw quadrature encoder diagnostics
@@ -247,13 +255,19 @@ public:
   bool write_all(const uint8_t* data, size_t size) {
     if (fd_ < 0) return false;
     size_t sent = 0;
+    // A disconnected or backpressured USB device must not trap the executor
+    // (or the destructor's final zero packets) in an endless EAGAIN loop.
+    const auto deadline = std::chrono::steady_clock::now() + 20ms;
     while (sent < size) {
+      if (std::chrono::steady_clock::now() >= deadline) return false;
       ssize_t n = ::write(fd_, data + sent, size - sent);
       if (n > 0) {
         sent += static_cast<size_t>(n);
       } else if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
         // Brief sleep to yield
         ::usleep(100);
+      } else if (n < 0 && errno == EINTR) {
+        continue;
       } else {
         perror("serial write");
         return false;
@@ -342,6 +356,8 @@ public:
 
   ~RelayNode() override {
     if (timer_) timer_->cancel();
+    running_ = false;
+    if (reader_.joinable()) reader_.join();
 
     // The MCU may retain its last velocity command, so explicitly overwrite
     // it before closing the serial port. Repetition makes a partially written
@@ -353,9 +369,6 @@ public:
       send_command(0.0f, 0.0f, 0.0f);
       std::this_thread::sleep_for(2ms);
     }
-
-    running_ = false;
-    if (reader_.joinable()) reader_.join();
   }
 
 private:
@@ -563,7 +576,16 @@ private:
     buf.reserve(512);
 
     while (rclcpp::ok() && running_) {
-      // Non-blocking read from serial
+      // Bound the wait and avoid a busy loop on a quiet port (VMIN=0 can
+      // return zero bytes). Destruction can join this thread within 20 ms.
+      pollfd descriptor{serial_.fd(), POLLIN, 0};
+      const int ready = ::poll(&descriptor, 1, 20);
+      if (!running_ || !rclcpp::ok()) break;
+      if (ready <= 0) continue;
+      if (!(descriptor.revents & POLLIN)) {
+        std::this_thread::sleep_for(5ms);
+        continue;
+      }
       uint8_t tmp[128];
       ssize_t n = ::read(serial_.fd(), tmp, sizeof(tmp));
       if (n > 0) {
@@ -718,12 +740,24 @@ private:
 };
 
 int main(int argc, char** argv) {
-  rclcpp::init(argc, argv);
+  // Keep ROS publishers valid until RX has joined and final serial zero
+  // packets have been attempted. Signal handlers only set a stop flag.
+  rclcpp::init(argc, argv, rclcpp::InitOptions(), rclcpp::SignalHandlerOptions::None);
+  std::signal(SIGINT, request_stop);
+  std::signal(SIGTERM, request_stop);
+  int result = 0;
   try {
-    rclcpp::spin(std::make_shared<RelayNode>());
+    auto node = std::make_shared<RelayNode>();
+    rclcpp::executors::SingleThreadedExecutor executor;
+    executor.add_node(node);
+    while (rclcpp::ok() && !stop_requested) {
+      executor.spin_once(50ms);
+    }
+    executor.remove_node(node);
   } catch (const std::exception& e) {
     fprintf(stderr, "RelayNode exception: %s\n", e.what());
+    result = 1;
   }
   rclcpp::shutdown();
-  return 0;
+  return result;
 }

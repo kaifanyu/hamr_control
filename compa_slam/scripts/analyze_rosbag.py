@@ -131,6 +131,26 @@ def find_odom(data, topic, frame=None):
     return None, None
 
 
+def find_local_turret_odom(data):
+    """Prefer the separate encoder topic, retaining legacy mixed-bag support."""
+    key, series = find_odom(data, "/wheel_turret/odom")
+    if series is not None:
+        return key, series
+    return find_odom(data, "/HAMR_turret/odom", "odom")
+
+
+def turret_source_notes(data):
+    """Describe mixed sources only when their distinct frames were recorded."""
+    _, vicon = find_odom(data, "/HAMR_turret/odom", "mocap")
+    _, legacy_local = find_odom(data, "/HAMR_turret/odom", "odom")
+    if vicon is not None and legacy_local is not None:
+        return [
+            "Note: /HAMR_turret/odom contains both mocap and odom frames; "
+            "the Vicon and local turret sources are separated in the plots."
+        ]
+    return []
+
+
 def sample(series, field, query, unwrap=False):
     values = np.unwrap(series[field]) if unwrap else series[field]
     return np.interp(query, series["t"], values)
@@ -325,7 +345,7 @@ def save_overview(data, metadata, out):
 
 def save_turret(data, out):
     _,base=find_odom(data,"/HAMR_base/odom","mocap"); _,tv=find_odom(data,"/HAMR_turret/odom","mocap")
-    _,tl=find_odom(data,"/HAMR_turret/odom","odom"); enc=data["scalars"].get("/turret/encoder_ticks")
+    _,tl=find_local_turret_odom(data); enc=data["scalars"].get("/turret/encoder_ticks")
     fig,axes=plt.subplots(2,1,figsize=(14,8),sharex=True)
     if tv is not None: axes[0].plot(tv["t"],np.degrees(np.unwrap(tv["yaw"])),label="Vicon turret")
     if tl is not None: axes[0].plot(tl["t"],np.degrees(np.unwrap(tl["yaw"])),label="local turret odom")
@@ -438,7 +458,9 @@ def write_reports(data, metadata, result, out):
     lines += ["","TF frame pairs:"]
     for topic,pairs in data["tf"].items():
         lines += [f"  {topic}: {a} -> {b} ({count})" for (a,b),count in pairs.items()]
-    lines += ["","Note: /HAMR_turret/odom contains two publishers; mocap and odom frames are separated in the plots."]
+    notes = turret_source_notes(data)
+    if notes:
+        lines += [""] + notes
     report="\n".join(lines)+"\n"; open(os.path.join(out,"analysis_summary.txt"),"w",encoding="utf-8").write(report); print(report)
 
 

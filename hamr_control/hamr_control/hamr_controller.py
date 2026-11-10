@@ -1,11 +1,14 @@
 import math
+import signal
 from dataclasses import dataclass
 
 import numpy as np
 import rclpy
 from rcl_interfaces.msg import SetParametersResult
 from rclpy.node import Node
+from rclpy.executors import ExternalShutdownException, SingleThreadedExecutor
 from rclpy.parameter import Parameter
+from rclpy.signals import SignalHandlerOptions
 from rclpy.qos import (
     QoSDurabilityPolicy,
     QoSHistoryPolicy,
@@ -14,6 +17,7 @@ from rclpy.qos import (
 )
 
 from std_msgs.msg import Float64 # to send velocity commands
+from std_srvs.srv import Trigger
 from nav_msgs.msg import Odometry # used to get the base current state (position in xyz)
 from geometry_msgs.msg import PoseWithCovariance # used for reference and current pose - not using covariance rn
 from geometry_msgs.msg import Quaternion # for the turret relative 
@@ -833,6 +837,8 @@ class HamrControlNode(Node):
         self.last_odom_time_ns = None
         self.last_odom_source_stamp_ns = None
         self.reference_timed_out = False
+        self.reference_finished = False
+        self.reference_finish_last_seen_ns = None
         self.odom_timed_out = False
         # A rejected hardware Vicon sample invalidates the trajectory that was
         # active at the time of the fault.  Pose recovery alone must not reuse
@@ -884,6 +890,9 @@ class HamrControlNode(Node):
 
         self.reference_sub_ = self.create_subscription(ReferenceTraj, "/reference_trajectory", 
                                     self.callback_reference, 1)
+        self.finish_reference_service_ = self.create_service(
+            Trigger, "~/finish_reference", self.finish_reference
+        )
         
         # For debugging
         self.gains_pub_ = self.create_publisher(LiveGains, "/live_gains", 10)
@@ -1379,6 +1388,10 @@ class HamrControlNode(Node):
         dur = (now - self.last_control_time) # rclpy.duration.Duration
         self.last_control_time = now
 
+        if getattr(self, "reference_finished", False):
+            self.publish_zero_cmd()
+            return
+
         # A fail-stop remains active even if the ROS clock jumps or produces an
         # unusable PID interval; refreshing zero does not depend on controller
         # timing being valid.
@@ -1431,6 +1444,19 @@ class HamrControlNode(Node):
 
     def callback_reference(self, msg: ReferenceTraj):
         now_ns = self.get_clock().now().nanoseconds
+        if getattr(self, "reference_finished", False):
+            # A final reference already queued when the service is handled
+            # must not restart PID correction. Require a full quiet interval
+            # before accepting the next trial, just as for Vicon recovery.
+            quiet_ns = now_ns - self.reference_finish_last_seen_ns
+            self.reference_finish_last_seen_ns = now_ns
+            timeout_s = self.reference_timeout_s
+            if (not math.isfinite(timeout_s) or timeout_s <= 0.0
+                    or quiet_ns < int(timeout_s * 1_000_000_000)):
+                self.publish_zero_cmd()
+                return
+            self.reference_finished = False
+
         if getattr(self, "vicon_motion_inhibited", False):
             # Check the interval before accounting for this callback: if the
             # preceding interval was fully quiet and Vicon is recovered, this
@@ -1459,6 +1485,29 @@ class HamrControlNode(Node):
         # self.I_y.reset()
         # self.I_yaw.reset()
         # self.get_logger().info("Going to target: " + str((msg.x, msg.y, msg.yaw)))
+
+    def finish_reference(self, request, response):
+        """End a completed auto trajectory without weakening any watchdog.
+
+        This stop-only service is optional for publishers. Unexpected silence
+        still takes the ordinary timeout/error path; Vicon inhibits are never
+        cleared here. The caller must stop publishing before making the call.
+        """
+        if self.hamr_config["mode"] != "auto":
+            response.success = False
+            response.message = "Reference completion requires auto mode"
+            return response
+        self.publish_zero_cmd()
+        self.reference_ = None
+        self.last_reference_time_ns = None
+        self.reference_timed_out = False
+        self.reference_finished = True
+        self.reference_finish_last_seen_ns = self.get_clock().now().nanoseconds
+        self.reset_pid_state()
+        self.get_logger().info("Reference trajectory completed; commanding all joints to zero")
+        response.success = True
+        response.message = "Reference cleared; all joints commanded to zero"
+        return response
 
     def compute_velocities(self, desired_velocity, yaw):
         ''' Derived Jacobian based on dynamics - returns angular velocities for:
@@ -1922,24 +1971,45 @@ class HamrControlNode(Node):
                 )
 
 def main(args=None):
-    rclpy.init(args=args)
+    # ROS's default signal handler invalidates publishers before our finally
+    # block. Handle signals as a stop request and keep the context alive until
+    # the final zero commands have been sent.
+    rclpy.init(args=args, signal_handler_options=SignalHandlerOptions.NO)
+    stop_requested = False
+
+    def request_stop(signum, frame):
+        nonlocal stop_requested
+        stop_requested = True
+
+    previous_handlers = {
+        signum: signal.signal(signum, request_stop)
+        for signum in (signal.SIGINT, signal.SIGTERM)
+    }
     node = None
+    executor = None
     try:
         node = HamrControlNode()
-        rclpy.spin(node)
-    except KeyboardInterrupt:
+        executor = SingleThreadedExecutor(context=node.context)
+        executor.add_node(node)
+        while rclpy.ok() and not stop_requested:
+            executor.spin_once(timeout_sec=0.05)
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
-        if node is not None:
-            try:
-                node.shutdown_controller()
-            except Exception as exc:
-                node.get_logger().error(
-                    f"Failed to publish shutdown zero commands: {exc}"
-                )
-            node.destroy_node()
-        if rclpy.ok():
-            rclpy.shutdown()
+        try:
+            if executor is not None:
+                executor.shutdown()
+            if node is not None:
+                try:
+                    if node.context.ok():
+                        node.shutdown_controller()
+                finally:
+                    node.destroy_node()
+        finally:
+            if rclpy.ok():
+                rclpy.shutdown()
+            for signum, handler in previous_handlers.items():
+                signal.signal(signum, handler)
     
 if __name__ == "__main__":
     main()
